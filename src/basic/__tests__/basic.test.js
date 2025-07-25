@@ -1,7 +1,7 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 
-describe('PRD 기반 상세 테스트', () => {
+describe('basic 테스트', () => {
   // 공통 헬퍼 함수
   const addItemsToCart = (sel, addBtn, productId, count) => {
     sel.value = productId;
