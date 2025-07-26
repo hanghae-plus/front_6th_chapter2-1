@@ -507,6 +507,89 @@ const ProductSelector = {
   },
 };
 
+const CartDisplay = {
+  renderCartItem: function (props) {
+    const { product, quantity = 1 } = props;
+
+    const itemElement = document.createElement("div");
+    itemElement.id = product.id;
+    itemElement.className =
+      "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
+
+    const getPriceDisplay = (product) => {
+      if (product.onSale || product.suggestSale) {
+        const colorClass =
+          product.onSale && product.suggestSale
+            ? "text-purple-600"
+            : product.onSale
+            ? "text-red-500"
+            : "text-blue-500";
+
+        return `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="${colorClass}">₩${product.val.toLocaleString()}</span>`;
+      }
+      return `₩${product.val.toLocaleString()}`;
+    };
+
+    const getProductNameDisplay = (product) => {
+      let prefix = "";
+      if (product.onSale && product.suggestSale) prefix = "⚡💝";
+      else if (product.onSale) prefix = "⚡";
+      else if (product.suggestSale) prefix = "💝";
+
+      return prefix + product.name;
+    };
+
+    itemElement.innerHTML = `
+      <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+      </div>
+      <div>
+        <h3 class="text-base font-normal mb-1 tracking-tight">${getProductNameDisplay(
+          product
+        )}</h3>
+        <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
+        <p class="text-xs text-black mb-3">${getPriceDisplay(product)}</p>
+        <div class="flex items-center gap-4">
+          <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
+            product.id
+          }" data-change="-1">−</button>
+          <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">${quantity}</span>
+          <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
+            product.id
+          }" data-change="1">+</button>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-lg mb-2 tracking-tight tabular-nums">${getPriceDisplay(
+          product
+        )}</div>
+        <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${
+          product.id
+        }">Remove</a>
+      </div>
+    `;
+
+    return itemElement;
+  },
+
+  addItem: function (props) {
+    const { product, containerElement, onUpdate } = props;
+    const existingItem = containerElement.querySelector(`#${product.id}`);
+
+    if (existingItem) {
+      const qtyElement = existingItem.querySelector(".quantity-number");
+      const newQuantity = parseInt(qtyElement.textContent) + 1;
+      qtyElement.textContent = newQuantity;
+    } else {
+      const newItem = this.renderCartItem({ product, quantity: 1 });
+      containerElement.appendChild(newItem);
+    }
+
+    product.q--;
+    if (onUpdate) onUpdate();
+  },
+};
+
 function onUpdateSelectOptions() {
   ProductSelector.render({
     products: productList,
@@ -878,71 +961,10 @@ addToCartButton.addEventListener("click", function () {
         alert("재고가 부족합니다.");
       }
     } else {
-      var newItem = document.createElement("div");
-      newItem.id = itemToAdd.id;
-      newItem.className =
-        "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
-      newItem.innerHTML = `
-        <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-          <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-        </div>
-        <div>
-          <h3 class="text-base font-normal mb-1 tracking-tight">${
-            itemToAdd.onSale && itemToAdd.suggestSale
-              ? "⚡💝"
-              : itemToAdd.onSale
-              ? "⚡"
-              : itemToAdd.suggestSale
-              ? "💝"
-              : ""
-          }${itemToAdd.name}</h3>
-          <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-          <p class="text-xs text-black mb-3">${
-            itemToAdd.onSale || itemToAdd.suggestSale
-              ? '<span class="line-through text-gray-400">₩' +
-                itemToAdd.originalVal.toLocaleString() +
-                '</span> <span class="' +
-                (itemToAdd.onSale && itemToAdd.suggestSale
-                  ? "text-purple-600"
-                  : itemToAdd.onSale
-                  ? "text-red-500"
-                  : "text-blue-500") +
-                '">₩' +
-                itemToAdd.val.toLocaleString() +
-                "</span>"
-              : "₩" + itemToAdd.val.toLocaleString()
-          }</p>
-          <div class="flex items-center gap-4">
-            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
-              itemToAdd.id
-            }" data-change="-1">−</button>
-            <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
-              itemToAdd.id
-            }" data-change="1">+</button>
-          </div>
-        </div>
-        <div class="text-right">
-          <div class="text-lg mb-2 tracking-tight tabular-nums">${
-            itemToAdd.onSale || itemToAdd.suggestSale
-              ? '<span class="line-through text-gray-400">₩' +
-                itemToAdd.originalVal.toLocaleString() +
-                '</span> <span class="' +
-                (itemToAdd.onSale && itemToAdd.suggestSale
-                  ? "text-purple-600"
-                  : itemToAdd.onSale
-                  ? "text-red-500"
-                  : "text-blue-500") +
-                '">₩' +
-                itemToAdd.val.toLocaleString() +
-                "</span>"
-              : "₩" + itemToAdd.val.toLocaleString()
-          }</div>
-          <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${
-            itemToAdd.id
-          }">Remove</a>
-        </div>
-      `;
+      const newItem = CartDisplay.renderCartItem({
+        product: itemToAdd,
+        quantity: 1,
+      });
       cartDisplayElement.appendChild(newItem);
       itemToAdd.q--;
     }
