@@ -6,6 +6,23 @@ const PRODUCTS = {
   SPEAKER: "p5",
 };
 
+const appState = {
+  productList: [],
+
+  totalAmount: 0,
+  totalItemCount: 0,
+  bonusPoints: 0,
+  lastSelectedProductId: null,
+
+  elements: {
+    productSelector: null,
+    addToCartButton: null,
+    cartDisplayElement: null,
+    stockInfoElement: null,
+    summaryElement: null,
+  },
+};
+
 let productList = [];
 let bonusPoints = 0;
 let stockInfoElement = null;
@@ -17,21 +34,8 @@ let totalAmount = 0;
 let cartDisplayElement = null;
 let summaryElement;
 
-function main() {
-  var root;
-  var header;
-  var gridContainer;
-  var leftColumn;
-  var selectorContainer;
-  var rightColumn;
-  var manualToggle;
-  var manualOverlay;
-  var manualColumn;
-  var lightningDelay;
-  totalAmount = 0;
-  totalItemCount = 0;
-  lastSelectedProductId = null;
-  productList = [
+const stateActions = {
+  initializeProducts: () => [
     {
       id: PRODUCTS.KEYBOARD,
       name: "버그 없애는 키보드",
@@ -77,43 +81,159 @@ function main() {
       onSale: false,
       suggestSale: false,
     },
-  ];
-  var root = document.getElementById("app");
-  header = document.createElement("div");
+  ],
+
+  updateState: (newState) => {
+    Object.assign(appState, newState);
+    productList = appState.productList;
+    totalAmount = appState.totalAmount;
+    totalItemCount = appState.totalItemCount;
+    bonusPoints = appState.bonusPoints;
+    lastSelectedProductId = appState.lastSelectedProductId;
+  },
+};
+
+const businessLogic = {
+  calculateItemDiscount: (productId, quantity) => {
+    if (quantity < 10) return 0;
+
+    const discountRates = {
+      [PRODUCTS.KEYBOARD]: 0.1,
+      [PRODUCTS.MOUSE]: 0.15,
+      [PRODUCTS.MONITOR_ARM]: 0.2,
+      [PRODUCTS.LAPTOP_POUCH]: 0.05,
+      [PRODUCTS.SPEAKER]: 0.25,
+    };
+
+    return discountRates[productId] || 0;
+  },
+
+  calculateTotalDiscount: (subtotal, totalItemCount, isTuesday) => {
+    let discountRate = 0;
+
+    if (totalItemCount >= 30) {
+      discountRate = 0.25;
+    }
+
+    if (isTuesday) {
+      discountRate = discountRate > 0 ? 1 - (1 - discountRate) * 0.9 : 0.1;
+    }
+
+    return discountRate;
+  },
+
+  calculatePoints: (finalAmount, isTuesday, cartItems, totalItemCount) => {
+    let basePoints = Math.floor(finalAmount / 1000);
+    let totalPoints = basePoints;
+    const details = [];
+
+    if (basePoints > 0) {
+      details.push(`기본: ${basePoints}p`);
+
+      if (isTuesday) {
+        totalPoints = basePoints * 2;
+        details.push("화요일 2배");
+      }
+    }
+
+    const hasKeyboard = cartItems.some((item) => item.id === PRODUCTS.KEYBOARD);
+    const hasMouse = cartItems.some((item) => item.id === PRODUCTS.MOUSE);
+    const hasMonitorArm = cartItems.some(
+      (item) => item.id === PRODUCTS.MONITOR_ARM
+    );
+
+    if (hasKeyboard && hasMouse) {
+      totalPoints += 50;
+      details.push("키보드+마우스 세트 +50p");
+    }
+
+    if (hasKeyboard && hasMouse && hasMonitorArm) {
+      totalPoints += 100;
+      details.push("풀세트 구매 +100p");
+    }
+
+    if (totalItemCount >= 30) {
+      totalPoints += 100;
+      details.push("대량구매(30개+) +100p");
+    } else if (totalItemCount >= 20) {
+      totalPoints += 50;
+      details.push("대량구매(20개+) +50p");
+    } else if (totalItemCount >= 10) {
+      totalPoints += 20;
+      details.push("대량구매(10개+) +20p");
+    }
+
+    return { points: totalPoints, details };
+  },
+};
+
+function initializeProductData() {
+  stateActions.updateState({
+    totalAmount: 0,
+    totalItemCount: 0,
+    lastSelectedProductId: null,
+    productList: stateActions.initializeProducts(),
+  });
+}
+
+function createHeader() {
+  const header = document.createElement("div");
   header.className = "mb-8";
   header.innerHTML = `
     <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
     <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
-  productSelector = document.createElement("select");
-  productSelector.id = "product-select";
-  gridContainer = document.createElement("div");
-  leftColumn = document.createElement("div");
-  leftColumn["className"] =
-    "bg-white border border-gray-200 p-8 overflow-y-auto";
-  selectorContainer = document.createElement("div");
+  return header;
+}
+
+function createLeftColumn() {
+  const leftColumn = document.createElement("div");
+  leftColumn.className = "bg-white border border-gray-200 p-8 overflow-y-auto";
+
+  const selectorContainer = document.createElement("div");
   selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
-  productSelector.className =
+
+  const productSelectorElement = document.createElement("select");
+  productSelectorElement.id = "product-select";
+  productSelectorElement.className =
     "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
-  gridContainer.className =
-    "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  addToCartButton = document.createElement("button");
-  stockInfoElement = document.createElement("div");
-  addToCartButton.id = "add-to-cart";
-  stockInfoElement.id = "stock-status";
-  stockInfoElement.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
-  addToCartButton.innerHTML = "Add to Cart";
-  addToCartButton.className =
+
+  const addToCartButtonElement = document.createElement("button");
+  addToCartButtonElement.id = "add-to-cart";
+  addToCartButtonElement.innerHTML = "Add to Cart";
+  addToCartButtonElement.className =
     "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
-  selectorContainer.appendChild(productSelector);
-  selectorContainer.appendChild(addToCartButton);
-  selectorContainer.appendChild(stockInfoElement);
+
+  const stockInfoElementCreated = document.createElement("div");
+  stockInfoElementCreated.id = "stock-status";
+  stockInfoElementCreated.className =
+    "text-xs text-red-500 mt-3 whitespace-pre-line";
+
+  const cartDisplayElementCreated = document.createElement("div");
+  cartDisplayElementCreated.id = "cart-items";
+
+  appState.elements.productSelector = productSelectorElement;
+  appState.elements.addToCartButton = addToCartButtonElement;
+  appState.elements.stockInfoElement = stockInfoElementCreated;
+  appState.elements.cartDisplayElement = cartDisplayElementCreated;
+
+  productSelector = productSelectorElement;
+  addToCartButton = addToCartButtonElement;
+  stockInfoElement = stockInfoElementCreated;
+  cartDisplayElement = cartDisplayElementCreated;
+
+  selectorContainer.appendChild(productSelectorElement);
+  selectorContainer.appendChild(addToCartButtonElement);
+  selectorContainer.appendChild(stockInfoElementCreated);
   leftColumn.appendChild(selectorContainer);
-  cartDisplayElement = document.createElement("div");
-  leftColumn.appendChild(cartDisplayElement);
-  cartDisplayElement.id = "cart-items";
-  rightColumn = document.createElement("div");
+  leftColumn.appendChild(cartDisplayElementCreated);
+
+  return leftColumn;
+}
+
+function createRightColumn() {
+  const rightColumn = document.createElement("div");
   rightColumn.className = "bg-black text-white p-8 flex flex-col";
   rightColumn.innerHTML = `
     <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
@@ -144,7 +264,32 @@ function main() {
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
-  summaryElement = rightColumn.querySelector("#cart-total");
+
+  const summaryElementCreated = rightColumn.querySelector("#cart-total");
+  appState.elements.summaryElement = summaryElementCreated;
+
+  summaryElement = summaryElementCreated;
+
+  return rightColumn;
+}
+
+function main() {
+  initializeProductData();
+
+  var gridContainer;
+  var manualToggle;
+  var manualOverlay;
+  var manualColumn;
+  var lightningDelay;
+
+  const root = document.getElementById("app");
+  const header = createHeader();
+  const leftColumn = createLeftColumn();
+  const rightColumn = createRightColumn();
+
+  gridContainer = document.createElement("div");
+  gridContainer.className =
+    "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
   manualToggle = document.createElement("button");
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle("hidden");
@@ -408,52 +553,32 @@ function handleCalculateCartStuff() {
           elem.style.fontWeight = q >= 10 ? "bold" : "normal";
         }
       });
-      if (q >= 10) {
-        if (curItem.id === PRODUCTS.KEYBOARD) {
-          discount = 10 / 100;
-        } else {
-          if (curItem.id === PRODUCTS.MOUSE) {
-            discount = 15 / 100;
-          } else {
-            if (curItem.id === PRODUCTS.MONITOR_ARM) {
-              discount = 20 / 100;
-            } else {
-              if (curItem.id === PRODUCTS.LAPTOP_POUCH) {
-                discount = 5 / 100;
-              } else {
-                if (curItem.id === PRODUCTS.SPEAKER) {
-                  discount = 25 / 100;
-                }
-              }
-            }
-          }
-        }
-        if (discount > 0) {
-          itemDiscounts.push({ name: curItem.name, discount: discount * 100 });
-        }
+
+      discount = businessLogic.calculateItemDiscount(curItem.id, q);
+      if (discount > 0) {
+        itemDiscounts.push({ name: curItem.name, discount: discount * 100 });
       }
       totalAmount += itemTotal * (1 - discount);
     })();
   }
-  let discRate = 0;
+
+  const today = new Date();
+  const isTuesday = today.getDay() === 2;
   originalTotal = subtotal;
+
   if (totalItemCount >= 30) {
     totalAmount = (subtotal * 75) / 100;
-    discRate = 25 / 100;
-  } else {
-    discRate = (subtotal - totalAmount) / subtotal;
   }
-  const today = new Date();
-  var isTuesday = today.getDay() === 2;
-  var tuesdaySpecial = document.getElementById("tuesday-special");
-  if (isTuesday) {
-    if (totalAmount > 0) {
-      totalAmount = (totalAmount * 90) / 100;
-      discRate = 1 - totalAmount / originalTotal;
-      tuesdaySpecial.classList.remove("hidden");
-    } else {
-      tuesdaySpecial.classList.add("hidden");
-    }
+
+  if (isTuesday && totalAmount > 0) {
+    totalAmount = (totalAmount * 90) / 100;
+  }
+
+  const discountRate = totalAmount > 0 ? 1 - totalAmount / originalTotal : 0;
+
+  const tuesdaySpecial = document.getElementById("tuesday-special");
+  if (isTuesday && totalAmount > 0) {
+    tuesdaySpecial.classList.remove("hidden");
   } else {
     tuesdaySpecial.classList.add("hidden");
   }
@@ -538,14 +663,14 @@ function handleCalculateCartStuff() {
   }
   discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
-  if (discRate > 0 && totalAmount > 0) {
+  if (discountRate > 0 && totalAmount > 0) {
     savedAmount = originalTotal - totalAmount;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
           <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
           <span class="text-sm font-medium text-green-400">${(
-            discRate * 100
+            discountRate * 100
           ).toFixed(1)}%</span>
         </div>
         <div class="text-2xs text-gray-300">₩${Math.round(
@@ -578,74 +703,31 @@ function handleCalculateCartStuff() {
   doRenderBonusPoints();
 }
 var doRenderBonusPoints = function () {
-  var basePoints;
-  var finalPoints;
-  var pointsDetail;
-  var hasKeyboard;
-  var hasMouse;
-  var hasMonitorArm;
-  var nodes;
   if (cartDisplayElement.children.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
   }
-  basePoints = Math.floor(totalAmount / 1000);
-  finalPoints = 0;
-  pointsDetail = [];
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push("기본: " + basePoints + "p");
-  }
-  if (new Date().getDay() === 2) {
-    if (basePoints > 0) {
-      finalPoints = basePoints * 2;
-      pointsDetail.push("화요일 2배");
-    }
-  }
-  hasKeyboard = false;
-  hasMouse = false;
-  hasMonitorArm = false;
-  nodes = cartDisplayElement.children;
-  for (const node of nodes) {
-    var product = null;
-    for (var pIdx = 0; pIdx < productList.length; pIdx++) {
-      if (productList[pIdx].id === node.id) {
-        product = productList[pIdx];
-        break;
+
+  const cartItems = Array.from(cartDisplayElement.children)
+    .map((node) => {
+      for (let pIdx = 0; pIdx < productList.length; pIdx++) {
+        if (productList[pIdx].id === node.id) {
+          return productList[pIdx];
+        }
       }
-    }
-    if (!product) continue;
-    if (product.id === PRODUCTS.KEYBOARD) {
-      hasKeyboard = true;
-    } else if (product.id === PRODUCTS.MOUSE) {
-      hasMouse = true;
-    } else if (product.id === PRODUCTS.MONITOR_ARM) {
-      hasMonitorArm = true;
-    }
-  }
-  if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push("키보드+마우스 세트 +50p");
-  }
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push("풀세트 구매 +100p");
-  }
-  if (totalItemCount >= 30) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push("대량구매(30개+) +100p");
-  } else {
-    if (totalItemCount >= 20) {
-      finalPoints = finalPoints + 50;
-      pointsDetail.push("대량구매(20개+) +50p");
-    } else {
-      if (totalItemCount >= 10) {
-        finalPoints = finalPoints + 20;
-        pointsDetail.push("대량구매(10개+) +20p");
-      }
-    }
-  }
-  bonusPoints = finalPoints;
+      return null;
+    })
+    .filter((item) => item !== null);
+
+  const isTuesday = new Date().getDay() === 2;
+  const pointsData = businessLogic.calculatePoints(
+    totalAmount,
+    isTuesday,
+    cartItems,
+    totalItemCount
+  );
+
+  bonusPoints = pointsData.points;
   var ptsTag = document.getElementById("loyalty-points");
   if (ptsTag) {
     if (bonusPoints > 0) {
@@ -654,7 +736,7 @@ var doRenderBonusPoints = function () {
         bonusPoints +
         "p</span></div>" +
         '<div class="text-2xs opacity-70 mt-1">' +
-        pointsDetail.join(", ") +
+        pointsData.details.join(", ") +
         "</div>";
       ptsTag.style.display = "block";
     } else {
