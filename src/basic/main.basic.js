@@ -338,10 +338,12 @@ function main() {
   gridContainer.className =
     "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
   manualToggle = document.createElement("button");
-  manualToggle.onclick = function () {
+  const handleManualToggle = () => {
     manualOverlay.classList.toggle("hidden");
     manualColumn.classList.toggle("translate-x-full");
   };
+
+  manualToggle.onclick = handleManualToggle;
   manualToggle.className =
     "fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
   manualToggle.innerHTML = `
@@ -352,12 +354,14 @@ function main() {
   manualOverlay = document.createElement("div");
   manualOverlay.className =
     "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
-  manualOverlay.onclick = function (e) {
+  const handleManualOverlayClick = (e) => {
     if (e.target === manualOverlay) {
       manualOverlay.classList.add("hidden");
       manualColumn.classList.add("translate-x-full");
     }
   };
+
+  manualOverlay.onclick = handleManualOverlayClick;
   manualColumn = document.createElement("div");
   manualColumn.className =
     "fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300";
@@ -489,7 +493,7 @@ function main() {
 }
 
 const ProductSelector = {
-  render: function (props) {
+  render: (props) => {
     const { products, containerElement } = props;
     let totalStock = 0;
 
@@ -563,7 +567,7 @@ const ProductSelector = {
 };
 
 const CartDisplay = {
-  renderCartItem: function (props) {
+  renderCartItem: (props) => {
     const { product, quantity = 1 } = props;
 
     const itemElement = document.createElement("div");
@@ -627,7 +631,7 @@ const CartDisplay = {
     return itemElement;
   },
 
-  addItem: function (props) {
+  addItem: (props) => {
     const { product, containerElement, onUpdate } = props;
     const existingItem = containerElement.querySelector(`#${product.id}`);
 
@@ -636,7 +640,7 @@ const CartDisplay = {
       const newQuantity = parseInt(qtyElement.textContent) + 1;
       qtyElement.textContent = newQuantity;
     } else {
-      const newItem = this.renderCartItem({ product, quantity: 1 });
+      const newItem = CartDisplay.renderCartItem({ product, quantity: 1 });
       containerElement.appendChild(newItem);
     }
 
@@ -646,7 +650,7 @@ const CartDisplay = {
 };
 
 const OrderSummary = {
-  render: function (props) {
+  render: (props) => {
     const {
       cartItems,
       products,
@@ -685,7 +689,7 @@ const OrderSummary = {
         </div>
       `;
 
-      this.renderDiscountInfo({
+      OrderSummary.renderDiscountInfo({
         containerElement,
         totalItemCount,
         itemDiscounts,
@@ -702,7 +706,7 @@ const OrderSummary = {
     }
   },
 
-  renderDiscountInfo: function (props) {
+  renderDiscountInfo: (props) => {
     const {
       containerElement,
       totalItemCount,
@@ -903,7 +907,7 @@ function handleCalculateCartStuff() {
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
-var doRenderBonusPoints = function () {
+const doRenderBonusPoints = () => {
   if (cartDisplayElement.children.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
@@ -956,10 +960,10 @@ function onGetStockTotal() {
   }
   return stockSum;
 }
-var handleStockInfoUpdate = function () {
-  var infoMsg;
-  var totalStock;
-  var messageOptimizer;
+const handleStockInfoUpdate = () => {
+  let infoMsg;
+  let totalStock;
+  let messageOptimizer;
   infoMsg = "";
   totalStock = onGetStockTotal();
   if (totalStock < 30) {
@@ -976,11 +980,12 @@ var handleStockInfoUpdate = function () {
   stockInfoElement.textContent = infoMsg;
 };
 function doUpdatePricesInCart() {
-  var totalCount = 0,
-    j = 0;
-  var cartItems;
+  let totalCount = 0;
+  let j = 0;
+  let cartItems;
   while (cartDisplayElement.children[j]) {
-    var qty = cartDisplayElement.children[j].querySelector(".quantity-number");
+    const qty =
+      cartDisplayElement.children[j].querySelector(".quantity-number");
     totalCount += qty ? parseInt(qty.textContent) : 0;
     j++;
   }
@@ -992,18 +997,18 @@ function doUpdatePricesInCart() {
     );
   }
   cartItems = cartDisplayElement.children;
-  for (var i = 0; i < cartItems.length; i++) {
-    var itemId = cartItems[i].id;
-    var product = null;
-    for (var productIdx = 0; productIdx < productList.length; productIdx++) {
+  for (let i = 0; i < cartItems.length; i++) {
+    const itemId = cartItems[i].id;
+    let product = null;
+    for (let productIdx = 0; productIdx < productList.length; productIdx++) {
       if (productList[productIdx].id === itemId) {
         product = productList[productIdx];
         break;
       }
     }
     if (product) {
-      var priceDiv = cartItems[i].querySelector(".text-lg");
-      var nameDiv = cartItems[i].querySelector("h3");
+      const priceDiv = cartItems[i].querySelector(".text-lg");
+      const nameDiv = cartItems[i].querySelector("h3");
       if (product.onSale && product.suggestSale) {
         priceDiv.innerHTML =
           '<span class="line-through text-gray-400">₩' +
@@ -1038,18 +1043,18 @@ function doUpdatePricesInCart() {
 }
 
 const productUtils = {
-  findById: function (productId, products = productList) {
+  findById: (productId, products = productList) => {
     return products.find((product) => product.id === productId) || null;
   },
 
-  isValid: function (productId, products = productList) {
+  isValid: (productId, products = productList) => {
     if (!productId) return false;
     return products.some((product) => product.id === productId);
   },
 };
 
 const cartUtils = {
-  updateItemQuantity: function (product, existingItem) {
+  updateItemQuantity: (product, existingItem) => {
     const qtyElement = existingItem.querySelector(".quantity-number");
     const currentQty = parseInt(qtyElement.textContent);
     const newQty = currentQty + 1;
@@ -1064,7 +1069,7 @@ const cartUtils = {
     }
   },
 
-  addNewItem: function (product, containerElement) {
+  addNewItem: (product, containerElement) => {
     const newItem = CartDisplay.renderCartItem({
       product: product,
       quantity: 1,
@@ -1073,7 +1078,7 @@ const cartUtils = {
     product.q--;
   },
 
-  changeItemQuantity: function (product, itemElement, quantityChange) {
+  changeItemQuantity: (product, itemElement, quantityChange) => {
     const qtyElement = itemElement.querySelector(".quantity-number");
     const currentQty = parseInt(qtyElement.textContent);
     const newQty = currentQty + quantityChange;
@@ -1092,7 +1097,7 @@ const cartUtils = {
     }
   },
 
-  removeItem: function (product, itemElement) {
+  removeItem: (product, itemElement) => {
     const qtyElement = itemElement.querySelector(".quantity-number");
     const removedQty = parseInt(qtyElement.textContent);
     product.q += removedQty;
@@ -1102,7 +1107,7 @@ const cartUtils = {
 
 main();
 
-addToCartButton.addEventListener("click", function () {
+const handleAddToCart = () => {
   const selectedProductId = productSelector.value;
 
   if (!productUtils.isValid(selectedProductId)) {
@@ -1123,8 +1128,10 @@ addToCartButton.addEventListener("click", function () {
     handleCalculateCartStuff();
     lastSelectedProductId = selectedProductId;
   }
-});
-cartDisplayElement.addEventListener("click", function (event) {
+};
+
+addToCartButton.addEventListener("click", handleAddToCart);
+const handleCartDisplayClick = (event) => {
   const target = event.target;
 
   if (
@@ -1147,4 +1154,6 @@ cartDisplayElement.addEventListener("click", function (event) {
     handleCalculateCartStuff();
     onUpdateSelectOptions();
   }
-});
+};
+
+cartDisplayElement.addEventListener("click", handleCartDisplayClick);
