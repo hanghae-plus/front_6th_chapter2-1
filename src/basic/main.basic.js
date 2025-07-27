@@ -2,6 +2,7 @@ import {
   GridContainer,
   LeftColumn,
   SelectorContainer,
+  ProductSelector,
   RightColumn,
   ManualToggle,
   ManualOverlay,
@@ -22,7 +23,8 @@ let bonusPts = 0;
 let stockInfo;
 let itemCnt;
 let lastSel;
-let sel;
+// let sel;
+let productSelector;
 let addBtn;
 let totalAmt = 0;
 let cartDisp;
@@ -51,10 +53,11 @@ function main() {
   manualToggle = ManualToggle();
   manualOverlay = ManualOverlay();
   manualColumn = ManualColumn();
+  productSelector = ProductSelector();
 
-  sel = document.createElement("select");
-  sel.id = "product-select";
-  sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
+  // sel = document.createElement("select");
+  // sel.id = "product-select";
+  // sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
   addBtn = document.createElement("button");
   stockInfo = document.createElement("div");
   addBtn.id = "add-to-cart";
@@ -63,7 +66,7 @@ function main() {
   addBtn.innerHTML = "Add to Cart";
   addBtn.className =
     "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
-  selectorContainer.appendChild(sel);
+  selectorContainer.appendChild(productSelector);
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
@@ -144,7 +147,7 @@ function onUpdateSelectOptions() {
   let totalStock;
   let opt;
   let discountText;
-  sel.innerHTML = "";
+  productSelector.innerHTML = "";
   totalStock = 0;
   for (let idx = 0; idx < prodList.length; idx++) {
     const _p = prodList[idx];
@@ -198,13 +201,13 @@ function onUpdateSelectOptions() {
           opt.textContent = item.name + " - " + item.val + "원" + discountText;
         }
       }
-      sel.appendChild(opt);
+      productSelector.appendChild(opt);
     })();
   }
   if (totalStock < 50) {
-    sel.style.borderColor = "orange";
+    productSelector.style.borderColor = "orange";
   } else {
-    sel.style.borderColor = "";
+    productSelector.style.borderColor = "";
   }
 }
 function handleCalculateCartStuff() {
@@ -611,7 +614,7 @@ function doUpdatePricesInCart() {
 }
 main();
 addBtn.addEventListener("click", function () {
-  const selItem = sel.value;
+  const selItem = productSelector.value;
   let hasItem = false;
   for (let idx = 0; idx < prodList.length; idx++) {
     if (prodList[idx].id === selItem) {
