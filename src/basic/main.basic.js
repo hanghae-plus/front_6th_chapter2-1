@@ -9,215 +9,8 @@ let sel;
 let addBtn;
 let totalAmt = 0;
 let cartDisp;
-
-function main() {
-	var root;
-	let gridContainer;
-	let leftColumn;
-	let selectorContainer;
-	let rightColumn;
-	let manualToggle;
-	let manualOverlay;
-	let manualColumn;
-	let lightningDelay;
-	totalAmt = 0;
-	itemCnt = 0;
-	lastSel = null;
-
-	var root = document.getElementById("app");
-	sel = document.createElement("select");
-	sel.id = "product-select";
-	gridContainer = document.createElement("div");
-	leftColumn = document.createElement("div");
-	leftColumn["className"] = "bg-white border border-gray-200 p-8 overflow-y-auto";
-	selectorContainer = document.createElement("div");
-	selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
-	sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
-	gridContainer.className =
-		"grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-	addBtn = document.createElement("button");
-	stockInfo = document.createElement("div");
-	addBtn.id = "add-to-cart";
-	stockInfo.id = "stock-status";
-	stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
-	addBtn.innerHTML = "Add to Cart";
-	addBtn.className =
-		"w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
-	selectorContainer.appendChild(sel);
-	selectorContainer.appendChild(addBtn);
-	selectorContainer.appendChild(stockInfo);
-	leftColumn.appendChild(selectorContainer);
-	cartDisp = document.createElement("div");
-	leftColumn.appendChild(cartDisp);
-	cartDisp.id = "cart-items";
-	rightColumn = document.createElement("div");
-	rightColumn.className = "bg-black text-white p-8 flex flex-col";
-	rightColumn.innerHTML = `
-    <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
-    <div class="flex-1 flex flex-col">
-      <div id="summary-details" class="space-y-3"></div>
-      <div class="mt-auto">
-        <div id="discount-info" class="mb-4"></div>
-        <div id="cart-total" class="pt-5 border-t border-white/10">
-          <div class="flex justify-between items-baseline">
-            <span class="text-sm uppercase tracking-wider">Total</span>
-            <div class="text-2xl tracking-tight">₩0</div>
-          </div>
-          <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
-        </div>
-        <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
-          <div class="flex items-center gap-2">
-            <span class="text-2xs">🎉</span>
-            <span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button class="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">
-      Proceed to Checkout
-    </button>
-    <p class="mt-4 text-2xs text-white/60 text-center leading-relaxed">
-      Free shipping on all orders.<br>
-      <span id="points-notice">Earn loyalty points with purchase.</span>
-    </p>
-  `;
-	sum = rightColumn.querySelector("#cart-total");
-	manualToggle = document.createElement("button");
-	manualToggle.onclick = function () {
-		manualOverlay.classList.toggle("hidden");
-		manualColumn.classList.toggle("translate-x-full");
-	};
-	manualToggle.className =
-		"fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
-	manualToggle.innerHTML = `
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-  `;
-	manualOverlay = document.createElement("div");
-	manualOverlay.className = "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
-	manualOverlay.onclick = function (e) {
-		if (e.target === manualOverlay) {
-			manualOverlay.classList.add("hidden");
-			manualColumn.classList.add("translate-x-full");
-		}
-	};
-	manualColumn = document.createElement("div");
-	manualColumn.className =
-		"fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300";
-	manualColumn.innerHTML = `
-    <button class="absolute top-4 right-4 text-gray-500 hover:text-black" onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-    <h2 class="text-xl font-bold mb-4">📖 이용 안내</h2>
-    <div class="mb-6">
-      <h3 class="text-base font-bold mb-3">💰 할인 정책</h3>
-      <div class="space-y-3">
-        <div class="bg-gray-100 rounded-lg p-3">
-          <p class="font-semibold text-sm mb-1">개별 상품</p>
-          <p class="text-gray-700 text-xs pl-2">
-            • 키보드 10개↑: 10%<br>
-            • 마우스 10개↑: 15%<br>
-            • 모니터암 10개↑: 20%<br>
-            • 스피커 10개↑: 25%
-          </p>
-        </div>
-        <div class="bg-gray-100 rounded-lg p-3">
-          <p class="font-semibold text-sm mb-1">전체 수량</p>
-          <p class="text-gray-700 text-xs pl-2">• 30개 이상: 25%</p>
-        </div>
-        <div class="bg-gray-100 rounded-lg p-3">
-          <p class="font-semibold text-sm mb-1">특별 할인</p>
-          <p class="text-gray-700 text-xs pl-2">
-            • 화요일: +10%<br>
-            • ⚡번개세일: 20%<br>
-            • 💝추천할인: 5%
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="mb-6">
-      <h3 class="text-base font-bold mb-3">🎁 포인트 적립</h3>
-      <div class="space-y-3">
-        <div class="bg-gray-100 rounded-lg p-3">
-          <p class="font-semibold text-sm mb-1">기본</p>
-          <p class="text-gray-700 text-xs pl-2">• 구매액의 0.1%</p>
-        </div>
-        <div class="bg-gray-100 rounded-lg p-3">
-          <p class="font-semibold text-sm mb-1">추가</p>
-          <p class="text-gray-700 text-xs pl-2">
-            • 화요일: 2배<br>
-            • 키보드+마우스: +50p<br>
-            • 풀세트: +100p<br>
-            • 10개↑: +20p / 20개↑: +50p / 30개↑: +100p
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="border-t border-gray-200 pt-4 mt-4">
-      <p class="text-xs font-bold mb-1">💡 TIP</p>
-      <p class="text-2xs text-gray-600 leading-relaxed">
-        • 화요일 대량구매 = MAX 혜택<br>
-        • ⚡+💝 중복 가능<br>
-        • 상품4 = 품절
-      </p>
-    </div>
-  `;
-	gridContainer.appendChild(leftColumn);
-	gridContainer.appendChild(rightColumn);
-	manualOverlay.appendChild(manualColumn);
-	root.innerHTML = Header();
-	root.appendChild(gridContainer);
-	root.appendChild(manualToggle);
-	root.appendChild(manualOverlay);
-	let initStock = 0;
-	for (let i = 0; i < products.length; i++) {
-		initStock += products[i].q;
-	}
-	onUpdateSelectOptions();
-	handleCalculateCartStuff();
-	lightningDelay = Math.random() * 10000;
-	setTimeout(() => {
-		setInterval(function () {
-			const luckyIdx = Math.floor(Math.random() * products.length);
-			const luckyItem = products[luckyIdx];
-			if (luckyItem.q > 0 && !luckyItem.onSale) {
-				luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
-				luckyItem.onSale = true;
-				alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
-				onUpdateSelectOptions();
-				doUpdatePricesInCart();
-			}
-		}, 30000);
-	}, lightningDelay);
-	setTimeout(function () {
-		setInterval(function () {
-			if (lastSel) {
-				let suggest = null;
-				for (let k = 0; k < products.length; k++) {
-					if (products[k].id !== lastSel) {
-						if (products[k].q > 0) {
-							if (!products[k].suggestSale) {
-								suggest = products[k];
-								break;
-							}
-						}
-					}
-				}
-				if (suggest) {
-					alert(`💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
-					suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
-					suggest.suggestSale = true;
-					onUpdateSelectOptions();
-					doUpdatePricesInCart();
-				}
-			}
-		}, 60000);
-	}, Math.random() * 20000);
-}
 let sum;
+
 function onUpdateSelectOptions() {
 	let totalStock;
 	let opt;
@@ -263,6 +56,7 @@ function onUpdateSelectOptions() {
 		sel.style.borderColor = "";
 	}
 }
+
 function handleCalculateCartStuff() {
 	let cartItems;
 	let subTot;
@@ -472,6 +266,7 @@ function handleCalculateCartStuff() {
 	handleStockInfoUpdate();
 	doRenderBonusPoints();
 }
+
 var doRenderBonusPoints = function () {
 	let basePoints;
 	let finalPoints;
@@ -554,6 +349,7 @@ var doRenderBonusPoints = function () {
 		}
 	}
 };
+
 function onGetStockTotal() {
 	let sum;
 	let i;
@@ -565,6 +361,7 @@ function onGetStockTotal() {
 	}
 	return sum;
 }
+
 var handleStockInfoUpdate = function () {
 	let infoMsg = "";
 	const totalStock = onGetStockTotal();
@@ -580,6 +377,7 @@ var handleStockInfoUpdate = function () {
 	});
 	stockInfo.textContent = infoMsg;
 };
+
 function doUpdatePricesInCart() {
 	const cartItems = cartDisp.children;
 	for (let i = 0; i < cartItems.length; i++) {
@@ -611,7 +409,242 @@ function doUpdatePricesInCart() {
 	}
 	handleCalculateCartStuff();
 }
+
+function main() {
+	const root = document.getElementById("app");
+
+	// selectorContainer
+	const selectorContainer = document.createElement("div");
+	selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
+
+	sel = document.createElement("select");
+	sel.id = "product-select";
+	sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
+
+	addBtn = document.createElement("button");
+	addBtn.id = "add-to-cart";
+	addBtn.innerHTML = "Add to Cart";
+	addBtn.className =
+		"w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
+
+	stockInfo = document.createElement("div");
+	stockInfo.id = "stock-status";
+	stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
+
+	selectorContainer.appendChild(sel);
+	selectorContainer.appendChild(addBtn);
+	selectorContainer.appendChild(stockInfo);
+
+	// leftColumn
+	const leftColumn = document.createElement("div");
+	leftColumn["className"] = "bg-white border border-gray-200 p-8 overflow-y-auto";
+	leftColumn.appendChild(selectorContainer);
+
+	cartDisp = document.createElement("div");
+	cartDisp.id = "cart-items";
+
+	leftColumn.appendChild(cartDisp);
+
+	// rightColumn
+	const rightColumn = document.createElement("div");
+	rightColumn.className = "bg-black text-white p-8 flex flex-col";
+	rightColumn.innerHTML = /* HTML */ `
+		<h2 class="tracking-extra-wide mb-5 text-xs font-medium uppercase">Order Summary</h2>
+		<div class="flex flex-1 flex-col">
+			<div id="summary-details" class="space-y-3"></div>
+			<div class="mt-auto">
+				<div id="discount-info" class="mb-4"></div>
+				<div id="cart-total" class="border-t border-white/10 pt-5">
+					<div class="flex items-baseline justify-between">
+						<span class="text-sm uppercase tracking-wider">Total</span>
+						<div class="text-2xl tracking-tight">₩0</div>
+					</div>
+					<div id="loyalty-points" class="mt-2 text-right text-xs text-blue-400">
+						적립 포인트: 0p
+					</div>
+				</div>
+				<div id="tuesday-special" class="mt-4 hidden rounded-lg bg-white/10 p-3">
+					<div class="flex items-center gap-2">
+						<span class="text-2xs">🎉</span>
+						<span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<button
+			class="tracking-super-wide mt-6 w-full cursor-pointer bg-white py-4 text-sm font-normal uppercase text-black transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30"
+		>
+			Proceed to Checkout
+		</button>
+		<p class="text-2xs mt-4 text-center leading-relaxed text-white/60">
+			Free shipping on all orders.<br />
+			<span id="points-notice">Earn loyalty points with purchase.</span>
+		</p>
+	`;
+
+	sum = rightColumn.querySelector("#cart-total");
+
+	// manual
+	const manualToggle = document.createElement("button");
+
+	manualToggle.onclick = function () {
+		manualOverlay.classList.toggle("hidden");
+		manualColumn.classList.toggle("translate-x-full");
+	};
+
+	manualToggle.className =
+		"fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
+	manualToggle.innerHTML = `
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+  `;
+
+	const manualOverlay = document.createElement("div");
+	manualOverlay.className = "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
+	manualOverlay.onclick = function (e) {
+		if (e.target === manualOverlay) {
+			manualOverlay.classList.add("hidden");
+			manualColumn.classList.add("translate-x-full");
+		}
+	};
+
+	const manualColumn = document.createElement("div");
+	manualColumn.className =
+		"fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300";
+	manualColumn.innerHTML = /* HTML */ `
+		<button
+			class="absolute right-4 top-4 text-gray-500 hover:text-black"
+			onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')"
+		>
+			<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M6 18L18 6M6 6l12 12"
+				></path>
+			</svg>
+		</button>
+		<h2 class="mb-4 text-xl font-bold">📖 이용 안내</h2>
+		<div class="mb-6">
+			<h3 class="mb-3 text-base font-bold">💰 할인 정책</h3>
+			<div class="space-y-3">
+				<div class="rounded-lg bg-gray-100 p-3">
+					<p class="mb-1 text-sm font-semibold">개별 상품</p>
+					<p class="pl-2 text-xs text-gray-700">
+						• 키보드 10개↑: 10%<br />
+						• 마우스 10개↑: 15%<br />
+						• 모니터암 10개↑: 20%<br />
+						• 스피커 10개↑: 25%
+					</p>
+				</div>
+				<div class="rounded-lg bg-gray-100 p-3">
+					<p class="mb-1 text-sm font-semibold">전체 수량</p>
+					<p class="pl-2 text-xs text-gray-700">• 30개 이상: 25%</p>
+				</div>
+				<div class="rounded-lg bg-gray-100 p-3">
+					<p class="mb-1 text-sm font-semibold">특별 할인</p>
+					<p class="pl-2 text-xs text-gray-700">
+						• 화요일: +10%<br />
+						• ⚡번개세일: 20%<br />
+						• 💝추천할인: 5%
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="mb-6">
+			<h3 class="mb-3 text-base font-bold">🎁 포인트 적립</h3>
+			<div class="space-y-3">
+				<div class="rounded-lg bg-gray-100 p-3">
+					<p class="mb-1 text-sm font-semibold">기본</p>
+					<p class="pl-2 text-xs text-gray-700">• 구매액의 0.1%</p>
+				</div>
+				<div class="rounded-lg bg-gray-100 p-3">
+					<p class="mb-1 text-sm font-semibold">추가</p>
+					<p class="pl-2 text-xs text-gray-700">
+						• 화요일: 2배<br />
+						• 키보드+마우스: +50p<br />
+						• 풀세트: +100p<br />
+						• 10개↑: +20p / 20개↑: +50p / 30개↑: +100p
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="mt-4 border-t border-gray-200 pt-4">
+			<p class="mb-1 text-xs font-bold">💡 TIP</p>
+			<p class="text-2xs leading-relaxed text-gray-600">
+				• 화요일 대량구매 = MAX 혜택<br />
+				• ⚡+💝 중복 가능<br />
+				• 상품4 = 품절
+			</p>
+		</div>
+	`;
+
+	manualOverlay.appendChild(manualColumn);
+
+	// gridContainer
+	const gridContainer = document.createElement("div");
+	gridContainer.className =
+		"grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
+	gridContainer.appendChild(leftColumn);
+	gridContainer.appendChild(rightColumn);
+
+	totalAmt = 0;
+	itemCnt = 0;
+	lastSel = null;
+
+	root.innerHTML = Header();
+	root.appendChild(gridContainer);
+	root.appendChild(manualToggle);
+	root.appendChild(manualOverlay);
+
+	onUpdateSelectOptions();
+	handleCalculateCartStuff();
+
+	const lightningDelay = Math.random() * 10000;
+	setTimeout(() => {
+		setInterval(function () {
+			const luckyIdx = Math.floor(Math.random() * products.length);
+			const luckyItem = products[luckyIdx];
+			if (luckyItem.q > 0 && !luckyItem.onSale) {
+				luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
+				luckyItem.onSale = true;
+				alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
+				onUpdateSelectOptions();
+				doUpdatePricesInCart();
+			}
+		}, 30000);
+	}, lightningDelay);
+
+	setTimeout(function () {
+		setInterval(function () {
+			if (lastSel) {
+				let suggest = null;
+				for (let k = 0; k < products.length; k++) {
+					if (products[k].id !== lastSel) {
+						if (products[k].q > 0) {
+							if (!products[k].suggestSale) {
+								suggest = products[k];
+								break;
+							}
+						}
+					}
+				}
+				if (suggest) {
+					alert(`💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
+					suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
+					suggest.suggestSale = true;
+					onUpdateSelectOptions();
+					doUpdatePricesInCart();
+				}
+			}
+		}, 60000);
+	}, Math.random() * 20000);
+}
+
 main();
+
 addBtn.addEventListener("click", function () {
 	const selItem = sel.value;
 	let hasItem = false;
@@ -673,6 +706,7 @@ addBtn.addEventListener("click", function () {
 		lastSel = selItem;
 	}
 });
+
 cartDisp.addEventListener("click", function (event) {
 	const tgt = event.target;
 	if (tgt.classList.contains("quantity-change") || tgt.classList.contains("remove-item")) {
