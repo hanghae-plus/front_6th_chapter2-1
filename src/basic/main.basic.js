@@ -16,6 +16,8 @@ import {
   TIMERS,
 } from "./constants/index.js";
 
+import { createHeader, updateHeaderItemCount } from "./components/index.js";
+
 let prodList;
 let bonusPts = 0;
 let stockInfo;
@@ -25,6 +27,7 @@ let sel;
 let addBtn;
 let totalAmt = 0;
 let cartDisp;
+let header;
 function main() {
   const root = document.getElementById("app");
   totalAmt = 0;
@@ -77,13 +80,7 @@ function main() {
       suggestSale: false,
     },
   ];
-  const header = document.createElement("div");
-  header.className = "mb-8";
-  header.innerHTML = `
-    <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
-    <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-    <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
-  `;
+  header = createHeader({ itemCount: 0 });
   sel = document.createElement("select");
   sel.id = "product-select";
   const gridContainer = document.createElement("div");
@@ -465,8 +462,7 @@ function handleCalculateCartStuff() {
   } else {
     tuesdaySpecial.classList.add("hidden");
   }
-  document.getElementById("item-count").textContent =
-    "🛍️ " + itemCnt + " items in cart";
+  updateHeaderItemCount(header, itemCnt);
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
