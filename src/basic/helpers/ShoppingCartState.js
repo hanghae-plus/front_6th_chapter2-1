@@ -1,5 +1,5 @@
-import { StockCalculator } from '../calculations/StockCalculator.js';
 import { getProductList } from '../constants/Products.js';
+import { StockCalculator } from './StockCalculator.js';
 
 export class ShoppingCartState {
   constructor() {

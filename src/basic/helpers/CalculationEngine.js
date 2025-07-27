@@ -1,6 +1,6 @@
-import { DiscountEngine } from '../calculations/DiscountEngine.js';
-import { PointsCalculator } from '../calculations/PointsCalculator.js';
-import { PriceCalculator } from '../calculations/PriceCalculator.js';
+import { DiscountEngine } from './DiscountEngine.js';
+import { PointsCalculator } from './PointsCalculator.js';
+import { PriceCalculator } from './PriceCalculator.js';
 
 export class CalculationEngine {
   constructor(state) {

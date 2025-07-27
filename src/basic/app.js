@@ -1,9 +1,9 @@
 import { DOMManager } from './core/DomManager.js';
 import { EventManager } from './core/EventManager.js';
 import { UIUpdater } from './core/UIUpdater.js';
-import { CalculationEngine } from './engines/CalculationEngine.js';
-import { PromotionManager } from './feature/PromotionManager.js';
-import { ShoppingCartState } from './store/ShoppingCartState.js';
+import { CalculationEngine } from './helpers/CalculationEngine.js';
+import { PromotionManager } from './helpers/PromotionManager.js';
+import { ShoppingCartState } from './helpers/ShoppingCartState.js';
 
 export class BootstrapApplication {
   constructor() {

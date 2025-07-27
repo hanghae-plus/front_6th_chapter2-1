@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { PointsCalculator } from '../calculations/PointsCalculator.js';
+import { PointsCalculator } from '../helpers/PointsCalculator.js';
 
 describe('PointsCalculator', () => {
   describe('calculateBasePoints', () => {

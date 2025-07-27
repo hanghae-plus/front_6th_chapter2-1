@@ -3,11 +3,7 @@
  */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import {
-  DISCOUNT_POLICIES,
-  DISCOUNT_TYPES,
-  DiscountEngine,
-} from '../calculations/DiscountEngine.js';
+import { DISCOUNT_POLICIES, DISCOUNT_TYPES, DiscountEngine } from '../helpers/DiscountEngine.js';
 
 describe('DiscountEngine', () => {
   let mockCart;

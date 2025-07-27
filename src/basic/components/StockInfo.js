@@ -6,7 +6,7 @@
  * 재사용 가능하고 일관된 재고 정보 표시 시스템으로 구현
  */
 
-import { StockCalculator } from '../calculations/StockCalculator.js';
+import { StockCalculator } from '../helpers/StockCalculator.js';
 
 /**
  * @typedef {Object} StockInfoOptions

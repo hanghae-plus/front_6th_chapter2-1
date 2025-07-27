@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { PriceCalculator } from '../calculations/PriceCalculator.js';
+import { PriceCalculator } from '../helpers/PriceCalculator.js';
 
 describe('PriceCalculator', () => {
   describe('calculateSubtotal', () => {
