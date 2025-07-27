@@ -12,6 +12,8 @@ import { PriceCalculator } from './calculations/PriceCalculator.js';
 import { DiscountEngine } from './calculations/DiscountEngine.js';
 // 포인트 계산 엔진 import
 import { PointsCalculator } from './calculations/PointsCalculator.js';
+// 재고 계산 엔진 import
+import { StockCalculator } from './calculations/StockCalculator.js';
 
 let prodList;
 let bonusPts = 0;
@@ -533,19 +535,9 @@ function handleCalculateCartStuff() {
     }
   }
 
-  stockMsg = '';
-  for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
-    const item = prodList[stockIdx];
-    if (item.q < 5) {
-      if (item.q > 0) {
-        stockMsg = stockMsg + item.name + ': 재고 부족 (' + item.q + '개 남음)\n';
-      } else {
-        stockMsg = stockMsg + item.name + ': 품절\n';
-      }
-    }
-  }
-  stockInfo.textContent = stockMsg;
-  handleStockInfoUpdate();
+  // StockCalculator를 사용하여 재고 경고 메시지 생성
+  const stockWarnings = StockCalculator.generateStockWarnings(prodList);
+  stockInfo.textContent = stockWarnings.summary;
   doRenderBonusPoints();
 }
 var doRenderBonusPoints = function () {
@@ -604,34 +596,16 @@ var doRenderBonusPoints = function () {
   }
 };
 function onGetStockTotal() {
-  let sum;
-  let i;
-  let currentProduct;
-  sum = 0;
-  for (i = 0; i < prodList.length; i++) {
-    currentProduct = prodList[i];
-    sum += currentProduct.q;
-  }
-  return sum;
+  // StockCalculator를 사용하여 전체 재고 통계 계산
+  const stockSummary = StockCalculator.getStockSummary(prodList);
+  return stockSummary.totalStock;
 }
-var handleStockInfoUpdate = function () {
-  let infoMsg;
-  let totalStock;
-  let messageOptimizer;
-  infoMsg = '';
-  totalStock = onGetStockTotal();
-  if (totalStock < 30) {
-  }
-  prodList.forEach(function (item) {
-    if (item.q < 5) {
-      if (item.q > 0) {
-        infoMsg = infoMsg + item.name + ': 재고 부족 (' + item.q + '개 남음)\n';
-      } else {
-        infoMsg = infoMsg + item.name + ': 품절\n';
-      }
-    }
-  });
-  stockInfo.textContent = infoMsg;
+let handleStockInfoUpdate = function () {
+  // StockCalculator를 사용하여 재고 경고 메시지 생성
+  const stockWarnings = StockCalculator.generateStockWarnings(prodList);
+
+  // DOM 업데이트 (UI 조작만 유지)
+  stockInfo.textContent = stockWarnings.summary;
 };
 function doUpdatePricesInCart() {
   let totalCount = 0,
