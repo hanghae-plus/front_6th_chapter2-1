@@ -1,12 +1,6 @@
 // Products 상수 import
 import { getProductList, PRODUCT_IDS } from './constants/Products.js';
 // 할인 정책 import
-import {
-  calculateBulkDiscount,
-  calculateFinalDiscount,
-  calculateTuesdayDiscount,
-  SPECIAL_DISCOUNTS,
-} from './constants/DiscountPolicies.js';
 
 // 포인트 정책 import
 import {
@@ -17,6 +11,9 @@ import {
 } from './constants/PointsPolicies.js';
 // UI 상수 import
 import { ALERT_UI, formatMessage, generateManualHTML } from './constants/UIConstants.js';
+
+// 가격 계산 엔진 import
+import { PriceCalculator } from './calculations/PriceCalculator.js';
 
 let prodList;
 let bonusPts = 0;
@@ -255,7 +252,7 @@ function handleCalculateCartStuff() {
   let itemDiscounts;
   let lowStockItems;
   let idx;
-  var originalTotal;
+  let originalTotal;
   let bulkDisc;
   let itemDisc;
   let savedAmount;
@@ -271,98 +268,86 @@ function handleCalculateCartStuff() {
   let hasP1;
   let hasP2;
   let loyaltyDiv;
+
+  // DOM에서 장바구니 데이터 추출 및 PriceCalculator 형식으로 변환
+  cartItems = cartDisp.children;
+  const priceCalculatorItems = [];
+
+  // 전역 변수 초기화
   totalAmt = 0;
   itemCnt = 0;
-  originalTotal = totalAmt;
-  cartItems = cartDisp.children;
-  subTot = 0;
-  bulkDisc = subTot;
-  itemDiscounts = [];
+
+  // 재고 부족 상품 체크 (기존 로직 유지)
   lowStockItems = [];
   for (idx = 0; idx < prodList.length; idx++) {
     if (prodList[idx].q < 5 && prodList[idx].q > 0) {
       lowStockItems.push(prodList[idx].name);
     }
   }
+
+  // DOM에서 장바구니 아이템 추출하여 PriceCalculator 형식으로 변환
   for (let i = 0; i < cartItems.length; i++) {
-    (function () {
-      let curItem;
-      for (let j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
-          break;
-        }
+    let curItem;
+    for (let j = 0; j < prodList.length; j++) {
+      if (prodList[j].id === cartItems[i].id) {
+        curItem = prodList[j];
+        break;
       }
-      const qtyElem = cartItems[i].querySelector('.quantity-number');
-      let q;
-      let itemTot;
-      let disc;
-      q = parseInt(qtyElem.textContent);
-      itemTot = curItem.val * q;
-      disc = 0;
-      itemCnt += q;
-      subTot += itemTot;
-      const itemDiv = cartItems[i];
-      const priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
-      priceElems.forEach(function (elem) {
-        if (elem.classList.contains('text-lg')) {
-          elem.style.fontWeight = q >= 10 ? 'bold' : 'normal';
-        }
-      });
-      if (q >= 10) {
-        // DiscountPolicies.js의 개별 할인 계산 사용
-        const discountInfo = calculateFinalDiscount({
-          productId: curItem.id,
-          quantity: q,
-          totalQuantity: 0, // 개별 할인 단계에서는 총 수량 무시 (나중에 bulk discount에서 처리)
-          date: new Date(),
-        });
-
-        // 개별 할인만 적용 (bulk discount는 나중에 별도 처리)
-        if (discountInfo.baseDiscount > 0) {
-          disc = discountInfo.baseDiscount;
-        } else {
-          disc = 0;
-        }
-
-        if (disc > 0) {
-          itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
-        }
-      }
-      totalAmt += itemTot * (1 - disc);
-    })();
-  }
-  let discRate = 0;
-  var originalTotal = subTot;
-
-  // DiscountPolicies.js의 대량구매 할인 계산 사용
-  const bulkDiscountRate = calculateBulkDiscount(itemCnt);
-  if (bulkDiscountRate > 0) {
-    totalAmt = subTot * (1 - bulkDiscountRate);
-    discRate = bulkDiscountRate;
-  } else {
-    discRate = (subTot - totalAmt) / subTot;
-  }
-  const today = new Date();
-  const isTuesday = today.getDay() === 2;
-  const tuesdaySpecial = document.getElementById('tuesday-special');
-
-  // DiscountPolicies.js의 화요일 할인 계산 사용
-  const tuesdayDiscountRate = calculateTuesdayDiscount(today);
-  if (tuesdayDiscountRate > 0) {
-    if (totalAmt > 0) {
-      totalAmt = totalAmt * (1 - tuesdayDiscountRate);
-      discRate = 1 - totalAmt / originalTotal;
-      tuesdaySpecial.classList.remove('hidden');
-    } else {
-      tuesdaySpecial.classList.add('hidden');
     }
+
+    const qtyElem = cartItems[i].querySelector('.quantity-number');
+    const quantity = parseInt(qtyElem.textContent);
+
+    // PriceCalculator용 아이템 추가
+    priceCalculatorItems.push({
+      id: curItem.id,
+      quantity: quantity,
+      price: curItem.val,
+      product: curItem,
+    });
+
+    // 전역 변수 업데이트 (기존 코드에서 필요)
+    itemCnt += quantity;
+
+    // UI 업데이트 (할인 강조 표시)
+    const itemDiv = cartItems[i];
+    const priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
+    priceElems.forEach(function (elem) {
+      if (elem.classList.contains('text-lg')) {
+        elem.style.fontWeight = quantity >= 10 ? 'bold' : 'normal';
+      }
+    });
+  }
+
+  // PriceCalculator를 사용하여 가격 및 할인 계산
+  const priceResult = PriceCalculator.calculateFinalPrice(priceCalculatorItems, new Date());
+
+  // 계산 결과를 기존 변수에 할당 (기존 UI 코드 호환성)
+  subTot = priceResult.subtotal;
+  totalAmt = priceResult.finalAmount;
+  originalTotal = subTot;
+
+  // 할인 정보 변환 (기존 UI에서 사용하는 형식으로)
+  itemDiscounts = priceResult.individualDiscounts.map(discount => ({
+    name: discount.productName,
+    discount: Math.round(discount.discountRate * 100),
+  }));
+
+  const discRate = priceResult.totalSavings > 0 ? priceResult.totalSavings / subTot : 0;
+
+  // 화요일 할인 UI 업데이트
+  const tuesdaySpecial = document.getElementById('tuesday-special');
+  if (priceResult.tuesdayDiscount.isTuesday && priceResult.tuesdayDiscount.discountAmount > 0) {
+    tuesdaySpecial.classList.remove('hidden');
   } else {
     tuesdaySpecial.classList.add('hidden');
   }
+
+  // 기존 UI 업데이트 로직 유지
   document.getElementById('item-count').textContent = '🛍️ ' + itemCnt + ' items in cart';
   summaryDetails = document.getElementById('summary-details');
   summaryDetails.innerHTML = '';
+
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
       var curItem;
@@ -389,11 +374,9 @@ function handleCalculateCartStuff() {
         <span>₩${subTot.toLocaleString()}</span>
       </div>
     `;
-    // DiscountPolicies.js의 상수를 사용하여 할인 표시
-    const bulkThreshold = SPECIAL_DISCOUNTS.BULK_PURCHASE.threshold;
-    const bulkRate = Math.round(SPECIAL_DISCOUNTS.BULK_PURCHASE.rate * 100);
 
-    if (itemCnt >= 30) {
+    // 할인 표시 (PriceCalculator 결과 사용)
+    if (priceResult.bulkDiscount.discountRate > 0) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
@@ -410,16 +393,16 @@ function handleCalculateCartStuff() {
         `;
       });
     }
-    if (tuesdayDiscountRate > 0) {
-      if (totalAmt > 0) {
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-purple-400">
-            <span class="text-xs">🌟 화요일 추가 할인</span>
-            <span class="text-xs">-10%</span>
-          </div>
-        `;
-      }
+
+    if (priceResult.tuesdayDiscount.discountAmount > 0) {
+      summaryDetails.innerHTML += `
+        <div class="flex justify-between text-sm tracking-wide text-purple-400">
+          <span class="text-xs">🌟 화요일 추가 할인</span>
+          <span class="text-xs">-10%</span>
+        </div>
+      `;
     }
+
     summaryDetails.innerHTML += `
       <div class="flex justify-between text-sm tracking-wide text-gray-400">
         <span>Shipping</span>
@@ -427,10 +410,12 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
+
   totalDiv = sum.querySelector('.text-2xl');
   if (totalDiv) {
     totalDiv.textContent = '₩' + Math.round(totalAmt).toLocaleString();
   }
+
   loyaltyPointsDiv = document.getElementById('loyalty-points');
   if (loyaltyPointsDiv) {
     points = Math.floor(totalAmt / 1000);
@@ -442,10 +427,11 @@ function handleCalculateCartStuff() {
       loyaltyPointsDiv.style.display = 'block';
     }
   }
+
   discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
   if (discRate > 0 && totalAmt > 0) {
-    savedAmount = originalTotal - totalAmt;
+    savedAmount = priceResult.totalSavings;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -456,6 +442,7 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
+
   itemCountElement = document.getElementById('item-count');
   if (itemCountElement) {
     previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
@@ -464,6 +451,7 @@ function handleCalculateCartStuff() {
       itemCountElement.setAttribute('data-changed', 'true');
     }
   }
+
   stockMsg = '';
   for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
     const item = prodList[stockIdx];
