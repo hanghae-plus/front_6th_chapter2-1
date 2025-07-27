@@ -1,4 +1,4 @@
-import InMemoryProductRepository from "../infrastructure/repositories/inmemory-product-repository";
+import InMemoryProductRepository from "../infrastructure/repositories/product/inmemory-product-repository";
 
 const productRepository = new InMemoryProductRepository();
 const prodList = productRepository.findAll();
