@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+
+# Configuration files
+vite.config.js
+eslint.config.js
+package.json
+.gitignore
+
+# HTML files
+index.html
+index.advanced.html
+index.basic.html
+
+# Documentation
+README.md
+docs/
+
+# Source files (excluding main.basic.js and main.advanced.js)
+src/setupTests.js
+src/main.original.js
+src/basic/__tests__/
+src/advanced/__tests__/
+
+# Git
+.git/
+
+# GitHub
+.github/
+
+# Test files
+src/basic/__tests__/basic.test.js
+src/advanced/__tests__/advanced.test.js
