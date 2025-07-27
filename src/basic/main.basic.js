@@ -8,6 +8,21 @@ import {
   SPECIAL_DISCOUNTS,
 } from './constants/DiscountPolicies.js';
 
+// 포인트 정책 import
+import {
+  calculateTotalPoints,
+  calculateBasePoints,
+  calculateTuesdayPoints,
+  POINTS_RATES,
+  BONUS_POINTS,
+  POINTS_MESSAGES
+} from './constants/PointsPolicies.js';
+// UI 상수 import
+import {
+  POINTS_UI,
+  formatMessage
+} from './constants/UIConstants.js';
+
 let prodList;
 let bonusPts = 0;
 let stockInfo;
@@ -540,7 +555,7 @@ var doRenderBonusPoints = function () {
     document.getElementById('loyalty-points').style.display = 'none';
     return;
   }
-  basePoints = Math.floor(totalAmt / 1000);
+  basePoints = calculateBasePoints(totalAmt);
   finalPoints = 0;
   pointsDetail = [];
   if (basePoints > 0) {
@@ -549,7 +564,7 @@ var doRenderBonusPoints = function () {
   }
   if (new Date().getDay() === 2) {
     if (basePoints > 0) {
-      finalPoints = basePoints * 2;
+      finalPoints = calculateTuesdayPoints(basePoints);
       pointsDetail.push('화요일 2배');
     }
   }
