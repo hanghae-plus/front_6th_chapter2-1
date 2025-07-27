@@ -1,4 +1,4 @@
-const RightColumn = () => {
+export const RightColumn = () => {
   const rightColumn = document.createElement("div");
   rightColumn.className = "bg-black text-white p-8 flex flex-col";
   rightColumn.innerHTML = `
@@ -32,5 +32,3 @@ const RightColumn = () => {
   `;
   return rightColumn;
 };
-
-export default RightColumn;

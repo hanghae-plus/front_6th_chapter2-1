@@ -1,11 +1,13 @@
-import Header from "./components/Header";
-import GridContainer from "./components/GridContainer";
-import LeftColumn from "./components/LeftColumn";
-import SelectorContainer from "./components/SelectorContainer";
-import RightColumn from "./components/RightColumn";
-import ManualToggle from "./components/ManualToggle";
-import ManualOverlay from "./components/ManualOverlay";
-import ManualColumn from "./components/ManualColumn";
+import {
+  GridContainer,
+  LeftColumn,
+  SelectorContainer,
+  RightColumn,
+  ManualToggle,
+  ManualOverlay,
+  ManualColumn,
+  Header,
+} from "./components";
 
 let prodList;
 let bonusPts = 0;
