@@ -1,5 +1,12 @@
 // Products 상수 import
-import { PRODUCT_IDS, getProductList } from './constants/Products.js';
+import { getProductList, PRODUCT_IDS } from './constants/Products.js';
+// 할인 정책 import
+import {
+  calculateBulkDiscount,
+  calculateFinalDiscount,
+  calculateTuesdayDiscount,
+  SPECIAL_DISCOUNTS,
+} from './constants/DiscountPolicies.js';
 
 let prodList;
 let bonusPts = 0;
@@ -352,25 +359,21 @@ function handleCalculateCartStuff() {
         }
       });
       if (q >= 10) {
-        if (curItem.id === PRODUCT_IDS.KEYBOARD) {
-          disc = 10 / 100;
+        // DiscountPolicies.js의 개별 할인 계산 사용
+        const discountInfo = calculateFinalDiscount({
+          productId: curItem.id,
+          quantity: q,
+          totalQuantity: 0, // 개별 할인 단계에서는 총 수량 무시 (나중에 bulk discount에서 처리)
+          date: new Date(),
+        });
+
+        // 개별 할인만 적용 (bulk discount는 나중에 별도 처리)
+        if (discountInfo.baseDiscount > 0) {
+          disc = discountInfo.baseDiscount;
         } else {
-          if (curItem.id === PRODUCT_IDS.MOUSE) {
-            disc = 15 / 100;
-          } else {
-            if (curItem.id === PRODUCT_IDS.MONITOR_ARM) {
-              disc = 20 / 100;
-            } else {
-              if (curItem.id === PRODUCT_IDS.LAPTOP_POUCH) {
-                disc = 5 / 100;
-              } else {
-                if (curItem.id === PRODUCT_IDS.LOFI_SPEAKER) {
-                  disc = 25 / 100;
-                }
-              }
-            }
-          }
+          disc = 0;
         }
+
         if (disc > 0) {
           itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
         }
@@ -380,18 +383,24 @@ function handleCalculateCartStuff() {
   }
   let discRate = 0;
   var originalTotal = subTot;
-  if (itemCnt >= 30) {
-    totalAmt = (subTot * 75) / 100;
-    discRate = 25 / 100;
+
+  // DiscountPolicies.js의 대량구매 할인 계산 사용
+  const bulkDiscountRate = calculateBulkDiscount(itemCnt);
+  if (bulkDiscountRate > 0) {
+    totalAmt = subTot * (1 - bulkDiscountRate);
+    discRate = bulkDiscountRate;
   } else {
     discRate = (subTot - totalAmt) / subTot;
   }
   const today = new Date();
   const isTuesday = today.getDay() === 2;
   const tuesdaySpecial = document.getElementById('tuesday-special');
-  if (isTuesday) {
+
+  // DiscountPolicies.js의 화요일 할인 계산 사용
+  const tuesdayDiscountRate = calculateTuesdayDiscount(today);
+  if (tuesdayDiscountRate > 0) {
     if (totalAmt > 0) {
-      totalAmt = (totalAmt * 90) / 100;
+      totalAmt = totalAmt * (1 - tuesdayDiscountRate);
       discRate = 1 - totalAmt / originalTotal;
       tuesdaySpecial.classList.remove('hidden');
     } else {
@@ -429,6 +438,10 @@ function handleCalculateCartStuff() {
         <span>₩${subTot.toLocaleString()}</span>
       </div>
     `;
+    // DiscountPolicies.js의 상수를 사용하여 할인 표시
+    const bulkThreshold = SPECIAL_DISCOUNTS.BULK_PURCHASE.threshold;
+    const bulkRate = Math.round(SPECIAL_DISCOUNTS.BULK_PURCHASE.rate * 100);
+
     if (itemCnt >= 30) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
@@ -446,7 +459,7 @@ function handleCalculateCartStuff() {
         `;
       });
     }
-    if (isTuesday) {
+    if (tuesdayDiscountRate > 0) {
       if (totalAmt > 0) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-purple-400">
