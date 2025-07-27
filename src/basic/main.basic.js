@@ -4,7 +4,7 @@ import { getProductList } from './constants/Products.js';
 
 // 포인트 정책 import
 // UI 상수 import
-import { ALERT_UI, formatMessage } from './constants/UIConstants.js';
+import { ALERT_UI } from './constants/UIConstants.js';
 
 // 가격 계산 엔진 import
 import { PriceCalculator } from './calculations/PriceCalculator.js';
@@ -22,6 +22,9 @@ import { CartItem } from './components/CartItem.js';
 import { OrderSummary } from './components/OrderSummary.js';
 // 도움말 모달 컴포넌트 import
 import { HelpModal } from './components/HelpModal.js';
+// 재고 정보 및 알림 컴포넌트 import
+import { NotificationBar } from './components/NotificationBar.js';
+import { StockInfo } from './components/StockInfo.js';
 
 let prodList;
 let bonusPts = 0;
@@ -144,6 +147,9 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(helpModal.overlay); // HelpModal 오버레이 추가
 
+  // NotificationBar 초기화
+  NotificationBar.render('top-right');
+
   let initStock = 0;
   for (let i = 0; i < prodList.length; i++) {
     initStock += prodList[i].q;
@@ -158,7 +164,7 @@ function main() {
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
-        alert(formatMessage(ALERT_UI.FLASH_SALE, { productName: luckyItem.name }));
+        NotificationBar.generateFlashSaleAlert(luckyItem);
         onUpdateSelectOptions();
         doUpdatePricesInCart();
       }
@@ -181,7 +187,7 @@ function main() {
           }
         }
         if (suggest) {
-          alert(formatMessage(ALERT_UI.RECOMMEND_SALE, { productName: suggest.name }));
+          NotificationBar.generateRecommendAlert(suggest);
           suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
           suggest.suggestSale = true;
           onUpdateSelectOptions();
@@ -465,9 +471,8 @@ function handleCalculateCartStuff() {
     }
   }
 
-  // StockCalculator를 사용하여 재고 경고 메시지 생성
-  const stockWarnings = StockCalculator.generateStockWarnings(prodList);
-  stockInfo.textContent = stockWarnings.summary;
+  // StockInfo 컴포넌트를 사용하여 재고 경고 메시지 생성
+  StockInfo.updateStockInfoElement(prodList, stockInfo);
   doRenderBonusPoints();
 }
 var doRenderBonusPoints = function () {
@@ -531,11 +536,8 @@ function onGetStockTotal() {
   return stockSummary.totalStock;
 }
 const handleStockInfoUpdate = function () {
-  // StockCalculator를 사용하여 재고 경고 메시지 생성
-  const stockWarnings = StockCalculator.generateStockWarnings(prodList);
-
-  // DOM 업데이트 (UI 조작만 유지)
-  stockInfo.textContent = stockWarnings.summary;
+  // StockInfo 컴포넌트를 사용하여 재고 경고 메시지 생성
+  StockInfo.updateStockInfoElement(prodList, stockInfo);
 };
 function doUpdatePricesInCart() {
   let totalCount = 0,
@@ -624,7 +626,7 @@ addBtn.addEventListener('click', function () {
         qtyElem.textContent = newQty;
         itemToAdd['q']--;
       } else {
-        alert(ALERT_UI.STOCK_EXCEEDED);
+        NotificationBar.generateStockAlert(ALERT_UI.STOCK_EXCEEDED);
       }
     } else {
       // CartItem 컴포넌트를 사용하여 새 아이템 생성
