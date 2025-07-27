@@ -6,12 +6,12 @@
 
 main.basic.js의 복잡한 비즈니스 로직을 테스트 가능한 순수 함수로 분리하여 유지보수성과 안정성 향상
 
-### 📈 총 Story Points: 36
+### 📈 총 Story Points: 36 (완료: 18 SP / 50%)
 
-- Story 3.1: 8 SP
-- Story 3.2: 10 SP
-- Story 3.3: 12 SP
-- Story 3.4: 6 SP
+- Story 3.1: 8 SP ✅ **완료**
+- Story 3.2: 10 SP ✅ **완료**
+- Story 3.3: 12 SP ⏳ 준비됨
+- Story 3.4: 6 SP ⏳ 준비됨
 
 ---
 
@@ -19,33 +19,36 @@ main.basic.js의 복잡한 비즈니스 로직을 테스트 가능한 순수 함
 
 ### [Story 3.1: 가격 및 할인 계산 엔진](./story-3.1-price-calculator.md)
 
-**Story Points: 8** | **Status: 준비됨**
+**Story Points: 8** | **Status: 완료됨** ✅
 
 **목표**: `handleCalculateCartStuff()` 함수의 가격 계산 로직을 순수 함수로 분리
 
 **핵심 작업**:
 
-- `PriceCalculator.js` 모듈 생성
-- 소계, 개별할인, 대량할인, 화요일할인 계산 함수 분리
-- 통합 가격 계산 엔진 구현
+- ✅ `PriceCalculator.js` 모듈 생성 (235줄)
+- ✅ 소계, 개별할인, 대량할인, 화요일할인 계산 함수 분리
+- ✅ 통합 가격 계산 엔진 구현
+- ✅ 12개 단위 테스트 작성 및 통과
 
-**산출물**: `src/basic/calculations/PriceCalculator.js`
+**산출물**: `src/basic/calculations/PriceCalculator.js`, `src/basic/__tests__/PriceCalculator.test.js`
 
 ---
 
 ### [Story 3.2: 할인 엔진 및 정책 적용](./story-3.2-discount-engine.md)
 
-**Story Points: 10** | **Status: 준비됨**
+**Story Points: 10** | **Status: 완료됨** ✅
 
 **목표**: 복잡한 할인 중복 적용 로직을 체계적인 엔진으로 분리
 
 **핵심 작업**:
 
-- `DiscountEngine.js` 모듈 생성
-- 할인 조합 규칙 엔진화 (번개세일+추천할인=25%)
-- 할인 우선순위 및 중복 적용 로직 체계화
+- ✅ `DiscountEngine.js` 모듈 생성 (354줄)
+- ✅ 할인 조합 규칙 엔진화 (번개세일+추천할인=25%)
+- ✅ 할인 우선순위 및 최적 조합 알고리즘
+- ✅ 14개 단위 테스트 작성 및 통과
+- ✅ 할인 우선순위 및 중복 적용 로직 체계화
 
-**산출물**: `src/basic/calculations/DiscountEngine.js`
+**산출물**: `src/basic/calculations/DiscountEngine.js`, `src/basic/__tests__/DiscountEngine.test.js`
 
 ---
 

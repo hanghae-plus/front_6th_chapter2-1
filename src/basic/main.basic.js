@@ -14,6 +14,8 @@ import { ALERT_UI, formatMessage, generateManualHTML } from './constants/UIConst
 
 // 가격 계산 엔진 import
 import { PriceCalculator } from './calculations/PriceCalculator.js';
+// 할인 엔진 import
+import { DiscountEngine } from './calculations/DiscountEngine.js';
 
 let prodList;
 let bonusPts = 0;
@@ -319,25 +321,78 @@ function handleCalculateCartStuff() {
     });
   }
 
-  // PriceCalculator를 사용하여 가격 및 할인 계산
+  // PriceCalculator를 사용하여 기본 가격 및 할인 계산
   const priceResult = PriceCalculator.calculateFinalPrice(priceCalculatorItems, new Date());
 
+  // 특별 할인 조합이 있는지 확인 (번개세일 + 추천할인)
+  const hasFlashAndRecommend = priceCalculatorItems.some(
+    item => item.product?.onSale && item.product?.suggestSale
+  );
+
+  let finalResult = priceResult;
+
+  // 번개세일+추천할인 조합이 있을 때만 DiscountEngine 사용
+  if (hasFlashAndRecommend) {
+    // DiscountEngine을 사용하여 복잡한 할인 조합 계산 (번개세일+추천할인 등)
+    const discountContext = {
+      date: new Date(),
+      isFlashSale: priceCalculatorItems.some(item => item.product?.onSale),
+      recommendedProduct: priceCalculatorItems.find(item => item.product?.suggestSale)?.id,
+    };
+    const discountEngineResult = DiscountEngine.applyDiscountPolicies(
+      priceCalculatorItems,
+      discountContext
+    );
+
+    // DiscountEngine 결과가 더 유리한 경우에만 적용
+    if (discountEngineResult.totalSavings > priceResult.totalSavings) {
+      finalResult = {
+        subtotal: priceResult.subtotal,
+        finalAmount: discountEngineResult.finalAmount,
+        totalSavings: discountEngineResult.totalSavings,
+        appliedDiscounts: discountEngineResult.appliedDiscounts,
+        // 기존 UI 호환성을 위한 변환
+        individualDiscounts: priceResult.individualDiscounts, // 기존 개별 할인 유지
+        bulkDiscount: priceResult.bulkDiscount, // 기존 대량 할인 유지
+        tuesdayDiscount: priceResult.tuesdayDiscount, // 기존 화요일 할인 유지
+        // 특별 할인 정보 추가
+        specialDiscounts: discountEngineResult.appliedDiscounts.filter(d =>
+          ['flash', 'recommend', 'combo'].includes(d.type)
+        ),
+      };
+    } else {
+      // PriceCalculator가 더 유리하거나 동일한 경우
+      finalResult = {
+        ...priceResult,
+        appliedDiscounts: [],
+        specialDiscounts: [],
+      };
+    }
+  } else {
+    // 특별 할인 조합이 없으면 PriceCalculator 결과 그대로 사용
+    finalResult = {
+      ...priceResult,
+      appliedDiscounts: [],
+      specialDiscounts: [],
+    };
+  }
+
   // 계산 결과를 기존 변수에 할당 (기존 UI 코드 호환성)
-  subTot = priceResult.subtotal;
-  totalAmt = priceResult.finalAmount;
+  subTot = finalResult.subtotal;
+  totalAmt = finalResult.finalAmount;
   originalTotal = subTot;
 
   // 할인 정보 변환 (기존 UI에서 사용하는 형식으로)
-  itemDiscounts = priceResult.individualDiscounts.map(discount => ({
+  itemDiscounts = finalResult.individualDiscounts.map(discount => ({
     name: discount.productName,
     discount: Math.round(discount.discountRate * 100),
   }));
 
-  const discRate = priceResult.totalSavings > 0 ? priceResult.totalSavings / subTot : 0;
+  const discRate = finalResult.totalSavings > 0 ? finalResult.totalSavings / subTot : 0;
 
   // 화요일 할인 UI 업데이트
   const tuesdaySpecial = document.getElementById('tuesday-special');
-  if (priceResult.tuesdayDiscount.isTuesday && priceResult.tuesdayDiscount.discountAmount > 0) {
+  if (finalResult.tuesdayDiscount.isTuesday && finalResult.tuesdayDiscount.discountAmount > 0) {
     tuesdaySpecial.classList.remove('hidden');
   } else {
     tuesdaySpecial.classList.add('hidden');
@@ -375,8 +430,8 @@ function handleCalculateCartStuff() {
       </div>
     `;
 
-    // 할인 표시 (PriceCalculator 결과 사용)
-    if (priceResult.bulkDiscount.discountRate > 0) {
+    // 할인 표시 (finalResult 결과 사용)
+    if (finalResult.bulkDiscount.discountRate > 0) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
@@ -394,7 +449,37 @@ function handleCalculateCartStuff() {
       });
     }
 
-    if (priceResult.tuesdayDiscount.discountAmount > 0) {
+    // 특별 할인 표시 (DiscountEngine에서 계산된 특별 할인들)
+    if (finalResult.specialDiscounts && finalResult.specialDiscounts.length > 0) {
+      finalResult.specialDiscounts.forEach(function (discount) {
+        let discountIcon = '';
+        let discountColor = 'text-purple-400';
+
+        switch (discount.type) {
+          case 'flash':
+            discountIcon = '⚡';
+            discountColor = 'text-red-400';
+            break;
+          case 'recommend':
+            discountIcon = '💝';
+            discountColor = 'text-blue-400';
+            break;
+          case 'combo':
+            discountIcon = '⚡💝';
+            discountColor = 'text-purple-600';
+            break;
+        }
+
+        summaryDetails.innerHTML += `
+          <div class="flex justify-between text-sm tracking-wide ${discountColor}">
+            <span class="text-xs">${discountIcon} ${discount.description}</span>
+            <span class="text-xs">-${Math.round(discount.rate * 100)}%</span>
+          </div>
+        `;
+      });
+    }
+
+    if (finalResult.tuesdayDiscount.discountAmount > 0) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-purple-400">
           <span class="text-xs">🌟 화요일 추가 할인</span>
@@ -431,7 +516,7 @@ function handleCalculateCartStuff() {
   discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
   if (discRate > 0 && totalAmt > 0) {
-    savedAmount = priceResult.totalSavings;
+    savedAmount = finalResult.totalSavings;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
