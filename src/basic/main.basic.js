@@ -14,6 +14,8 @@ import { DiscountEngine } from './calculations/DiscountEngine.js';
 import { PointsCalculator } from './calculations/PointsCalculator.js';
 // 재고 계산 엔진 import
 import { StockCalculator } from './calculations/StockCalculator.js';
+// 상품 선택 컴포넌트 import
+import { ProductSelector } from './components/ProductSelector.js';
 
 let prodList;
 let bonusPts = 0;
@@ -193,53 +195,24 @@ function main() {
 }
 let sum;
 function onUpdateSelectOptions() {
-  let totalStock;
-  let opt;
-  let discountText;
-  sel.innerHTML = '';
-  totalStock = 0;
-  for (let idx = 0; idx < prodList.length; idx++) {
-    const _p = prodList[idx];
-    totalStock = totalStock + _p.q;
-  }
-  for (var i = 0; i < prodList.length; i++) {
-    (function () {
-      const item = prodList[i];
-      opt = document.createElement('option');
-      opt.value = item.id;
-      discountText = '';
-      if (item.onSale) discountText += ' ⚡SALE';
-      if (item.suggestSale) discountText += ' 💝추천';
-      if (item.q === 0) {
-        opt.textContent = item.name + ' - ' + item.val + '원 (품절)' + discountText;
-        opt.disabled = true;
-        opt.className = 'text-gray-400';
-      } else {
-        if (item.onSale && item.suggestSale) {
-          opt.textContent =
-            '⚡💝' +
-            item.name +
-            ' - ' +
-            item.originalVal +
-            '원 → ' +
-            item.val +
-            '원 (25% SUPER SALE!)';
-          opt.className = 'text-purple-600 font-bold';
-        } else if (item.onSale) {
-          opt.textContent =
-            '⚡' + item.name + ' - ' + item.originalVal + '원 → ' + item.val + '원 (20% SALE!)';
-          opt.className = 'text-red-500 font-bold';
-        } else if (item.suggestSale) {
-          opt.textContent =
-            '💝' + item.name + ' - ' + item.originalVal + '원 → ' + item.val + '원 (5% 추천할인!)';
-          opt.className = 'text-blue-500 font-bold';
-        } else {
-          opt.textContent = item.name + ' - ' + item.val + '원' + discountText;
-        }
-      }
-      sel.appendChild(opt);
-    })();
-  }
+  // ProductSelector 컴포넌트를 사용하여 드롭다운 렌더링 (placeholder 없이)
+  const selectHTML = ProductSelector.render(prodList, {
+    id: 'product-select',
+    className: 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3',
+    placeholder: '', // 기존 로직과 동일하게 placeholder 없음
+  });
+
+  // 생성된 select HTML에서 innerHTML 부분만 추출
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = selectHTML;
+  const newSelect = tempDiv.querySelector('select');
+
+  // 기존 select의 innerHTML을 새로운 옵션들로 교체
+  sel.innerHTML = newSelect.innerHTML;
+
+  // ProductSelector에서 이미 처리된 스타일 적용
+  // (전체 재고 50개 미만 시 주황색 테두리)
+  const totalStock = prodList.reduce((sum, product) => sum + (product.q || 0), 0);
   if (totalStock < 50) {
     sel.style.borderColor = 'orange';
   } else {
@@ -600,7 +573,7 @@ function onGetStockTotal() {
   const stockSummary = StockCalculator.getStockSummary(prodList);
   return stockSummary.totalStock;
 }
-let handleStockInfoUpdate = function () {
+const handleStockInfoUpdate = function () {
   // StockCalculator를 사용하여 재고 경고 메시지 생성
   const stockWarnings = StockCalculator.generateStockWarnings(prodList);
 
