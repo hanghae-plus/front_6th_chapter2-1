@@ -1,0 +1,7 @@
+const PRODUCT_ONE = "p1";
+const PRODUCT_TWO = "p2";
+const PRODUCT_THREE = "p3";
+const PRODUCT_FOUR = "p4";
+const PRODUCT_FIVE = `p5`;
+
+export { PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, PRODUCT_FOUR, PRODUCT_FIVE };
