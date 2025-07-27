@@ -1,3 +1,5 @@
+import { CSS_CLASSES, DISCOUNT_CONSTANTS, STOCK_CONSTANTS } from '../constants/UIConstants.js';
+
 /**
  * @fileoverview ProductSelector 컴포넌트
  * 상품 선택 드롭다운을 렌더링하는 순수 함수 기반 컴포넌트
@@ -63,11 +65,14 @@ export class ProductSelector {
 
     // select 요소 속성 구성
     const idAttr = id ? ` id="${id}"` : '';
-    const baseClassName = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
+    const baseClassName = CSS_CLASSES.PRODUCT_SELECTOR.BASE;
     const finalClassName = className ? `${baseClassName} ${className}` : baseClassName;
 
     // 재고 상태에 따른 스타일 (전체 재고 50개 미만 시 주황색 테두리)
-    const borderStyle = totalStock < 50 ? ' style="border-color: orange;"' : '';
+    const borderStyle =
+      totalStock < STOCK_CONSTANTS.TOTAL_STOCK_WARNING_THRESHOLD
+        ? ' style="border-color: orange;"'
+        : '';
 
     // 옵션들 생성
     let optionsHTML = '';
@@ -106,13 +111,13 @@ export class ProductSelector {
     }
 
     // 아이콘, 가격 정보, 재고 메시지 조합
-    const icon = this.getProductIcon(product);
-    const priceInfo = this.formatPrice(product);
-    const stockMessage = this.getStockMessage(product);
-    const style = this.getProductStyle(product);
+    const statusIcon = this.getProductStatusIcon(product);
+    const priceInfo = this.formatProductPrice(product);
+    const stockStatusMessage = this.getStockStatusMessage(product);
+    const style = this.getProductCSSClass(product);
 
     // 옵션 텍스트 구성: 아이콘 + 상품명 + 가격정보 + 재고메시지
-    const optionText = `${icon}${product.name}${priceInfo}${stockMessage}`;
+    const optionText = `${statusIcon}${product.name}${priceInfo}${stockStatusMessage}`;
 
     return {
       value: product.id,
@@ -127,7 +132,7 @@ export class ProductSelector {
    * @param {Product} product - 상품 정보
    * @returns {string} 아이콘 문자열
    */
-  static getProductIcon(product) {
+  static getProductStatusIcon(product) {
     if (!product) return '';
 
     // 번개세일과 추천할인 모두 적용된 경우
@@ -154,13 +159,13 @@ export class ProductSelector {
    * @param {Product} product - 상품 정보
    * @returns {string} 재고 메시지
    */
-  static getStockMessage(product) {
+  static getStockStatusMessage(product) {
     if (!product || typeof product.q !== 'number') {
       return '';
     }
 
     // 품절 상태 (재고 0개)
-    if (product.q === 0) {
+    if (product.q === STOCK_CONSTANTS.OUT_OF_STOCK_QUANTITY) {
       return ' (품절)';
     }
 
@@ -176,22 +181,22 @@ export class ProductSelector {
    * @param {Product} product - 상품 정보
    * @returns {string} 포맷된 가격 문자열
    */
-  static formatPrice(product) {
+  static formatProductPrice(product) {
     if (!product) return '';
 
     // 번개세일과 추천할인 모두 적용된 경우 (25% SUPER SALE)
     if (product.onSale && product.suggestSale) {
-      return ` - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`;
+      return ` - ${product.originalVal}원 → ${product.val}원 (${DISCOUNT_CONSTANTS.SUPER_SALE_RATE * 100}% SUPER SALE!)`;
     }
 
     // 번개세일만 적용된 경우 (20% SALE)
     if (product.onSale) {
-      return ` - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`;
+      return ` - ${product.originalVal}원 → ${product.val}원 (${DISCOUNT_CONSTANTS.FLASH_SALE_RATE * 100}% SALE!)`;
     }
 
     // 추천할인만 적용된 경우 (5% 추천할인)
     if (product.suggestSale) {
-      return ` - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`;
+      return ` - ${product.originalVal}원 → ${product.val}원 (${DISCOUNT_CONSTANTS.RECOMMENDATION_RATE * 100}% 추천할인!)`;
     }
 
     // 일반 상품 (할인 없음)
@@ -203,27 +208,27 @@ export class ProductSelector {
    * @param {Product} product - 상품 정보
    * @returns {string} CSS 클래스 문자열
    */
-  static getProductStyle(product) {
+  static getProductCSSClass(product) {
     if (!product) return '';
 
     // 품절 상품
-    if (product.q === 0) {
-      return 'text-gray-400';
+    if (product.q === STOCK_CONSTANTS.OUT_OF_STOCK_QUANTITY) {
+      return CSS_CLASSES.PRODUCT_SELECTOR.OUT_OF_STOCK;
     }
 
     // 번개세일과 추천할인 모두 적용된 경우
     if (product.onSale && product.suggestSale) {
-      return 'text-purple-600 font-bold';
+      return CSS_CLASSES.PRODUCT_SELECTOR.SUPER_SALE;
     }
 
     // 번개세일만 적용된 경우
     if (product.onSale) {
-      return 'text-red-500 font-bold';
+      return CSS_CLASSES.PRODUCT_SELECTOR.FLASH_SALE;
     }
 
     // 추천할인만 적용된 경우
     if (product.suggestSale) {
-      return 'text-blue-500 font-bold';
+      return CSS_CLASSES.PRODUCT_SELECTOR.RECOMMENDATION;
     }
 
     // 일반 상품 (클래스 없음)

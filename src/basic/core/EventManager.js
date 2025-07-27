@@ -1,96 +1,96 @@
 export class EventManager {
   constructor() {
-    this.listeners = new Map();
+    this.registeredEventListeners = new Map();
   }
 
   // 순수한 이벤트 관리 메서드들
-  addEventListener(element, eventType, handler) {
-    if (!this.listeners.has(element)) {
-      this.listeners.set(element, new Map());
+  registerEventListener(targetElement, eventType, eventHandler) {
+    if (!this.registeredEventListeners.has(targetElement)) {
+      this.registeredEventListeners.set(targetElement, new Map());
     }
 
-    const elementListeners = this.listeners.get(element);
-    if (!elementListeners.has(eventType)) {
-      elementListeners.set(eventType, []);
+    const elementEventListeners = this.registeredEventListeners.get(targetElement);
+    if (!elementEventListeners.has(eventType)) {
+      elementEventListeners.set(eventType, []);
     }
 
-    elementListeners.get(eventType).push(handler);
-    element.addEventListener(eventType, handler);
+    elementEventListeners.get(eventType).push(eventHandler);
+    targetElement.addEventListener(eventType, eventHandler);
   }
 
-  removeEventListener(element, eventType, handler) {
-    const elementListeners = this.listeners.get(element);
-    if (elementListeners && elementListeners.has(eventType)) {
-      const handlers = elementListeners.get(eventType);
-      const index = handlers.indexOf(handler);
-      if (index > -1) {
-        handlers.splice(index, 1);
-        element.removeEventListener(eventType, handler);
+  unregisterEventListener(targetElement, eventType, eventHandler) {
+    const elementEventListeners = this.registeredEventListeners.get(targetElement);
+    if (elementEventListeners && elementEventListeners.has(eventType)) {
+      const eventHandlers = elementEventListeners.get(eventType);
+      const handlerIndex = eventHandlers.indexOf(eventHandler);
+      if (handlerIndex > -1) {
+        eventHandlers.splice(handlerIndex, 1);
+        targetElement.removeEventListener(eventType, eventHandler);
       }
     }
   }
 
-  removeAllListeners(element, eventType) {
-    const elementListeners = this.listeners.get(element);
-    if (elementListeners && elementListeners.has(eventType)) {
-      const handlers = elementListeners.get(eventType);
-      handlers.forEach(handler => {
-        element.removeEventListener(eventType, handler);
+  removeAllEventListenersForType(targetElement, eventType) {
+    const elementEventListeners = this.registeredEventListeners.get(targetElement);
+    if (elementEventListeners && elementEventListeners.has(eventType)) {
+      const eventHandlers = elementEventListeners.get(eventType);
+      eventHandlers.forEach(eventHandler => {
+        targetElement.removeEventListener(eventType, eventHandler);
       });
-      elementListeners.delete(eventType);
+      elementEventListeners.delete(eventType);
     }
   }
 
-  removeAllElementListeners(element) {
-    const elementListeners = this.listeners.get(element);
-    if (elementListeners) {
-      elementListeners.forEach((handlers, eventType) => {
-        handlers.forEach(handler => {
-          element.removeEventListener(eventType, handler);
+  removeAllEventListenersForElement(targetElement) {
+    const elementEventListeners = this.registeredEventListeners.get(targetElement);
+    if (elementEventListeners) {
+      elementEventListeners.forEach((eventHandlers, eventType) => {
+        eventHandlers.forEach(eventHandler => {
+          targetElement.removeEventListener(eventType, eventHandler);
         });
       });
-      this.listeners.delete(element);
+      this.registeredEventListeners.delete(targetElement);
     }
   }
 
   // 이벤트 위임을 위한 메서드
-  delegateEvent(parentElement, selector, eventType, handler) {
+  setupEventDelegation(parentElement, childSelector, eventType, eventHandler) {
     parentElement.addEventListener(eventType, event => {
-      const target = event.target.closest(selector);
-      if (target && parentElement.contains(target)) {
-        handler.call(target, event, target);
+      const targetChildElement = event.target.closest(childSelector);
+      if (targetChildElement && parentElement.contains(targetChildElement)) {
+        eventHandler.call(targetChildElement, event, targetChildElement);
       }
     });
   }
 
   // 커스텀 이벤트 생성 및 발송
-  createCustomEvent(eventName, detail = {}) {
+  createCustomEvent(eventName, eventDetail = {}) {
     return new CustomEvent(eventName, {
-      detail,
+      detail: eventDetail,
       bubbles: true,
       cancelable: true,
     });
   }
 
-  dispatchCustomEvent(element, eventName, detail = {}) {
-    const event = this.createCustomEvent(eventName, detail);
-    element.dispatchEvent(event);
+  dispatchCustomEvent(targetElement, eventName, eventDetail = {}) {
+    const customEvent = this.createCustomEvent(eventName, eventDetail);
+    targetElement.dispatchEvent(customEvent);
   }
 
   // 이벤트 리스너 등록을 위한 헬퍼 메서드
-  on(element, eventType, handler) {
-    this.addEventListener(element, eventType, handler);
+  attachEventListener(targetElement, eventType, eventHandler) {
+    this.registerEventListener(targetElement, eventType, eventHandler);
   }
 
-  off(element, eventType, handler) {
-    this.removeEventListener(element, eventType, handler);
+  detachEventListener(targetElement, eventType, eventHandler) {
+    this.unregisterEventListener(targetElement, eventType, eventHandler);
   }
 
   // 모든 리스너 정리
-  cleanup() {
-    this.listeners.forEach((elementListeners, element) => {
-      this.removeAllElementListeners(element);
+  cleanupAllEventListeners() {
+    this.registeredEventListeners.forEach((elementEventListeners, targetElement) => {
+      this.removeAllEventListenersForElement(targetElement);
     });
-    this.listeners.clear();
+    this.registeredEventListeners.clear();
   }
 }

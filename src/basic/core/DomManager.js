@@ -1,44 +1,44 @@
-export class DOMManager {
+export class DOMElementManager {
   constructor() {
-    this.elements = {};
-    this.initializeElements();
+    this.cachedElements = {};
+    this.initializeCachedElements();
   }
 
-  initializeElements() {
-    this.elements = {
-      root: document.getElementById('app'),
-      productSelect: null,
-      addButton: null,
-      cartDisplay: null,
-      stockInfo: null,
-      cartTotal: null,
-      summaryDetails: null,
-      discountInfo: null,
-      loyaltyPoints: null,
-      tuesdaySpecial: null,
-      itemCount: null,
+  initializeCachedElements() {
+    this.cachedElements = {
+      rootContainer: document.getElementById('app'),
+      productSelectionDropdown: null,
+      addToCartButton: null,
+      cartItemsContainer: null,
+      stockStatusDisplay: null,
+      cartTotalAmount: null,
+      orderSummaryDetails: null,
+      discountInformation: null,
+      loyaltyPointsDisplay: null,
+      tuesdaySpecialBadge: null,
+      itemCountDisplay: null,
     };
   }
 
-  createMainLayout() {
-    const { header, gridContainer, helpButton } = this.buildLayoutComponents();
+  createMainApplicationLayout() {
+    const { applicationHeader, mainGridContainer, helpButton } = this.buildMainLayoutComponents();
 
-    this.elements.root.appendChild(header);
-    this.elements.root.appendChild(gridContainer);
-    this.elements.root.appendChild(helpButton);
+    this.cachedElements.rootContainer.appendChild(applicationHeader);
+    this.cachedElements.rootContainer.appendChild(mainGridContainer);
+    this.cachedElements.rootContainer.appendChild(helpButton);
 
-    this.findAndCacheElements();
+    this.findAndCacheAllElements();
   }
 
-  buildLayoutComponents() {
-    const header = this.createHeader();
-    const gridContainer = this.createGridContainer();
+  buildMainLayoutComponents() {
+    const applicationHeader = this.createApplicationHeader();
+    const mainGridContainer = this.createMainGridContainer();
     const helpButton = this.createHelpButton();
 
-    return { header, gridContainer, helpButton };
+    return { applicationHeader, mainGridContainer, helpButton };
   }
 
-  createHeader() {
+  createApplicationHeader() {
     const header = document.createElement('div');
     header.className = 'mb-8';
     header.innerHTML = `
@@ -49,7 +49,7 @@ export class DOMManager {
     return header;
   }
 
-  createGridContainer() {
+  createMainGridContainer() {
     const gridContainer = document.createElement('div');
     gridContainer.className =
       'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
@@ -67,11 +67,11 @@ export class DOMManager {
     const leftColumn = document.createElement('div');
     leftColumn.className = 'bg-white border border-gray-200 p-8 overflow-y-auto';
 
-    const selectorContainer = this.createProductSelectorContainer();
-    const cartDisplay = this.createCartDisplay();
+    const productSelectorContainer = this.createProductSelectorContainer();
+    const cartItemsContainer = this.createCartItemsContainer();
 
-    leftColumn.appendChild(selectorContainer);
-    leftColumn.appendChild(cartDisplay);
+    leftColumn.appendChild(productSelectorContainer);
+    leftColumn.appendChild(cartItemsContainer);
 
     return leftColumn;
   }
@@ -80,30 +80,30 @@ export class DOMManager {
     const container = document.createElement('div');
     container.className = 'mb-6 pb-6 border-b border-gray-200';
 
-    const productSelect = this.createProductSelect();
-    const addButton = this.createAddButton();
-    const stockInfo = this.createStockInfo();
+    const productSelectionDropdown = this.createProductSelectionDropdown();
+    const addToCartButton = this.createAddToCartButton();
+    const stockStatusDisplay = this.createStockStatusDisplay();
 
-    container.appendChild(productSelect);
-    container.appendChild(addButton);
-    container.appendChild(stockInfo);
+    container.appendChild(productSelectionDropdown);
+    container.appendChild(addToCartButton);
+    container.appendChild(stockStatusDisplay);
 
     // Cache elements for later use
-    this.elements.productSelect = productSelect;
-    this.elements.addButton = addButton;
-    this.elements.stockInfo = stockInfo;
+    this.cachedElements.productSelectionDropdown = productSelectionDropdown;
+    this.cachedElements.addToCartButton = addToCartButton;
+    this.cachedElements.stockStatusDisplay = stockStatusDisplay;
 
     return container;
   }
 
-  createProductSelect() {
+  createProductSelectionDropdown() {
     const select = document.createElement('select');
     select.id = 'product-select';
     select.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
     return select;
   }
 
-  createAddButton() {
+  createAddToCartButton() {
     const button = document.createElement('button');
     button.id = 'add-to-cart';
     button.innerHTML = 'Add to Cart';
@@ -112,17 +112,17 @@ export class DOMManager {
     return button;
   }
 
-  createStockInfo() {
+  createStockStatusDisplay() {
     const div = document.createElement('div');
     div.id = 'stock-status';
     div.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
     return div;
   }
 
-  createCartDisplay() {
+  createCartItemsContainer() {
     const div = document.createElement('div');
     div.id = 'cart-items';
-    this.elements.cartDisplay = div;
+    this.cachedElements.cartItemsContainer = div;
     return div;
   }
 
@@ -174,65 +174,65 @@ export class DOMManager {
     return button;
   }
 
-  findAndCacheElements() {
-    this.elements.cartTotal = document.querySelector('#cart-total');
-    this.elements.summaryDetails = document.getElementById('summary-details');
-    this.elements.discountInfo = document.getElementById('discount-info');
-    this.elements.loyaltyPoints = document.getElementById('loyalty-points');
-    this.elements.tuesdaySpecial = document.getElementById('tuesday-special');
-    this.elements.itemCount = document.getElementById('item-count');
-    this.elements.helpButton = document.getElementById('help-button');
+  findAndCacheAllElements() {
+    this.cachedElements.cartTotalAmount = document.querySelector('#cart-total');
+    this.cachedElements.orderSummaryDetails = document.getElementById('summary-details');
+    this.cachedElements.discountInformation = document.getElementById('discount-info');
+    this.cachedElements.loyaltyPointsDisplay = document.getElementById('loyalty-points');
+    this.cachedElements.tuesdaySpecialBadge = document.getElementById('tuesday-special');
+    this.cachedElements.itemCountDisplay = document.getElementById('item-count');
+    this.cachedElements.helpButton = document.getElementById('help-button');
   }
 
-  getElement(name) {
-    return this.elements[name];
+  getCachedElement(elementName) {
+    return this.cachedElements[elementName];
   }
 
   // 순수한 DOM 조작 메서드들
-  createElement(tag, className = '', innerHTML = '') {
-    const element = document.createElement(tag);
-    if (className) element.className = className;
-    if (innerHTML) element.innerHTML = innerHTML;
+  createDOMElement(elementTag, cssClassName = '', innerHTMLContent = '') {
+    const element = document.createElement(elementTag);
+    if (cssClassName) element.className = cssClassName;
+    if (innerHTMLContent) element.innerHTML = innerHTMLContent;
     return element;
   }
 
-  appendChild(parent, child) {
-    parent.appendChild(child);
+  appendChildElement(parentElement, childElement) {
+    parentElement.appendChild(childElement);
   }
 
-  insertAdjacentHTML(element, position, html) {
-    element.insertAdjacentHTML(position, html);
+  insertHTMLContent(element, position, htmlContent) {
+    element.insertAdjacentHTML(position, htmlContent);
   }
 
-  setInnerHTML(element, html) {
-    element.innerHTML = html;
+  setElementInnerHTML(element, htmlContent) {
+    element.innerHTML = htmlContent;
   }
 
-  setTextContent(element, text) {
-    element.textContent = text;
+  setElementTextContent(element, textContent) {
+    element.textContent = textContent;
   }
 
-  addClass(element, className) {
-    element.classList.add(className);
+  addCSSClass(element, cssClassName) {
+    element.classList.add(cssClassName);
   }
 
-  removeClass(element, className) {
-    element.classList.remove(className);
+  removeCSSClass(element, cssClassName) {
+    element.classList.remove(cssClassName);
   }
 
-  setAttribute(element, name, value) {
-    element.setAttribute(name, value);
+  setElementAttribute(element, attributeName, attributeValue) {
+    element.setAttribute(attributeName, attributeValue);
   }
 
-  getAttribute(element, name) {
-    return element.getAttribute(name);
+  getElementAttribute(element, attributeName) {
+    return element.getAttribute(attributeName);
   }
 
-  querySelector(selector) {
+  findElementBySelector(selector) {
     return document.querySelector(selector);
   }
 
-  querySelectorAll(selector) {
+  findAllElementsBySelector(selector) {
     return document.querySelectorAll(selector);
   }
 }

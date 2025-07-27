@@ -56,116 +56,116 @@ describe('ProductSelector', () => {
     },
   ];
 
-  describe('getProductIcon', () => {
+  describe('getProductStatusIcon', () => {
     it('번개세일과 추천할인 모두 적용 시 ⚡💝 반환', () => {
       const product = { onSale: true, suggestSale: true };
-      const result = ProductSelector.getProductIcon(product);
+      const result = ProductSelector.getProductStatusIcon(product);
       expect(result).toBe('⚡💝');
     });
 
     it('번개세일만 적용 시 ⚡ 반환', () => {
       const product = { onSale: true, suggestSale: false };
-      const result = ProductSelector.getProductIcon(product);
+      const result = ProductSelector.getProductStatusIcon(product);
       expect(result).toBe('⚡');
     });
 
     it('추천할인만 적용 시 💝 반환', () => {
       const product = { onSale: false, suggestSale: true };
-      const result = ProductSelector.getProductIcon(product);
+      const result = ProductSelector.getProductStatusIcon(product);
       expect(result).toBe('💝');
     });
 
     it('일반 상품은 빈 문자열 반환', () => {
       const product = { onSale: false, suggestSale: false };
-      const result = ProductSelector.getProductIcon(product);
+      const result = ProductSelector.getProductStatusIcon(product);
       expect(result).toBe('');
     });
 
     it('null 상품은 빈 문자열 반환', () => {
-      const result = ProductSelector.getProductIcon(null);
+      const result = ProductSelector.getProductStatusIcon(null);
       expect(result).toBe('');
     });
   });
 
-  describe('getStockMessage', () => {
+  describe('getStockStatusMessage', () => {
     it('품절 상품은 " (품절)" 메시지 반환', () => {
       const product = { q: 0 };
-      const result = ProductSelector.getStockMessage(product);
+      const result = ProductSelector.getStockStatusMessage(product);
       expect(result).toBe(' (품절)');
     });
 
     it('재고가 있는 상품은 빈 문자열 반환', () => {
       const product = { q: 5 };
-      const result = ProductSelector.getStockMessage(product);
+      const result = ProductSelector.getStockStatusMessage(product);
       expect(result).toBe('');
     });
 
     it('재고 부족 상품도 빈 문자열 반환 (기존 로직)', () => {
       const product = { q: 3 };
-      const result = ProductSelector.getStockMessage(product);
+      const result = ProductSelector.getStockStatusMessage(product);
       expect(result).toBe('');
     });
 
     it('유효하지 않은 상품은 빈 문자열 반환', () => {
-      expect(ProductSelector.getStockMessage(null)).toBe('');
-      expect(ProductSelector.getStockMessage({})).toBe('');
+      expect(ProductSelector.getStockStatusMessage(null)).toBe('');
+      expect(ProductSelector.getStockStatusMessage({})).toBe('');
     });
   });
 
-  describe('formatPrice', () => {
+  describe('formatProductPrice', () => {
     it('번개세일+추천할인 상품은 25% SUPER SALE 표시', () => {
       const product = { val: 52500, originalVal: 70000, onSale: true, suggestSale: true };
-      const result = ProductSelector.formatPrice(product);
+      const result = ProductSelector.formatProductPrice(product);
       expect(result).toBe(' - 70000원 → 52500원 (25% SUPER SALE!)');
     });
 
     it('번개세일 상품은 20% SALE 표시', () => {
       const product = { val: 40000, originalVal: 50000, onSale: true, suggestSale: false };
-      const result = ProductSelector.formatPrice(product);
+      const result = ProductSelector.formatProductPrice(product);
       expect(result).toBe(' - 50000원 → 40000원 (20% SALE!)');
     });
 
     it('추천할인 상품은 5% 추천할인 표시', () => {
       const product = { val: 150000, originalVal: 200000, onSale: false, suggestSale: true };
-      const result = ProductSelector.formatPrice(product);
+      const result = ProductSelector.formatProductPrice(product);
       expect(result).toBe(' - 200000원 → 150000원 (5% 추천할인!)');
     });
 
     it('일반 상품은 현재 가격만 표시', () => {
       const product = { val: 100000, originalVal: 100000, onSale: false, suggestSale: false };
-      const result = ProductSelector.formatPrice(product);
+      const result = ProductSelector.formatProductPrice(product);
       expect(result).toBe(' - 100000원');
     });
   });
 
-  describe('getProductStyle', () => {
+  describe('getProductCSSClass', () => {
     it('품절 상품은 text-gray-400 클래스 반환', () => {
       const product = { q: 0, onSale: false, suggestSale: false };
-      const result = ProductSelector.getProductStyle(product);
+      const result = ProductSelector.getProductCSSClass(product);
       expect(result).toBe('text-gray-400');
     });
 
     it('번개세일+추천할인 상품은 text-purple-600 font-bold 클래스 반환', () => {
       const product = { q: 5, onSale: true, suggestSale: true };
-      const result = ProductSelector.getProductStyle(product);
+      const result = ProductSelector.getProductCSSClass(product);
       expect(result).toBe('text-purple-600 font-bold');
     });
 
     it('번개세일 상품은 text-red-500 font-bold 클래스 반환', () => {
       const product = { q: 5, onSale: true, suggestSale: false };
-      const result = ProductSelector.getProductStyle(product);
+      const result = ProductSelector.getProductCSSClass(product);
       expect(result).toBe('text-red-500 font-bold');
     });
 
     it('추천할인 상품은 text-blue-500 font-bold 클래스 반환', () => {
       const product = { q: 5, onSale: false, suggestSale: true };
-      const result = ProductSelector.getProductStyle(product);
+      const result = ProductSelector.getProductCSSClass(product);
       expect(result).toBe('text-blue-500 font-bold');
     });
 
     it('일반 상품은 빈 문자열 반환', () => {
       const product = { q: 5, onSale: false, suggestSale: false };
-      const result = ProductSelector.getProductStyle(product);
+      const result = ProductSelector.getProductCSSClass(product);
       expect(result).toBe('');
     });
   });

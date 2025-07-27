@@ -5,7 +5,7 @@ import { NotificationBar } from '../components/NotificationBar.js';
 import { OrderSummary } from '../components/OrderSummary.js';
 import { ProductSelector } from '../components/ProductSelector.js';
 import { StockInfo } from '../components/StockInfo.js';
-import { ALERT_UI } from '../constants/UIConstants.js';
+import { ALERT_UI, POINTS_CONSTANTS, STOCK_CONSTANTS } from '../constants/UIConstants.js';
 
 export class ApplicationService {
   constructor(domManager, eventManager, uiUpdater, state, calculationEngine) {
@@ -18,7 +18,7 @@ export class ApplicationService {
 
   initialize() {
     // Initialize application state
-    this.state.initializeProducts();
+    this.state.initializeAvailableProducts();
 
     this.createMainLayout();
     this.setupEventListeners();
@@ -31,7 +31,7 @@ export class ApplicationService {
   }
 
   createMainLayout() {
-    this.dom.createMainLayout();
+    this.dom.createMainApplicationLayout();
   }
 
   setupEventListeners() {
@@ -40,14 +40,14 @@ export class ApplicationService {
   }
 
   setupAddToCartListener() {
-    const addButton = this.dom.getElement('addButton');
-    const productSelect = this.dom.getElement('productSelect');
+    const addButton = this.dom.getCachedElement('addToCartButton');
+    const productSelect = this.dom.getCachedElement('productSelectionDropdown');
 
-    this.events.addEventListener(addButton, 'click', () => {
+    this.events.registerEventListener(addButton, 'click', () => {
       const selectedValue = productSelect.value;
       if (!selectedValue) return;
 
-      const itemToAdd = this.state.getProduct(selectedValue);
+      const itemToAdd = this.state.getProductById(selectedValue);
       if (!itemToAdd || itemToAdd.q <= 0) {
         NotificationBar.generateStockAlert(ALERT_UI.STOCK_EXCEEDED);
         return;
@@ -58,7 +58,7 @@ export class ApplicationService {
   }
 
   addItemToCart(product) {
-    const cartDisplay = this.dom.getElement('cartDisplay');
+    const cartDisplay = this.dom.getCachedElement('cartItemsContainer');
     const existingItem = document.getElementById(product.id);
 
     if (existingItem) {
@@ -86,7 +86,7 @@ export class ApplicationService {
       };
 
       const newItemHTML = CartItem.render(cartItemData);
-      this.dom.insertAdjacentHTML(cartDisplay, 'beforeend', newItemHTML);
+      this.dom.insertHTMLContent(cartDisplay, 'beforeend', newItemHTML);
       product.q--;
       this.state.lastSelectedProduct = product.id;
       this.performFullUpdate();
@@ -94,10 +94,10 @@ export class ApplicationService {
   }
 
   setupCartEventHandlers() {
-    const cartDisplay = this.dom.getElement('cartDisplay');
+    const cartDisplay = this.dom.getCachedElement('cartItemsContainer');
 
     const callbacks = CartEventHandler.createMainBasicCompatibleCallbacks(
-      this.state.productList,
+      this.state.availableProducts,
       () => this.performFullUpdate(),
       () => this.updateProductSelector()
     );
@@ -116,7 +116,7 @@ export class ApplicationService {
 
     // helpButton이 존재하는 경우에만 이벤트 리스너 추가
     if (helpButton) {
-      this.events.addEventListener(helpButton, 'click', () => {
+      this.events.registerEventListener(helpButton, 'click', () => {
         this.helpModalObj.toggle();
       });
     }
@@ -127,16 +127,16 @@ export class ApplicationService {
   }
 
   performFullUpdate() {
-    const cartDisplay = this.dom.getElement('cartDisplay');
+    const cartDisplay = this.dom.getCachedElement('cartItemsContainer');
     const cartItems = this.calculationEngine.extractCartItemsFromDOM(cartDisplay);
 
-    const pricingResult = this.calculationEngine.calculatePricing(cartItems);
-    const pointsResult = this.calculationEngine.calculatePoints(
+    const pricingResult = this.calculationEngine.calculateCartPricing(cartItems);
+    const pointsResult = this.calculationEngine.calculateLoyaltyPoints(
       cartItems,
       pricingResult.finalAmount
     );
 
-    this.calculationEngine.updateStateFromCalculations(cartItems, pricingResult, pointsResult);
+    this.calculationEngine.updateCartStateFromCalculations(cartItems, pricingResult, pointsResult);
 
     this.updateOrderSummary(cartItems, pricingResult, pointsResult);
     this.updateTotalAmount();
@@ -147,10 +147,10 @@ export class ApplicationService {
   }
 
   updateProductSelector() {
-    const productSelect = this.dom.getElement('productSelect');
+    const productSelect = this.dom.getCachedElement('productSelectionDropdown');
     const currentValue = productSelect.value;
 
-    const selectHTML = ProductSelector.render(this.state.productList, {
+    const selectHTML = ProductSelector.render(this.state.availableProducts, {
       id: 'product-select',
       className: 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3',
       placeholder: '',
@@ -160,7 +160,7 @@ export class ApplicationService {
     tempDiv.innerHTML = selectHTML;
     const newSelect = tempDiv.querySelector('select');
 
-    this.dom.setInnerHTML(productSelect, newSelect.innerHTML);
+    this.dom.setElementInnerHTML(productSelect, newSelect.innerHTML);
 
     // Restore selection if still valid
     if (currentValue && productSelect.querySelector(`option[value="${currentValue}"]`)) {
@@ -168,15 +168,19 @@ export class ApplicationService {
     }
 
     // Apply stock warning style
-    const totalStock = this.state.getTotalStock();
-    this.ui.updateElementStyle(productSelect, 'borderColor', totalStock < 50 ? 'orange' : '');
+    const totalStock = this.state.getTotalAvailableStock();
+    this.ui.updateElementStyle(
+      productSelect,
+      'borderColor',
+      totalStock < STOCK_CONSTANTS.TOTAL_STOCK_WARNING_THRESHOLD ? 'orange' : ''
+    );
   }
 
   updateOrderSummary(cartItems, pricingResult, pointsResult) {
-    const summaryDetails = this.dom.getElement('summaryDetails');
-    const discountInfo = this.dom.getElement('discountInfo');
-    const loyaltyPoints = this.dom.getElement('loyaltyPoints');
-    const tuesdaySpecial = this.dom.getElement('tuesdaySpecial');
+    const summaryDetails = this.dom.getCachedElement('orderSummaryDetails');
+    const discountInfo = this.dom.getCachedElement('discountInformation');
+    const loyaltyPoints = this.dom.getCachedElement('loyaltyPointsDisplay');
+    const tuesdaySpecial = this.dom.getCachedElement('tuesdaySpecialBadge');
 
     if (cartItems.length === 0) {
       this.clearOrderSummary();
@@ -200,23 +204,23 @@ export class ApplicationService {
       highlightSavings: false,
       showPointsPreview: false,
     });
-    this.dom.setInnerHTML(summaryDetails, summaryHTML);
+    this.dom.setElementInnerHTML(summaryDetails, summaryHTML);
 
     // Update discount information
     if (pricingResult.discountRate > 0 && pricingResult.finalAmount > 0) {
       const savingsHTML = OrderSummary.generateSavingsInfo(orderData.pricing);
-      this.dom.setInnerHTML(discountInfo, savingsHTML);
+      this.dom.setElementInnerHTML(discountInfo, savingsHTML);
     } else {
-      this.dom.setInnerHTML(discountInfo, '');
+      this.dom.setElementInnerHTML(discountInfo, '');
     }
 
     // Update points information
     const pointsHTML = OrderSummary.generatePointsInfo(orderData.points);
     if (pointsHTML) {
-      this.dom.setInnerHTML(loyaltyPoints, pointsHTML);
+      this.dom.setElementInnerHTML(loyaltyPoints, pointsHTML);
       this.ui.updateElementStyle(loyaltyPoints, 'display', 'block');
     } else {
-      this.dom.setTextContent(loyaltyPoints, '적립 포인트: 0p');
+      this.dom.setElementTextContent(loyaltyPoints, '적립 포인트: 0p');
       this.ui.updateElementStyle(loyaltyPoints, 'display', 'block');
     }
 
@@ -225,43 +229,56 @@ export class ApplicationService {
     const hasTuesdayDiscount = pricingResult.tuesdayDiscount?.discountAmount > 0;
 
     if (isTuesday && hasTuesdayDiscount) {
-      this.dom.removeClass(tuesdaySpecial, 'hidden');
+      this.dom.removeCSSClass(tuesdaySpecial, 'hidden');
     } else {
-      this.dom.addClass(tuesdaySpecial, 'hidden');
+      this.dom.addCSSClass(tuesdaySpecial, 'hidden');
     }
   }
 
   clearOrderSummary() {
-    this.dom.setInnerHTML(this.dom.getElement('summaryDetails'), '');
-    this.dom.setInnerHTML(this.dom.getElement('discountInfo'), '');
-    this.dom.setTextContent(this.dom.getElement('loyaltyPoints'), '적립 포인트: 0p');
-    this.ui.updateElementStyle(this.dom.getElement('loyaltyPoints'), 'display', 'none');
-    this.dom.addClass(this.dom.getElement('tuesdaySpecial'), 'hidden');
+    this.dom.setElementInnerHTML(this.dom.getCachedElement('orderSummaryDetails'), '');
+    this.dom.setElementInnerHTML(this.dom.getCachedElement('discountInformation'), '');
+    this.dom.setElementTextContent(
+      this.dom.getCachedElement('loyaltyPointsDisplay'),
+      '적립 포인트: 0p'
+    );
+    this.ui.updateElementStyle(
+      this.dom.getCachedElement('loyaltyPointsDisplay'),
+      'display',
+      'none'
+    );
+    this.dom.addCSSClass(this.dom.getCachedElement('tuesdaySpecialBadge'), 'hidden');
   }
 
   updateTotalAmount() {
-    const cartTotal = this.dom.getElement('cartTotal');
+    const cartTotal = this.dom.getCachedElement('cartTotalAmount');
     const totalDiv = cartTotal?.querySelector('.text-2xl');
 
     if (totalDiv) {
-      this.dom.setTextContent(totalDiv, '₩' + Math.round(this.state.totalAmount).toLocaleString());
+      this.dom.setElementTextContent(
+        totalDiv,
+        '₩' + Math.round(this.state.cartTotalAmount).toLocaleString()
+      );
     }
   }
 
   updateItemCount() {
-    const itemCountElement = this.dom.getElement('itemCount');
+    const itemCountElement = this.dom.getCachedElement('itemCountDisplay');
     if (itemCountElement) {
-      this.dom.setTextContent(itemCountElement, `🛍️ ${this.state.itemCount} items in cart`);
+      this.dom.setElementTextContent(
+        itemCountElement,
+        `🛍️ ${this.state.totalItemCount} items in cart`
+      );
     }
   }
 
   updateStockInfo() {
-    const stockInfo = this.dom.getElement('stockInfo');
-    StockInfo.updateStockInfoElement(this.state.productList, stockInfo);
+    const stockInfo = this.dom.getCachedElement('stockStatusDisplay');
+    StockInfo.updateStockInfoElement(this.state.availableProducts, stockInfo);
   }
 
   highlightQuantityDiscounts() {
-    const cartDisplay = this.dom.getElement('cartDisplay');
+    const cartDisplay = this.dom.getCachedElement('cartItemsContainer');
 
     Array.from(cartDisplay.children).forEach(itemElement => {
       const quantityElement = itemElement.querySelector('.quantity-number');
@@ -270,7 +287,11 @@ export class ApplicationService {
       const priceElements = itemElement.querySelectorAll('.text-lg, .text-xs');
       priceElements.forEach(element => {
         if (element.classList.contains('text-lg')) {
-          this.ui.updateElementStyle(element, 'fontWeight', quantity >= 10 ? 'bold' : 'normal');
+          this.ui.updateElementStyle(
+            element,
+            'fontWeight',
+            quantity >= POINTS_CONSTANTS.BULK_PURCHASE_THRESHOLD ? 'bold' : 'normal'
+          );
         }
       });
     });

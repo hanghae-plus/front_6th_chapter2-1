@@ -3,23 +3,23 @@ import { PointsCalculator } from './PointsCalculator.js';
 import { PriceCalculator } from './PriceCalculator.js';
 
 export class CalculationEngine {
-  constructor(state) {
-    this.state = state;
+  constructor(cartState) {
+    this.cartState = cartState;
   }
 
-  extractCartItemsFromDOM(cartDisplay) {
+  extractCartItemsFromDOM(cartItemsContainer) {
     const cartItems = [];
-    const cartElements = Array.from(cartDisplay.children);
+    const cartItemElements = Array.from(cartItemsContainer.children);
 
-    cartElements.forEach(element => {
-      const product = this.state.getProduct(element.id);
-      const quantityElement = element.querySelector('.quantity-number');
-      const quantity = parseInt(quantityElement?.textContent || 0);
+    cartItemElements.forEach(cartItemElement => {
+      const product = this.cartState.getProductById(cartItemElement.id);
+      const quantityElement = cartItemElement.querySelector('.quantity-number');
+      const itemQuantity = parseInt(quantityElement?.textContent || 0);
 
-      if (product && quantity > 0) {
+      if (product && itemQuantity > 0) {
         cartItems.push({
           id: product.id,
-          quantity: quantity,
+          quantity: itemQuantity,
           price: product.val,
           product: product,
         });
@@ -29,7 +29,7 @@ export class CalculationEngine {
     return cartItems;
   }
 
-  calculatePricing(cartItems) {
+  calculateCartPricing(cartItems) {
     if (cartItems.length === 0) {
       return {
         subtotal: 0,
@@ -42,49 +42,54 @@ export class CalculationEngine {
     }
 
     // Base price calculation
-    const priceResult = PriceCalculator.calculateFinalPrice(cartItems, new Date());
+    const basePriceResult = PriceCalculator.calculateFinalPrice(cartItems, new Date());
 
     // Check for special discount combinations
-    const hasFlashAndRecommend = cartItems.some(
-      item => item.product?.onSale && item.product?.suggestSale
+    const hasFlashSaleAndRecommendedProduct = cartItems.some(
+      cartItem => cartItem.product?.onSale && cartItem.product?.suggestSale
     );
 
-    let finalResult = priceResult;
+    let finalPricingResult = basePriceResult;
 
     // Apply advanced discounts if applicable
-    if (hasFlashAndRecommend) {
-      const discountContext = {
+    if (hasFlashSaleAndRecommendedProduct) {
+      const discountCalculationContext = {
         date: new Date(),
-        isFlashSale: cartItems.some(item => item.product?.onSale),
-        recommendedProduct: cartItems.find(item => item.product?.suggestSale)?.id,
+        isFlashSale: cartItems.some(cartItem => cartItem.product?.onSale),
+        recommendedProduct: cartItems.find(cartItem => cartItem.product?.suggestSale)?.id,
       };
 
-      const discountEngineResult = DiscountEngine.applyDiscountPolicies(cartItems, discountContext);
+      const advancedDiscountResult = DiscountEngine.applyDiscountPolicies(
+        cartItems,
+        discountCalculationContext
+      );
 
-      if (discountEngineResult.totalSavings > priceResult.totalSavings) {
-        finalResult = {
-          subtotal: priceResult.subtotal,
-          finalAmount: discountEngineResult.finalAmount,
-          totalSavings: discountEngineResult.totalSavings,
-          appliedDiscounts: discountEngineResult.appliedDiscounts,
-          individualDiscounts: priceResult.individualDiscounts,
-          bulkDiscount: priceResult.bulkDiscount,
-          tuesdayDiscount: priceResult.tuesdayDiscount,
-          specialDiscounts: discountEngineResult.appliedDiscounts.filter(d =>
-            ['flash', 'recommend', 'combo'].includes(d.type)
+      if (advancedDiscountResult.totalSavings > basePriceResult.totalSavings) {
+        finalPricingResult = {
+          subtotal: basePriceResult.subtotal,
+          finalAmount: advancedDiscountResult.finalAmount,
+          totalSavings: advancedDiscountResult.totalSavings,
+          appliedDiscounts: advancedDiscountResult.appliedDiscounts,
+          individualDiscounts: basePriceResult.individualDiscounts,
+          bulkDiscount: basePriceResult.bulkDiscount,
+          tuesdayDiscount: basePriceResult.tuesdayDiscount,
+          specialDiscounts: advancedDiscountResult.appliedDiscounts.filter(discount =>
+            ['flash', 'recommend', 'combo'].includes(discount.type)
           ),
         };
       }
     }
 
     // Add discount rate calculation
-    finalResult.discountRate =
-      finalResult.totalSavings > 0 ? finalResult.totalSavings / finalResult.subtotal : 0;
+    finalPricingResult.discountRate =
+      finalPricingResult.totalSavings > 0
+        ? finalPricingResult.totalSavings / finalPricingResult.subtotal
+        : 0;
 
-    return finalResult;
+    return finalPricingResult;
   }
 
-  calculatePoints(cartItems, totalAmount) {
+  calculateLoyaltyPoints(cartItems, totalAmount) {
     if (cartItems.length === 0) {
       return { total: 0, messages: [] };
     }
@@ -94,9 +99,12 @@ export class CalculationEngine {
     });
   }
 
-  updateStateFromCalculations(cartItems, pricingResult, pointsResult) {
-    this.state.itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    this.state.totalAmount = pricingResult.finalAmount;
-    this.state.bonusPoints = pointsResult.total;
+  updateCartStateFromCalculations(cartItems, pricingResult, pointsResult) {
+    this.cartState.totalItemCount = cartItems.reduce(
+      (totalQuantity, cartItem) => totalQuantity + cartItem.quantity,
+      0
+    );
+    this.cartState.cartTotalAmount = pricingResult.finalAmount;
+    this.cartState.earnedLoyaltyPoints = pointsResult.total;
   }
 }

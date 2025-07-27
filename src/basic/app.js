@@ -1,4 +1,4 @@
-import { DOMManager } from './core/DomManager.js';
+import { DOMElementManager } from './core/DomManager.js';
 import { EventManager } from './core/EventManager.js';
 import { UIUpdater } from './core/UIUpdater.js';
 import { CalculationEngine } from './helpers/CalculationEngine.js';
@@ -8,14 +8,14 @@ import { ApplicationService } from './services/ApplicationService.js';
 
 export class BootstrapApplication {
   constructor() {
-    this.domManager = new DOMManager();
+    this.domElementManager = new DOMElementManager();
     this.eventManager = new EventManager();
-    this.uiUpdater = new UIUpdater(this.domManager);
+    this.uiUpdater = new UIUpdater(this.domElementManager);
     this.state = new ShoppingCartState();
     this.calculationEngine = new CalculationEngine(this.state);
     this.promotionManager = new PromotionManager();
     this.applicationService = new ApplicationService(
-      this.domManager,
+      this.domElementManager,
       this.eventManager,
       this.uiUpdater,
       this.state,

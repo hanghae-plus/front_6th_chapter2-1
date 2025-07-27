@@ -98,6 +98,55 @@ export const UI_ICONS = {
 /**
  * CSS 클래스 상수
  */
+export const CSS_CLASSES = {
+  PRODUCT_SELECTOR: {
+    BASE: 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3',
+    OUT_OF_STOCK: 'text-gray-400',
+    FLASH_SALE: 'text-red-500 font-bold',
+    RECOMMENDATION: 'text-blue-500 font-bold',
+    SUPER_SALE: 'text-purple-600 font-bold',
+  },
+  CART_ITEM: {
+    BASE: 'flex items-center justify-between p-4 border-b border-gray-200',
+    HIGHLIGHT: 'bg-yellow-50',
+  },
+  BUTTON: {
+    PRIMARY: 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600',
+    SECONDARY: 'bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400',
+    DANGER: 'bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600',
+  },
+};
+
+/**
+ * 재고 관련 상수
+ */
+export const STOCK_CONSTANTS = {
+  LOW_STOCK_THRESHOLD: 5,
+  OUT_OF_STOCK_QUANTITY: 0,
+  TOTAL_STOCK_WARNING_THRESHOLD: 50,
+};
+
+/**
+ * 할인 관련 상수
+ */
+export const DISCOUNT_CONSTANTS = {
+  FLASH_SALE_RATE: 0.2, // 20%
+  RECOMMENDATION_RATE: 0.05, // 5%
+  SUPER_SALE_RATE: 0.25, // 25%
+  TUESDAY_DISCOUNT_RATE: 0.1, // 10%
+};
+
+/**
+ * 포인트 관련 상수
+ */
+export const POINTS_CONSTANTS = {
+  BASE_POINTS_RATE: 0.01, // 1%
+  TUESDAY_MULTIPLIER: 2,
+  SET_BONUS_POINTS: 1000,
+  FULL_SET_BONUS_POINTS: 2000,
+  BULK_PURCHASE_THRESHOLD: 10,
+  BULK_PURCHASE_BONUS: 500,
+};
 export const UI_CLASSES = {
   DISCOUNT_TEXT: 'text-green-400',
   POINTS_TEXT: 'text-blue-400',
