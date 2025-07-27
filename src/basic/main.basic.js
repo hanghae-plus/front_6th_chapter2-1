@@ -10,18 +10,12 @@ import {
 
 // 포인트 정책 import
 import {
-  calculateTotalPoints,
   calculateBasePoints,
+  calculateBulkBonus,
+  calculateSetBonus,
   calculateTuesdayPoints,
-  POINTS_RATES,
-  BONUS_POINTS,
-  POINTS_MESSAGES
 } from './constants/PointsPolicies.js';
 // UI 상수 import
-import {
-  POINTS_UI,
-  formatMessage
-} from './constants/UIConstants.js';
 
 let prodList;
 let bonusPts = 0;
@@ -568,6 +562,22 @@ var doRenderBonusPoints = function () {
       pointsDetail.push('화요일 2배');
     }
   }
+  // cartItems 배열 생성 (보너스 포인트 계산용)
+  const cartItemsForBonus = [];
+  const cartNodes = cartDisp.children;
+  for (const cartNode of cartNodes) {
+    let cartProduct = null;
+    for (let cIdx = 0; cIdx < prodList.length; cIdx++) {
+      if (prodList[cIdx].id === cartNode.id) {
+        cartProduct = prodList[cIdx];
+        break;
+      }
+    }
+    if (cartProduct) {
+      const cartQuantity = parseInt(cartNode.querySelector('span').textContent) || 0;
+      cartItemsForBonus.push({ id: cartProduct.id, q: cartQuantity });
+    }
+  }
   hasKeyboard = false;
   hasMouse = false;
   hasMonitorArm = false;
@@ -597,19 +607,32 @@ var doRenderBonusPoints = function () {
     finalPoints = finalPoints + 100;
     pointsDetail.push('풀세트 구매 +100p');
   }
-  if (itemCnt >= 30) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('대량구매(30개+) +100p');
-  } else {
-    if (itemCnt >= 20) {
-      finalPoints = finalPoints + 50;
-      pointsDetail.push('대량구매(20개+) +50p');
-    } else {
-      if (itemCnt >= 10) {
-        finalPoints = finalPoints + 20;
-        pointsDetail.push('대량구매(10개+) +20p');
-      }
-    }
+  // 세트 보너스 계산 (새로운 함수 병렬 테스트)
+  const setBonus = calculateSetBonus(cartItemsForBonus);
+  // 새로운 함수 결과 적용 (테스트용)
+  if (setBonus.points > 0) {
+  }
+  // OLD - 기존 하드코딩된 대량구매 보너스 로직 (주석처리)
+  // if (itemCnt >= 30) {
+  //   finalPoints = finalPoints + 100;
+  //   pointsDetail.push('대량구매(30개+) +100p');
+  // } else {
+  //   if (itemCnt >= 20) {
+  //     finalPoints = finalPoints + 50;
+  //     pointsDetail.push('대량구매(20개+) +50p');
+  //   } else {
+  //     if (itemCnt >= 10) {
+  //       finalPoints = finalPoints + 20;
+  //       pointsDetail.push('대량구매(10개+) +20p');
+  //     }
+  //   }
+  // }
+  // 대량구매 보너스 계산 (새로운 함수)
+  const bulkBonus = calculateBulkBonus(itemCnt);
+  // 새로운 함수 결과를 실제로 적용
+  if (bulkBonus.points > 0) {
+    finalPoints = finalPoints + bulkBonus.points;
+    pointsDetail.push(bulkBonus.description);
   }
   bonusPts = finalPoints;
   const ptsTag = document.getElementById('loyalty-points');
