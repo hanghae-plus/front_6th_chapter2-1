@@ -4,37 +4,26 @@ import { UIUpdater } from './core/UIUpdater.js';
 import { CalculationEngine } from './helpers/CalculationEngine.js';
 import { PromotionManager } from './helpers/PromotionManager.js';
 import { ShoppingCartState } from './helpers/ShoppingCartState.js';
+import { ApplicationService } from './services/ApplicationService.js';
 
 export class BootstrapApplication {
   constructor() {
-    this.state = new ShoppingCartState();
     this.domManager = new DOMManager();
+    this.eventManager = new EventManager();
+    this.uiUpdater = new UIUpdater(this.domManager);
+    this.state = new ShoppingCartState();
     this.calculationEngine = new CalculationEngine(this.state);
-    this.uiUpdater = new UIUpdater(this.domManager, this.state);
-    this.eventManager = new EventManager(
-      this.state,
+    this.promotionManager = new PromotionManager();
+    this.applicationService = new ApplicationService(
       this.domManager,
-      this.calculationEngine,
-      this.uiUpdater
+      this.eventManager,
+      this.uiUpdater,
+      this.state,
+      this.calculationEngine
     );
-    this.promotionManager = new PromotionManager(this.state, this.uiUpdater, this.eventManager);
   }
 
   initialize() {
-    // Initialize application state
-    this.state.initializeProducts();
-
-    // Create DOM structure
-    this.domManager.createMainLayout();
-
-    // Setup event listeners
-    this.eventManager.setupEventListeners();
-
-    // Initial UI update
-    this.uiUpdater.updateProductSelector();
-    this.eventManager.performFullUpdate();
-
-    // Start promotion timers
-    this.promotionManager.startPromotionTimers();
+    this.applicationService.initialize();
   }
 }

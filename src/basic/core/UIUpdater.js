@@ -1,210 +1,370 @@
-import { CartItem } from '../components/CartItem.js';
-import { OrderSummary } from '../components/OrderSummary.js';
-import { ProductSelector } from '../components/ProductSelector.js';
-import { StockInfo } from '../components/StockInfo.js';
-
 export class UIUpdater {
-  constructor(domManager, state) {
+  constructor(domManager) {
     this.dom = domManager;
-    this.state = state;
   }
 
-  updateProductSelector() {
-    const productSelect = this.dom.getElement('productSelect');
-    const currentValue = productSelect.value;
-
-    const selectHTML = ProductSelector.render(this.state.productList, {
-      id: 'product-select',
-      className: 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3',
-      placeholder: '',
-    });
-
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = selectHTML;
-    const newSelect = tempDiv.querySelector('select');
-
-    productSelect.innerHTML = newSelect.innerHTML;
-
-    // Restore selection if still valid
-    if (currentValue && productSelect.querySelector(`option[value="${currentValue}"]`)) {
-      productSelect.value = currentValue;
+  // 순수한 UI 업데이트 메서드들
+  updateElementText(element, text) {
+    if (element) {
+      this.dom.setTextContent(element, text);
     }
-
-    // Apply stock warning style
-    const totalStock = this.state.getTotalStock();
-    productSelect.style.borderColor = totalStock < 50 ? 'orange' : '';
   }
 
-  updateCartDisplay() {
-    const cartDisplay = this.dom.getElement('cartDisplay');
-    const cartItems = [];
+  updateElementHTML(element, html) {
+    if (element) {
+      this.dom.setInnerHTML(element, html);
+    }
+  }
 
-    Array.from(cartDisplay.children).forEach(element => {
-      const product = this.state.getProduct(element.id);
-      const quantityElement = element.querySelector('.quantity-number');
-      const quantity = parseInt(quantityElement?.textContent || 0);
+  updateElementAttribute(element, attribute, value) {
+    if (element) {
+      this.dom.setAttribute(element, attribute, value);
+    }
+  }
 
-      if (product && quantity > 0) {
-        cartItems.push({
-          id: product.id,
-          product: product,
-          quantity: quantity,
-          price: product.val,
-        });
+  updateElementClass(element, className, shouldAdd = true) {
+    if (element) {
+      if (shouldAdd) {
+        this.dom.addClass(element, className);
+      } else {
+        this.dom.removeClass(element, className);
       }
-    });
-
-    // Clear and rebuild cart display
-    cartDisplay.innerHTML = '';
-
-    cartItems.forEach(item => {
-      const cartItemData = {
-        product: item.product,
-        quantity: item.quantity,
-        discounts: {},
-        subtotal: item.product.val * item.quantity,
-        stock: item.product.q,
-      };
-
-      const newItemHTML = CartItem.render(cartItemData);
-      cartDisplay.insertAdjacentHTML('beforeend', newItemHTML);
-    });
-  }
-
-  updatePricesInCart() {
-    const cartDisplay = this.dom.getElement('cartDisplay');
-
-    Array.from(cartDisplay.children).forEach(itemElement => {
-      const product = this.state.getProduct(itemElement.id);
-      if (!product) return;
-
-      const priceDiv = itemElement.querySelector('.text-lg');
-      const nameDiv = itemElement.querySelector('h3');
-
-      this.updateProductDisplayInCart(product, priceDiv, nameDiv);
-    });
-  }
-
-  updateProductDisplayInCart(product, priceDiv, nameDiv) {
-    const originalPrice = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span>`;
-    const currentPrice = `₩${product.val.toLocaleString()}`;
-
-    if (product.onSale && product.suggestSale) {
-      priceDiv.innerHTML = `${originalPrice} <span class="text-purple-600">${currentPrice}</span>`;
-      nameDiv.textContent = `⚡💝${product.name}`;
-    } else if (product.onSale) {
-      priceDiv.innerHTML = `${originalPrice} <span class="text-red-500">${currentPrice}</span>`;
-      nameDiv.textContent = `⚡${product.name}`;
-    } else if (product.suggestSale) {
-      priceDiv.innerHTML = `${originalPrice} <span class="text-blue-500">${currentPrice}</span>`;
-      nameDiv.textContent = `💝${product.name}`;
-    } else {
-      priceDiv.textContent = currentPrice;
-      nameDiv.textContent = product.name;
     }
   }
 
-  updateOrderSummary(cartItems, pricingResult, pointsResult) {
-    const summaryDetails = this.dom.getElement('summaryDetails');
-    const discountInfo = this.dom.getElement('discountInfo');
-    const loyaltyPoints = this.dom.getElement('loyaltyPoints');
-    const tuesdaySpecial = this.dom.getElement('tuesdaySpecial');
-
-    if (cartItems.length === 0) {
-      this.clearOrderSummary();
-      return;
-    }
-
-    // Prepare order data for OrderSummary component
-    const orderData = OrderSummary.transformCalculationResults(
-      {
-        priceResult: pricingResult,
-        pointsResult: pointsResult,
-        discountResult: { specialDiscounts: pricingResult.specialDiscounts || [] },
-        context: { isTuesday: new Date().getDay() === 2 },
-      },
-      cartItems
-    );
-
-    // Update summary details
-    const summaryHTML = OrderSummary.render(orderData, {
-      showDetailedBreakdown: true,
-      highlightSavings: false,
-      showPointsPreview: false,
-    });
-    summaryDetails.innerHTML = summaryHTML;
-
-    // Update discount information
-    if (pricingResult.discountRate > 0 && pricingResult.finalAmount > 0) {
-      const savingsHTML = OrderSummary.generateSavingsInfo(orderData.pricing);
-      discountInfo.innerHTML = savingsHTML;
-    } else {
-      discountInfo.innerHTML = '';
-    }
-
-    // Update points information
-    const pointsHTML = OrderSummary.generatePointsInfo(orderData.points);
-    if (pointsHTML) {
-      loyaltyPoints.innerHTML = pointsHTML;
-      loyaltyPoints.style.display = 'block';
-    } else {
-      loyaltyPoints.textContent = '적립 포인트: 0p';
-      loyaltyPoints.style.display = 'block';
-    }
-
-    // Update Tuesday special banner
-    const isTuesday = new Date().getDay() === 2;
-    const hasTuesdayDiscount = pricingResult.tuesdayDiscount?.discountAmount > 0;
-
-    if (isTuesday && hasTuesdayDiscount) {
-      tuesdaySpecial.classList.remove('hidden');
-    } else {
-      tuesdaySpecial.classList.add('hidden');
+  updateElementStyle(element, property, value) {
+    if (element) {
+      element.style[property] = value;
     }
   }
 
-  clearOrderSummary() {
-    this.dom.getElement('summaryDetails').innerHTML = '';
-    this.dom.getElement('discountInfo').innerHTML = '';
-    this.dom.getElement('loyaltyPoints').textContent = '적립 포인트: 0p';
-    this.dom.getElement('loyaltyPoints').style.display = 'none';
-    this.dom.getElement('tuesdaySpecial').classList.add('hidden');
-  }
-
-  updateTotalAmount() {
-    const cartTotal = this.dom.getElement('cartTotal');
-    const totalDiv = cartTotal?.querySelector('.text-2xl');
-
-    if (totalDiv) {
-      totalDiv.textContent = '₩' + Math.round(this.state.totalAmount).toLocaleString();
+  updateElementValue(element, value) {
+    if (element) {
+      element.value = value;
     }
   }
 
-  updateItemCount() {
-    const itemCountElement = this.dom.getElement('itemCount');
-    if (itemCountElement) {
-      itemCountElement.textContent = `🛍️ ${this.state.itemCount} items in cart`;
+  updateElementVisibility(element, isVisible) {
+    if (element) {
+      this.updateElementStyle(element, 'display', isVisible ? '' : 'none');
     }
   }
 
-  updateStockInfo() {
-    const stockInfo = this.dom.getElement('stockInfo');
-    StockInfo.updateStockInfoElement(this.state.productList, stockInfo);
+  updateElementDisabled(element, isDisabled) {
+    if (element) {
+      element.disabled = isDisabled;
+    }
   }
 
-  highlightQuantityDiscounts() {
-    const cartDisplay = this.dom.getElement('cartDisplay');
+  updateElementSelected(element, isSelected) {
+    if (element) {
+      element.selected = isSelected;
+    }
+  }
 
-    Array.from(cartDisplay.children).forEach(itemElement => {
-      const quantityElement = itemElement.querySelector('.quantity-number');
-      const quantity = parseInt(quantityElement?.textContent || 0);
+  updateElementChecked(element, isChecked) {
+    if (element) {
+      element.checked = isChecked;
+    }
+  }
 
-      const priceElements = itemElement.querySelectorAll('.text-lg, .text-xs');
-      priceElements.forEach(element => {
-        if (element.classList.contains('text-lg')) {
-          element.style.fontWeight = quantity >= 10 ? 'bold' : 'normal';
-        }
-      });
-    });
+  updateElementSrc(element, src) {
+    if (element) {
+      this.dom.setAttribute(element, 'src', src);
+    }
+  }
+
+  updateElementHref(element, href) {
+    if (element) {
+      this.dom.setAttribute(element, 'href', href);
+    }
+  }
+
+  updateElementPlaceholder(element, placeholder) {
+    if (element) {
+      this.dom.setAttribute(element, 'placeholder', placeholder);
+    }
+  }
+
+  updateElementTitle(element, title) {
+    if (element) {
+      this.dom.setAttribute(element, 'title', title);
+    }
+  }
+
+  updateElementAlt(element, alt) {
+    if (element) {
+      this.dom.setAttribute(element, 'alt', alt);
+    }
+  }
+
+  updateElementData(element, key, value) {
+    if (element) {
+      this.dom.setAttribute(element, `data-${key}`, value);
+    }
+  }
+
+  updateElementId(element, id) {
+    if (element) {
+      this.dom.setAttribute(element, 'id', id);
+    }
+  }
+
+  updateElementName(element, name) {
+    if (element) {
+      this.dom.setAttribute(element, 'name', name);
+    }
+  }
+
+  updateElementType(element, type) {
+    if (element) {
+      this.dom.setAttribute(element, 'type', type);
+    }
+  }
+
+  updateElementMax(element, max) {
+    if (element) {
+      this.dom.setAttribute(element, 'max', max);
+    }
+  }
+
+  updateElementMin(element, min) {
+    if (element) {
+      this.dom.setAttribute(element, 'min', min);
+    }
+  }
+
+  updateElementStep(element, step) {
+    if (element) {
+      this.dom.setAttribute(element, 'step', step);
+    }
+  }
+
+  updateElementRequired(element, isRequired) {
+    if (element) {
+      if (isRequired) {
+        this.dom.setAttribute(element, 'required', '');
+      } else {
+        element.removeAttribute('required');
+      }
+    }
+  }
+
+  updateElementReadonly(element, isReadonly) {
+    if (element) {
+      if (isReadonly) {
+        this.dom.setAttribute(element, 'readonly', '');
+      } else {
+        element.removeAttribute('readonly');
+      }
+    }
+  }
+
+  updateElementAutocomplete(element, autocomplete) {
+    if (element) {
+      this.dom.setAttribute(element, 'autocomplete', autocomplete);
+    }
+  }
+
+  updateElementPattern(element, pattern) {
+    if (element) {
+      this.dom.setAttribute(element, 'pattern', pattern);
+    }
+  }
+
+  updateElementMaxlength(element, maxlength) {
+    if (element) {
+      this.dom.setAttribute(element, 'maxlength', maxlength);
+    }
+  }
+
+  updateElementMinlength(element, minlength) {
+    if (element) {
+      this.dom.setAttribute(element, 'minlength', minlength);
+    }
+  }
+
+  updateElementSize(element, size) {
+    if (element) {
+      this.dom.setAttribute(element, 'size', size);
+    }
+  }
+
+  updateElementMultiple(element, isMultiple) {
+    if (element) {
+      if (isMultiple) {
+        this.dom.setAttribute(element, 'multiple', '');
+      } else {
+        element.removeAttribute('multiple');
+      }
+    }
+  }
+
+  updateElementAccept(element, accept) {
+    if (element) {
+      this.dom.setAttribute(element, 'accept', accept);
+    }
+  }
+
+  updateElementForm(element, form) {
+    if (element) {
+      this.dom.setAttribute(element, 'form', form);
+    }
+  }
+
+  updateElementFormaction(element, formaction) {
+    if (element) {
+      this.dom.setAttribute(element, 'formaction', formaction);
+    }
+  }
+
+  updateElementFormenctype(element, formenctype) {
+    if (element) {
+      this.dom.setAttribute(element, 'formenctype', formenctype);
+    }
+  }
+
+  updateElementFormmethod(element, formmethod) {
+    if (element) {
+      this.dom.setAttribute(element, 'formmethod', formmethod);
+    }
+  }
+
+  updateElementFormnovalidate(element, isFormnovalidate) {
+    if (element) {
+      if (isFormnovalidate) {
+        this.dom.setAttribute(element, 'formnovalidate', '');
+      } else {
+        element.removeAttribute('formnovalidate');
+      }
+    }
+  }
+
+  updateElementFormtarget(element, formtarget) {
+    if (element) {
+      this.dom.setAttribute(element, 'formtarget', formtarget);
+    }
+  }
+
+  updateElementHeight(element, height) {
+    if (element) {
+      this.dom.setAttribute(element, 'height', height);
+    }
+  }
+
+  updateElementWidth(element, width) {
+    if (element) {
+      this.dom.setAttribute(element, 'width', width);
+    }
+  }
+
+  updateElementCols(element, cols) {
+    if (element) {
+      this.dom.setAttribute(element, 'cols', cols);
+    }
+  }
+
+  updateElementRows(element, rows) {
+    if (element) {
+      this.dom.setAttribute(element, 'rows', rows);
+    }
+  }
+
+  updateElementWrap(element, wrap) {
+    if (element) {
+      this.dom.setAttribute(element, 'wrap', wrap);
+    }
+  }
+
+  updateElementSpellcheck(element, isSpellcheck) {
+    if (element) {
+      this.dom.setAttribute(element, 'spellcheck', isSpellcheck);
+    }
+  }
+
+  updateElementTabindex(element, tabindex) {
+    if (element) {
+      this.dom.setAttribute(element, 'tabindex', tabindex);
+    }
+  }
+
+  updateElementAccesskey(element, accesskey) {
+    if (element) {
+      this.dom.setAttribute(element, 'accesskey', accesskey);
+    }
+  }
+
+  updateElementContenteditable(element, isContenteditable) {
+    if (element) {
+      this.dom.setAttribute(element, 'contenteditable', isContenteditable);
+    }
+  }
+
+  updateElementDir(element, dir) {
+    if (element) {
+      this.dom.setAttribute(element, 'dir', dir);
+    }
+  }
+
+  updateElementLang(element, lang) {
+    if (element) {
+      this.dom.setAttribute(element, 'lang', lang);
+    }
+  }
+
+  updateElementTranslate(element, isTranslate) {
+    if (element) {
+      this.dom.setAttribute(element, 'translate', isTranslate);
+    }
+  }
+
+  updateElementDraggable(element, isDraggable) {
+    if (element) {
+      this.dom.setAttribute(element, 'draggable', isDraggable);
+    }
+  }
+
+  updateElementDropzone(element, dropzone) {
+    if (element) {
+      this.dom.setAttribute(element, 'dropzone', dropzone);
+    }
+  }
+
+  updateElementHidden(element, isHidden) {
+    if (element) {
+      if (isHidden) {
+        this.dom.setAttribute(element, 'hidden', '');
+      } else {
+        element.removeAttribute('hidden');
+      }
+    }
+  }
+
+  updateElementContextmenu(element, contextmenu) {
+    if (element) {
+      this.dom.setAttribute(element, 'contextmenu', contextmenu);
+    }
+  }
+
+  updateElementInert(element, isInert) {
+    if (element) {
+      if (isInert) {
+        this.dom.setAttribute(element, 'inert', '');
+      } else {
+        element.removeAttribute('inert');
+      }
+    }
+  }
+
+  updateElementPopover(element, popover) {
+    if (element) {
+      this.dom.setAttribute(element, 'popover', popover);
+    }
+  }
+
+  updateElementSlot(element, slot) {
+    if (element) {
+      this.dom.setAttribute(element, 'slot', slot);
+    }
   }
 }

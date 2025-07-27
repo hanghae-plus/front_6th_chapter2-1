@@ -1,104 +1,96 @@
-import { CartEventHandler } from '../components/CartEventHandler.js';
-import { CartItem } from '../components/CartItem.js';
-import { NotificationBar } from '../components/NotificationBar.js';
-import { ALERT_UI } from '../constants/UIConstants.js';
-
 export class EventManager {
-  constructor(state, domManager, calculationEngine, uiUpdater) {
-    this.state = state;
-    this.domManager = domManager;
-    this.calculationEngine = calculationEngine;
-    this.uiUpdater = uiUpdater;
+  constructor() {
+    this.listeners = new Map();
   }
 
-  setupEventListeners() {
-    this.setupAddToCartListener();
-    this.setupCartEventHandlers();
+  // 순수한 이벤트 관리 메서드들
+  addEventListener(element, eventType, handler) {
+    if (!this.listeners.has(element)) {
+      this.listeners.set(element, new Map());
+    }
+
+    const elementListeners = this.listeners.get(element);
+    if (!elementListeners.has(eventType)) {
+      elementListeners.set(eventType, []);
+    }
+
+    elementListeners.get(eventType).push(handler);
+    element.addEventListener(eventType, handler);
   }
 
-  setupAddToCartListener() {
-    const addButton = this.domManager.getElement('addButton');
-    const productSelect = this.domManager.getElement('productSelect');
-    const cartDisplay = this.domManager.getElement('cartDisplay');
-
-    addButton.addEventListener('click', () => {
-      const selectedValue = productSelect.value;
-      if (!selectedValue) return;
-
-      const itemToAdd = this.state.getProduct(selectedValue);
-      if (!itemToAdd || itemToAdd.q <= 0) {
-        NotificationBar.generateStockAlert(ALERT_UI.STOCK_EXCEEDED);
-        return;
+  removeEventListener(element, eventType, handler) {
+    const elementListeners = this.listeners.get(element);
+    if (elementListeners && elementListeners.has(eventType)) {
+      const handlers = elementListeners.get(eventType);
+      const index = handlers.indexOf(handler);
+      if (index > -1) {
+        handlers.splice(index, 1);
+        element.removeEventListener(eventType, handler);
       }
-
-      this.addItemToCart(itemToAdd, cartDisplay);
-    });
-  }
-
-  addItemToCart(product, cartDisplay) {
-    const existingItem = document.getElementById(product.id);
-
-    if (existingItem) {
-      // Update existing item quantity
-      const quantityElement = existingItem.querySelector('.quantity-number');
-      const currentQuantity = parseInt(quantityElement.textContent);
-      const newQuantity = currentQuantity + 1;
-
-      if (newQuantity <= product.q + currentQuantity) {
-        quantityElement.textContent = newQuantity;
-        product.q--;
-        this.state.lastSelectedProduct = product.id;
-        this.performFullUpdate();
-      } else {
-        NotificationBar.generateStockAlert(ALERT_UI.STOCK_EXCEEDED);
-      }
-    } else {
-      // Create new cart item
-      const cartItemData = {
-        product: product,
-        quantity: 1,
-        discounts: {},
-        subtotal: product.val,
-        stock: product.q,
-      };
-
-      const newItemHTML = CartItem.render(cartItemData);
-      cartDisplay.insertAdjacentHTML('beforeend', newItemHTML);
-      product.q--;
-      this.state.lastSelectedProduct = product.id;
-      this.performFullUpdate();
     }
   }
 
-  setupCartEventHandlers() {
-    const cartDisplay = this.domManager.getElement('cartDisplay');
-
-    const callbacks = CartEventHandler.createMainBasicCompatibleCallbacks(
-      this.state.productList,
-      () => this.performFullUpdate(),
-      () => this.uiUpdater.updateProductSelector()
-    );
-
-    CartEventHandler.setupEventListeners(cartDisplay, callbacks);
+  removeAllListeners(element, eventType) {
+    const elementListeners = this.listeners.get(element);
+    if (elementListeners && elementListeners.has(eventType)) {
+      const handlers = elementListeners.get(eventType);
+      handlers.forEach(handler => {
+        element.removeEventListener(eventType, handler);
+      });
+      elementListeners.delete(eventType);
+    }
   }
 
-  performFullUpdate() {
-    const cartDisplay = this.domManager.getElement('cartDisplay');
-    const cartItems = this.calculationEngine.extractCartItemsFromDOM(cartDisplay);
+  removeAllElementListeners(element) {
+    const elementListeners = this.listeners.get(element);
+    if (elementListeners) {
+      elementListeners.forEach((handlers, eventType) => {
+        handlers.forEach(handler => {
+          element.removeEventListener(eventType, handler);
+        });
+      });
+      this.listeners.delete(element);
+    }
+  }
 
-    const pricingResult = this.calculationEngine.calculatePricing(cartItems);
-    const pointsResult = this.calculationEngine.calculatePoints(
-      cartItems,
-      pricingResult.finalAmount
-    );
+  // 이벤트 위임을 위한 메서드
+  delegateEvent(parentElement, selector, eventType, handler) {
+    parentElement.addEventListener(eventType, event => {
+      const target = event.target.closest(selector);
+      if (target && parentElement.contains(target)) {
+        handler.call(target, event, target);
+      }
+    });
+  }
 
-    this.calculationEngine.updateStateFromCalculations(cartItems, pricingResult, pointsResult);
+  // 커스텀 이벤트 생성 및 발송
+  createCustomEvent(eventName, detail = {}) {
+    return new CustomEvent(eventName, {
+      detail,
+      bubbles: true,
+      cancelable: true,
+    });
+  }
 
-    this.uiUpdater.updateOrderSummary(cartItems, pricingResult, pointsResult);
-    this.uiUpdater.updateTotalAmount();
-    this.uiUpdater.updateItemCount();
-    this.uiUpdater.updateStockInfo();
-    this.uiUpdater.updateProductSelector();
-    this.uiUpdater.highlightQuantityDiscounts();
+  dispatchCustomEvent(element, eventName, detail = {}) {
+    const event = this.createCustomEvent(eventName, detail);
+    element.dispatchEvent(event);
+  }
+
+  // 이벤트 리스너 등록을 위한 헬퍼 메서드
+  on(element, eventType, handler) {
+    this.addEventListener(element, eventType, handler);
+  }
+
+  off(element, eventType, handler) {
+    this.removeEventListener(element, eventType, handler);
+  }
+
+  // 모든 리스너 정리
+  cleanup() {
+    this.listeners.forEach((elementListeners, element) => {
+      this.removeAllElementListeners(element);
+    });
+    this.listeners.clear();
   }
 }

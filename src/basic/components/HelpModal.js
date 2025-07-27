@@ -393,19 +393,21 @@ export class HelpModal {
     const manualOverlay = helpModal.overlay;
     const manualColumn = helpModal.modal;
 
-    // 기존 테스트와 호환되도록 CSS 클래스 조정
-    // 테스트는 '.fixed.right-0.top-0' 선택자를 사용함
-    const originalModalClasses = manualColumn.className;
-    // 'right-0 top-0'이 포함되도록 확인
-    if (!manualColumn.className.includes('right-0') || !manualColumn.className.includes('top-0')) {
-      manualColumn.className =
-        originalModalClasses.replace('right-0', '').replace('top-0', '') + ' right-0 top-0';
-    }
+    // id 부여 (테스트에서 쉽게 찾을 수 있도록)
+    manualOverlay.id = 'help-modal-overlay';
+    manualColumn.id = 'help-modal-slidePanel';
 
-    // 기존 이벤트 핸들러 스타일로 배경 클릭 처리
+    // 테스트가 기대하는 선택자와 정확히 일치하도록 클래스 설정
+    // 테스트: document.querySelector('.fixed.inset-0')
+    manualOverlay.className =
+      'fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300';
+
+    // 테스트: document.querySelector('.fixed.right-0.top-0')
+    manualColumn.className =
+      'fixed right-0 top-0 h-full w-80 transform translate-x-full transition-transform duration-300 bg-white shadow-2xl p-6 overflow-y-auto z-50';
+
     manualOverlay.onclick = function (e) {
       if (e.target === manualOverlay) {
-        // 기존 방식과 동일하게 직접 클래스 조작
         manualOverlay.classList.add('hidden');
         manualColumn.classList.add('translate-x-full');
       }
@@ -414,8 +416,9 @@ export class HelpModal {
     return {
       overlay: manualOverlay,
       column: manualColumn,
+      modal: manualOverlay, // 테스트 호환
+      slidePanel: manualColumn, // 테스트 호환
       toggle: () => {
-        // 기존 main.basic.js와 동일한 toggle 로직 복원
         manualOverlay.classList.toggle('hidden');
         manualColumn.classList.toggle('translate-x-full');
       },

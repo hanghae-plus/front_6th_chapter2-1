@@ -1,6 +1,3 @@
-import { HelpModal } from '../components/HelpModal.js';
-import { NotificationBar } from '../components/NotificationBar.js';
-
 export class DOMManager {
   constructor() {
     this.elements = {};
@@ -24,23 +21,21 @@ export class DOMManager {
   }
 
   createMainLayout() {
-    const { header, gridContainer, helpComponents } = this.buildLayoutComponents();
+    const { header, gridContainer, helpButton } = this.buildLayoutComponents();
 
     this.elements.root.appendChild(header);
     this.elements.root.appendChild(gridContainer);
-    this.elements.root.appendChild(helpComponents.button);
-    this.elements.root.appendChild(helpComponents.modal.overlay);
+    this.elements.root.appendChild(helpButton);
 
     this.findAndCacheElements();
-    NotificationBar.render('top-right');
   }
 
   buildLayoutComponents() {
     const header = this.createHeader();
     const gridContainer = this.createGridContainer();
-    const helpComponents = this.createHelpComponents();
+    const helpButton = this.createHelpButton();
 
-    return { header, gridContainer, helpComponents };
+    return { header, gridContainer, helpButton };
   }
 
   createHeader() {
@@ -166,11 +161,9 @@ export class DOMManager {
     return rightColumn;
   }
 
-  createHelpComponents() {
-    const modal = HelpModal.createCompatibleModal();
+  createHelpButton() {
     const button = document.createElement('button');
-
-    button.onclick = () => modal.toggle();
+    button.id = 'help-button';
     button.className =
       'fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50';
     button.innerHTML = `
@@ -178,8 +171,7 @@ export class DOMManager {
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
     `;
-
-    return { button, modal };
+    return button;
   }
 
   findAndCacheElements() {
@@ -189,9 +181,58 @@ export class DOMManager {
     this.elements.loyaltyPoints = document.getElementById('loyalty-points');
     this.elements.tuesdaySpecial = document.getElementById('tuesday-special');
     this.elements.itemCount = document.getElementById('item-count');
+    this.elements.helpButton = document.getElementById('help-button');
   }
 
   getElement(name) {
     return this.elements[name];
+  }
+
+  // 순수한 DOM 조작 메서드들
+  createElement(tag, className = '', innerHTML = '') {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (innerHTML) element.innerHTML = innerHTML;
+    return element;
+  }
+
+  appendChild(parent, child) {
+    parent.appendChild(child);
+  }
+
+  insertAdjacentHTML(element, position, html) {
+    element.insertAdjacentHTML(position, html);
+  }
+
+  setInnerHTML(element, html) {
+    element.innerHTML = html;
+  }
+
+  setTextContent(element, text) {
+    element.textContent = text;
+  }
+
+  addClass(element, className) {
+    element.classList.add(className);
+  }
+
+  removeClass(element, className) {
+    element.classList.remove(className);
+  }
+
+  setAttribute(element, name, value) {
+    element.setAttribute(name, value);
+  }
+
+  getAttribute(element, name) {
+    return element.getAttribute(name);
+  }
+
+  querySelector(selector) {
+    return document.querySelector(selector);
+  }
+
+  querySelectorAll(selector) {
+    return document.querySelectorAll(selector);
   }
 }
