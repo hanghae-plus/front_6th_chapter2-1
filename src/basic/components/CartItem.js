@@ -10,12 +10,7 @@
  * @returns {HTMLElement} CartItem DOM 요소
  */
 export function createCartItem(props) {
-  const {
-    product,
-    onQuantityChange,
-    onRemove,
-    containerClassName = "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0",
-  } = props;
+  const { product, onQuantityChange, onRemove, containerClassName = "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0" } = props;
 
   const cartItem = document.createElement("div");
   cartItem.id = product.id;
@@ -23,8 +18,7 @@ export function createCartItem(props) {
 
   // 상품 이미지
   const imageContainer = document.createElement("div");
-  imageContainer.className =
-    "w-20 h-20 bg-gradient-black relative overflow-hidden";
+  imageContainer.className = "w-20 h-20 bg-gradient-black relative overflow-hidden";
   imageContainer.innerHTML = `
     <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
   `;
@@ -53,22 +47,19 @@ export function createCartItem(props) {
 
   // 수량 감소 버튼
   const decreaseButton = document.createElement("button");
-  decreaseButton.className =
-    "quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white";
+  decreaseButton.className = "quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white";
   decreaseButton.setAttribute("data-product-id", product.id);
   decreaseButton.setAttribute("data-change", "-1");
   decreaseButton.textContent = "−";
 
   // 수량 표시
   const quantityDisplay = document.createElement("span");
-  quantityDisplay.className =
-    "quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums";
+  quantityDisplay.className = "quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums";
   quantityDisplay.textContent = "1";
 
   // 수량 증가 버튼
   const increaseButton = document.createElement("button");
-  increaseButton.className =
-    "quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white";
+  increaseButton.className = "quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white";
   increaseButton.setAttribute("data-product-id", product.id);
   increaseButton.setAttribute("data-change", "1");
   increaseButton.textContent = "+";
@@ -95,8 +86,7 @@ export function createCartItem(props) {
 
   // 제거 버튼
   const removeButton = document.createElement("a");
-  removeButton.className =
-    "remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black";
+  removeButton.className = "remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black";
   removeButton.setAttribute("data-product-id", product.id);
   removeButton.textContent = "Remove";
 
@@ -111,12 +101,8 @@ export function createCartItem(props) {
 
   // 이벤트 리스너 등록
   if (onQuantityChange) {
-    decreaseButton.addEventListener("click", () =>
-      onQuantityChange(product.id, -1)
-    );
-    increaseButton.addEventListener("click", () =>
-      onQuantityChange(product.id, 1)
-    );
+    decreaseButton.addEventListener("click", () => onQuantityChange(product.id, -1));
+    increaseButton.addEventListener("click", () => onQuantityChange(product.id, 1));
   }
 
   if (onRemove) {
@@ -161,9 +147,9 @@ function getPriceDisplayHTML(product) {
       colorClass = "text-blue-500";
     }
 
-    return `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="${colorClass}">₩${product.val.toLocaleString()}</span>`;
+    return `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="${colorClass}">₩${product.price.toLocaleString()}</span>`;
   } else {
-    return `₩${product.val.toLocaleString()}`;
+    return `₩${product.price.toLocaleString()}`;
   }
 }
 
@@ -197,10 +183,7 @@ export function updateCartItemPrice(cartItemElement, product) {
   priceElements.forEach(element => {
     if (element.classList.contains("text-lg")) {
       element.innerHTML = getPriceDisplayHTML(product);
-    } else if (
-      element.classList.contains("text-xs") &&
-      element.textContent.includes("₩")
-    ) {
+    } else if (element.classList.contains("text-xs") && element.textContent.includes("₩")) {
       element.innerHTML = getPriceDisplayHTML(product);
     }
   });

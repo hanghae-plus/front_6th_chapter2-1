@@ -49,7 +49,7 @@ export function createProductSelector(props) {
   if (products && products.length > 0) {
     let totalStock = 0;
     for (let idx = 0; idx < products.length; idx++) {
-      totalStock += products[idx].q;
+      totalStock += products[idx].quantity;
     }
 
     updateProductOptions(selectorContainer, products, totalStock, 5);
@@ -82,22 +82,22 @@ export function updateProductOptions(selectorElement, products, totalStock, lowS
     if (item.onSale) discountText += " ⚡SALE";
     if (item.suggestSale) discountText += " 💝추천";
 
-    if (item.q === 0) {
-      option.textContent = `${item.name} - ${item.val}원 (품절)${discountText}`;
+    if (item.quantity === 0) {
+      option.textContent = `${item.name} - ${item.price}원 (품절)${discountText}`;
       option.disabled = true;
       option.className = "text-gray-400";
     } else {
       if (item.onSale && item.suggestSale) {
-        option.textContent = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)`;
+        option.textContent = `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (25% SUPER SALE!)`;
         option.className = "text-purple-600 font-bold";
       } else if (item.onSale) {
-        option.textContent = `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)`;
+        option.textContent = `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (20% SALE!)`;
         option.className = "text-red-500 font-bold";
       } else if (item.suggestSale) {
-        option.textContent = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)`;
+        option.textContent = `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (5% 추천할인!)`;
         option.className = "text-blue-500 font-bold";
       } else {
-        option.textContent = `${item.name} - ${item.val}원${discountText}`;
+        option.textContent = `${item.name} - ${item.price}원${discountText}`;
       }
     }
 
@@ -127,9 +127,9 @@ export function updateStockInfo(selectorElement, products, lowStockThreshold = 5
 
   for (let stockIdx = 0; stockIdx < products.length; stockIdx++) {
     const item = products[stockIdx];
-    if (item.q < lowStockThreshold) {
-      if (item.q > 0) {
-        stockMessage += `${item.name}: 재고 부족 (${item.q}개 남음)\n`;
+    if (item.quantity < lowStockThreshold) {
+      if (item.quantity > 0) {
+        stockMessage += `${item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
       } else {
         stockMessage += `${item.name}: 품절\n`;
       }
