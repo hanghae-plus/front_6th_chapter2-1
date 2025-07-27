@@ -1,3 +1,5 @@
+import { renderProductSelector } from "./features/shopping-cart/utils/productSelector.js";
+
 const PRODUCTS = {
   KEYBOARD: "p1",
   MOUSE: "p2",
@@ -492,79 +494,13 @@ function main() {
   }, Math.random() * BUSINESS_CONSTANTS.TIMERS.MAX_DELAY);
 }
 
-const ProductSelector = {
-  render: (props) => {
-    const { products, containerElement } = props;
-    let totalStock = 0;
-
-    containerElement.innerHTML = "";
-
-    for (let idx = 0; idx < products.length; idx++) {
-      totalStock += products[idx].q;
-    }
-
-    products.forEach((item) => {
-      const option = document.createElement("option");
-      option.value = item.id;
-
-      let discountDisplay = "";
-      if (item.onSale) discountDisplay += " ⚡SALE";
-      if (item.suggestSale) discountDisplay += " 💝추천";
-
-      if (item.q === 0) {
-        option.textContent =
-          item.name + " - " + item.val + "원 (품절)" + discountDisplay;
-        option.disabled = true;
-        option.className = "text-gray-400";
-      } else {
-        if (item.onSale && item.suggestSale) {
-          option.textContent =
-            "⚡💝" +
-            item.name +
-            " - " +
-            item.originalVal +
-            "원 → " +
-            item.val +
-            "원 (25% SUPER SALE!)";
-          option.className = "text-purple-600 font-bold";
-        } else if (item.onSale) {
-          option.textContent =
-            "⚡" +
-            item.name +
-            " - " +
-            item.originalVal +
-            "원 → " +
-            item.val +
-            "원 (20% SALE!)";
-          option.className = "text-red-500 font-bold";
-        } else if (item.suggestSale) {
-          option.textContent =
-            "💝" +
-            item.name +
-            " - " +
-            item.originalVal +
-            "원 → " +
-            item.val +
-            "원 (5% 추천할인!)";
-          option.className = "text-blue-500 font-bold";
-        } else {
-          option.textContent =
-            item.name + " - " + item.val + "원" + discountDisplay;
-        }
-      }
-
-      containerElement.appendChild(option);
-    });
-
-    if (totalStock < BUSINESS_CONSTANTS.STOCK.STOCK_WARNING_THRESHOLD) {
-      containerElement.style.borderColor = "orange";
-    } else {
-      containerElement.style.borderColor = "";
-    }
-
-    return { totalStock };
-  },
-};
+function onUpdateSelectOptions() {
+  return renderProductSelector({
+    products: productList,
+    containerElement: productSelector,
+    stockThreshold: BUSINESS_CONSTANTS.STOCK.STOCK_WARNING_THRESHOLD,
+  });
+}
 
 const CartDisplay = {
   renderCartItem: (props) => {
@@ -744,12 +680,6 @@ const OrderSummary = {
   },
 };
 
-function onUpdateSelectOptions() {
-  ProductSelector.render({
-    products: productList,
-    containerElement: productSelector,
-  });
-}
 function handleCalculateCartStuff() {
   let cartItems;
   let subtotal;
