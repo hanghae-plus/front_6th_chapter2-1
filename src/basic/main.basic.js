@@ -4,7 +4,7 @@ import { getProductList } from './constants/Products.js';
 
 // 포인트 정책 import
 // UI 상수 import
-import { ALERT_UI, formatMessage, generateManualHTML } from './constants/UIConstants.js';
+import { ALERT_UI, formatMessage } from './constants/UIConstants.js';
 
 // 가격 계산 엔진 import
 import { PriceCalculator } from './calculations/PriceCalculator.js';
@@ -20,6 +20,8 @@ import { ProductSelector } from './components/ProductSelector.js';
 import { CartEventHandler } from './components/CartEventHandler.js';
 import { CartItem } from './components/CartItem.js';
 import { OrderSummary } from './components/OrderSummary.js';
+// 도움말 모달 컴포넌트 import
+import { HelpModal } from './components/HelpModal.js';
 
 let prodList;
 let bonusPts = 0;
@@ -38,8 +40,7 @@ function main() {
   let selectorContainer;
   let rightColumn;
   let manualToggle;
-  let manualOverlay;
-  let manualColumn;
+  let helpModal; // HelpModal 컴포넌트 인스턴스
   let lightningDelay;
   totalAmt = 0;
   itemCnt = 0;
@@ -119,10 +120,14 @@ function main() {
     </p>
   `;
   sum = rightColumn.querySelector('#cart-total');
+
+  // HelpModal 컴포넌트 생성 및 설정
+  helpModal = HelpModal.createCompatibleModal();
+
+  // 도움말 버튼 생성 (기존 manualToggle과 동일한 스타일)
   manualToggle = document.createElement('button');
   manualToggle.onclick = function () {
-    manualOverlay.classList.toggle('hidden');
-    manualColumn.classList.toggle('translate-x-full');
+    helpModal.toggle();
   };
   manualToggle.className =
     'fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50';
@@ -131,25 +136,14 @@ function main() {
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>
   `;
-  manualOverlay = document.createElement('div');
-  manualOverlay.className = 'fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300';
-  manualOverlay.onclick = function (e) {
-    if (e.target === manualOverlay) {
-      manualOverlay.classList.add('hidden');
-      manualColumn.classList.add('translate-x-full');
-    }
-  };
-  manualColumn = document.createElement('div');
-  manualColumn.className =
-    'fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300';
-  manualColumn.innerHTML = generateManualHTML();
+
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
-  manualOverlay.appendChild(manualColumn);
   root.appendChild(header);
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
-  root.appendChild(manualOverlay);
+  root.appendChild(helpModal.overlay); // HelpModal 오버레이 추가
+
   let initStock = 0;
   for (let i = 0; i < prodList.length; i++) {
     initStock += prodList[i].q;
