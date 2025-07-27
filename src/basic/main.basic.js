@@ -1,5 +1,5 @@
 import { PRODUCT_IDS, products } from "./features/product";
-import { Header } from "./shared/components";
+import { CloseIcon, Header, InfoIcon } from "./shared/components";
 
 let bonusPts = 0;
 let stockInfo;
@@ -486,19 +486,13 @@ function main() {
 
 	// manual
 	const manualToggle = document.createElement("button");
-
 	manualToggle.onclick = function () {
 		manualOverlay.classList.toggle("hidden");
 		manualColumn.classList.toggle("translate-x-full");
 	};
-
 	manualToggle.className =
 		"fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
-	manualToggle.innerHTML = `
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-  `;
+	manualToggle.innerHTML = InfoIcon();
 
 	const manualOverlay = document.createElement("div");
 	manualOverlay.className = "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
@@ -517,14 +511,7 @@ function main() {
 			class="absolute right-4 top-4 text-gray-500 hover:text-black"
 			onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')"
 		>
-			<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M6 18L18 6M6 6l12 12"
-				></path>
-			</svg>
+			${CloseIcon()}
 		</button>
 		<h2 class="mb-4 text-xl font-bold">📖 이용 안내</h2>
 		<div class="mb-6">
