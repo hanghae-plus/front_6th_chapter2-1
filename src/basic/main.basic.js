@@ -202,8 +202,6 @@ function main() {
 	}, lightningDelay);
 	setTimeout(function () {
 		setInterval(function () {
-			if (cartDisp.children.length === 0) {
-			}
 			if (lastSel) {
 				let suggest = null;
 				for (let k = 0; k < products.length; k++) {
@@ -277,11 +275,8 @@ function handleCalculateCartStuff() {
 	let cartItems;
 	let subTot;
 	let itemDiscounts;
-	let lowStockItems;
 	let idx;
 	var originalTotal;
-	let bulkDisc;
-	let itemDisc;
 	let savedAmount;
 	let summaryDetails;
 	let totalDiv;
@@ -291,23 +286,11 @@ function handleCalculateCartStuff() {
 	let itemCountElement;
 	let previousCount;
 	let stockMsg;
-	let pts;
-	let hasP1;
-	let hasP2;
-	let loyaltyDiv;
 	totalAmt = 0;
 	itemCnt = 0;
-	originalTotal = totalAmt;
 	cartItems = cartDisp.children;
 	subTot = 0;
-	bulkDisc = subTot;
 	itemDiscounts = [];
-	lowStockItems = [];
-	for (idx = 0; idx < products.length; idx++) {
-		if (products[idx].q < 5 && products[idx].q > 0) {
-			lowStockItems.push(products[idx].name);
-		}
-	}
 	for (let i = 0; i < cartItems.length; i++) {
 		(function () {
 			let curItem;
@@ -591,13 +574,9 @@ function onGetStockTotal() {
 	return sum;
 }
 var handleStockInfoUpdate = function () {
-	let infoMsg;
-	let totalStock;
-	let messageOptimizer;
-	infoMsg = "";
-	totalStock = onGetStockTotal();
-	if (totalStock < 30) {
-	}
+	let infoMsg = "";
+	let totalStock = onGetStockTotal();
+	
 	products.forEach(function (item) {
 		if (item.q < 5) {
 			if (item.q > 0) {
@@ -610,19 +589,7 @@ var handleStockInfoUpdate = function () {
 	stockInfo.textContent = infoMsg;
 };
 function doUpdatePricesInCart() {
-	let totalCount = 0,
-		j = 0;
-	let cartItems;
-	while (cartDisp.children[j]) {
-		const qty = cartDisp.children[j].querySelector(".quantity-number");
-		totalCount += qty ? parseInt(qty.textContent) : 0;
-		j++;
-	}
-	totalCount = 0;
-	for (j = 0; j < cartDisp.children.length; j++) {
-		totalCount += parseInt(cartDisp.children[j].querySelector(".quantity-number").textContent);
-	}
-	cartItems = cartDisp.children;
+	let cartItems = cartDisp.children;
 	for (let i = 0; i < cartItems.length; i++) {
 		const itemId = cartItems[i].id;
 		let product = null;
@@ -745,8 +712,6 @@ cartDisp.addEventListener("click", function (event) {
 			const remQty = parseInt(qtyElem.textContent);
 			prod.q += remQty;
 			itemElem.remove();
-		}
-		if (prod && prod.q < 5) {
 		}
 		handleCalculateCartStuff();
 		onUpdateSelectOptions();
