@@ -6,3 +6,4 @@ export { ManualToggle } from "./ManualToggle";
 export { ManualOverlay } from "./ManualOverlay";
 export { ManualColumn } from "./ManualColumn";
 export { Header } from "./header";
+export { CartItem } from "./CartItem";
