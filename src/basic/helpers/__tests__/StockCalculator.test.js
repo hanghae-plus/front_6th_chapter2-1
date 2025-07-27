@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { STOCK_STATUS, StockCalculator } from '../helpers/StockCalculator.js';
+import { STOCK_STATUS, StockCalculator } from '../StockCalculator.js';
 
 describe('StockCalculator', () => {
   // 테스트용 상품 데이터

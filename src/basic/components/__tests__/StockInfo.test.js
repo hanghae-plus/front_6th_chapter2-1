@@ -4,7 +4,7 @@
  */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { StockInfo } from '../components/StockInfo.js';
+import { StockInfo } from '../StockInfo.js';
 
 describe('StockInfo 컴포넌트', () => {
   let mockProducts;

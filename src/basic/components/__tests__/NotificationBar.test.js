@@ -4,7 +4,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { NotificationBar } from '../components/NotificationBar.js';
+import { NotificationBar } from '../NotificationBar.js';
 
 describe('NotificationBar 컴포넌트', () => {
   let container;

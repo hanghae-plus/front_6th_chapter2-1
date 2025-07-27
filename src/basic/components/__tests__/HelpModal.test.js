@@ -4,7 +4,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { HelpModal } from '../components/HelpModal.js';
+import { HelpModal } from '../HelpModal.js';
 
 describe('HelpModal 컴포넌트', () => {
   let mockData;

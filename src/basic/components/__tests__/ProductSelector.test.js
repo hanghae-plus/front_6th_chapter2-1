@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { ProductSelector } from '../components/ProductSelector.js';
+import { ProductSelector } from '../ProductSelector.js';
 
 describe('ProductSelector', () => {
   // 테스트용 상품 데이터

@@ -4,7 +4,7 @@
  */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { OrderSummary } from '../components/OrderSummary.js';
+import { OrderSummary } from '../OrderSummary.js';
 
 describe('OrderSummary 컴포넌트', () => {
   let mockOrderData;
