@@ -28,7 +28,7 @@ export default [
     rules: {
       // 기본 규칙
       "no-unused-vars": "warn",
-      "no-console": "warn",
+      "no-console": "off",
 
       indent: ["error", 2],
       quotes: ["error", "double"],

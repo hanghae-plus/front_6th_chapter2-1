@@ -13,16 +13,7 @@ const p4 = "p4";
 const PRODUCT_5 = "p5";
 let cartDisp;
 function main() {
-  var root;
-  let header;
-  let gridContainer;
-  let leftColumn;
-  let selectorContainer;
-  let rightColumn;
-  let manualToggle;
-  let manualOverlay;
-  let manualColumn;
-  let lightningDelay;
+  const root = document.getElementById("app");
   totalAmt = 0;
   itemCnt = 0;
   lastSel = null;
@@ -73,8 +64,7 @@ function main() {
       suggestSale: false,
     },
   ];
-  var root = document.getElementById("app");
-  header = document.createElement("div");
+  const header = document.createElement("div");
   header.className = "mb-8";
   header.innerHTML = `
     <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
@@ -83,11 +73,11 @@ function main() {
   `;
   sel = document.createElement("select");
   sel.id = "product-select";
-  gridContainer = document.createElement("div");
-  leftColumn = document.createElement("div");
+  const gridContainer = document.createElement("div");
+  const leftColumn = document.createElement("div");
   leftColumn["className"] =
     "bg-white border border-gray-200 p-8 overflow-y-auto";
-  selectorContainer = document.createElement("div");
+  const selectorContainer = document.createElement("div");
   selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
   sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
   gridContainer.className =
@@ -107,7 +97,7 @@ function main() {
   cartDisp = document.createElement("div");
   leftColumn.appendChild(cartDisp);
   cartDisp.id = "cart-items";
-  rightColumn = document.createElement("div");
+  const rightColumn = document.createElement("div");
   rightColumn.className = "bg-black text-white p-8 flex flex-col";
   rightColumn.innerHTML = `
     <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
@@ -139,7 +129,7 @@ function main() {
     </p>
   `;
   sum = rightColumn.querySelector("#cart-total");
-  manualToggle = document.createElement("button");
+  const manualToggle = document.createElement("button");
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle("hidden");
     manualColumn.classList.toggle("translate-x-full");
@@ -151,7 +141,7 @@ function main() {
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>
   `;
-  manualOverlay = document.createElement("div");
+  const manualOverlay = document.createElement("div");
   manualOverlay.className =
     "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
   manualOverlay.onclick = function (e) {
@@ -160,7 +150,7 @@ function main() {
       manualColumn.classList.add("translate-x-full");
     }
   };
-  manualColumn = document.createElement("div");
+  const manualColumn = document.createElement("div");
   manualColumn.className =
     "fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300";
   manualColumn.innerHTML = `
@@ -236,13 +226,10 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
-  let initStock = 0;
-  for (let i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
-  }
+
   onUpdateSelectOptions();
   handleCalculateCartStuff();
-  lightningDelay = Math.random() * 10000;
+  const lightningDelay = Math.random() * 10000;
   setTimeout(() => {
     setInterval(() => {
       const luckyIdx = Math.floor(Math.random() * prodList.length);
@@ -259,6 +246,7 @@ function main() {
   setTimeout(() => {
     setInterval(() => {
       if (cartDisp.children.length === 0) {
+        console.log("cartDisplay 길이가 0입니다.");
       }
       if (lastSel) {
         let suggest = null;
@@ -300,7 +288,7 @@ function onUpdateSelectOptions() {
     const _p = prodList[idx];
     totalStock = totalStock + _p.q;
   }
-  for (var i = 0; i < prodList.length; i++) {
+  for (let i = 0; i < prodList.length; i++) {
     (function () {
       const item = prodList[i];
       opt = document.createElement("option");
@@ -368,7 +356,6 @@ function handleCalculateCartStuff() {
   let itemDisc;
   let savedAmount;
   let summaryDetails;
-  let totalDiv;
   let loyaltyPointsDiv;
   let points;
   let discountInfoDiv;
@@ -472,7 +459,7 @@ function handleCalculateCartStuff() {
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
-      var curItem;
+      let curItem;
       for (let j = 0; j < prodList.length; j++) {
         if (prodList[j].id === cartItems[i].id) {
           curItem = prodList[j];
@@ -532,7 +519,7 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
-  totalDiv = sum.querySelector(".text-2xl");
+  const totalDiv = sum.querySelector(".text-2xl");
   if (totalDiv) {
     totalDiv.textContent = "₩" + Math.round(totalAmt).toLocaleString();
   }
