@@ -10,12 +10,7 @@
  * @returns {HTMLElement} ProductSelector DOM 요소
  */
 export function createProductSelector(props) {
-  const {
-    products,
-    onProductSelect,
-    onAddToCart,
-    containerClassName = "mb-6 pb-6 border-b border-gray-200",
-  } = props;
+  const { products, onProductSelect, onAddToCart, containerClassName = "mb-6 pb-6 border-b border-gray-200" } = props;
 
   const selectorContainer = document.createElement("div");
   selectorContainer.className = containerClassName;
@@ -23,15 +18,13 @@ export function createProductSelector(props) {
   // 상품 선택 드롭다운
   const select = document.createElement("select");
   select.id = "product-select";
-  select.className =
-    "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
+  select.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
 
   // 장바구니 추가 버튼
   const addButton = document.createElement("button");
   addButton.id = "add-to-cart";
   addButton.innerHTML = "Add to Cart";
-  addButton.className =
-    "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
+  addButton.className = "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
 
   // 재고 정보 표시
   const stockInfo = document.createElement("div");
@@ -74,12 +67,7 @@ export function createProductSelector(props) {
  * @param {number} totalStock - 전체 재고 수량
  * @param {number} lowStockThreshold - 재고 부족 임계값
  */
-export function updateProductOptions(
-  selectorElement,
-  products,
-  totalStock,
-  lowStockThreshold = 5
-) {
+export function updateProductOptions(selectorElement, products, totalStock, lowStockThreshold = 5) {
   const select = selectorElement.querySelector("#product-select");
   if (!select) return;
 
@@ -131,11 +119,7 @@ export function updateProductOptions(
  * @param {Array} products - 상품 목록
  * @param {number} lowStockThreshold - 재고 부족 임계값
  */
-export function updateStockInfo(
-  selectorElement,
-  products,
-  lowStockThreshold = 5
-) {
+export function updateStockInfo(selectorElement, products, lowStockThreshold = 5) {
   const stockInfo = selectorElement.querySelector("#stock-status");
   if (!stockInfo) return;
 
