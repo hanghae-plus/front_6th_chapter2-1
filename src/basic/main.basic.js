@@ -23,6 +23,10 @@ import {
   updateProductOptions,
   updateStockInfo,
   getSelectedProduct,
+  createCartItem,
+  updateCartItemQuantity,
+  updateCartItemPrice,
+  updateCartItemPriceStyle,
 } from "./components/index.js";
 
 let prodList;
@@ -98,40 +102,6 @@ function incrementExistingItem(cartItemElement, productToAdd) {
 }
 
 /**
- * 새로운 장바구니 아이템을 생성합니다.
- *
- * @param {Object} productToAdd - 추가할 상품 객체
- * @param {HTMLElement} cartDisplay - 장바구니 컨테이너
- */
-function createNewCartItem(productToAdd, cartDisplay) {
-  const newCartItem = document.createElement("div");
-  newCartItem.id = productToAdd.id;
-  newCartItem.className =
-    "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
-  newCartItem.innerHTML = `
-    <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-      <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-    </div>
-    <div>
-      <h3 class="text-base font-normal mb-1 tracking-tight">${productToAdd.onSale && productToAdd.suggestSale ? "⚡💝" : productToAdd.onSale ? "⚡" : productToAdd.suggestSale ? "💝" : ""}${productToAdd.name}</h3>
-      <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-      <p class="text-xs text-black mb-3">${productToAdd.onSale || productToAdd.suggestSale ? '<span class="line-through text-gray-400">₩' + productToAdd.originalVal.toLocaleString() + '</span> <span class="' + (productToAdd.onSale && productToAdd.suggestSale ? "text-purple-600" : productToAdd.onSale ? "text-red-500" : "text-blue-500") + '">₩' + productToAdd.val.toLocaleString() + "</span>" : "₩" + productToAdd.val.toLocaleString()}</p>
-      <div class="flex items-center gap-4">
-        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${productToAdd.id}" data-change="-1">−</button>
-        <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${productToAdd.id}" data-change="1">+</button>
-      </div>
-    </div>
-    <div class="text-right">
-      <div class="text-lg mb-2 tracking-tight tabular-nums">${productToAdd.onSale || productToAdd.suggestSale ? '<span class="line-through text-gray-400">₩' + productToAdd.originalVal.toLocaleString() + '</span> <span class="' + (productToAdd.onSale && productToAdd.suggestSale ? "text-purple-600" : productToAdd.onSale ? "text-red-500" : "text-blue-500") + '">₩' + productToAdd.val.toLocaleString() + "</span>" : "₩" + productToAdd.val.toLocaleString()}</div>
-      <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${productToAdd.id}">Remove</a>
-    </div>
-  `;
-  cartDisplay.appendChild(newCartItem);
-  productToAdd.q--;
-}
-
-/**
  * 장바구니에 상품을 추가하는 핸들러 함수
  *
  * @param {HTMLElement} selectorContainer - ProductSelector 컴포넌트
@@ -148,7 +118,48 @@ function handleAddToCart(selectorContainer, productList, cartDisplay) {
   if (existingCartItem) {
     if (!incrementExistingItem(existingCartItem, productToAdd)) return;
   } else {
-    createNewCartItem(productToAdd, cartDisplay);
+    const newCartItem = createCartItem({
+      product: productToAdd,
+      onQuantityChange: (productId, change) => {
+        const cartItemElement = document.getElementById(productId);
+        if (!cartItemElement) return;
+
+        const quantityElement =
+          cartItemElement.querySelector(".quantity-number");
+        const currentQuantity = parseInt(quantityElement.textContent);
+        const newQuantity = currentQuantity + change;
+
+        if (
+          newQuantity > 0 &&
+          newQuantity <= productToAdd.q + currentQuantity
+        ) {
+          updateCartItemQuantity(cartItemElement, newQuantity);
+          productToAdd.q -= change;
+        } else if (newQuantity <= 0) {
+          productToAdd.q += currentQuantity;
+          cartItemElement.remove();
+        } else {
+          alert("재고가 부족합니다.");
+        }
+        handleCalculateCartStuff();
+        onUpdateSelectOptions();
+      },
+      onRemove: productId => {
+        const cartItemElement = document.getElementById(productId);
+        if (!cartItemElement) return;
+
+        const quantityElement =
+          cartItemElement.querySelector(".quantity-number");
+        const removeQuantity = parseInt(quantityElement.textContent);
+        productToAdd.q += removeQuantity;
+        cartItemElement.remove();
+        handleCalculateCartStuff();
+        onUpdateSelectOptions();
+      },
+    });
+
+    cartDisplay.appendChild(newCartItem);
+    productToAdd.q--;
   }
 
   handleCalculateCartStuff();
@@ -486,6 +497,7 @@ function handleCalculateCartStuff() {
           elem.style.fontWeight = q >= 10 ? "bold" : "normal";
         }
       });
+      updateCartItemPriceStyle(itemDiv, q);
       if (q >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
         if (curItem.id === PRODUCT_ONE) {
           disc = PRODUCT_DISCOUNTS.KEYBOARD_10_PLUS;
@@ -786,80 +798,9 @@ function doUpdatePricesInCart() {
       }
     }
     if (product) {
-      const priceDiv = cartItems[i].querySelector(".text-lg");
-      const nameDiv = cartItems[i].querySelector("h3");
-      if (product.onSale && product.suggestSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-purple-600">₩' +
-          product.val.toLocaleString() +
-          "</span>";
-        nameDiv.textContent = "⚡💝" + product.name;
-      } else if (product.onSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-red-500">₩' +
-          product.val.toLocaleString() +
-          "</span>";
-        nameDiv.textContent = "⚡" + product.name;
-      } else if (product.suggestSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-blue-500">₩' +
-          product.val.toLocaleString() +
-          "</span>";
-        nameDiv.textContent = "💝" + product.name;
-      } else {
-        priceDiv.textContent = "₩" + product.val.toLocaleString();
-        nameDiv.textContent = product.name;
-      }
+      updateCartItemPrice(cartItems[i], product);
     }
   }
   handleCalculateCartStuff();
 }
 main();
-cartDisp.addEventListener("click", event => {
-  const tgt = event.target;
-  if (
-    tgt.classList.contains("quantity-change") ||
-    tgt.classList.contains("remove-item")
-  ) {
-    const prodId = tgt.dataset.productId;
-    const itemElem = document.getElementById(prodId);
-    let prod = null;
-
-    for (let prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
-      if (prodList[prdIdx].id === prodId) {
-        prod = prodList[prdIdx];
-        break;
-      }
-    }
-    if (tgt.classList.contains("quantity-change")) {
-      const qtyChange = parseInt(tgt.dataset.change);
-      const qtyElem = itemElem.querySelector(".quantity-number");
-      const currentQty = parseInt(qtyElem.textContent);
-      const newQty = currentQty + qtyChange;
-      if (newQty > 0 && newQty <= prod.q + currentQty) {
-        qtyElem.textContent = newQty;
-        prod.q -= qtyChange;
-      } else if (newQty <= 0) {
-        prod.q += currentQty;
-        itemElem.remove();
-      } else {
-        alert("재고가 부족합니다.");
-      }
-    } else if (tgt.classList.contains("remove-item")) {
-      const qtyElem = itemElem.querySelector(".quantity-number");
-      const remQty = parseInt(qtyElem.textContent);
-      prod.q += remQty;
-      itemElem.remove();
-    }
-    if (prod && prod.q < 5) {
-    }
-    handleCalculateCartStuff();
-    onUpdateSelectOptions();
-  }
-});
