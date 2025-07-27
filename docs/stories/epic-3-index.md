@@ -6,11 +6,11 @@
 
 main.basic.js의 복잡한 비즈니스 로직을 테스트 가능한 순수 함수로 분리하여 유지보수성과 안정성 향상
 
-### 📈 총 Story Points: 36 (완료: 18 SP / 50%)
+### 📈 총 Story Points: 36 (완료: 30 SP / 83%)
 
 - Story 3.1: 8 SP ✅ **완료**
 - Story 3.2: 10 SP ✅ **완료**
-- Story 3.3: 12 SP ⏳ 준비됨
+- Story 3.3: 12 SP ✅ **완료**
 - Story 3.4: 6 SP ⏳ 준비됨
 
 ---
@@ -54,17 +54,19 @@ main.basic.js의 복잡한 비즈니스 로직을 테스트 가능한 순수 함
 
 ### [Story 3.3: 포인트 계산 시스템](./story-3.3-points-calculator.md)
 
-**Story Points: 12** | **Status: 준비됨**
+**Story Points: 12** | **Status: 완료됨** ✅
 
-**목표**: `doRenderBonusPoints()` 함수의 포인트 계산 로직을 순수 함수로 분리
+**목표**: `doRenderBonusPoints()` 함수의 계산 로직을 순수 함수로 분리
 
 **핵심 작업**:
 
-- `PointsCalculator.js` 모듈 생성
-- 기본, 화요일, 세트, 수량 보너스 계산 함수 분리
-- 기존 중복 적용 로직 정확히 보존
+- ✅ `PointsCalculator.js` 모듈 생성 (295줄)
+- ✅ 기본/화요일/세트/수량 모든 포인트 계산 함수 분리
+- ✅ 기존 중복 적용 로직 보존 (풀세트 구매 시 +150p)
+- ✅ 15개 단위 테스트 작성 및 통과
+- ✅ main.basic.js doRenderBonusPoints 함수 리팩터링
 
-**산출물**: `src/basic/calculations/PointsCalculator.js`
+**산출물**: `src/basic/calculations/PointsCalculator.js`, `src/basic/__tests__/PointsCalculator.test.js`
 
 ---
 

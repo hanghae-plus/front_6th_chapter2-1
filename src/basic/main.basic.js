@@ -1,14 +1,8 @@
 // Products 상수 import
-import { getProductList, PRODUCT_IDS } from './constants/Products.js';
+import { getProductList } from './constants/Products.js';
 // 할인 정책 import
 
 // 포인트 정책 import
-import {
-  calculateBasePoints,
-  calculateBulkBonus,
-  calculateSetBonus,
-  calculateTuesdayPoints,
-} from './constants/PointsPolicies.js';
 // UI 상수 import
 import { ALERT_UI, formatMessage, generateManualHTML } from './constants/UIConstants.js';
 
@@ -16,6 +10,8 @@ import { ALERT_UI, formatMessage, generateManualHTML } from './constants/UIConst
 import { PriceCalculator } from './calculations/PriceCalculator.js';
 // 할인 엔진 import
 import { DiscountEngine } from './calculations/DiscountEngine.js';
+// 포인트 계산 엔진 import
+import { PointsCalculator } from './calculations/PointsCalculator.js';
 
 let prodList;
 let bonusPts = 0;
@@ -553,33 +549,15 @@ function handleCalculateCartStuff() {
   doRenderBonusPoints();
 }
 var doRenderBonusPoints = function () {
-  let basePoints;
-  let finalPoints;
-  let pointsDetail;
-  let hasKeyboard;
-  let hasMouse;
-  let hasMonitorArm;
-  let nodes;
   if (cartDisp.children.length === 0) {
     document.getElementById('loyalty-points').style.display = 'none';
     return;
   }
-  basePoints = calculateBasePoints(totalAmt);
-  finalPoints = 0;
-  pointsDetail = [];
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push('기본: ' + basePoints + 'p');
-  }
-  if (new Date().getDay() === 2) {
-    if (basePoints > 0) {
-      finalPoints = calculateTuesdayPoints(basePoints);
-      pointsDetail.push('화요일 2배');
-    }
-  }
-  // cartItems 배열 생성 (보너스 포인트 계산용)
-  const cartItemsForBonus = [];
+
+  // DOM에서 장바구니 데이터를 PointsCalculator 형식으로 변환
+  const cartItemsForPoints = [];
   const cartNodes = cartDisp.children;
+
   for (const cartNode of cartNodes) {
     let cartProduct = null;
     for (let cIdx = 0; cIdx < prodList.length; cIdx++) {
@@ -590,66 +568,24 @@ var doRenderBonusPoints = function () {
     }
     if (cartProduct) {
       const cartQuantity = parseInt(cartNode.querySelector('span').textContent) || 0;
-      cartItemsForBonus.push({ id: cartProduct.id, q: cartQuantity });
+      cartItemsForPoints.push({
+        id: cartProduct.id,
+        quantity: cartQuantity,
+        price: cartProduct.val,
+        product: cartProduct,
+      });
     }
   }
-  hasKeyboard = false;
-  hasMouse = false;
-  hasMonitorArm = false;
-  nodes = cartDisp.children;
-  for (const node of nodes) {
-    let product = null;
-    for (let pIdx = 0; pIdx < prodList.length; pIdx++) {
-      if (prodList[pIdx].id === node.id) {
-        product = prodList[pIdx];
-        break;
-      }
-    }
-    if (!product) continue;
-    if (product.id === PRODUCT_IDS.KEYBOARD) {
-      hasKeyboard = true;
-    } else if (product.id === PRODUCT_IDS.MOUSE) {
-      hasMouse = true;
-    } else if (product.id === PRODUCT_IDS.MONITOR_ARM) {
-      hasMonitorArm = true;
-    }
-  }
-  if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push('키보드+마우스 세트 +50p');
-  }
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('풀세트 구매 +100p');
-  }
-  // 세트 보너스 계산 (새로운 함수 병렬 테스트)
-  const setBonus = calculateSetBonus(cartItemsForBonus);
-  // 새로운 함수 결과 적용 (테스트용)
-  if (setBonus.points > 0) {
-  }
-  // OLD - 기존 하드코딩된 대량구매 보너스 로직 (주석처리)
-  // if (itemCnt >= 30) {
-  //   finalPoints = finalPoints + 100;
-  //   pointsDetail.push('대량구매(30개+) +100p');
-  // } else {
-  //   if (itemCnt >= 20) {
-  //     finalPoints = finalPoints + 50;
-  //     pointsDetail.push('대량구매(20개+) +50p');
-  //   } else {
-  //     if (itemCnt >= 10) {
-  //       finalPoints = finalPoints + 20;
-  //       pointsDetail.push('대량구매(10개+) +20p');
-  //     }
-  //   }
-  // }
-  // 대량구매 보너스 계산 (새로운 함수)
-  const bulkBonus = calculateBulkBonus(itemCnt);
-  // 새로운 함수 결과를 실제로 적용
-  if (bulkBonus.points > 0) {
-    finalPoints = finalPoints + bulkBonus.points;
-    pointsDetail.push(bulkBonus.description);
-  }
-  bonusPts = finalPoints;
+
+  // PointsCalculator를 사용하여 모든 포인트 계산
+  const pointsResult = PointsCalculator.getTotalPoints(cartItemsForPoints, totalAmt, {
+    date: new Date(),
+  });
+
+  // 계산 결과를 전역 변수에 할당 (기존 코드 호환성)
+  bonusPts = pointsResult.total;
+
+  // UI 업데이트
   const ptsTag = document.getElementById('loyalty-points');
   if (ptsTag) {
     if (bonusPts > 0) {
@@ -658,7 +594,7 @@ var doRenderBonusPoints = function () {
         bonusPts +
         'p</span></div>' +
         '<div class="text-2xs opacity-70 mt-1">' +
-        pointsDetail.join(', ') +
+        pointsResult.messages.join(', ') +
         '</div>';
       ptsTag.style.display = 'block';
     } else {
