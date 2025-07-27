@@ -40,46 +40,56 @@ let selectorContainer;
 /**
  * 선택된 상품이 유효한지 검증합니다.
  *
- * @param {string} selItem - 선택된 상품 ID
- * @param {Array} prodList - 상품 목록
+ * @param {string} selectedProductId - 선택된 상품 ID
+ * @param {Array} productList - 상품 목록
  * @returns {Object|null} 유효한 상품 객체 또는 null
  */
-function validateSelectedItem(selItem, prodList) {
-  if (!selItem) return null;
+function validateSelectedItem(selectedProductId, productList) {
+  if (!selectedProductId) return null;
 
-  let hasItem = false;
-  for (let idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].id === selItem) {
-      hasItem = true;
+  let isProductExists = false;
+  for (
+    let productIndex = 0;
+    productIndex < productList.length;
+    productIndex++
+  ) {
+    if (productList[productIndex].id === selectedProductId) {
+      isProductExists = true;
       break;
     }
   }
-  if (!hasItem) return null;
+  if (!isProductExists) return null;
 
-  let itemToAdd = null;
-  for (let j = 0; j < prodList.length; j++) {
-    if (prodList[j].id === selItem) {
-      itemToAdd = prodList[j];
+  let productToAdd = null;
+  for (
+    let productIndex = 0;
+    productIndex < productList.length;
+    productIndex++
+  ) {
+    if (productList[productIndex].id === selectedProductId) {
+      productToAdd = productList[productIndex];
       break;
     }
   }
 
-  return itemToAdd && itemToAdd.q > 0 ? itemToAdd : null;
+  return productToAdd && productToAdd.q > 0 ? productToAdd : null;
 }
 
 /**
  * 기존 장바구니 아이템의 수량을 증가시킵니다.
  *
- * @param {HTMLElement} item - 장바구니 아이템 요소
- * @param {Object} itemToAdd - 추가할 상품 객체
+ * @param {HTMLElement} cartItemElement - 장바구니 아이템 요소
+ * @param {Object} productToAdd - 추가할 상품 객체
  * @returns {boolean} 성공 여부
  */
-function incrementExistingItem(item, itemToAdd) {
-  const qtyElem = item.querySelector(".quantity-number");
-  const newQty = parseInt(qtyElem.textContent) + 1;
-  if (newQty <= itemToAdd.q + parseInt(qtyElem.textContent)) {
-    qtyElem.textContent = newQty;
-    itemToAdd.q--;
+function incrementExistingItem(cartItemElement, productToAdd) {
+  const quantityElement = cartItemElement.querySelector(".quantity-number");
+  const currentQuantity = parseInt(quantityElement.textContent);
+  const newQuantity = currentQuantity + 1;
+
+  if (newQuantity <= productToAdd.q + currentQuantity) {
+    quantityElement.textContent = newQuantity;
+    productToAdd.q--;
     return true;
   } else {
     alert("재고가 부족합니다.");
@@ -90,59 +100,59 @@ function incrementExistingItem(item, itemToAdd) {
 /**
  * 새로운 장바구니 아이템을 생성합니다.
  *
- * @param {Object} itemToAdd - 추가할 상품 객체
- * @param {HTMLElement} cartDisp - 장바구니 컨테이너
+ * @param {Object} productToAdd - 추가할 상품 객체
+ * @param {HTMLElement} cartDisplay - 장바구니 컨테이너
  */
-function createNewCartItem(itemToAdd, cartDisp) {
-  const newItem = document.createElement("div");
-  newItem.id = itemToAdd.id;
-  newItem.className =
+function createNewCartItem(productToAdd, cartDisplay) {
+  const newCartItem = document.createElement("div");
+  newCartItem.id = productToAdd.id;
+  newCartItem.className =
     "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
-  newItem.innerHTML = `
+  newCartItem.innerHTML = `
     <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
       <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
     </div>
     <div>
-      <h3 class="text-base font-normal mb-1 tracking-tight">${itemToAdd.onSale && itemToAdd.suggestSale ? "⚡💝" : itemToAdd.onSale ? "⚡" : itemToAdd.suggestSale ? "💝" : ""}${itemToAdd.name}</h3>
+      <h3 class="text-base font-normal mb-1 tracking-tight">${productToAdd.onSale && productToAdd.suggestSale ? "⚡💝" : productToAdd.onSale ? "⚡" : productToAdd.suggestSale ? "💝" : ""}${productToAdd.name}</h3>
       <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-      <p class="text-xs text-black mb-3">${itemToAdd.onSale || itemToAdd.suggestSale ? '<span class="line-through text-gray-400">₩' + itemToAdd.originalVal.toLocaleString() + '</span> <span class="' + (itemToAdd.onSale && itemToAdd.suggestSale ? "text-purple-600" : itemToAdd.onSale ? "text-red-500" : "text-blue-500") + '">₩' + itemToAdd.val.toLocaleString() + "</span>" : "₩" + itemToAdd.val.toLocaleString()}</p>
+      <p class="text-xs text-black mb-3">${productToAdd.onSale || productToAdd.suggestSale ? '<span class="line-through text-gray-400">₩' + productToAdd.originalVal.toLocaleString() + '</span> <span class="' + (productToAdd.onSale && productToAdd.suggestSale ? "text-purple-600" : productToAdd.onSale ? "text-red-500" : "text-blue-500") + '">₩' + productToAdd.val.toLocaleString() + "</span>" : "₩" + productToAdd.val.toLocaleString()}</p>
       <div class="flex items-center gap-4">
-        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="-1">−</button>
+        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${productToAdd.id}" data-change="-1">−</button>
         <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="1">+</button>
+        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${productToAdd.id}" data-change="1">+</button>
       </div>
     </div>
     <div class="text-right">
-      <div class="text-lg mb-2 tracking-tight tabular-nums">${itemToAdd.onSale || itemToAdd.suggestSale ? '<span class="line-through text-gray-400">₩' + itemToAdd.originalVal.toLocaleString() + '</span> <span class="' + (itemToAdd.onSale && itemToAdd.suggestSale ? "text-purple-600" : itemToAdd.onSale ? "text-red-500" : "text-blue-500") + '">₩' + itemToAdd.val.toLocaleString() + "</span>" : "₩" + itemToAdd.val.toLocaleString()}</div>
-      <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemToAdd.id}">Remove</a>
+      <div class="text-lg mb-2 tracking-tight tabular-nums">${productToAdd.onSale || productToAdd.suggestSale ? '<span class="line-through text-gray-400">₩' + productToAdd.originalVal.toLocaleString() + '</span> <span class="' + (productToAdd.onSale && productToAdd.suggestSale ? "text-purple-600" : productToAdd.onSale ? "text-red-500" : "text-blue-500") + '">₩' + productToAdd.val.toLocaleString() + "</span>" : "₩" + productToAdd.val.toLocaleString()}</div>
+      <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${productToAdd.id}">Remove</a>
     </div>
   `;
-  cartDisp.appendChild(newItem);
-  itemToAdd.q--;
+  cartDisplay.appendChild(newCartItem);
+  productToAdd.q--;
 }
 
 /**
  * 장바구니에 상품을 추가하는 핸들러 함수
  *
  * @param {HTMLElement} selectorContainer - ProductSelector 컴포넌트
- * @param {Array} prodList - 상품 목록
- * @param {HTMLElement} cartDisp - 장바구니 컨테이너
+ * @param {Array} productList - 상품 목록
+ * @param {HTMLElement} cartDisplay - 장바구니 컨테이너
  */
-function handleAddToCart(selectorContainer, prodList, cartDisp) {
-  const selItem = getSelectedProduct(selectorContainer);
-  const itemToAdd = validateSelectedItem(selItem, prodList);
+function handleAddToCart(selectorContainer, productList, cartDisplay) {
+  const selectedProductId = getSelectedProduct(selectorContainer);
+  const productToAdd = validateSelectedItem(selectedProductId, productList);
 
-  if (!itemToAdd) return;
+  if (!productToAdd) return;
 
-  const item = document.getElementById(itemToAdd.id);
-  if (item) {
-    if (!incrementExistingItem(item, itemToAdd)) return;
+  const existingCartItem = document.getElementById(productToAdd.id);
+  if (existingCartItem) {
+    if (!incrementExistingItem(existingCartItem, productToAdd)) return;
   } else {
-    createNewCartItem(itemToAdd, cartDisp);
+    createNewCartItem(productToAdd, cartDisplay);
   }
 
   handleCalculateCartStuff();
-  lastSel = selItem;
+  lastSel = selectedProductId;
 }
 
 function main() {
