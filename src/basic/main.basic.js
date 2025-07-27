@@ -16,6 +16,7 @@ import {
   calculateTuesdayPoints,
 } from './constants/PointsPolicies.js';
 // UI 상수 import
+import { ALERT_UI, formatMessage, generateManualHTML } from './constants/UIConstants.js';
 
 let prodList;
 let bonusPts = 0;
@@ -138,66 +139,7 @@ function main() {
   manualColumn = document.createElement('div');
   manualColumn.className =
     'fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300';
-  manualColumn.innerHTML = `
-    <button class="absolute top-4 right-4 text-gray-500 hover:text-black" onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-    <h2 class="text-xl font-bold mb-4">📖 이용 안내</h2>
-    <div class="mb-6">
-      <h3 class="text-base font-bold mb-3">💰 할인 정책</h3>
-      <div class="space-y-3">
-        <div class="bg-gray-100 rounded-lg p-3">
-          <p class="font-semibold text-sm mb-1">개별 상품</p>
-          <p class="text-gray-700 text-xs pl-2">
-            • 키보드 10개↑: 10%<br>
-            • 마우스 10개↑: 15%<br>
-            • 모니터암 10개↑: 20%<br>
-            • 스피커 10개↑: 25%
-          </p>
-        </div>
-        <div class="bg-gray-100 rounded-lg p-3">
-          <p class="font-semibold text-sm mb-1">전체 수량</p>
-          <p class="text-gray-700 text-xs pl-2">• 30개 이상: 25%</p>
-        </div>
-        <div class="bg-gray-100 rounded-lg p-3">
-          <p class="font-semibold text-sm mb-1">특별 할인</p>
-          <p class="text-gray-700 text-xs pl-2">
-            • 화요일: +10%<br>
-            • ⚡번개세일: 20%<br>
-            • 💝추천할인: 5%
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="mb-6">
-      <h3 class="text-base font-bold mb-3">🎁 포인트 적립</h3>
-      <div class="space-y-3">
-        <div class="bg-gray-100 rounded-lg p-3">
-          <p class="font-semibold text-sm mb-1">기본</p>
-          <p class="text-gray-700 text-xs pl-2">• 구매액의 0.1%</p>
-        </div>
-        <div class="bg-gray-100 rounded-lg p-3">
-          <p class="font-semibold text-sm mb-1">추가</p>
-          <p class="text-gray-700 text-xs pl-2">
-            • 화요일: 2배<br>
-            • 키보드+마우스: +50p<br>
-            • 풀세트: +100p<br>
-            • 10개↑: +20p / 20개↑: +50p / 30개↑: +100p
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="border-t border-gray-200 pt-4 mt-4">
-      <p class="text-xs font-bold mb-1">💡 TIP</p>
-      <p class="text-2xs text-gray-600 leading-relaxed">
-        • 화요일 대량구매 = MAX 혜택<br>
-        • ⚡+💝 중복 가능<br>
-        • 상품4 = 품절
-      </p>
-    </div>
-  `;
+  manualColumn.innerHTML = generateManualHTML();
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
@@ -219,7 +161,7 @@ function main() {
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
-        alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
+        alert(formatMessage(ALERT_UI.FLASH_SALE, { productName: luckyItem.name }));
         onUpdateSelectOptions();
         doUpdatePricesInCart();
       }
@@ -242,7 +184,7 @@ function main() {
           }
         }
         if (suggest) {
-          alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
+          alert(formatMessage(ALERT_UI.RECOMMEND_SALE, { productName: suggest.name }));
           suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
           suggest.suggestSale = true;
           onUpdateSelectOptions();
@@ -769,7 +711,7 @@ addBtn.addEventListener('click', function () {
         qtyElem.textContent = newQty;
         itemToAdd['q']--;
       } else {
-        alert('재고가 부족합니다.');
+        alert(ALERT_UI.STOCK_EXCEEDED);
       }
     } else {
       const newItem = document.createElement('div');
@@ -826,7 +768,7 @@ cartDisp.addEventListener('click', function (event) {
         prod.q += currentQty;
         itemElem.remove();
       } else {
-        alert('재고가 부족합니다.');
+        alert(ALERT_UI.STOCK_EXCEEDED);
       }
     } else if (tgt.classList.contains('remove-item')) {
       var qtyElem = itemElem.querySelector('.quantity-number');

@@ -19,7 +19,7 @@ export const POINTS_UI = {
   SET_BONUS: '키보드+마우스 세트 +{points}p',
   FULL_SET_BONUS: '풀세트 구매 +{points}p',
   BULK_BONUS: '대량구매({threshold}개+) +{points}p',
-  NO_POINTS: '적립 포인트: 0p'
+  NO_POINTS: '적립 포인트: 0p',
 };
 
 /**
@@ -31,7 +31,7 @@ export const DISCOUNT_UI = {
   INDIVIDUAL_DISCOUNT: '{productName} ({threshold}개↑)',
   FLASH_SALE: '⚡ 번개세일',
   RECOMMENDATION: '💝 추천할인',
-  SUPER_SALE: 'SUPER SALE'
+  SUPER_SALE: 'SUPER SALE',
 };
 
 /**
@@ -41,7 +41,7 @@ export const STOCK_UI = {
   LOW_STOCK: '재고 부족 ({count}개 남음)',
   OUT_OF_STOCK: '품절',
   STOCK_WARNING: '{productName}: 재고 부족 ({count}개 남음)\n',
-  OUT_OF_STOCK_WARNING: '{productName}: 품절\n'
+  OUT_OF_STOCK_WARNING: '{productName}: 품절\n',
 };
 
 /**
@@ -53,7 +53,7 @@ export const CART_UI = {
   ADD_TO_CART: '장바구니에 추가',
   REMOVE_FROM_CART: '제거',
   QUANTITY_PLUS: '+',
-  QUANTITY_MINUS: '-'
+  QUANTITY_MINUS: '-',
 };
 
 /**
@@ -63,7 +63,9 @@ export const ALERT_UI = {
   STOCK_EXCEEDED: '재고가 부족합니다.',
   INVALID_QUANTITY: '올바른 수량을 입력해주세요.',
   ITEM_ADDED: '상품이 장바구니에 추가되었습니다.',
-  ITEM_REMOVED: '상품이 장바구니에서 제거되었습니다.'
+  ITEM_REMOVED: '상품이 장바구니에서 제거되었습니다.',
+  FLASH_SALE: '⚡번개세일! {productName}이(가) 20% 할인 중입니다!',
+  RECOMMEND_SALE: '💝 {productName}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!',
 };
 
 /**
@@ -76,7 +78,7 @@ export const GENERAL_UI = {
   FINAL_TOTAL: '최종 금액',
   PRICE: '가격',
   QUANTITY: '수량',
-  PRODUCT_NAME: '상품명'
+  PRODUCT_NAME: '상품명',
 };
 
 /**
@@ -90,7 +92,7 @@ export const UI_ICONS = {
   STAR: '🌟',
   GIFT: '🎁',
   TIP: '💡',
-  MANUAL: '📖'
+  MANUAL: '📖',
 };
 
 /**
@@ -103,7 +105,7 @@ export const UI_CLASSES = {
   SUCCESS_TEXT: 'text-green-500',
   DISABLED: 'opacity-50 cursor-not-allowed',
   HIDDEN: 'hidden',
-  HIGHLIGHT: 'bg-yellow-100 border-yellow-300'
+  HIGHLIGHT: 'bg-yellow-100 border-yellow-300',
 };
 
 /**
@@ -114,7 +116,7 @@ export const FORMAT_CONFIG = {
   POINTS_UNIT: 'p',
   PERCENTAGE_UNIT: '%',
   QUANTITY_UNIT: '개',
-  DECIMAL_PLACES: 0
+  DECIMAL_PLACES: 0,
 };
 
 /**
@@ -182,4 +184,106 @@ export function getStockMessage(productName, stock) {
  */
 export function getCartCountMessage(count) {
   return formatMessage(CART_UI.ITEM_COUNT, { count });
+}
+
+/**
+ * 매뉴얼 데이터 구조
+ */
+export const MANUAL_DATA = {
+  title: '📖 이용 안내',
+  sections: [
+    {
+      title: '💰 할인 정책',
+      subsections: [
+        {
+          title: '개별 상품',
+          items: [
+            '키보드 10개↑: 10%',
+            '마우스 10개↑: 15%',
+            '모니터암 10개↑: 20%',
+            '스피커 10개↑: 25%',
+          ],
+        },
+        {
+          title: '전체 수량',
+          items: ['30개 이상: 25%'],
+        },
+        {
+          title: '특별 할인',
+          items: ['화요일: +10%', '⚡번개세일: 20%', '💝추천할인: 5%'],
+        },
+      ],
+    },
+    {
+      title: '🎁 포인트 적립',
+      subsections: [
+        {
+          title: '기본',
+          items: ['구매액의 0.1%'],
+        },
+        {
+          title: '추가',
+          items: [
+            '화요일: 2배',
+            '키보드+마우스: +50p',
+            '풀세트: +100p',
+            '10개↑: +20p / 20개↑: +50p / 30개↑: +100p',
+          ],
+        },
+      ],
+    },
+  ],
+  tips: {
+    title: '💡 TIP',
+    items: ['화요일 대량구매 = MAX 혜택', '⚡+💝 중복 가능', '상품4 = 품절'],
+  },
+};
+
+/**
+ * 매뉴얼 HTML을 생성하는 함수
+ */
+export function generateManualHTML() {
+  const sectionsHTML = MANUAL_DATA.sections
+    .map(section => {
+      const subsectionsHTML = section.subsections
+        .map(
+          subsection => `
+      <div class="bg-gray-100 rounded-lg p-3">
+        <p class="font-semibold text-sm mb-1">${subsection.title}</p>
+        <p class="text-gray-700 text-xs pl-2">
+          ${subsection.items.map(item => `• ${item}`).join('<br>\n          ')}
+        </p>
+      </div>
+    `
+        )
+        .join('\n        ');
+
+      return `
+    <div class="mb-6">
+      <h3 class="text-base font-bold mb-3">${section.title}</h3>
+      <div class="space-y-3">
+        ${subsectionsHTML}
+      </div>
+    </div>`;
+    })
+    .join('\n    ');
+
+  const tipsHTML = `
+    <div class="border-t border-gray-200 pt-4 mt-4">
+      <p class="text-xs font-bold mb-1">${MANUAL_DATA.tips.title}</p>
+      <p class="text-2xs text-gray-600 leading-relaxed">
+        ${MANUAL_DATA.tips.items.map(tip => `• ${tip}`).join('<br>\n        ')}
+      </p>
+    </div>`;
+
+  return `
+    <button class="absolute top-4 right-4 text-gray-500 hover:text-black" onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <h2 class="text-xl font-bold mb-4">${MANUAL_DATA.title}</h2>
+    ${sectionsHTML}
+    ${tipsHTML}
+  `;
 }
