@@ -1,5 +1,4 @@
-import { PRODUCT_IDS } from "./constants";
-import { products } from "./data";
+import { PRODUCT_IDS, products } from "./features/product";
 
 let bonusPts = 0;
 let stockInfo;
@@ -575,8 +574,8 @@ function onGetStockTotal() {
 }
 var handleStockInfoUpdate = function () {
 	let infoMsg = "";
-	let totalStock = onGetStockTotal();
-	
+	const totalStock = onGetStockTotal();
+
 	products.forEach(function (item) {
 		if (item.q < 5) {
 			if (item.q > 0) {
@@ -589,7 +588,7 @@ var handleStockInfoUpdate = function () {
 	stockInfo.textContent = infoMsg;
 };
 function doUpdatePricesInCart() {
-	let cartItems = cartDisp.children;
+	const cartItems = cartDisp.children;
 	for (let i = 0; i < cartItems.length; i++) {
 		const itemId = cartItems[i].id;
 		let product = null;
