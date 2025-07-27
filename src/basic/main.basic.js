@@ -130,10 +130,10 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
-  let initStock = 0;
-  for (let i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
-  }
+  // let initStock = 0;
+  // for (let i = 0; i < prodList.length; i++) {
+  //   initStock += prodList[i].q;
+  // }
   onUpdateSelectOptions();
   handleCalculateCartStuff();
   lightningDelay = Math.random() * 10000;
@@ -152,8 +152,8 @@ function main() {
   }, lightningDelay);
   setTimeout(function () {
     setInterval(function () {
-      if (cartDisp.children.length === 0) {
-      }
+      // if (cartDisp.children.length === 0) {
+      // }
       if (lastSel) {
         let suggest = null;
         for (let k = 0; k < prodList.length; k++) {
@@ -256,8 +256,8 @@ function handleCalculateCartStuff() {
   let lowStockItems;
   let idx;
   let originalTotal;
-  let bulkDisc;
-  let itemDisc;
+  // let bulkDisc;
+  // let itemDisc;
   let savedAmount;
   let summaryDetails;
   let totalDiv;
@@ -267,16 +267,16 @@ function handleCalculateCartStuff() {
   let itemCountElement;
   let previousCount;
   let stockMsg;
-  let pts;
-  let hasP1;
-  let hasP2;
-  let loyaltyDiv;
+  // let pts;
+  // let hasP1;
+  // let hasP2;
+  // let loyaltyDiv;
   totalAmt = 0;
   itemCnt = 0;
   originalTotal = totalAmt;
   cartItems = cartDisp.children;
   subTot = 0;
-  bulkDisc = subTot;
+  // bulkDisc = subTot;
   itemDiscounts = [];
   lowStockItems = [];
   for (idx = 0; idx < prodList.length; idx++) {
@@ -561,25 +561,25 @@ const doRenderBonusPoints = function () {
     }
   }
 };
-function onGetStockTotal() {
-  let sum;
-  let i;
-  let currentProduct;
-  sum = 0;
-  for (i = 0; i < prodList.length; i++) {
-    currentProduct = prodList[i];
-    sum += currentProduct.q;
-  }
-  return sum;
-}
+// function onGetStockTotal() {
+//   let sum;
+//   let i;
+//   let currentProduct;
+//   sum = 0;
+//   for (i = 0; i < prodList.length; i++) {
+//     currentProduct = prodList[i];
+//     sum += currentProduct.q;
+//   }
+//   return sum;
+// }
 const handleStockInfoUpdate = function () {
   let infoMsg;
-  let totalStock;
-  let messageOptimizer;
+  // let totalStock;
+  // let messageOptimizer;
   infoMsg = "";
-  totalStock = onGetStockTotal();
-  if (totalStock < 30) {
-  }
+  // totalStock = onGetStockTotal();
+  // if (totalStock < 30) {
+  // }
   prodList.forEach(function (item) {
     if (item.q < 5) {
       if (item.q > 0) {
@@ -592,20 +592,20 @@ const handleStockInfoUpdate = function () {
   stockInfo.textContent = infoMsg;
 };
 function doUpdatePricesInCart() {
-  let totalCount = 0,
-    j = 0;
+  // let totalCount = 0,
+  // j = 0;
   let cartItems;
-  while (cartDisp.children[j]) {
-    const qty = cartDisp.children[j].querySelector(".quantity-number");
-    totalCount += qty ? parseInt(qty.textContent) : 0;
-    j++;
-  }
-  totalCount = 0;
-  for (j = 0; j < cartDisp.children.length; j++) {
-    totalCount += parseInt(
-      cartDisp.children[j].querySelector(".quantity-number").textContent
-    );
-  }
+  // while (cartDisp.children[j]) {
+  //   // const qty = cartDisp.children[j].querySelector(".quantity-number");
+  //   // totalCount += qty ? parseInt(qty.textContent) : 0;
+  //   j++;
+  // }
+  // totalCount = 0;
+  // for (j = 0; j < cartDisp.children.length; j++) {
+  //   totalCount += parseInt(
+  //     cartDisp.children[j].querySelector(".quantity-number").textContent
+  //   );
+  // }
   cartItems = cartDisp.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
@@ -748,8 +748,8 @@ cartDisp.addEventListener("click", function (event) {
       prod.q += remQty;
       itemElem.remove();
     }
-    if (prod && prod.q < 5) {
-    }
+    // if (prod && prod.q < 5) {
+    // }
     handleCalculateCartStuff();
     onUpdateSelectOptions();
   }
