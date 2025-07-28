@@ -22,11 +22,10 @@
   "dependencies": {
     "@clean-code/eslint": "workspace:*",
     "@clean-code/prettier": "workspace:*",
-    "@testing-library/jest-dom": "^6.6.4",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
-    "vite": "^7.0.5",
-    "vitest": "^3.2.4"
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
+    "vite": "catalog:vite",
+    "vitest": "catalog:test"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
@@ -34,8 +33,11 @@
     "@vitejs/plugin-react": "^4.2.0",
     "eslint": "^9.32.0",
     "prettier": "^3.6.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "jsdom": "catalog:test",
+    "@testing-library/user-event": "catalog:test",
+    "@testing-library/dom": "catalog:test",
+    "@testing-library/jest-dom": "catalog:test",
+    "@testing-library/react": "catalog:test"
   }
 }
