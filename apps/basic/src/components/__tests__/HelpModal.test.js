@@ -20,32 +20,32 @@ describe('HelpModal 컴포넌트', () => {
           subsections: [
             {
               title: '개별 상품',
-              items: ['키보드 10개↑: 10%', '마우스 10개↑: 15%'],
+              items: ['키보드 10개↑: 10%', '마우스 10개↑: 15%']
             },
             {
               title: '전체 수량',
-              items: ['30개 이상: 25%'],
-            },
-          ],
+              items: ['30개 이상: 25%']
+            }
+          ]
         },
         {
           title: '🎁 포인트 적립',
           subsections: [
             {
               title: '기본',
-              items: ['구매액의 0.1%'],
+              items: ['구매액의 0.1%']
             },
             {
               title: '추가',
-              items: ['화요일: 2배', '키보드+마우스: +50p'],
-            },
-          ],
-        },
+              items: ['화요일: 2배', '키보드+마우스: +50p']
+            }
+          ]
+        }
       ],
       tips: {
         title: '💡 TIP',
-        items: ['화요일 대량구매 = MAX 혜택', '⚡+💝 중복 가능'],
-      },
+        items: ['화요일 대량구매 = MAX 혜택', '⚡+💝 중복 가능']
+      }
     };
 
     // DOM 컨테이너 설정
@@ -101,7 +101,7 @@ describe('HelpModal 컴포넌트', () => {
         modalClass: 'custom-modal',
         closeOnBackgroundClick: false,
         closeOnEscKey: false,
-        enableFocusTrap: false,
+        enableFocusTrap: false
       };
 
       // When: 옵션과 함께 render 호출
@@ -124,7 +124,9 @@ describe('HelpModal 컴포넌트', () => {
 
       // Then: 올바른 속성들이 설정되어야 함
       expect(overlay.tagName).toBe('DIV');
-      expect(overlay.className).toContain('fixed inset-0 bg-black/50 z-40 hidden');
+      expect(overlay.className).toContain(
+        'fixed inset-0 bg-black/50 z-40 hidden'
+      );
       expect(overlay.className).toContain(additionalClass);
       expect(overlay.getAttribute('role')).toBe('dialog');
       expect(overlay.getAttribute('aria-modal')).toBe('true');
@@ -194,9 +196,9 @@ describe('HelpModal 컴포넌트', () => {
       // Then: 제목과 닫기 버튼이 포함되어야 함
       expect(header.querySelector('#help-modal-title').textContent).toBe(title);
       expect(header.querySelector('.help-modal-close')).toBeTruthy();
-      expect(header.querySelector('.help-modal-close').getAttribute('aria-label')).toBe(
-        '도움말 닫기'
-      );
+      expect(
+        header.querySelector('.help-modal-close').getAttribute('aria-label')
+      ).toBe('도움말 닫기');
       expect(header.querySelector('svg')).toBeTruthy(); // X 아이콘
     });
 
@@ -208,7 +210,9 @@ describe('HelpModal 컴포넌트', () => {
       const header = HelpModal.generateModalHeader(title);
 
       // Then: 올바른 구조와 클래스가 적용되어야 함
-      expect(header.className).toContain('flex justify-between items-center mb-4');
+      expect(header.className).toContain(
+        'flex justify-between items-center mb-4'
+      );
       expect(header.querySelector('h2').id).toBe('help-modal-title');
       expect(header.querySelector('button').type).toBe('button');
     });
@@ -222,9 +226,9 @@ describe('HelpModal 컴포넌트', () => {
         subsections: [
           {
             title: '개별 상품',
-            items: ['키보드 10개↑: 10%', '마우스 10개↑: 15%'],
-          },
-        ],
+            items: ['키보드 10개↑: 10%', '마우스 10개↑: 15%']
+          }
+        ]
       };
 
       // When: 섹션 생성
@@ -245,8 +249,8 @@ describe('HelpModal 컴포넌트', () => {
         title: '테스트 섹션',
         subsections: [
           { title: '하위섹션1', items: ['항목1', '항목2'] },
-          { title: '하위섹션2', items: ['항목3', '항목4'] },
-        ],
+          { title: '하위섹션2', items: ['항목3', '항목4'] }
+        ]
       };
 
       // When: 섹션 생성
@@ -265,7 +269,7 @@ describe('HelpModal 컴포넌트', () => {
       // Given: 하위 섹션 데이터
       const subsection = {
         title: '개별 상품',
-        items: ['키보드 10개↑: 10%', '마우스 10개↑: 15%'],
+        items: ['키보드 10개↑: 10%', '마우스 10개↑: 15%']
       };
 
       // When: 하위 섹션 생성
@@ -283,7 +287,7 @@ describe('HelpModal 컴포넌트', () => {
       // Given: 여러 항목이 있는 하위 섹션
       const subsection = {
         title: '테스트',
-        items: ['항목A', '항목B', '항목C'],
+        items: ['항목A', '항목B', '항목C']
       };
 
       // When: 하위 섹션 생성
@@ -301,7 +305,7 @@ describe('HelpModal 컴포넌트', () => {
       // Given: 팁 데이터
       const tips = {
         title: '💡 TIP',
-        items: ['화요일 대량구매 = MAX 혜택', '⚡+💝 중복 가능'],
+        items: ['화요일 대량구매 = MAX 혜택', '⚡+💝 중복 가능']
       };
 
       // When: 팁 섹션 생성
@@ -319,7 +323,7 @@ describe('HelpModal 컴포넌트', () => {
       // Given: 빈 팁 데이터
       const tips = {
         title: '팁',
-        items: [],
+        items: []
       };
 
       // When: 팁 섹션 생성
@@ -455,7 +459,9 @@ describe('HelpModal 컴포넌트', () => {
       compatibleModal.toggle();
 
       // Then: 모달이 숨겨져야 함
-      expect(compatibleModal.column.classList.contains('translate-x-full')).toBe(true);
+      expect(
+        compatibleModal.column.classList.contains('translate-x-full')
+      ).toBe(true);
     });
   });
 
@@ -481,7 +487,8 @@ describe('HelpModal 컴포넌트', () => {
           expect(onOpen).toHaveBeenCalled();
 
           // 닫기 버튼 클릭
-          const closeButton = helpModal.modal.querySelector('.help-modal-close');
+          const closeButton =
+            helpModal.modal.querySelector('.help-modal-close');
           closeButton.click();
 
           // 애니메이션 완료 대기

@@ -21,7 +21,7 @@ export class CalculationEngine {
           id: product.id,
           quantity: itemQuantity,
           price: product.val,
-          product: product,
+          product: product
         });
       }
     });
@@ -37,12 +37,15 @@ export class CalculationEngine {
         totalSavings: 0,
         discountRate: 0,
         appliedDiscounts: [],
-        specialDiscounts: [],
+        specialDiscounts: []
       };
     }
 
     // Base price calculation
-    const basePriceResult = PriceCalculator.calculateFinalPrice(cartItems, new Date());
+    const basePriceResult = PriceCalculator.calculateFinalPrice(
+      cartItems,
+      new Date()
+    );
 
     // Check for special discount combinations
     const hasFlashSaleAndRecommendedProduct = cartItems.some(
@@ -56,7 +59,9 @@ export class CalculationEngine {
       const discountCalculationContext = {
         date: new Date(),
         isFlashSale: cartItems.some(cartItem => cartItem.product?.onSale),
-        recommendedProduct: cartItems.find(cartItem => cartItem.product?.suggestSale)?.id,
+        recommendedProduct: cartItems.find(
+          cartItem => cartItem.product?.suggestSale
+        )?.id
       };
 
       const advancedDiscountResult = DiscountEngine.applyDiscountPolicies(
@@ -73,9 +78,9 @@ export class CalculationEngine {
           individualDiscounts: basePriceResult.individualDiscounts,
           bulkDiscount: basePriceResult.bulkDiscount,
           tuesdayDiscount: basePriceResult.tuesdayDiscount,
-          specialDiscounts: advancedDiscountResult.appliedDiscounts.filter(discount =>
-            ['flash', 'recommend', 'combo'].includes(discount.type)
-          ),
+          specialDiscounts: advancedDiscountResult.appliedDiscounts.filter(
+            discount => ['flash', 'recommend', 'combo'].includes(discount.type)
+          )
         };
       }
     }
@@ -95,7 +100,7 @@ export class CalculationEngine {
     }
 
     return PointsCalculator.getTotalPoints(cartItems, totalAmount, {
-      date: new Date(),
+      date: new Date()
     });
   }
 

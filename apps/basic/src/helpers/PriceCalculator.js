@@ -6,7 +6,7 @@
 import {
   calculateFinalDiscount,
   calculateBulkDiscount as getBulkDiscountRate,
-  calculateTuesdayDiscount as getTuesdayDiscountRate,
+  calculateTuesdayDiscount as getTuesdayDiscountRate
 } from '../constants/DiscountPolicies.js';
 
 /**
@@ -64,7 +64,11 @@ export class PriceCalculator {
     const itemTotals = [];
 
     for (const item of cartItems) {
-      if (!item || typeof item.quantity !== 'number' || typeof item.price !== 'number') {
+      if (
+        !item ||
+        typeof item.quantity !== 'number' ||
+        typeof item.price !== 'number'
+      ) {
         continue;
       }
 
@@ -73,13 +77,13 @@ export class PriceCalculator {
 
       itemTotals.push({
         id: item.id,
-        total: itemTotal,
+        total: itemTotal
       });
     }
 
     return {
       subtotal,
-      itemTotals,
+      itemTotals
     };
   }
 
@@ -99,7 +103,7 @@ export class PriceCalculator {
       productId: item.id,
       quantity: quantity,
       totalQuantity: 0, // 개별 할인 단계에서는 총 수량 무시
-      date: new Date(),
+      date: new Date()
     });
 
     const itemTotal = item.price * quantity;
@@ -107,7 +111,7 @@ export class PriceCalculator {
 
     return {
       discountRate: discountInfo.baseDiscount,
-      discountAmount: discountAmount,
+      discountAmount: discountAmount
     };
   }
 
@@ -118,7 +122,11 @@ export class PriceCalculator {
    * @returns {DiscountResult} 대량구매 할인 결과
    */
   static calculateBulkDiscount(totalQuantity, subtotal) {
-    if (typeof totalQuantity !== 'number' || typeof subtotal !== 'number' || subtotal <= 0) {
+    if (
+      typeof totalQuantity !== 'number' ||
+      typeof subtotal !== 'number' ||
+      subtotal <= 0
+    ) {
       return { discountRate: 0, discountAmount: 0 };
     }
 
@@ -128,7 +136,7 @@ export class PriceCalculator {
 
     return {
       discountRate,
-      discountAmount,
+      discountAmount
     };
   }
 
@@ -151,7 +159,7 @@ export class PriceCalculator {
     return {
       discountRate,
       discountAmount,
-      isTuesday,
+      isTuesday
     };
   }
 
@@ -167,9 +175,13 @@ export class PriceCalculator {
         subtotal: 0,
         individualDiscounts: [],
         bulkDiscount: { discountRate: 0, discountAmount: 0 },
-        tuesdayDiscount: { discountRate: 0, discountAmount: 0, isTuesday: false },
+        tuesdayDiscount: {
+          discountRate: 0,
+          discountAmount: 0,
+          isTuesday: false
+        },
         finalAmount: 0,
-        totalSavings: 0,
+        totalSavings: 0
       };
     }
 
@@ -177,7 +189,10 @@ export class PriceCalculator {
     const { subtotal, itemTotals } = this.calculateSubtotal(cartItems);
 
     // 2. 전체 수량 계산
-    const totalQuantity = cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    const totalQuantity = cartItems.reduce(
+      (sum, item) => sum + (item.quantity || 0),
+      0
+    );
 
     // 3. 개별 할인 계산 (할인 우선순위: 개별 → 대량 → 화요일)
     const individualDiscounts = [];
@@ -193,7 +208,7 @@ export class PriceCalculator {
             quantity: item.quantity,
             originalAmount: item.price * item.quantity,
             discountRate: itemDiscount.discountRate,
-            discountAmount: itemDiscount.discountAmount,
+            discountAmount: itemDiscount.discountAmount
           });
 
           subtotalAfterIndividualDiscounts -= itemDiscount.discountAmount;
@@ -228,7 +243,7 @@ export class PriceCalculator {
       bulkDiscount,
       tuesdayDiscount,
       finalAmount: Math.max(0, finalAmount), // 음수 방지
-      totalSavings: Math.max(0, totalSavings), // 음수 방지
+      totalSavings: Math.max(0, totalSavings) // 음수 방지
     };
   }
 }

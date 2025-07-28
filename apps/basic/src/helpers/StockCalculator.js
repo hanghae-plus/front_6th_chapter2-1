@@ -72,14 +72,14 @@
 export const STOCK_STATUS = {
   IN_STOCK: 'IN_STOCK', // 5개 이상
   LOW_STOCK: 'LOW_STOCK', // 1-4개
-  OUT_OF_STOCK: 'OUT_OF_STOCK', // 0개
+  OUT_OF_STOCK: 'OUT_OF_STOCK' // 0개
 };
 
 // 재고 임계값 상수
 export const STOCK_THRESHOLDS = {
   LOW_STOCK: 5, // 5개 미만 시 재고 부족
   CRITICAL: 30, // 전체 재고 30개 미만 시 긴급
-  WARNING: 1, // 1개 이하 시 경고
+  WARNING: 1 // 1개 이하 시 경고
 };
 
 /**
@@ -100,7 +100,7 @@ export class StockCalculator {
         available: false,
         maxQuantity: 0,
         status: STOCK_STATUS.OUT_OF_STOCK,
-        message: '유효하지 않은 요청입니다',
+        message: '유효하지 않은 요청입니다'
       };
     }
 
@@ -111,7 +111,7 @@ export class StockCalculator {
         available: false,
         maxQuantity: 0,
         status: STOCK_STATUS.OUT_OF_STOCK,
-        message: '상품을 찾을 수 없습니다',
+        message: '상품을 찾을 수 없습니다'
       };
     }
 
@@ -127,7 +127,7 @@ export class StockCalculator {
         message:
           currentStock > 0
             ? `재고 부족: 최대 ${currentStock}개까지 구매 가능`
-            : '품절된 상품입니다',
+            : '품절된 상품입니다'
       };
     }
 
@@ -136,7 +136,7 @@ export class StockCalculator {
       available: true,
       maxQuantity: currentStock,
       status: stockStatus.status,
-      message: `구매 가능: ${currentStock}개 재고`,
+      message: `구매 가능: ${currentStock}개 재고`
     };
   }
 
@@ -150,7 +150,7 @@ export class StockCalculator {
       return {
         status: STOCK_STATUS.OUT_OF_STOCK,
         quantity: 0,
-        message: '유효하지 않은 상품 정보입니다',
+        message: '유효하지 않은 상품 정보입니다'
       };
     }
 
@@ -171,7 +171,7 @@ export class StockCalculator {
     return {
       status,
       quantity,
-      message,
+      message
     };
   }
 
@@ -186,7 +186,7 @@ export class StockCalculator {
       return {
         isLow: true,
         remaining: 0,
-        level: 'invalid',
+        level: 'invalid'
       };
     }
 
@@ -206,7 +206,7 @@ export class StockCalculator {
     return {
       isLow,
       remaining: quantity,
-      level,
+      level
     };
   }
 
@@ -223,7 +223,7 @@ export class StockCalculator {
         lowStock: 0,
         outOfStock: 0,
         totalProducts: 0,
-        criticalLevel: true,
+        criticalLevel: true
       };
     }
 
@@ -261,7 +261,7 @@ export class StockCalculator {
       lowStock,
       outOfStock,
       totalProducts: products.length,
-      criticalLevel,
+      criticalLevel
     };
   }
 
@@ -275,7 +275,7 @@ export class StockCalculator {
       return {
         warnings: [],
         summary: '',
-        warningCount: 0,
+        warningCount: 0
       };
     }
 
@@ -301,7 +301,7 @@ export class StockCalculator {
           productName: product.name,
           status: status.status,
           quantity: product.q,
-          message,
+          message
         });
       }
     });
@@ -316,7 +316,7 @@ export class StockCalculator {
     return {
       warnings,
       summary,
-      warningCount: warnings.length,
+      warningCount: warnings.length
     };
   }
 
@@ -328,11 +328,17 @@ export class StockCalculator {
    * @returns {StockUpdateResult} 재고 업데이트 결과
    */
   static updateStock(productId, quantity, products) {
-    if (!productId || !quantity || quantity <= 0 || !products || products.length === 0) {
+    if (
+      !productId ||
+      !quantity ||
+      quantity <= 0 ||
+      !products ||
+      products.length === 0
+    ) {
       return {
         success: false,
         newStock: 0,
-        error: '유효하지 않은 업데이트 요청입니다',
+        error: '유효하지 않은 업데이트 요청입니다'
       };
     }
 
@@ -342,7 +348,7 @@ export class StockCalculator {
       return {
         success: false,
         newStock: 0,
-        error: '상품을 찾을 수 없습니다',
+        error: '상품을 찾을 수 없습니다'
       };
     }
 
@@ -353,7 +359,7 @@ export class StockCalculator {
       return {
         success: false,
         newStock: currentStock,
-        error: `재고 부족: 현재 재고 ${currentStock}개, 요청 수량 ${quantity}개`,
+        error: `재고 부족: 현재 재고 ${currentStock}개, 요청 수량 ${quantity}개`
       };
     }
 
@@ -363,7 +369,7 @@ export class StockCalculator {
     return {
       success: true,
       newStock,
-      error: undefined,
+      error: undefined
     };
   }
 }

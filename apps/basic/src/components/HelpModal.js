@@ -69,7 +69,7 @@ export class HelpModal {
       modalClass = '',
       position = 'right',
       onOpen = null,
-      onClose = null,
+      onClose = null
     } = options;
 
     // 데이터 유효성 검사
@@ -132,7 +132,7 @@ export class HelpModal {
       overlay,
       modal,
       open: openModal,
-      close: closeModal,
+      close: closeModal
     };
   }
 
@@ -151,7 +151,7 @@ export class HelpModal {
       'hidden',
       'transition-opacity',
       'duration-300',
-      additionalClass,
+      additionalClass
     ]
       .filter(Boolean)
       .join(' ');
@@ -171,7 +171,11 @@ export class HelpModal {
    * @param {string} [position='right'] - 모달 위치
    * @returns {HTMLElement} 모달 컨테이너
    */
-  static generateModalContainer(data, additionalClass = '', position = 'right') {
+  static generateModalContainer(
+    data,
+    additionalClass = '',
+    position = 'right'
+  ) {
     const modal = document.createElement('div');
 
     // 위치별 CSS 클래스 설정
@@ -179,7 +183,7 @@ export class HelpModal {
       right:
         'fixed right-0 top-0 h-full w-80 transform translate-x-full transition-transform duration-300',
       left: 'fixed left-0 top-0 h-full w-80 transform -translate-x-full transition-transform duration-300',
-      center: 'fixed inset-0 flex items-center justify-center p-4',
+      center: 'fixed inset-0 flex items-center justify-center p-4'
     };
 
     const classes = [
@@ -189,7 +193,7 @@ export class HelpModal {
       'p-6',
       'overflow-y-auto',
       'z-50',
-      additionalClass,
+      additionalClass
     ]
       .filter(Boolean)
       .join(' ');
@@ -235,7 +239,9 @@ export class HelpModal {
     content.className = 'help-modal-content';
 
     // 섹션들 생성
-    const sectionsHTML = data.sections.map(section => HelpModal.generateSection(section)).join('');
+    const sectionsHTML = data.sections
+      .map(section => HelpModal.generateSection(section))
+      .join('');
 
     // 팁 섹션 생성
     const tipsHTML = data.tips ? HelpModal.generateTipsSection(data.tips) : '';
@@ -270,7 +276,9 @@ export class HelpModal {
    * @returns {string} 하위 섹션 HTML
    */
   static generateSubsection(subsection) {
-    const itemsHTML = subsection.items.map(item => `• ${item}`).join('<br>\n          ');
+    const itemsHTML = subsection.items
+      .map(item => `• ${item}`)
+      .join('<br>\n          ');
 
     return `
       <div class="bg-gray-100 rounded-lg p-3">
@@ -423,7 +431,7 @@ export class HelpModal {
         manualColumn.classList.toggle('translate-x-full');
       },
       open: helpModal.open,
-      close: helpModal.close,
+      close: helpModal.close
     };
   }
 }

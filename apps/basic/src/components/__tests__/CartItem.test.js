@@ -19,7 +19,7 @@ describe('CartItem 컴포넌트', () => {
       originalVal: 100000,
       q: 15,
       onSale: false,
-      suggestSale: false,
+      suggestSale: false
     };
 
     mockItem = {
@@ -27,7 +27,7 @@ describe('CartItem 컴포넌트', () => {
       quantity: 2,
       discounts: {},
       subtotal: 180000,
-      stock: 15,
+      stock: 15
     };
   });
 
@@ -118,7 +118,12 @@ describe('CartItem 컴포넌트', () => {
   describe('generateInlinePriceDisplay() 메서드', () => {
     it('할인이 있으면 취소선 원가와 할인가를 표시해야 한다', () => {
       // Given: 할인 상품
-      const product = { ...mockProduct, onSale: true, val: 90000, originalVal: 100000 };
+      const product = {
+        ...mockProduct,
+        onSale: true,
+        val: 90000,
+        originalVal: 100000
+      };
 
       // When: 인라인 가격 표시 생성
       const result = CartItem.generateInlinePriceDisplay(product);
@@ -266,7 +271,12 @@ describe('CartItem 컴포넌트', () => {
   describe('generateTotalPriceDisplay() 메서드', () => {
     it('할인이 있으면 총 가격도 할인 표시를 해야 한다', () => {
       // Given: 할인 상품과 수량
-      const product = { ...mockProduct, onSale: true, val: 90000, originalVal: 100000 };
+      const product = {
+        ...mockProduct,
+        onSale: true,
+        val: 90000,
+        originalVal: 100000
+      };
       const totalPrice = 180000; // 90000 * 2
 
       // When: 총 가격 표시 생성
@@ -301,12 +311,12 @@ describe('CartItem 컴포넌트', () => {
         onSale: true,
         suggestSale: true,
         val: 80000,
-        originalVal: 100000,
+        originalVal: 100000
       };
       const discountItem = {
         ...mockItem,
         product: discountProduct,
-        quantity: 3,
+        quantity: 3
       };
 
       // When: 전체 아이템 렌더링

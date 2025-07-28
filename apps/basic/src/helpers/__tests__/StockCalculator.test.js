@@ -13,12 +13,16 @@ describe('StockCalculator', () => {
     { id: 'p2', name: '무선 마우스', q: 3, val: 50000 }, // 재고 부족
     { id: 'p3', name: '모니터암', q: 0, val: 80000 }, // 품절
     { id: 'p4', name: '헤드폰', q: 1, val: 200000 }, // 위험 수준
-    { id: 'p5', name: '웹캠', q: 10, val: 70000 }, // 정상 재고
+    { id: 'p5', name: '웹캠', q: 10, val: 70000 } // 정상 재고
   ];
 
   describe('checkStockAvailability', () => {
     it('재고가 충분한 경우 구매 가능', () => {
-      const result = StockCalculator.checkStockAvailability('p1', 5, mockProducts);
+      const result = StockCalculator.checkStockAvailability(
+        'p1',
+        5,
+        mockProducts
+      );
 
       expect(result.available).toBe(true);
       expect(result.maxQuantity).toBe(15);
@@ -27,7 +31,11 @@ describe('StockCalculator', () => {
     });
 
     it('재고가 부족한 경우 대안 수량 제안', () => {
-      const result = StockCalculator.checkStockAvailability('p2', 5, mockProducts);
+      const result = StockCalculator.checkStockAvailability(
+        'p2',
+        5,
+        mockProducts
+      );
 
       expect(result.available).toBe(false);
       expect(result.maxQuantity).toBe(3);
@@ -36,7 +44,11 @@ describe('StockCalculator', () => {
     });
 
     it('품절 상품은 구매 불가', () => {
-      const result = StockCalculator.checkStockAvailability('p3', 1, mockProducts);
+      const result = StockCalculator.checkStockAvailability(
+        'p3',
+        1,
+        mockProducts
+      );
 
       expect(result.available).toBe(false);
       expect(result.maxQuantity).toBe(0);
@@ -45,7 +57,11 @@ describe('StockCalculator', () => {
     });
 
     it('존재하지 않는 상품 ID', () => {
-      const result = StockCalculator.checkStockAvailability('invalid', 1, mockProducts);
+      const result = StockCalculator.checkStockAvailability(
+        'invalid',
+        1,
+        mockProducts
+      );
 
       expect(result.available).toBe(false);
       expect(result.message).toContain('상품을 찾을 수 없습니다');
@@ -142,7 +158,7 @@ describe('StockCalculator', () => {
     it('재고가 충분한 경우 (30개 이상)', () => {
       const richProducts = [
         { id: 'p1', name: '상품1', q: 20, val: 100000 },
-        { id: 'p2', name: '상품2', q: 15, val: 50000 },
+        { id: 'p2', name: '상품2', q: 15, val: 50000 }
       ];
 
       const result = StockCalculator.getStockSummary(richProducts);
@@ -160,12 +176,16 @@ describe('StockCalculator', () => {
       expect(result.warningCount).toBe(3);
 
       // 품절 상품 확인
-      const outOfStockWarning = result.warnings.find(w => w.productName === '모니터암');
+      const outOfStockWarning = result.warnings.find(
+        w => w.productName === '모니터암'
+      );
       expect(outOfStockWarning.status).toBe(STOCK_STATUS.OUT_OF_STOCK);
       expect(outOfStockWarning.message).toContain('품절');
 
       // 재고 부족 상품 확인
-      const lowStockWarning = result.warnings.find(w => w.productName === '무선 마우스');
+      const lowStockWarning = result.warnings.find(
+        w => w.productName === '무선 마우스'
+      );
       expect(lowStockWarning.status).toBe(STOCK_STATUS.LOW_STOCK);
       expect(lowStockWarning.message).toContain('재고 부족 (3개 남음)');
 
@@ -177,7 +197,7 @@ describe('StockCalculator', () => {
     it('모든 재고가 정상인 경우', () => {
       const normalProducts = [
         { id: 'p1', name: '상품1', q: 10, val: 100000 },
-        { id: 'p2', name: '상품2', q: 15, val: 50000 },
+        { id: 'p2', name: '상품2', q: 15, val: 50000 }
       ];
 
       const result = StockCalculator.generateStockWarnings(normalProducts);

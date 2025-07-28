@@ -69,7 +69,7 @@ export class StockInfo {
       showSummary = true,
       highlightCritical = true,
       emptyMessage = '재고 정보 없음',
-      containerClass = '',
+      containerClass = ''
     } = options;
 
     // 데이터 유효성 검사
@@ -92,17 +92,24 @@ export class StockInfo {
       if (showWarningsOnly) {
         // 경고만 표시
         const warningItems = stockAnalysis.items.filter(
-          item => item.urgencyLevel === 'warning' || item.urgencyLevel === 'critical'
+          item =>
+            item.urgencyLevel === 'warning' || item.urgencyLevel === 'critical'
         );
-        html += StockInfo.generateStockList(warningItems, { highlightCritical });
+        html += StockInfo.generateStockList(warningItems, {
+          highlightCritical
+        });
       } else {
         // 전체 재고 표시
-        html += StockInfo.generateStockList(stockAnalysis.items, { highlightCritical });
+        html += StockInfo.generateStockList(stockAnalysis.items, {
+          highlightCritical
+        });
       }
     }
 
     // 컨테이너로 감싸기
-    const containerClasses = ['stock-info-container', containerClass].filter(Boolean).join(' ');
+    const containerClasses = ['stock-info-container', containerClass]
+      .filter(Boolean)
+      .join(' ');
 
     return `<div class="${containerClasses}">${html}</div>`;
   }
@@ -132,7 +139,7 @@ export class StockInfo {
         quantity: product.q,
         status: stockStatus.status,
         message: stockStatus.message,
-        urgencyLevel,
+        urgencyLevel
       };
     });
 
@@ -142,7 +149,7 @@ export class StockInfo {
     return {
       products,
       items,
-      summary,
+      summary
     };
   }
 
@@ -156,8 +163,12 @@ export class StockInfo {
     const totalProducts = products.length;
     const totalItems = products.reduce((sum, product) => sum + product.q, 0);
 
-    const warningCount = items.filter(item => item.urgencyLevel === 'warning').length;
-    const criticalCount = items.filter(item => item.urgencyLevel === 'critical').length;
+    const warningCount = items.filter(
+      item => item.urgencyLevel === 'warning'
+    ).length;
+    const criticalCount = items.filter(
+      item => item.urgencyLevel === 'critical'
+    ).length;
 
     // 재고 건강도 계산 (0-100)
     const healthyCount = totalProducts - warningCount - criticalCount;
@@ -177,7 +188,7 @@ export class StockInfo {
       warningCount,
       criticalCount,
       healthScore,
-      overallStatus,
+      overallStatus
     };
   }
 
@@ -218,17 +229,18 @@ export class StockInfo {
     const urgencyClasses = {
       normal: 'text-gray-600',
       warning: 'text-orange-600',
-      critical: 'text-red-600 font-medium',
+      critical: 'text-red-600 font-medium'
     };
 
     // 상태 아이콘
     const statusIcons = {
       normal: '✅',
       warning: '⚠️',
-      critical: '🚨',
+      critical: '🚨'
     };
 
-    const urgencyClass = urgencyClasses[item.urgencyLevel] || urgencyClasses.normal;
+    const urgencyClass =
+      urgencyClasses[item.urgencyLevel] || urgencyClasses.normal;
     const statusIcon = statusIcons[item.urgencyLevel] || statusIcons.normal;
 
     // 중요한 항목 강조
@@ -262,20 +274,20 @@ export class StockInfo {
         color: 'text-green-600',
         bgColor: 'bg-green-50',
         icon: '✅',
-        message: '재고 상태 양호',
+        message: '재고 상태 양호'
       },
       warning: {
         color: 'text-orange-600',
         bgColor: 'bg-orange-50',
         icon: '⚠️',
-        message: '재고 관리 필요',
+        message: '재고 관리 필요'
       },
       critical: {
         color: 'text-red-600',
         bgColor: 'bg-red-50',
         icon: '🚨',
-        message: '긴급 재고 보충 필요',
-      },
+        message: '긴급 재고 보충 필요'
+      }
     };
 
     const config = statusConfig[summary.overallStatus] || statusConfig.healthy;
@@ -323,7 +335,12 @@ export class StockInfo {
    * @returns {string} 빈 상태 HTML
    */
   static generateEmptyState(message, containerClass = '') {
-    const containerClasses = ['stock-info-empty', 'text-center', 'py-4', containerClass]
+    const containerClasses = [
+      'stock-info-empty',
+      'text-center',
+      'py-4',
+      containerClass
+    ]
       .filter(Boolean)
       .join(' ');
 

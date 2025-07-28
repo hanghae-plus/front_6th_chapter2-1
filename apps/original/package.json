@@ -2,6 +2,7 @@
   "name": "@clean-code/original",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -14,11 +15,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.13.1",
   "dependencies": {
-    "@clean-code/eslint": "workspace:*",
     "vite": "catalog:vite",
-    "vitest": "catalog:test",
-    "jsdom": "catalog:test",
-    "@testing-library/jest-dom": "catalog:test",
-    "@testing-library/user-event": "catalog:test"
+    "vitest": "catalog:test"
   }
 }

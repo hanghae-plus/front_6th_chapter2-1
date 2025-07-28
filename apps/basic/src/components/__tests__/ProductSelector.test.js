@@ -16,7 +16,7 @@ describe('ProductSelector', () => {
       originalVal: 100000,
       q: 15,
       onSale: false,
-      suggestSale: false,
+      suggestSale: false
     },
     {
       id: 'p2',
@@ -25,7 +25,7 @@ describe('ProductSelector', () => {
       originalVal: 50000,
       q: 8,
       onSale: true,
-      suggestSale: false,
+      suggestSale: false
     },
     {
       id: 'p3',
@@ -34,7 +34,7 @@ describe('ProductSelector', () => {
       originalVal: 80000,
       q: 0,
       onSale: false,
-      suggestSale: false,
+      suggestSale: false
     },
     {
       id: 'p4',
@@ -43,7 +43,7 @@ describe('ProductSelector', () => {
       originalVal: 200000,
       q: 5,
       onSale: false,
-      suggestSale: true,
+      suggestSale: true
     },
     {
       id: 'p5',
@@ -52,8 +52,8 @@ describe('ProductSelector', () => {
       originalVal: 70000,
       q: 3,
       onSale: true,
-      suggestSale: true,
-    },
+      suggestSale: true
+    }
   ];
 
   describe('getProductStatusIcon', () => {
@@ -114,25 +114,45 @@ describe('ProductSelector', () => {
 
   describe('formatProductPrice', () => {
     it('번개세일+추천할인 상품은 25% SUPER SALE 표시', () => {
-      const product = { val: 52500, originalVal: 70000, onSale: true, suggestSale: true };
+      const product = {
+        val: 52500,
+        originalVal: 70000,
+        onSale: true,
+        suggestSale: true
+      };
       const result = ProductSelector.formatProductPrice(product);
       expect(result).toBe(' - 70000원 → 52500원 (25% SUPER SALE!)');
     });
 
     it('번개세일 상품은 20% SALE 표시', () => {
-      const product = { val: 40000, originalVal: 50000, onSale: true, suggestSale: false };
+      const product = {
+        val: 40000,
+        originalVal: 50000,
+        onSale: true,
+        suggestSale: false
+      };
       const result = ProductSelector.formatProductPrice(product);
       expect(result).toBe(' - 50000원 → 40000원 (20% SALE!)');
     });
 
     it('추천할인 상품은 5% 추천할인 표시', () => {
-      const product = { val: 150000, originalVal: 200000, onSale: false, suggestSale: true };
+      const product = {
+        val: 150000,
+        originalVal: 200000,
+        onSale: false,
+        suggestSale: true
+      };
       const result = ProductSelector.formatProductPrice(product);
       expect(result).toBe(' - 200000원 → 150000원 (5% 추천할인!)');
     });
 
     it('일반 상품은 현재 가격만 표시', () => {
-      const product = { val: 100000, originalVal: 100000, onSale: false, suggestSale: false };
+      const product = {
+        val: 100000,
+        originalVal: 100000,
+        onSale: false,
+        suggestSale: false
+      };
       const result = ProductSelector.formatProductPrice(product);
       expect(result).toBe(' - 100000원');
     });
@@ -216,7 +236,9 @@ describe('ProductSelector', () => {
       const result = ProductSelector.generateOption(product);
 
       expect(result.value).toBe('p5');
-      expect(result.text).toBe('⚡💝웹캠 - 70000원 → 52500원 (25% SUPER SALE!)');
+      expect(result.text).toBe(
+        '⚡💝웹캠 - 70000원 → 52500원 (25% SUPER SALE!)'
+      );
       expect(result.disabled).toBe(false);
       expect(result.className).toBe('text-purple-600 font-bold');
     });
@@ -238,7 +260,7 @@ describe('ProductSelector', () => {
     it('ID와 클래스명 옵션 적용', () => {
       const result = ProductSelector.render(mockProducts, {
         id: 'product-select',
-        className: 'custom-class',
+        className: 'custom-class'
       });
 
       expect(result).toContain('id="product-select"');
@@ -247,10 +269,12 @@ describe('ProductSelector', () => {
 
     it('커스텀 placeholder 적용', () => {
       const result = ProductSelector.render(mockProducts, {
-        placeholder: '원하는 상품을 선택하세요',
+        placeholder: '원하는 상품을 선택하세요'
       });
 
-      expect(result).toContain('<option value="">원하는 상품을 선택하세요</option>');
+      expect(result).toContain(
+        '<option value="">원하는 상품을 선택하세요</option>'
+      );
     });
 
     it('전체 재고 50개 미만 시 주황색 테두리 적용', () => {
@@ -269,7 +293,7 @@ describe('ProductSelector', () => {
           originalVal: 10000,
           q: 30,
           onSale: false,
-          suggestSale: false,
+          suggestSale: false
         },
         {
           id: 'p2',
@@ -278,8 +302,8 @@ describe('ProductSelector', () => {
           originalVal: 20000,
           q: 25,
           onSale: false,
-          suggestSale: false,
-        },
+          suggestSale: false
+        }
       ];
 
       const result = ProductSelector.render(highStockProducts);

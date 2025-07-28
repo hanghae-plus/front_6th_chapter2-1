@@ -19,7 +19,7 @@ export class ShoppingCartState {
       originalVal: product.price,
       q: product.stock,
       onSale: false,
-      suggestSale: false,
+      suggestSale: false
     }));
   }
 
@@ -28,7 +28,9 @@ export class ShoppingCartState {
   }
 
   getTotalAvailableStock() {
-    const stockSummary = StockCalculator.getStockSummary(this.availableProducts);
+    const stockSummary = StockCalculator.getStockSummary(
+      this.availableProducts
+    );
     return stockSummary.totalStock;
   }
 

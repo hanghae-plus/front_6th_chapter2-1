@@ -20,7 +20,7 @@ describe('CartDisplay 컴포넌트', () => {
       originalVal: 100000,
       q: 15,
       onSale: false,
-      suggestSale: false,
+      suggestSale: false
     };
 
     mockProduct2 = {
@@ -30,7 +30,7 @@ describe('CartDisplay 컴포넌트', () => {
       originalVal: 50000,
       q: 20,
       onSale: true,
-      suggestSale: false,
+      suggestSale: false
     };
 
     mockCartItems = [
@@ -39,15 +39,15 @@ describe('CartDisplay 컴포넌트', () => {
         quantity: 2,
         discounts: {},
         subtotal: 180000,
-        stock: 15,
+        stock: 15
       },
       {
         product: mockProduct2,
         quantity: 1,
         discounts: {},
         subtotal: 45000,
-        stock: 20,
-      },
+        stock: 20
+      }
     ];
   });
 
@@ -191,7 +191,7 @@ describe('CartDisplay 컴포넌트', () => {
       // Then: 올바른 요약 정보 반환
       expect(result).toEqual({
         itemCount: 2,
-        totalQuantity: 3, // 2 + 1
+        totalQuantity: 3 // 2 + 1
       });
     });
 
@@ -205,7 +205,7 @@ describe('CartDisplay 컴포넌트', () => {
       // Then: 0으로 초기화된 요약 정보 반환
       expect(result).toEqual({
         itemCount: 0,
-        totalQuantity: 0,
+        totalQuantity: 0
       });
     });
 
@@ -264,7 +264,10 @@ describe('CartDisplay 컴포넌트', () => {
       const productId = 'p1';
 
       // When: 상품 제거
-      const result = CartDisplay.removeItemByProductId(mockCartItems, productId);
+      const result = CartDisplay.removeItemByProductId(
+        mockCartItems,
+        productId
+      );
 
       // Then: 해당 상품이 제거된 배열 반환
       expect(result).toHaveLength(1);
@@ -277,7 +280,10 @@ describe('CartDisplay 컴포넌트', () => {
       const productId = 'nonexistent';
 
       // When: 존재하지 않는 상품 제거 시도
-      const result = CartDisplay.removeItemByProductId(mockCartItems, productId);
+      const result = CartDisplay.removeItemByProductId(
+        mockCartItems,
+        productId
+      );
 
       // Then: 원본 배열과 동일한 길이
       expect(result).toHaveLength(2);
@@ -301,7 +307,11 @@ describe('CartDisplay 컴포넌트', () => {
       const newQuantity = 5;
 
       // When: 수량 업데이트
-      const result = CartDisplay.updateItemQuantity(mockCartItems, productId, newQuantity);
+      const result = CartDisplay.updateItemQuantity(
+        mockCartItems,
+        productId,
+        newQuantity
+      );
 
       // Then: 수량이 업데이트된 배열 반환
       const updatedItem = result.find(item => item.product.id === 'p1');
@@ -315,7 +325,11 @@ describe('CartDisplay 컴포넌트', () => {
       const newQuantity = 0;
 
       // When: 0 수량으로 업데이트
-      const result = CartDisplay.updateItemQuantity(mockCartItems, productId, newQuantity);
+      const result = CartDisplay.updateItemQuantity(
+        mockCartItems,
+        productId,
+        newQuantity
+      );
 
       // Then: 해당 아이템이 제거되어야 함
       expect(result).toHaveLength(1);
@@ -328,7 +342,11 @@ describe('CartDisplay 컴포넌트', () => {
       const newQuantity = 3;
 
       // When: 존재하지 않는 상품 수량 업데이트
-      const result = CartDisplay.updateItemQuantity(mockCartItems, productId, newQuantity);
+      const result = CartDisplay.updateItemQuantity(
+        mockCartItems,
+        productId,
+        newQuantity
+      );
 
       // Then: 원본 배열과 동일
       expect(result).toHaveLength(2);
@@ -392,22 +410,22 @@ describe('CartDisplay 컴포넌트', () => {
           quantity: 3,
           discounts: { lightning: true, recommend: true },
           subtotal: 270000,
-          stock: 12,
+          stock: 12
         },
         {
           product: mockProduct2,
           quantity: 2,
           discounts: {},
           subtotal: 90000,
-          stock: 18,
-        },
+          stock: 18
+        }
       ];
 
       // When: 복잡한 장바구니 렌더링
       const result = CartDisplay.render(complexCartItems, {
         showDiscounts: true,
         allowQuantityChange: true,
-        className: 'complex-cart',
+        className: 'complex-cart'
       });
 
       // Then: 모든 요소가 올바르게 렌더링되어야 함
@@ -425,14 +443,14 @@ describe('CartDisplay 컴포넌트', () => {
 
       // When: 아이템 추가 시뮬레이션 (수량 업데이트로 처리)
       cartItems = CartDisplay.updateItemQuantity(cartItems, 'p1', 0); // 빈 상태 유지
-      let emptyResult = CartDisplay.render(cartItems);
+      const emptyResult = CartDisplay.render(cartItems);
 
       // Then: 빈 상태가 표시되어야 함
       expect(emptyResult).toContain('장바구니가 비어있습니다');
 
       // When: 실제 아이템 추가 (실제로는 외부에서 처리)
       cartItems = [mockCartItems[0]];
-      let filledResult = CartDisplay.render(cartItems);
+      const filledResult = CartDisplay.render(cartItems);
 
       // Then: 아이템이 표시되어야 함
       expect(filledResult).toContain('무선 키보드');

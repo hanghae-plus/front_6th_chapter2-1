@@ -11,7 +11,7 @@ import {
   calculateBasePoints as calculateBasePts,
   calculateBulkBonus,
   calculateTuesdayPoints as calculateTuesdayPts,
-  POINTS_RATES,
+  POINTS_RATES
 } from '../constants/PointsPolicies.js';
 
 /**
@@ -81,7 +81,7 @@ export const POINTS_TYPES = {
   BASE: 'base',
   TUESDAY: 'tuesday',
   SET_BONUS: 'set_bonus',
-  QUANTITY_BONUS: 'quantity_bonus',
+  QUANTITY_BONUS: 'quantity_bonus'
 };
 
 /**
@@ -103,7 +103,10 @@ export class PointsCalculator {
     const baseResult = this.calculateBasePoints(finalAmount);
 
     // 2. 화요일 포인트 배수 적용
-    const tuesdayResult = this.calculateTuesdayMultiplier(baseResult.points, date);
+    const tuesdayResult = this.calculateTuesdayMultiplier(
+      baseResult.points,
+      date
+    );
 
     // 3. 보너스 포인트 계산
     const bonusResult = this.calculateBonusPoints(cart, context);
@@ -148,9 +151,9 @@ export class PointsCalculator {
         base: baseResult,
         tuesday: tuesdayResult,
         setBonus: bonusResult.setBonus,
-        quantityBonus: bonusResult.quantityBonus,
+        quantityBonus: bonusResult.quantityBonus
       },
-      messages,
+      messages
     };
   }
 
@@ -164,7 +167,7 @@ export class PointsCalculator {
       return {
         points: 0,
         rate: POINTS_RATES.BASE_RATE,
-        calculation: '결제 금액이 없습니다',
+        calculation: '결제 금액이 없습니다'
       };
     }
 
@@ -173,7 +176,7 @@ export class PointsCalculator {
     return {
       points,
       rate: POINTS_RATES.BASE_RATE,
-      calculation: `₩${finalAmount.toLocaleString()} × ${(POINTS_RATES.BASE_RATE * 100).toFixed(1)}% = ${points}p`,
+      calculation: `₩${finalAmount.toLocaleString()} × ${(POINTS_RATES.BASE_RATE * 100).toFixed(1)}% = ${points}p`
     };
   }
 
@@ -189,7 +192,7 @@ export class PointsCalculator {
         points: 0,
         multiplier: 1,
         isTuesday: false,
-        calculation: '기본 포인트가 없습니다',
+        calculation: '기본 포인트가 없습니다'
       };
     }
 
@@ -205,7 +208,7 @@ export class PointsCalculator {
       points,
       multiplier,
       isTuesday,
-      calculation,
+      calculation
     };
   }
 
@@ -219,14 +222,20 @@ export class PointsCalculator {
       return {
         points: 0,
         details: [],
-        calculation: '장바구니가 비어있습니다',
+        calculation: '장바구니가 비어있습니다'
       };
     }
 
     // 제품별 존재 여부 확인
-    const hasKeyboard = cartItems.some(item => item.id === 'p1' && item.quantity > 0);
-    const hasMouse = cartItems.some(item => item.id === 'p2' && item.quantity > 0);
-    const hasMonitorArm = cartItems.some(item => item.id === 'p3' && item.quantity > 0);
+    const hasKeyboard = cartItems.some(
+      item => item.id === 'p1' && item.quantity > 0
+    );
+    const hasMouse = cartItems.some(
+      item => item.id === 'p2' && item.quantity > 0
+    );
+    const hasMonitorArm = cartItems.some(
+      item => item.id === 'p3' && item.quantity > 0
+    );
 
     let totalPoints = 0;
     const details = [];
@@ -239,7 +248,7 @@ export class PointsCalculator {
       details.push({
         type: 'keyboard_mouse',
         points: keyboardMouseBonus,
-        description: BONUS_POINTS.KEYBOARD_MOUSE_SET.description,
+        description: BONUS_POINTS.KEYBOARD_MOUSE_SET.description
       });
       calculations.push(`키보드+마우스 세트: +${keyboardMouseBonus}p`);
     }
@@ -251,7 +260,7 @@ export class PointsCalculator {
       details.push({
         type: 'full_set',
         points: fullSetBonus,
-        description: BONUS_POINTS.FULL_SET.description,
+        description: BONUS_POINTS.FULL_SET.description
       });
       calculations.push(`풀세트 구매: +${fullSetBonus}p`);
     }
@@ -260,7 +269,9 @@ export class PointsCalculator {
       points: totalPoints,
       details,
       calculation:
-        calculations.length > 0 ? calculations.join(', ') : '적용 가능한 세트 보너스가 없습니다',
+        calculations.length > 0
+          ? calculations.join(', ')
+          : '적용 가능한 세트 보너스가 없습니다'
     };
   }
 
@@ -274,7 +285,7 @@ export class PointsCalculator {
       return {
         points: 0,
         threshold: '',
-        calculation: '구매 수량이 없습니다',
+        calculation: '구매 수량이 없습니다'
       };
     }
 
@@ -284,15 +295,17 @@ export class PointsCalculator {
     if (bulkBonus.points > 0) {
       return {
         points: bulkBonus.points,
-        threshold: bulkBonus.description.match(/\((\d+개\+)\)/)?.[1] || bulkBonus.threshold,
-        calculation: `${totalQuantity}개 구매 → ${bulkBonus.description}`,
+        threshold:
+          bulkBonus.description.match(/\((\d+개\+)\)/)?.[1] ||
+          bulkBonus.threshold,
+        calculation: `${totalQuantity}개 구매 → ${bulkBonus.description}`
       };
     }
 
     return {
       points: 0,
       threshold: '10개 미만',
-      calculation: `${totalQuantity}개 구매 (대량구매 보너스 미적용)`,
+      calculation: `${totalQuantity}개 구매 (대량구매 보너스 미적용)`
     };
   }
 
@@ -309,13 +322,13 @@ export class PointsCalculator {
         setBonus: {
           points: 0,
           details: [],
-          calculation: '장바구니가 비어있습니다',
+          calculation: '장바구니가 비어있습니다'
         },
         quantityBonus: {
           points: 0,
           threshold: '',
-          calculation: '장바구니가 비어있습니다',
-        },
+          calculation: '장바구니가 비어있습니다'
+        }
       };
     }
 
@@ -334,7 +347,7 @@ export class PointsCalculator {
     return {
       total,
       setBonus,
-      quantityBonus,
+      quantityBonus
     };
   }
 }

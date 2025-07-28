@@ -72,12 +72,14 @@ export class OrderSummary {
       showDetailedBreakdown = true,
       highlightSavings = true,
       showPointsPreview = true,
-      className = '',
+      className = ''
     } = options;
 
     // 데이터 유효성 검사
     if (!orderData || !orderData.pricing) {
-      throw new Error('OrderSummary.render: orderData와 pricing 정보는 필수입니다.');
+      throw new Error(
+        'OrderSummary.render: orderData와 pricing 정보는 필수입니다.'
+      );
     }
 
     // 빈 장바구니 처리
@@ -90,7 +92,9 @@ export class OrderSummary {
       ? OrderSummary.generateItemsBreakdown(orderData.items)
       : '';
 
-    const pricingDetails = OrderSummary.generatePricingDetails(orderData.pricing);
+    const pricingDetails = OrderSummary.generatePricingDetails(
+      orderData.pricing
+    );
 
     const savingsInfo =
       highlightSavings && orderData.pricing.totalSavings > 0
@@ -103,12 +107,17 @@ export class OrderSummary {
         : '';
 
     const tuesdayBanner =
-      orderData.context.isTuesday && orderData.pricing.discounts.tuesday.discountAmount > 0
-        ? OrderSummary.generateTuesdayBanner(orderData.pricing.discounts.tuesday)
+      orderData.context.isTuesday &&
+      orderData.pricing.discounts.tuesday.discountAmount > 0
+        ? OrderSummary.generateTuesdayBanner(
+            orderData.pricing.discounts.tuesday
+          )
         : '';
 
     // 컨테이너 CSS 클래스 구성
-    const containerClasses = ['order-summary', 'space-y-3', className].filter(Boolean).join(' ');
+    const containerClasses = ['order-summary', 'space-y-3', className]
+      .filter(Boolean)
+      .join(' ');
 
     return `
       <div class="${containerClasses}">
@@ -127,7 +136,12 @@ export class OrderSummary {
    * @returns {string} 빈 상태 HTML
    */
   static generateEmptyState(className = '') {
-    const containerClasses = ['order-summary-empty', 'text-center', 'py-8', className]
+    const containerClasses = [
+      'order-summary-empty',
+      'text-center',
+      'py-8',
+      className
+    ]
       .filter(Boolean)
       .join(' ');
 
@@ -376,7 +390,12 @@ export class OrderSummary {
    * @returns {OrderData} OrderSummary용 주문 데이터
    */
   static transformCalculationResults(calculationResults, cartItems = []) {
-    const { priceResult, pointsResult, discountResult = {}, context = {} } = calculationResults;
+    const {
+      priceResult,
+      pointsResult,
+      discountResult = {},
+      context = {}
+    } = calculationResults;
 
     // 장바구니 아이템 요약 생성
     const items = cartItems.map(item => ({
@@ -384,7 +403,8 @@ export class OrderSummary {
       name: item.product ? item.product.name : item.name,
       quantity: item.quantity,
       unitPrice: item.price || (item.product ? item.product.val : 0),
-      totalPrice: (item.price || (item.product ? item.product.val : 0)) * item.quantity,
+      totalPrice:
+        (item.price || (item.product ? item.product.val : 0)) * item.quantity
     }));
 
     // 가격 정보 구성
@@ -393,13 +413,15 @@ export class OrderSummary {
       finalAmount: priceResult.finalAmount || 0,
       totalSavings: priceResult.totalSavings || 0,
       discountRate:
-        priceResult.totalSavings > 0 ? priceResult.totalSavings / priceResult.subtotal : 0,
+        priceResult.totalSavings > 0
+          ? priceResult.totalSavings / priceResult.subtotal
+          : 0,
       discounts: {
         individual: priceResult.individualDiscounts || [],
         bulk: priceResult.bulkDiscount || { discountRate: 0 },
         tuesday: priceResult.tuesdayDiscount || { discountAmount: 0 },
-        special: discountResult.specialDiscounts || [],
-      },
+        special: discountResult.specialDiscounts || []
+      }
     };
 
     // 포인트 정보 구성
@@ -412,8 +434,8 @@ export class OrderSummary {
       context: {
         isTuesday: context.isTuesday || new Date().getDay() === 2,
         hasSpecialDiscounts: (discountResult.specialDiscounts || []).length > 0,
-        itemCount: items.reduce((total, item) => total + item.quantity, 0),
-      },
+        itemCount: items.reduce((total, item) => total + item.quantity, 0)
+      }
     };
   }
 }

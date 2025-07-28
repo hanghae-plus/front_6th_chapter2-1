@@ -60,7 +60,11 @@ export class CartItem {
    */
   static render(item, options = {}) {
     // 기본 옵션 설정
-    const { showDiscounts = true, allowQuantityChange = true, className = '' } = options;
+    const {
+      showDiscounts = true,
+      allowQuantityChange = true,
+      className = ''
+    } = options;
 
     // 데이터 유효성 검사
     if (!item || !item.product) {
@@ -80,7 +84,7 @@ export class CartItem {
       'first:pt-0',
       'last:border-b-0',
       'last:pb-0',
-      className,
+      className
     ]
       .filter(Boolean)
       .join(' ');
@@ -89,9 +93,11 @@ export class CartItem {
     const imageSection = CartItem.generateImageSection(product);
     const contentSection = CartItem.generateContentSection(product, quantity, {
       showDiscounts,
-      allowQuantityChange,
+      allowQuantityChange
     });
-    const priceSection = CartItem.generatePriceSection(product, quantity, { showDiscounts });
+    const priceSection = CartItem.generatePriceSection(product, quantity, {
+      showDiscounts
+    });
 
     return `
       <div id="${product.id}" class="${containerClasses}">
@@ -127,10 +133,16 @@ export class CartItem {
 
     // 제품명에 할인 아이콘 추가
     const discountIcons = CartItem.generateDiscountIcons(product);
-    const priceDisplay = CartItem.generateInlinePriceDisplay(product, { showDiscounts });
-    const quantityControls = CartItem.generateQuantityControls(product, quantity, {
-      allowQuantityChange,
+    const priceDisplay = CartItem.generateInlinePriceDisplay(product, {
+      showDiscounts
     });
+    const quantityControls = CartItem.generateQuantityControls(
+      product,
+      quantity,
+      {
+        allowQuantityChange
+      }
+    );
 
     return `
       <div>
@@ -153,7 +165,11 @@ export class CartItem {
     const { showDiscounts = true } = options;
 
     const totalPrice = product.val * quantity;
-    const priceDisplay = CartItem.generateTotalPriceDisplay(product, totalPrice, { showDiscounts });
+    const priceDisplay = CartItem.generateTotalPriceDisplay(
+      product,
+      totalPrice,
+      { showDiscounts }
+    );
     const removeButton = CartItem.generateRemoveButton(product);
 
     return `
@@ -208,7 +224,8 @@ export class CartItem {
     const { showDiscounts = true } = options;
 
     if (showDiscounts && (product.onSale || product.suggestSale)) {
-      const originalTotalPrice = product.originalVal * (totalPrice / product.val);
+      const originalTotalPrice =
+        product.originalVal * (totalPrice / product.val);
       const discountColor = CartItem.getDiscountColor(product);
       return `<span class="line-through text-gray-400">₩${originalTotalPrice.toLocaleString()}</span> <span class="${discountColor}">₩${totalPrice.toLocaleString()}</span>`;
     }

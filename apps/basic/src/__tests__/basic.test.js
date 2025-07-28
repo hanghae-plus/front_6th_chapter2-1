@@ -30,7 +30,14 @@ describe('basic 테스트', () => {
   describe.each([{ type: 'basic', loadFile: () => import('../main.js') }])(
     '$type 장바구니 상세 기능 테스트',
     ({ loadFile }) => {
-      let sel, addBtn, cartDisp, sum, stockInfo, itemCount, loyaltyPoints, discountInfo;
+      let sel,
+        addBtn,
+        cartDisp,
+        sum,
+        stockInfo,
+        itemCount,
+        loyaltyPoints,
+        discountInfo;
 
       beforeEach(async () => {
         vi.useRealTimers();
@@ -63,23 +70,41 @@ describe('basic 테스트', () => {
         describe('2.1 상품 목록', () => {
           it('5개 상품이 올바른 정보로 표시되어야 함', () => {
             const expectedProducts = [
-              { id: 'p1', name: '버그 없애는 키보드', price: '10000원', stock: 50, discount: 10 },
-              { id: 'p2', name: '생산성 폭발 마우스', price: '20000원', stock: 30, discount: 15 },
-              { id: 'p3', name: '거북목 탈출 모니터암', price: '30000원', stock: 20, discount: 20 },
+              {
+                id: 'p1',
+                name: '버그 없애는 키보드',
+                price: '10000원',
+                stock: 50,
+                discount: 10
+              },
+              {
+                id: 'p2',
+                name: '생산성 폭발 마우스',
+                price: '20000원',
+                stock: 30,
+                discount: 15
+              },
+              {
+                id: 'p3',
+                name: '거북목 탈출 모니터암',
+                price: '30000원',
+                stock: 20,
+                discount: 20
+              },
               {
                 id: 'p4',
                 name: '에러 방지 노트북 파우치',
                 price: '15000원',
                 stock: 0,
-                discount: 5,
+                discount: 5
               },
               {
                 id: 'p5',
                 name: '코딩할 때 듣는 Lo-Fi 스피커',
                 price: '25000원',
                 stock: 10,
-                discount: 25,
-              },
+                discount: 25
+              }
             ];
 
             expect(sel.options.length).toBe(5);
@@ -95,7 +120,9 @@ describe('basic 테스트', () => {
             // 상품5를 6개 구매하여 재고를 4개로 만듦
             addItemsToCart(sel, addBtn, 'p5', 6);
 
-            expect(stockInfo.textContent).toContain('코딩할 때 듣는 Lo-Fi 스피커');
+            expect(stockInfo.textContent).toContain(
+              '코딩할 때 듣는 Lo-Fi 스피커'
+            );
             expect(stockInfo.textContent).toContain('재고 부족');
             expect(stockInfo.textContent).toContain('4개 남음');
           });
@@ -343,8 +370,12 @@ describe('basic 테스트', () => {
         describe('5.1 레이아웃', () => {
           it('필수 레이아웃 요소가 존재해야 함', () => {
             // 헤더
-            expect(document.querySelector('h1').textContent).toContain('🛒 Hanghae Online Store');
-            expect(document.querySelector('.text-5xl').textContent).toContain('Shopping Cart');
+            expect(document.querySelector('h1').textContent).toContain(
+              '🛒 Hanghae Online Store'
+            );
+            expect(document.querySelector('.text-5xl').textContent).toContain(
+              'Shopping Cart'
+            );
 
             // 좌측: 상품 선택 및 장바구니
             expect(document.querySelector('#product-select')).toBeTruthy();
@@ -384,11 +415,17 @@ describe('basic 테스트', () => {
             expect(cartItem.querySelector('.bg-gradient-black')).toBeTruthy();
 
             // 상품명
-            expect(cartItem.querySelector('h3').textContent).toContain('버그 없애는 키보드');
+            expect(cartItem.querySelector('h3').textContent).toContain(
+              '버그 없애는 키보드'
+            );
 
             // 수량 조절 버튼
-            expect(cartItem.querySelector('.quantity-change[data-change="1"]')).toBeTruthy();
-            expect(cartItem.querySelector('.quantity-change[data-change="-1"]')).toBeTruthy();
+            expect(
+              cartItem.querySelector('.quantity-change[data-change="1"]')
+            ).toBeTruthy();
+            expect(
+              cartItem.querySelector('.quantity-change[data-change="-1"]')
+            ).toBeTruthy();
 
             // 제거 버튼
             expect(cartItem.querySelector('.remove-item')).toBeTruthy();
@@ -419,13 +456,17 @@ describe('basic 테스트', () => {
 
             // 초기 상태: 숨김
             expect(modal.classList.contains('hidden')).toBe(true);
-            expect(slidePanel.classList.contains('translate-x-full')).toBe(true);
+            expect(slidePanel.classList.contains('translate-x-full')).toBe(
+              true
+            );
 
             // 클릭 후: 표시
             await userEvent.click(helpButton);
 
             expect(modal.classList.contains('hidden')).toBe(false);
-            expect(slidePanel.classList.contains('translate-x-full')).toBe(false);
+            expect(slidePanel.classList.contains('translate-x-full')).toBe(
+              false
+            );
           });
 
           it('배경 클릭 시 모달 닫기', async () => {
@@ -486,23 +527,33 @@ describe('basic 테스트', () => {
             sel.value = 'p1';
             addBtn.click();
 
-            const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
-            const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
+            const increaseBtn = cartDisp.querySelector(
+              '.quantity-change[data-change="1"]'
+            );
+            const decreaseBtn = cartDisp.querySelector(
+              '.quantity-change[data-change="-1"]'
+            );
 
             // 증가
             await userEvent.click(increaseBtn);
-            expect(cartDisp.querySelector('.quantity-number').textContent).toBe('2');
+            expect(cartDisp.querySelector('.quantity-number').textContent).toBe(
+              '2'
+            );
 
             // 감소
             await userEvent.click(decreaseBtn);
-            expect(cartDisp.querySelector('.quantity-number').textContent).toBe('1');
+            expect(cartDisp.querySelector('.quantity-number').textContent).toBe(
+              '1'
+            );
           });
 
           it('재고 한도 내에서만 증가 가능', async () => {
             // 재고 10개인 상품5를 10개 추가
             addItemsToCart(sel, addBtn, 'p5', 10);
 
-            const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
+            const increaseBtn = cartDisp.querySelector(
+              '.quantity-change[data-change="1"]'
+            );
             const qtyBefore = getCartItemQuantity(cartDisp, 'p5');
 
             await userEvent.click(increaseBtn);
@@ -515,7 +566,9 @@ describe('basic 테스트', () => {
             sel.value = 'p1';
             addBtn.click();
 
-            const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
+            const decreaseBtn = cartDisp.querySelector(
+              '.quantity-change[data-change="-1"]'
+            );
             await userEvent.click(decreaseBtn);
 
             expect(cartDisp.children.length).toBe(0);
@@ -551,7 +604,9 @@ describe('basic 테스트', () => {
 
             expect(sum.textContent).toContain('₩10,000');
 
-            const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
+            const increaseBtn = cartDisp.querySelector(
+              '.quantity-change[data-change="1"]'
+            );
             await userEvent.click(increaseBtn);
 
             expect(sum.textContent).toContain('₩20,000');
@@ -570,7 +625,9 @@ describe('basic 테스트', () => {
 
             expect(loyaltyPoints.textContent).toContain('10p');
 
-            const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
+            const increaseBtn = cartDisp.querySelector(
+              '.quantity-change[data-change="1"]'
+            );
             await userEvent.click(increaseBtn);
 
             expect(loyaltyPoints.textContent).toContain('20p');
@@ -594,7 +651,9 @@ describe('basic 테스트', () => {
             expect(stockInfo.textContent).toContain('4개 남음');
 
             // 상품4는 품절
-            expect(stockInfo.textContent).toContain('에러 방지 노트북 파우치: 품절');
+            expect(stockInfo.textContent).toContain(
+              '에러 방지 노트북 파우치: 품절'
+            );
           });
         });
       });
@@ -614,7 +673,9 @@ describe('basic 테스트', () => {
           it('수량 증가 시 재고 확인', async () => {
             addItemsToCart(sel, addBtn, 'p5', 10);
 
-            const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
+            const increaseBtn = cartDisp.querySelector(
+              '.quantity-change[data-change="1"]'
+            );
             await userEvent.click(increaseBtn);
 
             expect(window.alert).toHaveBeenCalledWith('재고가 부족합니다.');

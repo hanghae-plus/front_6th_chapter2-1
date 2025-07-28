@@ -23,7 +23,7 @@ describe('PriceCalculator', () => {
     it('여러 아이템의 소계를 올바르게 계산해야 함', () => {
       const cartItems = [
         { id: 'p1', quantity: 2, price: 10000 },
-        { id: 'p2', quantity: 1, price: 15000 },
+        { id: 'p2', quantity: 1, price: 15000 }
       ];
       const result = PriceCalculator.calculateSubtotal(cartItems);
 
@@ -98,7 +98,7 @@ describe('PriceCalculator', () => {
 
     it('할인이 없는 기본 케이스를 올바르게 계산해야 함', () => {
       const cartItems = [
-        { id: 'p1', quantity: 5, price: 10000 }, // 10개 미만이므로 개별 할인 없음
+        { id: 'p1', quantity: 5, price: 10000 } // 10개 미만이므로 개별 할인 없음
       ];
       const monday = new Date('2023-12-11'); // 월요일 (화요일 할인 없음)
 
@@ -112,7 +112,7 @@ describe('PriceCalculator', () => {
 
     it('대량구매 할인을 올바르게 적용해야 함', () => {
       const cartItems = [
-        { id: 'p1', quantity: 35, price: 10000 }, // 35개 > 30개 대량구매 조건
+        { id: 'p1', quantity: 35, price: 10000 } // 35개 > 30개 대량구매 조건
       ];
       const monday = new Date('2023-12-11'); // 월요일
 

@@ -21,9 +21,9 @@
  * 포인트 적립률 상수
  */
 export const POINTS_RATES = {
-  BASE_RATE: 0.001,           // 0.1% (1000원당 1포인트)
-  TUESDAY_MULTIPLIER: 2,      // 화요일 2배 적립
-  MINIMUM_EARNING: 1          // 최소 적립 포인트
+  BASE_RATE: 0.001, // 0.1% (1000원당 1포인트)
+  TUESDAY_MULTIPLIER: 2, // 화요일 2배 적립
+  MINIMUM_EARNING: 1 // 최소 적립 포인트
 };
 
 /**
@@ -41,7 +41,11 @@ export const BONUS_POINTS = {
   BULK_PURCHASE: {
     LEVEL_1: { threshold: 10, points: 20, description: '대량구매(10개+) +20p' },
     LEVEL_2: { threshold: 20, points: 50, description: '대량구매(20개+) +50p' },
-    LEVEL_3: { threshold: 30, points: 100, description: '대량구매(30개+) +100p' }
+    LEVEL_3: {
+      threshold: 30,
+      points: 100,
+      description: '대량구매(30개+) +100p'
+    }
   }
 };
 
@@ -116,7 +120,7 @@ export function calculateBulkBonus(totalQuantity) {
   const bulkLevels = [
     BONUS_POINTS.BULK_PURCHASE.LEVEL_3, // 30개+
     BONUS_POINTS.BULK_PURCHASE.LEVEL_2, // 20개+
-    BONUS_POINTS.BULK_PURCHASE.LEVEL_1  // 10개+
+    BONUS_POINTS.BULK_PURCHASE.LEVEL_1 // 10개+
   ];
 
   for (const level of bulkLevels) {
@@ -140,7 +144,12 @@ export function calculateBulkBonus(totalQuantity) {
  * @param {Date} date - 구매 날짜
  * @returns {PointsCalculation} 포인트 계산 결과
  */
-export function calculateTotalPoints(totalAmount, cartItems, totalQuantity, date = new Date()) {
+export function calculateTotalPoints(
+  totalAmount,
+  cartItems,
+  totalQuantity,
+  date = new Date()
+) {
   const basePoints = calculateBasePoints(totalAmount);
   let finalPoints = 0;
   const details = [];

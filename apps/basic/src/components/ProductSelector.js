@@ -1,4 +1,8 @@
-import { CSS_CLASSES, DISCOUNT_CONSTANTS, STOCK_CONSTANTS } from '@constants/UIConstants';
+import {
+  CSS_CLASSES,
+  DISCOUNT_CONSTANTS,
+  STOCK_CONSTANTS
+} from '@constants/UIConstants';
 
 /**
  * @fileoverview ProductSelector 컴포넌트
@@ -48,7 +52,11 @@ export class ProductSelector {
    */
   static render(products, options = {}) {
     // 기본 옵션 설정
-    const { id = '', className = '', placeholder = '상품을 선택하세요' } = options;
+    const {
+      id = '',
+      className = '',
+      placeholder = '상품을 선택하세요'
+    } = options;
 
     // 유효성 검사
     if (!Array.isArray(products)) {
@@ -66,7 +74,9 @@ export class ProductSelector {
     // select 요소 속성 구성
     const idAttr = id ? ` id="${id}"` : '';
     const baseClassName = CSS_CLASSES.PRODUCT_SELECTOR.BASE;
-    const finalClassName = className ? `${baseClassName} ${className}` : baseClassName;
+    const finalClassName = className
+      ? `${baseClassName} ${className}`
+      : baseClassName;
 
     // 재고 상태에 따른 스타일 (전체 재고 50개 미만 시 주황색 테두리)
     const borderStyle =
@@ -86,7 +96,9 @@ export class ProductSelector {
     for (const product of products) {
       const optionData = this.generateOption(product);
       const disabledAttr = optionData.disabled ? ' disabled' : '';
-      const classAttr = optionData.className ? ` class="${optionData.className}"` : '';
+      const classAttr = optionData.className
+        ? ` class="${optionData.className}"`
+        : '';
 
       optionsHTML += `<option value="${optionData.value}"${disabledAttr}${classAttr}>${optionData.text}</option>`;
     }
@@ -106,7 +118,7 @@ export class ProductSelector {
         value: '',
         text: '',
         disabled: true,
-        className: 'text-gray-400',
+        className: 'text-gray-400'
       };
     }
 
@@ -123,7 +135,7 @@ export class ProductSelector {
       value: product.id,
       text: optionText,
       disabled: product.q === 0, // 품절 상품은 비활성화
-      className: style,
+      className: style
     };
   }
 

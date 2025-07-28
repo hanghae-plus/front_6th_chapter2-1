@@ -21,7 +21,7 @@ export const PRODUCT_IDS = {
   MOUSE: 'p2',
   MONITOR_ARM: 'p3',
   LAPTOP_POUCH: 'p4',
-  LOFI_SPEAKER: 'p5',
+  LOFI_SPEAKER: 'p5'
 };
 
 /**
@@ -29,7 +29,7 @@ export const PRODUCT_IDS = {
  */
 export const DISCOUNT_THRESHOLDS = {
   INDIVIDUAL_DISCOUNT_MIN: 10, // 개별 상품 할인 최소 수량
-  BULK_DISCOUNT_MIN: 30, // 전체 수량 할인 최소 수량
+  BULK_DISCOUNT_MIN: 30 // 전체 수량 할인 최소 수량
 };
 
 /**
@@ -43,7 +43,7 @@ export const PRODUCTS = {
     price: 10000,
     stock: 50,
     discountRate: 0.1,
-    discountThreshold: DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT_MIN,
+    discountThreshold: DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT_MIN
   },
   MOUSE: {
     id: PRODUCT_IDS.MOUSE,
@@ -51,7 +51,7 @@ export const PRODUCTS = {
     price: 20000,
     stock: 30,
     discountRate: 0.15,
-    discountThreshold: DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT_MIN,
+    discountThreshold: DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT_MIN
   },
   MONITOR_ARM: {
     id: PRODUCT_IDS.MONITOR_ARM,
@@ -59,7 +59,7 @@ export const PRODUCTS = {
     price: 30000,
     stock: 20,
     discountRate: 0.2,
-    discountThreshold: DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT_MIN,
+    discountThreshold: DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT_MIN
   },
   LAPTOP_POUCH: {
     id: PRODUCT_IDS.LAPTOP_POUCH,
@@ -67,7 +67,7 @@ export const PRODUCTS = {
     price: 15000,
     stock: 0, // 품절
     discountRate: 0.05,
-    discountThreshold: DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT_MIN,
+    discountThreshold: DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT_MIN
   },
   LOFI_SPEAKER: {
     id: PRODUCT_IDS.LOFI_SPEAKER,
@@ -75,8 +75,8 @@ export const PRODUCTS = {
     price: 25000,
     stock: 10,
     discountRate: 0.25,
-    discountThreshold: DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT_MIN,
-  },
+    discountThreshold: DISCOUNT_THRESHOLDS.INDIVIDUAL_DISCOUNT_MIN
+  }
 };
 
 /**
@@ -105,5 +105,5 @@ export const LEGACY_PRODUCT_IDS = {
   p2: PRODUCT_IDS.MOUSE,
   product_3: PRODUCT_IDS.MONITOR_ARM,
   p4: PRODUCT_IDS.LAPTOP_POUCH,
-  PRODUCT_5: PRODUCT_IDS.LOFI_SPEAKER,
+  PRODUCT_5: PRODUCT_IDS.LOFI_SPEAKER
 };
