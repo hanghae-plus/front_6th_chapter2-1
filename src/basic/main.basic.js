@@ -1,4 +1,15 @@
-var prodList;
+const PRODUCT_IDS = {
+  P1: 'p1', // 버그 없애는 키보드
+  P2: 'p2', // 생산성 폭발 마우스
+  P3: 'p3', // 거북목 탈출 모니터암
+  P4: 'p4', // 에러 방지 노트북 파우치
+  P5: 'p5', // 코딩할 때 듣는 Lo-Fi 스피커
+};
+
+const state = {
+  products: [],
+};
+
 var bonusPts = 0;
 var stockInfo;
 var itemCnt;
@@ -8,14 +19,6 @@ var addBtn;
 var totalAmt = 0;
 var cartDisp;
 var sum;
-
-const PRODUCT_IDS = {
-  P1: 'p1', // 버그 없애는 키보드
-  P2: 'p2', // 생산성 폭발 마우스
-  P3: 'p3', // 거북목 탈출 모니터암
-  P4: 'p4', // 에러 방지 노트북 파우치
-  P5: 'p5', // 코딩할 때 듣는 Lo-Fi 스피커
-};
 
 function render() {
   var root;
@@ -208,7 +211,7 @@ function initState() {
   totalAmt = 0;
   itemCnt = 0;
   lastSel = null;
-  prodList = [
+  state.products = [
     {
       id: PRODUCT_IDS.P1,
       name: '버그 없애는 키보드',
@@ -263,8 +266,8 @@ function main() {
   initState();
   render();
   var initStock = 0;
-  for (var i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
+  for (var i = 0; i < state.products.length; i++) {
+    initStock += state.products[i].q;
   }
   onUpdateSelectOptions();
   handleCalculateCartStuff();
@@ -273,8 +276,8 @@ function main() {
 
   setTimeout(() => {
     setInterval(function () {
-      var luckyIdx = Math.floor(Math.random() * prodList.length);
-      var luckyItem = prodList[luckyIdx];
+      var luckyIdx = Math.floor(Math.random() * state.products.length);
+      var luckyItem = state.products[luckyIdx];
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
@@ -291,11 +294,11 @@ function main() {
       }
       if (lastSel) {
         var suggest = null;
-        for (var k = 0; k < prodList.length; k++) {
-          if (prodList[k].id !== lastSel) {
-            if (prodList[k].q > 0) {
-              if (!prodList[k].suggestSale) {
-                suggest = prodList[k];
+        for (var k = 0; k < state.products.length; k++) {
+          if (state.products[k].id !== lastSel) {
+            if (state.products[k].q > 0) {
+              if (!state.products[k].suggestSale) {
+                suggest = state.products[k];
                 break;
               }
             }
@@ -326,14 +329,14 @@ function onUpdateSelectOptions() {
 
   totalStock = 0;
 
-  for (var idx = 0; idx < prodList.length; idx++) {
-    var _p = prodList[idx];
+  for (var idx = 0; idx < state.products.length; idx++) {
+    var _p = state.products[idx];
     totalStock = totalStock + _p.q;
   }
 
-  for (var i = 0; i < prodList.length; i++) {
+  for (var i = 0; i < state.products.length; i++) {
     (function () {
-      var item = prodList[i];
+      var item = state.products[i];
       opt = document.createElement('option');
       opt.value = item.id;
       discountText = '';
@@ -419,17 +422,17 @@ function handleCalculateCartStuff() {
   bulkDisc = subTot;
   itemDiscounts = [];
   lowStockItems = [];
-  for (idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].q < 5 && prodList[idx].q > 0) {
-      lowStockItems.push(prodList[idx].name);
+  for (idx = 0; idx < state.products.length; idx++) {
+    if (state.products[idx].q < 5 && state.products[idx].q > 0) {
+      lowStockItems.push(state.products[idx].name);
     }
   }
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       var curItem;
-      for (var j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
+      for (var j = 0; j < state.products.length; j++) {
+        if (state.products[j].id === cartItems[i].id) {
+          curItem = state.products[j];
           break;
         }
       }
@@ -509,9 +512,9 @@ function handleCalculateCartStuff() {
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
       var curItem;
-      for (var j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
+      for (var j = 0; j < state.products.length; j++) {
+        if (state.products[j].id === cartItems[i].id) {
+          curItem = state.products[j];
           break;
         }
       }
@@ -612,8 +615,8 @@ function handleCalculateCartStuff() {
   }
 
   stockMsg = '';
-  for (var stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
-    var item = prodList[stockIdx];
+  for (var stockIdx = 0; stockIdx < state.products.length; stockIdx++) {
+    var item = state.products[stockIdx];
     if (item.q < 5) {
       if (item.q > 0) {
         stockMsg =
@@ -660,9 +663,9 @@ var doRenderBonusPoints = function () {
   nodes = cartDisp.children;
   for (const node of nodes) {
     var product = null;
-    for (var pIdx = 0; pIdx < prodList.length; pIdx++) {
-      if (prodList[pIdx].id === node.id) {
-        product = prodList[pIdx];
+    for (var pIdx = 0; pIdx < state.products.length; pIdx++) {
+      if (state.products[pIdx].id === node.id) {
+        product = state.products[pIdx];
         break;
       }
     }
@@ -721,8 +724,8 @@ function onGetStockTotal() {
   var i;
   var currentProduct;
   sum = 0;
-  for (i = 0; i < prodList.length; i++) {
-    currentProduct = prodList[i];
+  for (i = 0; i < state.products.length; i++) {
+    currentProduct = state.products[i];
     sum += currentProduct.q;
   }
   return sum;
@@ -735,7 +738,7 @@ var handleStockInfoUpdate = function () {
   totalStock = onGetStockTotal();
   if (totalStock < 30) {
   }
-  prodList.forEach(function (item) {
+  state.products.forEach(function (item) {
     if (item.q < 5) {
       if (item.q > 0) {
         infoMsg = infoMsg + item.name + ': 재고 부족 (' + item.q + '개 남음)\n';
@@ -766,9 +769,9 @@ function doUpdatePricesInCart() {
   for (var i = 0; i < cartItems.length; i++) {
     var itemId = cartItems[i].id;
     var product = null;
-    for (var productIdx = 0; productIdx < prodList.length; productIdx++) {
-      if (prodList[productIdx].id === itemId) {
-        product = prodList[productIdx];
+    for (var productIdx = 0; productIdx < state.products.length; productIdx++) {
+      if (state.products[productIdx].id === itemId) {
+        product = state.products[productIdx];
         break;
       }
     }
@@ -813,8 +816,8 @@ main();
 addBtn.addEventListener('click', function () {
   var selItem = sel.value;
   var hasItem = false;
-  for (var idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].id === selItem) {
+  for (var idx = 0; idx < state.products.length; idx++) {
+    if (state.products[idx].id === selItem) {
       hasItem = true;
       break;
     }
@@ -823,9 +826,9 @@ addBtn.addEventListener('click', function () {
     return;
   }
   var itemToAdd = null;
-  for (var j = 0; j < prodList.length; j++) {
-    if (prodList[j].id === selItem) {
-      itemToAdd = prodList[j];
+  for (var j = 0; j < state.products.length; j++) {
+    if (state.products[j].id === selItem) {
+      itemToAdd = state.products[j];
       break;
     }
   }
@@ -880,9 +883,9 @@ cartDisp.addEventListener('click', function (event) {
     var prodId = tgt.dataset.productId;
     var itemElem = document.getElementById(prodId);
     var prod = null;
-    for (var prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
-      if (prodList[prdIdx].id === prodId) {
-        prod = prodList[prdIdx];
+    for (var prdIdx = 0; prdIdx < state.products.length; prdIdx++) {
+      if (state.products[prdIdx].id === prodId) {
+        prod = state.products[prdIdx];
         break;
       }
     }
