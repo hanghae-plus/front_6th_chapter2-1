@@ -70,7 +70,9 @@ class InMemoryProductRepository extends ProductRepository {
   }
 
   findAll() {
-    return Array.from(this.#productList.values());
+    return Array.from(this.#productList.values()).map((product) =>
+      this.mapToProductDomain(product)
+    );
   }
 }
 
