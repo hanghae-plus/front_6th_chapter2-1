@@ -90,6 +90,15 @@ const StockInfo = () => {
 	</div>`;
 };
 
+const LoyaltyPoints = (bonusPts, pointsDetail) => {
+  if (bonusPts > 0)
+    return `<div>${'적립 포인트: '}<span class="font-bold">
+    ${bonusPts + 'p'}</span></div>
+		<div class="text-2xs opacity-70 mt-1">
+    ${pointsDetail.join(', ')}</div>`;
+  else return `<div>${'적립 포인트: 0p'}</div>`;
+};
+
 function renderProductSelectOptions() {
   sel.innerHTML = state.products.map(ProductItem).join('');
 }
@@ -598,10 +607,10 @@ function handleCalculateCartStuff() {
   }
 
   renderStockInfo();
-  doRenderBonusPoints();
+  renderBonusPoints();
 }
 
-var doRenderBonusPoints = function () {
+var renderBonusPoints = function () {
   var basePoints;
   var finalPoints;
   var pointsDetail;
@@ -609,13 +618,16 @@ var doRenderBonusPoints = function () {
   var hasMouse;
   var hasMonitorArm;
   var nodes;
+
   if (cartDisp.children.length === 0) {
     document.getElementById('loyalty-points').style.display = 'none';
     return;
   }
+
   basePoints = Math.floor(totalAmt / 1000);
   finalPoints = 0;
   pointsDetail = [];
+
   if (basePoints > 0) {
     finalPoints = basePoints;
     pointsDetail.push('기본: ' + basePoints + 'p');
@@ -669,23 +681,10 @@ var doRenderBonusPoints = function () {
       }
     }
   }
-  bonusPts = finalPoints;
-  var ptsTag = document.getElementById('loyalty-points');
-  if (ptsTag) {
-    if (bonusPts > 0) {
-      ptsTag.innerHTML =
-        '<div>적립 포인트: <span class="font-bold">' +
-        bonusPts +
-        'p</span></div>' +
-        '<div class="text-2xs opacity-70 mt-1">' +
-        pointsDetail.join(', ') +
-        '</div>';
-      ptsTag.style.display = 'block';
-    } else {
-      ptsTag.textContent = '적립 포인트: 0p';
-      ptsTag.style.display = 'block';
-    }
-  }
+
+  const ptsTag = document.getElementById('loyalty-points');
+  ptsTag.style.display = 'block';
+  ptsTag.innerHTML = LoyaltyPoints(finalPoints, pointsDetail);
 };
 
 function doUpdatePricesInCart() {
