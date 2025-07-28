@@ -9,12 +9,20 @@
     "dev:original": "pnpm --filter @clean-code/original dev",
     "test:basic": "pnpm --filter @clean-code/basic test",
     "test:advanced": "pnpm --filter @clean-code/advanced test",
-    "test:original": "pnpm --filter @clean-code/original test"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.32.0",
-    "eslint": "^9.32.0",
-    "prettier": "^3.6.2",
-    "typescript": "^5.8.3"
+    "test:original": "pnpm --filter @clean-code/original test",
+    "lint:basic": "pnpm --filter @clean-code/basic lint",
+    "lint:advanced": "pnpm --filter @clean-code/advanced lint",
+    "lint:fix:basic": "pnpm --filter @clean-code/basic lint:fix",
+    "lint:fix:advanced": "pnpm --filter @clean-code/advanced lint:fix",
+    "format:basic": "pnpm --filter @clean-code/basic format",
+    "format:advanced": "pnpm --filter @clean-code/advanced format",
+    "format:check:basic": "pnpm --filter @clean-code/basic format:check",
+    "format:check:advanced": "pnpm --filter @clean-code/advanced format:check",
+    "type-check:advanced": "pnpm --filter @clean-code/advanced type-check",
+    "lint": "pnpm lint:basic && pnpm lint:advanced",
+    "lint:fix": "pnpm --filter @clean-code/basic lint:fix && pnpm --filter @clean-code/advanced lint:fix",
+    "format": "pnpm format:basic && pnpm format:advanced",
+    "format:check": "pnpm format:check:basic && pnpm format:check:advanced",
+    "type-check": "pnpm type-check:advanced"
   }
 }
