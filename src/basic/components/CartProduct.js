@@ -25,7 +25,7 @@ export const createCartProduct = ({ itemToAdd }) => {
       <p class="text-xs text-black mb-3">
         ${itemToAdd.onSale || itemToAdd.suggestSale
           ? '<span class="line-through text-gray-400">₩' +
-            itemToAdd.originalVal.toLocaleString() +
+            itemToAdd.originalPrice.toLocaleString() +
             '</span> <span class="' +
             (itemToAdd.onSale && itemToAdd.suggestSale
               ? 'text-purple-600'
@@ -33,9 +33,9 @@ export const createCartProduct = ({ itemToAdd }) => {
                 ? 'text-red-500'
                 : 'text-blue-500') +
             '">₩' +
-            itemToAdd.val.toLocaleString() +
+            itemToAdd.changedPrice.toLocaleString() +
             '</span>'
-          : '₩' + itemToAdd.val.toLocaleString()}
+          : '₩' + itemToAdd.changedPrice.toLocaleString()}
       </p>
       <div class="flex items-center gap-4">
         <button
@@ -59,7 +59,7 @@ export const createCartProduct = ({ itemToAdd }) => {
       <div class="text-lg mb-2 tracking-tight tabular-nums">
         ${itemToAdd.onSale || itemToAdd.suggestSale
           ? '<span class="line-through text-gray-400">₩' +
-            itemToAdd.originalVal.toLocaleString() +
+            itemToAdd.originalPrice.toLocaleString() +
             '</span> <span class="' +
             (itemToAdd.onSale && itemToAdd.suggestSale
               ? 'text-purple-600'
@@ -67,9 +67,9 @@ export const createCartProduct = ({ itemToAdd }) => {
                 ? 'text-red-500'
                 : 'text-blue-500') +
             '">₩' +
-            itemToAdd.val.toLocaleString() +
+            itemToAdd.changedPrice.toLocaleString() +
             '</span>'
-          : '₩' + itemToAdd.val.toLocaleString()}
+          : '₩' + itemToAdd.changedPrice.toLocaleString()}
       </div>
       <a
         class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
