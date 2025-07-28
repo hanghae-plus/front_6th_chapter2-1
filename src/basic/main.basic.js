@@ -7,7 +7,7 @@ function main() {
   const PRODUCT_4 = 'p4';
   const PRODUCT_5 = `p5`;
   let totalAmount = 0;
-  let itemCnt = 0;
+  let itemCount = 0;
   let lastSelector = null;
 
   const productList = [
@@ -78,16 +78,16 @@ function main() {
   selector.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
   gridContainer.className =
     'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
-  const addBtn = document.createElement('button');
+  const addButton = document.createElement('button');
   const stockInfo = document.createElement('div');
-  addBtn.id = 'add-to-cart';
+  addButton.id = 'add-to-cart';
   stockInfo.id = 'stock-status';
   stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
-  addBtn.innerHTML = 'Add to Cart';
-  addBtn.className =
+  addButton.innerHTML = 'Add to Cart';
+  addButton.className =
     'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
   selectorContainer.appendChild(selector);
-  selectorContainer.appendChild(addBtn);
+  selectorContainer.appendChild(addButton);
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
   const cartDisp = document.createElement('div');
@@ -216,8 +216,8 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
   let initStock = 0;
-  for (let i = 0; i < productList.length; i++) {
-    initStock += productList[i].quantity;
+  for (let index = 0; index < productList.length; index++) {
+    initStock += productList[index].quantity;
   }
   onUpdateSelectOptions();
   handleCalculateCartStuff();
@@ -241,11 +241,11 @@ function main() {
       }
       if (lastSelector) {
         let suggest = null;
-        for (let k = 0; k < productList.length; k++) {
-          if (productList[k].id !== lastSelector) {
-            if (productList[k].quantity > 0) {
-              if (!productList[k].suggestSale) {
-                suggest = productList[k];
+        for (let index = 0; index < productList.length; index++) {
+          if (productList[index].id !== lastSelector) {
+            if (productList[index].quantity > 0) {
+              if (!productList[index].suggestSale) {
+                suggest = productList[index];
                 break;
               }
             }
@@ -262,20 +262,18 @@ function main() {
     }, 60000);
   }, Math.random() * 20000);
   function onUpdateSelectOptions() {
-    let totalStock;
-    let discountText;
+    let totalStock = 0;
     selector.innerHTML = '';
-    totalStock = 0;
-    for (let idx = 0; idx < productList.length; idx++) {
-      const _p = productList[idx];
+    for (let index = 0; index < productList.length; index++) {
+      const _p = productList[index];
       totalStock = totalStock + _p.quantity;
     }
-    for (let i = 0; i < productList.length; i++) {
+    for (let index = 0; index < productList.length; index++) {
       (function () {
-        const item = productList[i];
+        const item = productList[index];
         const option = document.createElement('option');
         option.value = item.id;
-        discountText = '';
+        let discountText = '';
         if (item.onSale) discountText += ' ⚡SALE';
         if (item.suggestSale) discountText += ' 💝추천';
         if (item.quantity === 0) {
@@ -308,91 +306,78 @@ function main() {
     }
   }
   function handleCalculateCartStuff() {
-    let subTot;
-    let itemDiscounts;
-    let lowStockItems;
-    let originalTotal;
-    let bulkDisc;
+    let subTotal = 0;
+    const itemDiscounts = [];
+    const lowStockItems = [];
     let savedAmount;
-    let summaryDetails;
-    let totalDiv;
-    let loyaltyPointsDiv;
     let points;
-    let discountInfoDiv;
-    let itemCountElement;
     let previousCount;
-    let stockMsg;
     totalAmount = 0;
-    itemCnt = 0;
-    originalTotal = totalAmount;
+    itemCount = 0;
+    let originalTotal = totalAmount;
     const cartItems = cartDisp.children;
-    subTot = 0;
-    bulkDisc = subTot;
-    itemDiscounts = [];
-    lowStockItems = [];
-    for (let idx = 0; idx < productList.length; idx++) {
-      if (productList[idx].quantity < 5 && productList[idx].quantity > 0) {
-        lowStockItems.push(productList[idx].name);
+    const bulkDisc = subTotal;
+    for (let index = 0; index < productList.length; index++) {
+      if (productList[index].quantity < 5 && productList[index].quantity > 0) {
+        lowStockItems.push(productList[index].name);
       }
     }
-    for (let i = 0; i < cartItems.length; i++) {
+    for (let index = 0; index < cartItems.length; index++) {
       (function () {
-        let curItem;
-        for (let j = 0; j < productList.length; j++) {
-          if (productList[j].id === cartItems[i].id) {
-            curItem = productList[j];
+        let currentItem;
+        for (let productIndex = 0; productIndex < productList.length; productIndex++) {
+          if (productList[productIndex].id === cartItems[index].id) {
+            currentItem = productList[productIndex];
             break;
           }
         }
-        const qtyElem = cartItems[i].querySelector('.quantity-number');
-        let itemTot;
-        let disc;
-        const quantity = parseInt(qtyElem.textContent);
-        itemTot = curItem.val * q;
-        disc = 0;
-        itemCnt += q;
-        subTot += itemTot;
-        const itemDiv = cartItems[i];
-        const priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
-        priceElems.forEach((elem) => {
+        const quantityElement = cartItems[index].querySelector('.quantity-number');
+        const quantity = parseInt(quantityElement.textContent);
+        const itemTot = currentItem.val * quantity;
+        let discount = 0;
+        itemCount += quantity;
+        subTotal += itemTot;
+        const itemDiv = cartItems[index];
+        const priceElements = itemDiv.querySelectorAll('.text-lg, .text-xs');
+        priceElements.forEach((elem) => {
           if (elem.classList.contains('text-lg')) {
             elem.style.fontWeight = quantity >= 10 ? 'bold' : 'normal';
           }
         });
         if (quantity >= 10) {
-          if (curItem.id === PRODUCT_1) {
-            disc = 10 / 100;
+          if (currentItem.id === PRODUCT_1) {
+            discount = 10 / 100;
           } else {
-            if (curItem.id === PRODUCT_2) {
-              disc = 15 / 100;
+            if (currentItem.id === PRODUCT_2) {
+              discount = 15 / 100;
             } else {
-              if (curItem.id === PRODUCT_3) {
-                disc = 20 / 100;
+              if (currentItem.id === PRODUCT_3) {
+                discount = 20 / 100;
               } else {
-                if (curItem.id === PRODUCT_4) {
-                  disc = 5 / 100;
+                if (currentItem.id === PRODUCT_4) {
+                  discount = 5 / 100;
                 } else {
-                  if (curItem.id === PRODUCT_5) {
-                    disc = 25 / 100;
+                  if (currentItem.id === PRODUCT_5) {
+                    discount = 25 / 100;
                   }
                 }
               }
             }
           }
-          if (disc > 0) {
-            itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
+          if (discount > 0) {
+            itemDiscounts.push({ name: currentItem.name, discount: discount * 100 });
           }
         }
-        totalAmount += itemTot * (1 - disc);
+        totalAmount += itemTot * (1 - discount);
       })();
     }
     let discRate = 0;
-    let originalTotal = subTot;
-    if (itemCnt >= 30) {
-      totalAmount = (subTot * 75) / 100;
+    originalTotal = subTotal;
+    if (itemCount >= 30) {
+      totalAmount = (subTotal * 75) / 100;
       discRate = 25 / 100;
     } else {
-      discRate = (subTot - totalAmount) / subTot;
+      discRate = (subTotal - totalAmount) / subTotal;
     }
     const today = new Date();
     const isTuesday = today.getDay() === 2;
@@ -408,24 +393,24 @@ function main() {
     } else {
       tuesdaySpecial.classList.add('hidden');
     }
-    document.getElementById('item-count').textContent = `🛍️ ${itemCnt} items in cart`;
-    summaryDetails = document.getElementById('summary-details');
+    document.getElementById('item-count').textContent = `🛍️ ${itemCount} items in cart`;
+    const summaryDetails = document.getElementById('summary-details');
     summaryDetails.innerHTML = '';
-    if (subTot > 0) {
-      for (let i = 0; i < cartItems.length; i++) {
-        let curItem;
-        for (let j = 0; j < productList.length; j++) {
-          if (productList[j].id === cartItems[i].id) {
-            curItem = productList[j];
+    if (subTotal > 0) {
+      for (let index = 0; index < cartItems.length; index++) {
+        let currentItem;
+        for (let productIndex = 0; productIndex < productList.length; productIndex++) {
+          if (productList[productIndex].id === cartItems[index].id) {
+            currentItem = productList[productIndex];
             break;
           }
         }
-        const qtyElem = cartItems[i].querySelector('.quantity-number');
-        const quantity = parseInt(qtyElem.textContent);
-        const itemTotal = curItem.val * q;
+        const quantityElement = cartItems[index].querySelector('.quantity-number');
+        const quantity = parseInt(quantityElement.textContent);
+        const itemTotal = currentItem.val * q;
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-xs tracking-wide text-gray-400">
-            <span>${curItem.name} x ${quantity}</span>
+            <span>${currentItem.name} x ${quantity}</span>
             <span>₩${itemTotal.toLocaleString()}</span>
           </div>
         `;
@@ -434,10 +419,10 @@ function main() {
         <div class="border-t border-white/10 my-3"></div>
         <div class="flex justify-between text-sm tracking-wide">
           <span>Subtotal</span>
-          <span>₩${subTot.toLocaleString()}</span>
+          <span>₩${subTotal.toLocaleString()}</span>
         </div>
       `;
-      if (itemCnt >= 30) {
+      if (itemCount >= 30) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-green-400">
             <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
@@ -471,11 +456,11 @@ function main() {
         </div>
       `;
     }
-    totalDiv = sum.querySelector('.text-2xl');
+    const totalDiv = sum.querySelector('.text-2xl');
     if (totalDiv) {
       totalDiv.textContent = `₩${Math.round(totalAmount).toLocaleString()}`;
     }
-    loyaltyPointsDiv = document.getElementById('loyalty-points');
+    const loyaltyPointsDiv = document.getElementById('loyalty-points');
     if (loyaltyPointsDiv) {
       points = Math.floor(totalAmount / 1000);
       if (points > 0) {
@@ -486,7 +471,7 @@ function main() {
         loyaltyPointsDiv.style.display = 'block';
       }
     }
-    discountInfoDiv = document.getElementById('discount-info');
+    const discountInfoDiv = document.getElementById('discount-info');
     discountInfoDiv.innerHTML = '';
     if (discRate > 0 && totalAmount > 0) {
       savedAmount = originalTotal - totalAmount;
@@ -500,17 +485,17 @@ function main() {
         </div>
       `;
     }
-    itemCountElement = document.getElementById('item-count');
+    const itemCountElement = document.getElementById('item-count');
     if (itemCountElement) {
       previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
-      itemCountElement.textContent = `🛍️ ${itemCnt} items in cart`;
-      if (previousCount !== itemCnt) {
+      itemCountElement.textContent = `🛍️ ${itemCount} items in cart`;
+      if (previousCount !== itemCount) {
         itemCountElement.setAttribute('data-changed', 'true');
       }
     }
-    stockMsg = '';
-    for (let stockIdx = 0; stockIdx < productList.length; stockIdx++) {
-      const item = productList[stockIdx];
+    const stockMsg = '';
+    for (let index = 0; index < productList.length; index++) {
+      const item = productList[index];
       if (item.quantity < 5) {
         if (item.quantity > 0) {
           stockMsg = `${stockMsg + item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
@@ -553,9 +538,9 @@ function main() {
     const nodes = cartDisp.children;
     for (const node of nodes) {
       let product = null;
-      for (let pIdx = 0; pIdx < productList.length; pIdx++) {
-        if (productList[pIdx].id === node.id) {
-          product = productList[pIdx];
+      for (let index = 0; index < productList.length; index++) {
+        if (productList[index].id === node.id) {
+          product = productList[index];
           break;
         }
       }
@@ -576,15 +561,15 @@ function main() {
       finalPoints = finalPoints + 100;
       pointsDetail.push('풀세트 구매 +100p');
     }
-    if (itemCnt >= 30) {
+    if (itemCount >= 30) {
       finalPoints = finalPoints + 100;
       pointsDetail.push('대량구매(30개+) +100p');
     } else {
-      if (itemCnt >= 20) {
+      if (itemCount >= 20) {
         finalPoints = finalPoints + 50;
         pointsDetail.push('대량구매(20개+) +50p');
       } else {
-        if (itemCnt >= 10) {
+        if (itemCount >= 10) {
           finalPoints = finalPoints + 20;
           pointsDetail.push('대량구매(10개+) +20p');
         }
@@ -641,22 +626,24 @@ function main() {
       j++;
     }
     totalCount = 0;
-    for (j = 0; j < cartDisp.children.length; j++) {
-      totalCount += parseInt(cartDisp.children[j].querySelector('.quantity-number').textContent);
+    for (let index = 0; index < cartDisp.children.length; index++) {
+      totalCount += parseInt(
+        cartDisp.children[index].querySelector('.quantity-number').textContent,
+      );
     }
     cartItems = cartDisp.children;
-    for (let i = 0; i < cartItems.length; i++) {
-      const itemId = cartItems[i].id;
+    for (let index = 0; index < cartItems.length; index++) {
+      const itemId = cartItems[index].id;
       let product = null;
-      for (let productIdx = 0; productIdx < productList.length; productIdx++) {
-        if (productList[productIdx].id === itemId) {
-          product = productList[productIdx];
+      for (let productIndex = 0; productIndex < productList.length; productIndex++) {
+        if (productList[productIndex].id === itemId) {
+          product = productList[productIndex];
           break;
         }
       }
       if (product) {
-        const priceDiv = cartItems[i].querySelector('.text-lg');
-        const nameDiv = cartItems[i].querySelector('h3');
+        const priceDiv = cartItems[index].querySelector('.text-lg');
+        const nameDiv = cartItems[index].querySelector('h3');
         if (product.onSale && product.suggestSale) {
           priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
           nameDiv.textContent = `⚡💝${product.name}`;
@@ -674,11 +661,11 @@ function main() {
     }
     handleCalculateCartStuff();
   }
-  addBtn.addEventListener('click', () => {
+  addButton.addEventListener('click', () => {
     const selItem = selector.value;
     let hasItem = false;
-    for (let idx = 0; idx < productList.length; idx++) {
-      if (productList[idx].id === selItem) {
+    for (let index = 0; index < productList.length; index++) {
+      if (productList[index].id === selItem) {
         hasItem = true;
         break;
       }
@@ -687,19 +674,19 @@ function main() {
       return;
     }
     let itemToAdd = null;
-    for (let j = 0; j < productList.length; j++) {
-      if (productList[j].id === selItem) {
-        itemToAdd = productList[j];
+    for (let index = 0; index < productList.length; index++) {
+      if (productList[index].id === selItem) {
+        itemToAdd = productList[index];
         break;
       }
     }
     if (itemToAdd && itemToAdd.quantity > 0) {
       const item = document.getElementById(itemToAdd['id']);
       if (item) {
-        const qtyElem = item.querySelector('.quantity-number');
-        const newQty = parseInt(qtyElem['textContent']) + 1;
-        if (newQty <= itemToAdd.quantity + parseInt(qtyElem.textContent)) {
-          qtyElem.textContent = newQty;
+        const quantityElement = item.querySelector('.quantity-number');
+        const newQty = parseInt(quantityElement['textContent']) + 1;
+        if (newQty <= itemToAdd.quantity + parseInt(quantityElement.textContent)) {
+          quantityElement.textContent = newQty;
           itemToAdd['quantity']--;
         } else {
           alert('재고가 부족합니다.');
@@ -741,19 +728,19 @@ function main() {
       const prodId = tgt.dataset.productId;
       const itemElem = document.getElementById(prodId);
       let prod = null;
-      for (let prdIdx = 0; prdIdx < productList.length; prdIdx++) {
-        if (productList[prdIdx].id === prodId) {
-          prod = productList[prdIdx];
+      for (let index = 0; index < productList.length; index++) {
+        if (productList[index].id === prodId) {
+          prod = productList[index];
           break;
         }
       }
       if (tgt.classList.contains('quantity-change')) {
         const qtyChange = parseInt(tgt.dataset.change);
-        const qtyElem = itemElem.querySelector('.quantity-number');
-        const currentQty = parseInt(qtyElem.textContent);
+        const quantityElement = itemElem.querySelector('.quantity-number');
+        const currentQty = parseInt(quantityElement.textContent);
         const newQty = currentQty + qtyChange;
         if (newQty > 0 && newQty <= prod.quantity + currentQty) {
-          qtyElem.textContent = newQty;
+          quantityElement.textContent = newQty;
           prod.quantity -= qtyChange;
         } else if (newQty <= 0) {
           prod.quantity += currentQty;
@@ -762,8 +749,8 @@ function main() {
           alert('재고가 부족합니다.');
         }
       } else if (tgt.classList.contains('remove-item')) {
-        const qtyElem = itemElem.querySelector('.quantity-number');
-        const remQty = parseInt(qtyElem.textContent);
+        const quantityElement = itemElem.querySelector('.quantity-number');
+        const remQty = parseInt(quantityElement.textContent);
         prod.quantity += remQty;
         itemElem.remove();
       }
