@@ -6,6 +6,17 @@ const PRODUCT_IDS = {
   P5: 'p5', // 코딩할 때 듣는 Lo-Fi 스피커
 };
 
+const DISCOUNT_RATES = {
+  INDIVIDUAL: {
+    [PRODUCT_IDS.P1]: 0.1,
+    [PRODUCT_IDS.P2]: 0.15,
+    [PRODUCT_IDS.P3]: 0.2,
+    [PRODUCT_IDS.P5]: 0.25,
+  },
+  BULK: 0.25,
+  TUESDAY: 0.1,
+};
+
 const state = {
   products: [],
 };
@@ -359,6 +370,9 @@ function renderProductSelectOptions() {
 }
 
 function handleCalculateCartStuff() {
+  const today = new Date();
+  var isTuesday = today.getDay() === 2;
+
   var cartItems;
   var subTot;
   var itemDiscounts;
@@ -383,87 +397,66 @@ function handleCalculateCartStuff() {
   totalAmt = 0;
   itemCnt = 0;
   originalTotal = totalAmt;
-  cartItems = cartDisp.children;
   subTot = 0;
   bulkDisc = subTot;
   itemDiscounts = [];
   lowStockItems = [];
+  cartItems = cartDisp.children;
+
   for (idx = 0; idx < state.products.length; idx++) {
     if (state.products[idx].q < 5 && state.products[idx].q > 0) {
       lowStockItems.push(state.products[idx].name);
     }
   }
+
   for (let i = 0; i < cartItems.length; i++) {
-    (function () {
-      var curItem;
-      for (var j = 0; j < state.products.length; j++) {
-        if (state.products[j].id === cartItems[i].id) {
-          curItem = state.products[j];
-          break;
-        }
+    var curItem;
+    for (var j = 0; j < state.products.length; j++) {
+      if (state.products[j].id === cartItems[i].id) {
+        curItem = state.products[j];
+        break;
       }
+    }
 
-      var qtyElem = cartItems[i].querySelector('.quantity-number');
-      var q;
-      var itemTot;
-      var disc;
-      q = parseInt(qtyElem.textContent);
-      itemTot = curItem.val * q;
-      disc = 0;
-      itemCnt += q;
-      subTot += itemTot;
-      var itemDiv = cartItems[i];
-      var priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
-      priceElems.forEach(function (elem) {
-        if (elem.classList.contains('text-lg')) {
-          elem.style.fontWeight = q >= 10 ? 'bold' : 'normal';
-        }
-      });
+    var qtyElem = cartItems[i].querySelector('.quantity-number');
+    var q;
+    var itemTot;
+    var disc;
+    q = parseInt(qtyElem.textContent);
+    itemTot = curItem.val * q;
+    disc = 0;
+    itemCnt += q;
+    subTot += itemTot;
+    var itemDiv = cartItems[i];
 
-      if (q >= 10) {
-        if (curItem.id === PRODUCT_IDS.P1) {
-          disc = 10 / 100;
-        } else {
-          if (curItem.id === PRODUCT_IDS.P2) {
-            disc = 15 / 100;
-          } else {
-            if (curItem.id === PRODUCT_IDS.P3) {
-              disc = 20 / 100;
-            } else {
-              if (curItem.id === PRODUCT_IDS.P4) {
-                disc = 5 / 100;
-              } else {
-                if (curItem.id === PRODUCT_IDS.P5) {
-                  disc = 25 / 100;
-                }
-              }
-            }
-          }
-        }
-        if (disc > 0) {
-          itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
-        }
+    var priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
+
+    priceElems.forEach(function (elem) {
+      if (elem.classList.contains('text-lg')) {
+        elem.style.fontWeight = q >= 10 ? 'bold' : 'normal';
       }
-      totalAmt += itemTot * (1 - disc);
-    })();
+    });
+
+    if (q >= 10) {
+      disc = DISCOUNT_RATES.INDIVIDUAL[curItem.id];
+
+      if (disc > 0) {
+        itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
+      }
+    }
+    totalAmt += itemTot * (1 - disc);
   }
 
-  let discRate = 0;
+  let totalDiscountRate = 0;
   var originalTotal = subTot;
 
   if (itemCnt >= 30) {
     totalAmt = (subTot * 75) / 100;
-    discRate = 25 / 100;
-  } else {
-    discRate = (subTot - totalAmt) / subTot;
   }
-  const today = new Date();
-  var isTuesday = today.getDay() === 2;
   var tuesdaySpecial = document.getElementById('tuesday-special');
   if (isTuesday) {
     if (totalAmt > 0) {
-      totalAmt = (totalAmt * 90) / 100;
-      discRate = 1 - totalAmt / originalTotal;
+      totalAmt = totalAmt - totalAmt * DISCOUNT_RATES.TUESDAY;
       tuesdaySpecial.classList.remove('hidden');
     } else {
       tuesdaySpecial.classList.add('hidden');
@@ -471,6 +464,9 @@ function handleCalculateCartStuff() {
   } else {
     tuesdaySpecial.classList.add('hidden');
   }
+
+  totalDiscountRate = 1 - totalAmt / originalTotal;
+
   document.getElementById('item-count').textContent =
     '🛍️ ' + itemCnt + ' items in cart';
   summaryDetails = document.getElementById('summary-details');
@@ -557,13 +553,13 @@ function handleCalculateCartStuff() {
   discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
 
-  if (discRate > 0 && totalAmt > 0) {
+  if (totalDiscountRate > 0 && totalAmt > 0) {
     savedAmount = originalTotal - totalAmt;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
           <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(discRate * 100).toFixed(1)}%</span>
+          <span class="text-sm font-medium text-green-400">${(totalDiscountRate * 100).toFixed(1)}%</span>
         </div>
         <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
       </div>
