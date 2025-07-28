@@ -13,7 +13,8 @@ import {
   TIMER_DELAYS,
 } from '../constants/shopPolicy.js';
 
-import { createManualToggle, createManual } from '../components/Manual.js';
+import { createManual } from '../components/Manual/index.js';
+import { createManualToggle } from '../components/ManualToggle.js';
 import { createHeader } from '../components/Header.js';
 import { createProductSelector } from '../components/ProductSelector.js';
 import { createDiscountInfo } from '../components/DiscountInfo.js';
@@ -27,7 +28,6 @@ import { formatPrice } from '../utils/format.js';
 import { createPriceDisplay } from '../components/PriceDisplay.js';
 import { createProductOptions } from '../components/ProductOptions.js';
 import { createPointsDisplay } from '../components/PointsDisplay.js';
-
 import { createOrderSummary } from '../components/OrderSummary/index.js';
 
 let prodList = [
@@ -133,9 +133,7 @@ function main() {
   let leftColumn;
   let selectorContainer;
   let rightColumn;
-  let manualToggle;
-  let manualOverlay;
-  let manualColumn;
+
   let lightningDelay;
 
   // 상품 데이터 초기화
@@ -190,27 +188,34 @@ function main() {
   sum = rightColumn.querySelector('#cart-total');
 
   // 매뉴얼 컴포넌트 생성
+  const manual = createManual();
+  const manualToggle = createManualToggle();
+
+  // Manual 관련 이벤트 핸들러
   const manualCloseHandler = function () {
-    manualOverlay.classList.add('hidden');
-    manualColumn.classList.add('translate-x-full');
+    manual.classList.add('hidden');
+    manual.querySelector('.transform').classList.add('translate-x-full');
   };
 
   const manualToggleHandler = function () {
-    manualOverlay.classList.toggle('hidden');
-    manualColumn.classList.toggle('translate-x-full');
+    manual.classList.toggle('hidden');
+    manual.querySelector('.transform').classList.toggle('translate-x-full');
   };
 
-  manualToggle = createManualToggle({ onToggle: manualToggleHandler });
-  const manualComponents = createManual({ onClose: manualCloseHandler });
-  manualOverlay = manualComponents.overlay;
-  manualColumn = manualComponents.column;
+  // 이벤트 리스너 설정
+  manualToggle.onclick = manualToggleHandler;
+  manual.querySelector('#manual-close-button').onclick = manualCloseHandler;
+  manual.onclick = function (e) {
+    if (e.target === manual) {
+      manualCloseHandler();
+    }
+  };
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
-  manualOverlay.appendChild(manualColumn);
   root.appendChild(header);
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
-  root.appendChild(manualOverlay);
+  root.appendChild(manual);
   onUpdateSelectOptions();
   handleCalculateCartStuff();
   lightningDelay = Math.random() * TIMER_DELAYS.LIGHTNING.DELAY_MAX;
