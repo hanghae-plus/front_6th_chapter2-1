@@ -1,8 +1,14 @@
 function Option({ item }) {
+  /**
+   * @todo 배열 방식으로 할 지? 팀원들과 이야기해보기
+   */
   let discountText = '';
   if (item.onSale) discountText += ' ⚡SALE';
   if (item.suggestSale) discountText += ' 💝추천';
 
+  /**
+   * @todo item.q -> item.quantity 변경 필요
+   */
   if (item.q === 0) {
     return /* HTML */ `
       <option value="${item.id}" disabled class="text-gray-400">
@@ -18,6 +24,7 @@ function Option({ item }) {
       </option>
     `;
   }
+
   if (item.onSale) {
     return /* HTML */ `
       <option value="${item.id}" class="text-red-500 font-bold">
@@ -25,6 +32,7 @@ function Option({ item }) {
       </option>
     `;
   }
+
   if (item.suggestSale) {
     return /* HTML */ `
       <option value="${item.id}" class="text-blue-500 font-bold">
