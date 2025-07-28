@@ -12,13 +12,21 @@
     "test": "vitest",
     "test:basic": "vitest basic.test.js",
     "test:advanced": "vitest advanced.test.js",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix",
+    "format": "prettier --write src/**/*.js",
+    "format:check": "prettier --check src/**/*.js"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.1",
     "@vitest/ui": "^3.2.4",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
     "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
     "vite": "^7.0.5",
     "vitest": "^3.2.4"
   }
