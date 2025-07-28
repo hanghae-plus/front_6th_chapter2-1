@@ -73,7 +73,7 @@ const main = () => {
     setInterval(() => {
       const luckyIdx = Math.floor(Math.random() * prodList.length);
       const luckyItem = prodList[luckyIdx];
-      if (luckyItem.q > 0 && !luckyItem.onSale) {
+      if (luckyItem.quantity > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
         alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
@@ -118,7 +118,7 @@ const onUpdateSelectOptions = () => {
 
   for (let idx = 0; idx < prodList.length; idx++) {
     const _p = prodList[idx];
-    totalStock = totalStock + _p.q;
+    totalStock = totalStock + _p.quantity;
   }
   for (let i = 0; i < prodList.length; i++) {
     const item = prodList[i];
@@ -126,7 +126,7 @@ const onUpdateSelectOptions = () => {
     opt.value = item.id;
     if (item.onSale) discountText += " ⚡SALE";
     if (item.suggestSale) discountText += " 💝추천";
-    if (item.q === 0) {
+    if (item.quantity === 0) {
       opt.textContent = `${item.name} - ${item.val}원 (품절) ${discountText}`;
       opt.disabled = true;
       opt.className = "text-gray-400";
@@ -164,7 +164,7 @@ const handleCalculateCartStuff = () => {
   itemCnt = 0;
 
   for (let idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].q < 5 && prodList[idx].q > 0) {
+    if (prodList[idx].quantity < 5 && prodList[idx].quantity > 0) {
       lowStockItems.push(prodList[idx].name);
     }
   }
@@ -344,9 +344,9 @@ const handleCalculateCartStuff = () => {
   let stockMsg = "";
   for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
     const item = prodList[stockIdx];
-    if (item.q < 5) {
-      if (item.q > 0) {
-        stockMsg = `${stockMsg} ${item.name}: 재고 부족 (${item.q}개 남음)\n`;
+    if (item.quantity < 5) {
+      if (item.quantity > 0) {
+        stockMsg = `${stockMsg} ${item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
       } else {
         stockMsg = `${stockMsg} ${item.name}: 품절\n`;
       }
@@ -440,9 +440,9 @@ const doRenderBonusPoints = () => {
 const handleStockInfoUpdate = () => {
   let infoMsg = "";
   prodList.forEach((item) => {
-    if (item.q < 5) {
-      if (item.q > 0) {
-        infoMsg = `${infoMsg} ${item.name}: 재고 부족 (${item.q}개 남음)\n`;
+    if (item.quantity < 5) {
+      if (item.quantity > 0) {
+        infoMsg = `${infoMsg} ${item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
       } else {
         infoMsg = `${infoMsg} ${item.name}: 품절\n`;
       }
@@ -503,21 +503,21 @@ addBtn.addEventListener("click", () => {
       break;
     }
   }
-  if (itemToAdd && itemToAdd.q > 0) {
+  if (itemToAdd && itemToAdd.quantity > 0) {
     const item = document.getElementById(itemToAdd["id"]);
     if (item) {
       const qtyElem = item.querySelector(".quantity-number");
       const newQty = parseInt(qtyElem["textContent"]) + 1;
-      if (newQty <= itemToAdd.q + parseInt(qtyElem.textContent)) {
+      if (newQty <= itemToAdd.quantity + parseInt(qtyElem.textContent)) {
         qtyElem.textContent = newQty;
-        itemToAdd["q"]--;
+        itemToAdd["quantity"]--;
       } else {
         alert("재고가 부족합니다.");
       }
     } else {
       const cartItem = CartItem(itemToAdd);
       cartDisp.appendChild(cartItem);
-      itemToAdd.q--;
+      itemToAdd.quantity--;
     }
     handleCalculateCartStuff();
     lastSel = selItem;
@@ -543,11 +543,11 @@ cartDisp.addEventListener("click", (event) => {
       const qtyElem = itemElem.querySelector(".quantity-number");
       const currentQty = parseInt(qtyElem.textContent);
       const newQty = currentQty + qtyChange;
-      if (newQty > 0 && newQty <= prod.q + currentQty) {
+      if (newQty > 0 && newQty <= prod.quantity + currentQty) {
         qtyElem.textContent = newQty;
-        prod.q -= qtyChange;
+        prod.quantity -= qtyChange;
       } else if (newQty <= 0) {
-        prod.q += currentQty;
+        prod.quantity += currentQty;
         itemElem.remove();
       } else {
         alert("재고가 부족합니다.");
@@ -555,7 +555,7 @@ cartDisp.addEventListener("click", (event) => {
     } else if (tgt.classList.contains("remove-item")) {
       const qtyElem = itemElem.querySelector(".quantity-number");
       const remQty = parseInt(qtyElem.textContent);
-      prod.q += remQty;
+      prod.quantity += remQty;
       itemElem.remove();
     }
     handleCalculateCartStuff();
