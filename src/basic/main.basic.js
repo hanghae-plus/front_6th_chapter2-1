@@ -26,6 +26,34 @@ const AppState = {
   }
 };
 
+// 상품 검색 유틸리티 함수들
+function findProductById(productId) {
+  for (var i = 0; i < AppState.products.length; i++) {
+    if (AppState.products[i].id === productId) {
+      return AppState.products[i];
+    }
+  }
+  return null;
+}
+
+function findAvailableProductExcept(excludeId) {
+  for (var i = 0; i < AppState.products.length; i++) {
+    var product = AppState.products[i];
+    if (product.id !== excludeId && product.q > 0 && !product.suggestSale) {
+      return product;
+    }
+  }
+  return null;
+}
+
+function calculateTotalStock() {
+  var total = 0;
+  for (var i = 0; i < AppState.products.length; i++) {
+    total += AppState.products[i].q;
+  }
+  return total;
+}
+
 // 레거시 호환성을 위한 전역 변수들 (점진적 제거 예정)
 var prodList
 var bonusPts = 0
@@ -257,17 +285,7 @@ function setupPromotionTimers() {
       if (cartDisp.children.length === 0) {
       }
       if (lastSel) {
-        var suggest = null;
-        for (var k = 0; k < prodList.length; k++) {
-          if (prodList[k].id !== lastSel) {
-            if (prodList[k].q > 0) {
-              if (!prodList[k].suggestSale) {
-                suggest = prodList[k];
-                break;
-              }
-            }
-          }
-        }
+        var suggest = findAvailableProductExcept(lastSel);
         if (suggest) {
           alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
           suggest.val = Math.round(suggest.val * (100 - 5) / 100);
@@ -281,10 +299,7 @@ function setupPromotionTimers() {
 }
 
 function initializeUI() {
-  var initStock = 0;
-  for (var i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
-  }
+  var initStock = calculateTotalStock();
   onUpdateSelectOptions();
   handleCalculateCartStuff();
 }
@@ -304,11 +319,7 @@ function onUpdateSelectOptions() {
   AppState.elements.productSelect.innerHTML = '';
   sel.innerHTML = ''; // 레거시 동기화
   
-  totalStock = 0;
-  for (var idx = 0; idx < AppState.products.length; idx++) {
-    var _p = AppState.products[idx];
-    totalStock = totalStock + _p.q;
-  }
+  totalStock = calculateTotalStock();
   for (var i = 0; i < AppState.products.length; i++) {
     (function() {
       var item = AppState.products[i];
@@ -362,13 +373,7 @@ function calculateCartSubtotal() {
   
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
-      var curItem;
-      for (var j = 0; j < AppState.products.length; j++) {
-        if (AppState.products[j].id === cartItems[i].id) {
-          curItem = AppState.products[j];
-          break;
-        }
-      }
+      var curItem = findProductById(cartItems[i].id);
       
       var qtyElem = cartItems[i].querySelector('.quantity-number');
       var quantity = parseInt(qtyElem.textContent);
@@ -474,13 +479,7 @@ function updateCartUI(subTotal, itemDiscounts, discountInfo) {
   if (subTotal > 0) {
     // 개별 아이템 표시
     for (let i = 0; i < cartItems.length; i++) {
-      var curItem;
-      for (var j = 0; j < AppState.products.length; j++) {
-        if (AppState.products[j].id === cartItems[i].id) {
-          curItem = AppState.products[j];
-          break;
-        }
-      }
+      var curItem = findProductById(cartItems[i].id);
       var qtyElem = cartItems[i].querySelector('.quantity-number');
       var q = parseInt(qtyElem.textContent);
       var itemTotal = curItem.val * q;
@@ -655,13 +654,7 @@ var doRenderBonusPoints = function() {
   hasMonitorArm = false;
   nodes = cartDisp.children;
   for (const node of nodes) {
-    var product = null;
-    for (var pIdx = 0; pIdx < prodList.length; pIdx++) {
-      if (prodList[pIdx].id === node.id) {
-        product = prodList[pIdx];
-        break;
-      }
-    }
+    var product = findProductById(node.id);
     if (!product) continue;
     if (product.id === PRODUCT_ONE) {
       hasKeyboard = true;
@@ -709,13 +702,7 @@ var doRenderBonusPoints = function() {
 function onGetStockTotal() {
   var sum;
   var i;
-  var currentProduct;
-  sum = 0;
-  for (i = 0; i < prodList.length; i++) {
-    currentProduct = prodList[i];
-    sum += currentProduct.q;
-  }
-  return sum;
+  return calculateTotalStock();
 }
 var handleStockInfoUpdate = function() {
   var infoMsg;
@@ -751,13 +738,7 @@ function doUpdatePricesInCart() {
   cartItems = cartDisp.children;
   for (var i = 0; i < cartItems.length; i++) {
     var itemId = cartItems[i].id;
-    var product = null;
-    for (var productIdx = 0; productIdx < prodList.length; productIdx++) {
-      if (prodList[productIdx].id === itemId) {
-        product = prodList[productIdx];
-        break;
-      }
-    }
+    var product = findProductById(itemId);
     if (product) {
       var priceDiv = cartItems[i].querySelector('.text-lg');
       var nameDiv = cartItems[i].querySelector('h3');
@@ -781,23 +762,11 @@ function doUpdatePricesInCart() {
 main();
 addBtn.addEventListener("click", function () {
   var selItem = sel.value
-  var hasItem = false;
-  for (var idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].id === selItem) {
-      hasItem = true;
-      break;
-    }
-  }
+  var hasItem = findProductById(selItem) !== null;
   if (!selItem || !hasItem) {
     return;
   }
-  var itemToAdd = null;
-  for (var j = 0; j < prodList.length; j++) {
-    if (prodList[j].id === selItem) {
-      itemToAdd = prodList[j];
-      break;
-    }
-  }
+  var itemToAdd = findProductById(selItem);
   if (itemToAdd && itemToAdd.q > 0) {
     var item = document.getElementById(itemToAdd['id']);
     if (item) {
@@ -844,13 +813,7 @@ cartDisp.addEventListener("click", function (event) {
   if (tgt.classList.contains('quantity-change') || tgt.classList.contains("remove-item")) {
     var prodId = tgt.dataset.productId;
     var itemElem = document.getElementById(prodId)
-    var prod = null;
-    for (var prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
-      if (prodList[prdIdx].id === prodId) {
-        prod = prodList[prdIdx];
-        break;
-      }
-    }
+    var prod = findProductById(prodId);
     if (tgt.classList.contains('quantity-change')) {
       var qtyChange = parseInt(tgt.dataset.change);
       var qtyElem = itemElem.querySelector('.quantity-number');
