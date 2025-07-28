@@ -1,3 +1,15 @@
+function Header() {
+  return /* HTML */ `
+    <div class="mb-8">
+      <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">
+        🛒 Hanghae Online Store
+      </h1>
+      <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
+      <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
+    </div>
+  `;
+}
+
 function main() {
   const PRODUCT_1 = 'p1';
   const PRODUCT_2 = 'p2';
@@ -58,13 +70,7 @@ function main() {
   ];
 
   const root = document.getElementById('app');
-  const header = document.createElement('div');
-  header.className = 'mb-8';
-  header.innerHTML = `
-    <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
-    <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-    <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
-  `;
+
   const sel = document.createElement('select');
   sel.id = 'product-select';
   const gridContainer = document.createElement('div');
@@ -209,7 +215,8 @@ function main() {
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
-  root.appendChild(header);
+
+  root.innerHTML += Header();
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
@@ -469,9 +476,9 @@ function main() {
             <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
             <span class="text-sm font-medium text-green-400">${(discRate * 100).toFixed(1)}%</span>
           </div>
-          <div class="text-2xs text-gray-300">₩${Math.round(
-            savedAmount,
-          ).toLocaleString()} 할인되었습니다</div>
+          <div class="text-2xs text-gray-300">
+            ₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다
+          </div>
         </div>
       `;
     }
@@ -635,7 +642,7 @@ function main() {
               ₩${product.originalVal.toLocaleString()}
             </span>
             <span class="text-blue-500">
-            ₩${product.val.toLocaleString()}
+              ₩${product.val.toLocaleString()}
             </span>
           `;
           nameDiv.textContent = `💝${product.name}`;
