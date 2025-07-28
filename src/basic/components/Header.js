@@ -6,7 +6,7 @@ class Header {
   }
 
   template() {
-    this.container.innerHTML = html`
+    return `
       <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">
         🛒 Hanghae Online Store
       </h1>
@@ -19,6 +19,7 @@ class Header {
 
   render() {
     this.container = document.createElement('div');
+    this.container.classList.add('mb-8');
     this.container.innerHTML = this.template();
     this.parentElement.appendChild(this.container);
   }
