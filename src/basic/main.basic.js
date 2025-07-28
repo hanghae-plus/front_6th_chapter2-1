@@ -22,6 +22,10 @@ let sel;
 let addBtn;
 let totalAmt = 0;
 let cartDisp;
+
+// 유틸리티 함수: 상품 ID로 상품 찾기
+const findProductById = (productId) =>
+  prodList.find((product) => product.id === productId);
 function main() {
   let root;
   let header;
@@ -368,13 +372,7 @@ function handleCalculateCartStuff() {
   itemCnt = 0;
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
-      let curItem;
-      for (let j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
-          break;
-        }
-      }
+      const curItem = findProductById(cartItems[i].id);
       let qtyElem = cartItems[i].querySelector('.quantity-number');
       let q = parseInt(qtyElem.textContent);
       let itemTot = curItem.val * q;
@@ -444,13 +442,7 @@ function handleCalculateCartStuff() {
   summaryDetails.innerHTML = '';
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
-      let curItem;
-      for (let j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
-          break;
-        }
-      }
+      const curItem = findProductById(cartItems[i].id);
       const qtyElem = cartItems[i].querySelector('.quantity-number');
       const q = parseInt(qtyElem.textContent);
       const itemTotal = curItem.val * q;
@@ -589,13 +581,7 @@ let doRenderBonusPoints = function () {
     }
   }
   for (const node of nodes) {
-    let product = null;
-    for (let pIdx = 0; pIdx < prodList.length; pIdx++) {
-      if (prodList[pIdx].id === node.id) {
-        product = prodList[pIdx];
-        break;
-      }
-    }
+    const product = findProductById(node.id);
     if (!product) continue;
     if (product.id === KEYBOARD_ID) {
       hasKeyboard = true;
@@ -671,13 +657,7 @@ function doUpdatePricesInCart() {
   const cartItems = cartDisp.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
-    let product = null;
-    for (let productIdx = 0; productIdx < prodList.length; productIdx++) {
-      if (prodList[productIdx].id === itemId) {
-        product = prodList[productIdx];
-        break;
-      }
-    }
+    const product = findProductById(itemId);
     if (product) {
       const priceDiv = cartItems[i].querySelector('.text-lg');
       const nameDiv = cartItems[i].querySelector('h3');
@@ -717,13 +697,7 @@ main();
 addBtn.addEventListener('click', function () {
   const selItem = sel.value;
 
-  let itemToAdd = null;
-  for (let j = 0; j < prodList.length; j++) {
-    if (prodList[j].id === selItem) {
-      itemToAdd = prodList[j];
-      break;
-    }
-  }
+  const itemToAdd = findProductById(selItem);
 
   if (!selItem || !itemToAdd) {
     return;
@@ -780,13 +754,7 @@ cartDisp.addEventListener('click', function (event) {
     const prodId = tgt.dataset.productId;
     const itemElem = document.getElementById(prodId);
 
-    let prod = null;
-    for (let prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
-      if (prodList[prdIdx].id === prodId) {
-        prod = prodList[prdIdx];
-        break;
-      }
-    }
+    const prod = findProductById(prodId);
     if (tgt.classList.contains('quantity-change')) {
       const qtyChange = parseInt(tgt.dataset.change);
       const qtyElem = itemElem.querySelector('.quantity-number');
