@@ -13,6 +13,6 @@ export function createLeftColumn() {
 
 export function createRightColumn() {
   const column = document.createElement('div');
-  column.className = 'bg-black text-white p-8 flex flex-col';
+  column.className = 'right-column bg-black text-white p-8 flex flex-col';
   return column;
 }

@@ -12,16 +12,10 @@ import {
   STOCK_THRESHOLDS,
   TIMER_DELAYS,
 } from '../constants/shopPolicy.js';
-import {
-  createOrderSummary,
-  createOrderSummarySection,
-} from '../components/OrderSummary.js';
-import { createCartTotal } from '../components/CartTotal.js';
-import { createTuesdaySpecial } from '../components/TuesdaySpecial.js';
+
 import { createManualToggle, createManual } from '../components/Manual.js';
 import { createHeader } from '../components/Header.js';
 import { createProductSelector } from '../components/ProductSelector.js';
-import { createProductList } from '../components/ProductData.js';
 import { createDiscountInfo } from '../components/DiscountInfo.js';
 import {
   createGridContainer,
@@ -38,7 +32,55 @@ import { createPriceDisplay } from '../components/PriceDisplay.js';
 import { createProductOptions } from '../components/ProductOptions.js';
 import { createPointsDisplay } from '../components/PointsDisplay.js';
 
-let prodList;
+import { createOrderSummary } from '../components/OrderSummary/index.js';
+
+let prodList = [
+  {
+    id: KEYBOARD_ID,
+    name: '버그 없애는 키보드',
+    val: 10000,
+    originalVal: 10000,
+    q: 50,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: MOUSE_ID,
+    name: '생산성 폭발 마우스',
+    val: 20000,
+    originalVal: 20000,
+    q: 30,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: MONITOR_ID,
+    name: '거북목 탈출 모니터암',
+    val: 30000,
+    originalVal: 30000,
+    q: 20,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: HEADPHONE_ID,
+    name: '에러 방지 노트북 파우치',
+    val: 15000,
+    originalVal: 15000,
+    q: 0,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: SPEAKER_ID,
+    name: `코딩할 때 듣는 Lo-Fi 스피커`,
+    val: 25000,
+    originalVal: 25000,
+    q: 10,
+    onSale: false,
+    suggestSale: false,
+  },
+];
 let bonusPts = 0;
 let stockInfo;
 let itemCnt = 0;
@@ -101,7 +143,7 @@ function main() {
   let lightningDelay;
 
   // 상품 데이터 초기화
-  prodList = createProductList();
+  // prodList는 이미 전역으로 사용 가능
   root = document.getElementById('app');
 
   // 헤더 컴포넌트 생성
@@ -130,14 +172,22 @@ function main() {
   leftColumn.appendChild(cartDisp);
   rightColumn = createRightColumn();
 
-  const orderSummaryElement = createOrderSummarySection({
-    summaryDetailsElement: null,
-    discountInfoHtml: '',
-    cartTotalElement: createCartTotal({ total: 0, loyaltyPoints: 0 }),
-    tuesdaySpecialElement: createTuesdaySpecial({
-      message: 'Tuesday Special 10% Applied',
-    }),
-    pointsNoticeHtml: 'Earn loyalty points with purchase.',
+  const orderSummaryElement = createOrderSummary({
+    subTot: 0,
+    cartItems: [],
+    itemCnt: 0,
+    itemDiscounts: [],
+    isTuesday: false,
+    totalAmt: 0,
+    constants: { QUANTITY_THRESHOLDS, DISCOUNT_RATES },
+    findProductById,
+    getQuantityFromElement,
+    formatPrice,
+    discRate: 0,
+    originalTotal: 0,
+    loyaltyPoints: 0,
+    tuesdayMessage: 'Tuesday Special 10% Applied',
+    pointsNotice: 'Earn loyalty points with purchase.',
   });
 
   rightColumn.appendChild(orderSummaryElement);
@@ -277,23 +327,30 @@ function handleCalculateCartStuff() {
   }
   document.getElementById('item-count').textContent =
     '🛍️ ' + itemCnt + ' items in cart';
-  const summaryDetails = document.getElementById('summary-details');
-
-  // 기존 내용을 지우고 새로운 요소를 추가
-  summaryDetails.innerHTML = '';
-  summaryDetails.appendChild(
-    createOrderSummary({
-      subTot,
-      cartItems,
-      itemCnt,
-      itemDiscounts,
-      isTuesday,
-      totalAmt,
-      constants: { QUANTITY_THRESHOLDS, DISCOUNT_RATES },
-      findProductById,
-      getQuantityFromElement,
-    })
+  // 주문 요약 섹션 전체를 새로 생성
+  const rightColumn = document.querySelector('.right-column');
+  const existingOrderSummary = rightColumn.querySelector(
+    '.order-summary-section'
   );
+  if (existingOrderSummary) {
+    existingOrderSummary.remove();
+  }
+
+  const newOrderSummary = createOrderSummary({
+    subTot,
+    cartItems,
+    itemCnt,
+    itemDiscounts,
+    isTuesday,
+    totalAmt,
+    discRate,
+    originalTotal,
+    findProductById,
+    getQuantityFromElement,
+  });
+  newOrderSummary.classList.add('order-summary-section');
+
+  rightColumn.appendChild(newOrderSummary);
   const totalDiv = sum.querySelector('.text-2xl');
   if (totalDiv) {
     totalDiv.textContent = formatPrice(totalAmt);

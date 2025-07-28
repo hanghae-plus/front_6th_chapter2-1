@@ -1,4 +1,4 @@
-export function createOrderSummary({
+export function createOrderDetails({
   subTot,
   cartItems,
   itemCnt,
@@ -76,52 +76,6 @@ export function createOrderSummary({
     `;
 
     container.innerHTML = html;
-  }
-
-  return container;
-}
-
-export function createOrderSummarySection({
-  summaryDetailsElement = null,
-  discountInfoHtml = '',
-  cartTotalElement = null,
-  tuesdaySpecialElement = null,
-  pointsNoticeHtml = '',
-}) {
-  const container = document.createElement('div');
-  container.innerHTML = `
-    <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
-    <div class="flex-1 flex flex-col">
-      <div id="summary-details" class="space-y-3"></div>
-      <div class="mt-auto">
-        <div id="discount-info" class="mb-4">${discountInfoHtml}</div>
-        <div id="cart-total" class="pt-5 border-t border-white/10"></div>
-        <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden"></div>
-      </div>
-    </div>
-    <button class="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">
-      Proceed to Checkout
-    </button>
-    <p class="mt-4 text-2xs text-white/60 text-center leading-relaxed">
-      Free shipping on all orders.<br>
-      <span id="points-notice">${pointsNoticeHtml}</span>
-    </p>
-  `;
-
-  // DOM 요소들을 적절한 위치에 삽입
-  const summaryDetailsContainer = container.querySelector('#summary-details');
-  if (summaryDetailsElement) {
-    summaryDetailsContainer.appendChild(summaryDetailsElement);
-  }
-
-  const cartTotalContainer = container.querySelector('#cart-total');
-  if (cartTotalElement) {
-    cartTotalContainer.appendChild(cartTotalElement);
-  }
-
-  const tuesdaySpecialContainer = container.querySelector('#tuesday-special');
-  if (tuesdaySpecialElement) {
-    tuesdaySpecialContainer.appendChild(tuesdaySpecialElement);
   }
 
   return container;
