@@ -26,6 +26,39 @@ let cartDisp;
 // 유틸리티 함수: 상품 ID로 상품 찾기
 const findProductById = (productId) =>
   prodList.find((product) => product.id === productId);
+
+// 유틸리티 함수: 상품별 할인율 가져오기
+const getProductDiscount = (productId) => {
+  const discountMap = {
+    [KEYBOARD_ID]: DISCOUNT_RATES.PRODUCT.KEYBOARD,
+    [MOUSE_ID]: DISCOUNT_RATES.PRODUCT.MOUSE,
+    [MONITOR_ID]: DISCOUNT_RATES.PRODUCT.MONITOR_ARM,
+    [HEADPHONE_ID]: DISCOUNT_RATES.PRODUCT.LAPTOP_POUCH,
+    [SPEAKER_ID]: DISCOUNT_RATES.PRODUCT.SPEAKER,
+  };
+  return discountMap[productId] || 0;
+};
+
+// 유틸리티 함수: 대량구매 보너스 포인트 계산
+const getBulkBonus = (itemCount) => {
+  if (itemCount >= QUANTITY_THRESHOLDS.BONUS_LARGE) {
+    return {
+      points: POINT_RATES.BULK_BONUS.LARGE,
+      threshold: QUANTITY_THRESHOLDS.BONUS_LARGE,
+    };
+  } else if (itemCount >= QUANTITY_THRESHOLDS.BONUS_MEDIUM) {
+    return {
+      points: POINT_RATES.BULK_BONUS.MEDIUM,
+      threshold: QUANTITY_THRESHOLDS.BONUS_MEDIUM,
+    };
+  } else if (itemCount >= QUANTITY_THRESHOLDS.BONUS_SMALL) {
+    return {
+      points: POINT_RATES.BULK_BONUS.SMALL,
+      threshold: QUANTITY_THRESHOLDS.BONUS_SMALL,
+    };
+  }
+  return null;
+};
 function main() {
   let root;
   let header;
@@ -386,25 +419,7 @@ function handleCalculateCartStuff() {
         }
       });
       if (q >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
-        if (curItem.id === KEYBOARD_ID) {
-          disc = DISCOUNT_RATES.PRODUCT.KEYBOARD;
-        } else {
-          if (curItem.id === MOUSE_ID) {
-            disc = DISCOUNT_RATES.PRODUCT.MOUSE;
-          } else {
-            if (curItem.id === MONITOR_ID) {
-              disc = DISCOUNT_RATES.PRODUCT.MONITOR_ARM;
-            } else {
-              if (curItem.id === HEADPHONE_ID) {
-                disc = DISCOUNT_RATES.PRODUCT.LAPTOP_POUCH;
-              } else {
-                if (curItem.id === SPEAKER_ID) {
-                  disc = DISCOUNT_RATES.PRODUCT.SPEAKER;
-                }
-              }
-            }
-          }
-        }
+        disc = getProductDiscount(curItem.id);
         if (disc > 0) {
           itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
         }
@@ -602,25 +617,14 @@ let doRenderBonusPoints = function () {
     pointsDetail.push(`풀세트 구매 +${POINT_RATES.SETS.FULL_SET}p`);
   }
 
-  if (itemCnt >= QUANTITY_THRESHOLDS.BONUS_LARGE) {
-    finalPoints = finalPoints + POINT_RATES.BULK_BONUS.LARGE;
+  // 대량구매 보너스 포인트 계산
+  const bulkBonus = getBulkBonus(itemCnt);
+
+  if (bulkBonus) {
+    finalPoints += bulkBonus.points;
     pointsDetail.push(
-      `대량구매(${QUANTITY_THRESHOLDS.BONUS_LARGE}개+) +${POINT_RATES.BULK_BONUS.LARGE}p`
+      `대량구매(${bulkBonus.threshold}개+) +${bulkBonus.points}p`
     );
-  } else {
-    if (itemCnt >= QUANTITY_THRESHOLDS.BONUS_MEDIUM) {
-      finalPoints = finalPoints + POINT_RATES.BULK_BONUS.MEDIUM;
-      pointsDetail.push(
-        `대량구매(${QUANTITY_THRESHOLDS.BONUS_MEDIUM}개+) +${POINT_RATES.BULK_BONUS.MEDIUM}p`
-      );
-    } else {
-      if (itemCnt >= QUANTITY_THRESHOLDS.BONUS_SMALL) {
-        finalPoints = finalPoints + POINT_RATES.BULK_BONUS.SMALL;
-        pointsDetail.push(
-          `대량구매(${QUANTITY_THRESHOLDS.BONUS_SMALL}개+) +${POINT_RATES.BULK_BONUS.SMALL}p`
-        );
-      }
-    }
   }
   bonusPts = finalPoints;
   const ptsTag = document.getElementById('loyalty-points');
