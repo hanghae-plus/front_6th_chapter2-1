@@ -133,7 +133,6 @@ function main() {
   let leftColumn;
   let selectorContainer;
   let rightColumn;
-
   let lightningDelay;
 
   // 상품 데이터 초기화
@@ -464,7 +463,16 @@ let doRenderBonusPoints = function () {
   }
   bonusPts = finalPoints;
   const ptsTag = document.getElementById('loyalty-points');
-  createPointsDisplay(ptsTag, bonusPts, pointsDetail);
+
+  // PointsDisplay 컴포넌트 생성 및 DOM에 추가
+  const pointsDisplay = createPointsDisplay({
+    bonusPoints: bonusPts,
+    pointsDetail: pointsDetail,
+  });
+
+  ptsTag.innerHTML = '';
+  ptsTag.appendChild(pointsDisplay);
+  ptsTag.style.display = 'block';
 };
 let handleStockInfoUpdate = function () {
   let infoMsg = '';

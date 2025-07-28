@@ -1,6 +1,4 @@
-export function createPointsDisplay(targetElement, bonusPoints, pointsDetail) {
-  if (!targetElement) return;
-
+export function createPointsDisplay({ bonusPoints = 0, pointsDetail = [] }) {
   const container = document.createElement('div');
 
   if (bonusPoints > 0) {
@@ -12,7 +10,5 @@ export function createPointsDisplay(targetElement, bonusPoints, pointsDetail) {
     container.textContent = '적립 포인트: 0p';
   }
 
-  targetElement.innerHTML = '';
-  targetElement.appendChild(container);
-  targetElement.style.display = 'block';
+  return container;
 }
