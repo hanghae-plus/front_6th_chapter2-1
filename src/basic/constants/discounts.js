@@ -1,0 +1,9 @@
+import { PRODUCT_IDS } from "./products";
+
+export const DISCOUNT_RATES = {
+  [PRODUCT_IDS.KEYBOARD]: 0.1,
+  [PRODUCT_IDS.MOUSE]: 0.15,
+  [PRODUCT_IDS.MONITOR_ARM]: 0.2,
+  [PRODUCT_IDS.LAPTOP_POUCH]: 0.05,
+  [PRODUCT_IDS.SPEAKER]: 0.25,
+};
