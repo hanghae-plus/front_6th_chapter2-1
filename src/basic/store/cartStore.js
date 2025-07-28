@@ -10,8 +10,8 @@ export const cartStoreActions = {
   setProducts(products) {
     cartStore.products = products.map(p => ({
       ...p,
-      originalQuantity: p.q, // 최초 재고 보존
-      quantity: p.q,
+      originalQuantity: p.quantity, // 최초 재고 보존
+      quantity: p.quantity,
     }));
   },
 
@@ -23,7 +23,7 @@ export const cartStoreActions = {
 
     product.quantity -= quantity;
     cartStore.itemCount += quantity;
-    cartStore.totalAmount += product.val * quantity;
+    cartStore.totalAmount += product.price * quantity;
     cartStore.lastSelectedId = productId;
 
     return true;
@@ -37,13 +37,17 @@ export const cartStoreActions = {
 
     product.quantity += quantity;
     cartStore.itemCount -= quantity;
-    cartStore.totalAmount -= product.val * quantity;
+    cartStore.totalAmount -= product.price * quantity;
 
     return true;
   },
 
   updateBonusPoints(points) {
     cartStore.bonusPoints = points;
+  },
+
+  setLastSelectedId(productId) {
+    cartStore.lastSelectedId = productId;
   },
 
   reset() {
