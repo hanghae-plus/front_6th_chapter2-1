@@ -48,5 +48,5 @@
   // 컴파일에 포함할 파일 패턴 (더 포괄적으로 변경)
   "include": ["src/**/*", "*.ts", "*.tsx", "vite.config.ts", "src/vite-env.d.ts"],
   // 컴파일에서 제외할 파일 패턴
-  "exclude": ["node_modules", "build", "dist", "coverage"]
+  "exclude": ["src/**/*.js", "node_modules", "build", "dist", "coverage"]
 }
