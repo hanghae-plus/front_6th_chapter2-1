@@ -1,4 +1,4 @@
-export function createProductSelector({ onAddToCart }) {
+export function createProductSelector() {
   const container = document.createElement('div');
   container.className = 'mb-6 pb-6 border-b border-gray-200';
   container.innerHTML = `
@@ -7,9 +7,11 @@ export function createProductSelector({ onAddToCart }) {
     <div id="stock-status" class="text-xs text-red-500 mt-3 whitespace-pre-line"></div>
   `;
 
-  // 이벤트 핸들러 설정
-  const addButton = container.querySelector('#add-to-cart');
-  addButton.onclick = onAddToCart;
+  // ProductSelector에 setupEventListeners 메서드 추가
+  container.setupEventListeners = function ({ onAddToCart }) {
+    const addButton = container.querySelector('#add-to-cart');
+    addButton.addEventListener('click', onAddToCart);
+  };
 
   return container;
 }

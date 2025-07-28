@@ -7,5 +7,17 @@ export function createManualToggle() {
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>
   `;
+
+  // ManualToggle에 setupEventListeners 메서드 추가
+  container.setupEventListeners = function () {
+    container.addEventListener('click', function () {
+      const manual = document.querySelector('.fixed.inset-0');
+      if (manual) {
+        manual.classList.toggle('hidden');
+        manual.querySelector('.transform').classList.toggle('translate-x-full');
+      }
+    });
+  };
+
   return container;
 }

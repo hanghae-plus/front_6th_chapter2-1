@@ -7,5 +7,23 @@ export function createManual() {
   const column = createManualColumn();
   container.appendChild(column);
 
+  // Manual에 setupEventListeners 메서드 추가
+  container.setupEventListeners = function () {
+    container.addEventListener('click', function (e) {
+      if (e.target === container) {
+        container.classList.add('hidden');
+        container.querySelector('.transform').classList.add('translate-x-full');
+      }
+    });
+
+    const closeButton = container.querySelector('#manual-close-button');
+    if (closeButton) {
+      closeButton.addEventListener('click', function () {
+        container.classList.add('hidden');
+        container.querySelector('.transform').classList.add('translate-x-full');
+      });
+    }
+  };
+
   return container;
 }

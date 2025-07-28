@@ -1,5 +1,4 @@
 import { createOrderDetails } from './OrderDetails.js';
-import { createDiscountInfo } from './DiscountInfo.js';
 import { createCartTotal } from './CartTotal.js';
 import { createTuesdayDiscount } from './TuesdayDiscount.js';
 import { createCheckoutButton } from './CheckoutButton.js';
@@ -15,8 +14,6 @@ export function createOrderSummary({
   itemDiscounts = [],
   isTuesday = false,
   totalAmt = 0,
-  discRate = 0,
-  originalTotal = 0,
   findProductById,
   getQuantityFromElement,
 }) {
@@ -40,11 +37,6 @@ export function createOrderSummary({
   });
 
   // 할인 정보 생성
-  const discountInfo = createDiscountInfo({
-    discRate,
-    totalAmt,
-    originalTotal,
-  });
 
   // 장바구니 총액 생성
   const cartTotal = createCartTotal({
@@ -78,9 +70,6 @@ export function createOrderSummary({
   // 자식 컴포넌트들을 적절한 위치에 삽입
   const summaryDetailsContainer = container.querySelector('#summary-details');
   summaryDetailsContainer.appendChild(summaryDetails);
-
-  const discountInfoContainer = container.querySelector('#discount-info');
-  discountInfoContainer.appendChild(discountInfo);
 
   const cartTotalContainer = container.querySelector('#cart-total');
   cartTotalContainer.appendChild(cartTotal);
