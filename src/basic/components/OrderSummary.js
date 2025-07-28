@@ -244,7 +244,7 @@ export function updateLoyaltyPoints(orderSummaryElement, cartItems, totalAmount,
     loyaltyPointsDiv.style.display = "block";
   } else {
     loyaltyPointsDiv.textContent = "적립 포인트: 0p";
-    loyaltyPointsDiv.style.display = "block";
+    loyaltyPointsDiv.style.display = "none";
   }
 }
 
