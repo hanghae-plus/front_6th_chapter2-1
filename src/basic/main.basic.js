@@ -5,12 +5,9 @@ import { createCartItem, updateCartItemQuantity, updateCartItemPrice, updateCart
 import { createOrderSummary, updateOrderSummary } from "./components/OrderSummary.js";
 import { PRODUCT_LIST } from "./data/product.js";
 
-const bonusPts = 0;
 let stockInfo;
 let itemCnt;
 let lastSel;
-let sel;
-let addBtn;
 let totalAmt = 0;
 let cartDisp;
 let header;
@@ -85,13 +82,7 @@ function createAndAddCartItem(targetProduct, cartDisplay) {
   targetProduct.quantity--;
 }
 
-/**
- * 수량 변경을 처리합니다.
- *
- * @param {string} productId - 상품 ID
- * @param {number} quantityChange - 변경량
- * @param {Object} targetProduct - 상품 객체
- */
+// 장바구니 수량 변경
 function handleQuantityChange(productId, quantityChange, targetProduct) {
   const cartItemElement = document.getElementById(productId);
   if (!cartItemElement) return;
@@ -114,12 +105,7 @@ function handleQuantityChange(productId, quantityChange, targetProduct) {
   onUpdateSelectOptions();
 }
 
-/**
- * 장바구니 아이템 제거를 처리합니다.
- *
- * @param {string} productId - 상품 ID
- * @param {Object} targetProduct - 상품 객체
- */
+// 장바구니 아이템 제거
 function handleRemoveItem(productId, targetProduct) {
   const cartItemElement = document.getElementById(productId);
   if (!cartItemElement) return;
@@ -133,12 +119,7 @@ function handleRemoveItem(productId, targetProduct) {
   onUpdateSelectOptions();
 }
 
-/**
- * 장바구니에 상품을 추가하는 핸들러 함수
- *
- * @param {Array} productList - 상품 목록
- * @param {HTMLElement} cartDisplay - 장바구니 컨테이너
- */
+// 상품을 장바구니에 추가
 function handleAddToCart(productList, cartDisplay) {
   const selectedProductId = getSelectedProduct(selectorContainer);
   const targetProduct = validateSelectedItem(selectedProductId, productList);
@@ -346,7 +327,6 @@ function main() {
     }, TIMERS.SUGGEST_SALE_INTERVAL);
   }, Math.random() * TIMERS.SUGGEST_SALE_DELAY);
 }
-let sum;
 function onUpdateSelectOptions() {
   let totalStock = 0;
   for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
@@ -495,17 +475,6 @@ function handleCalculateCartStuff() {
   handleStockInfoUpdate();
 }
 
-function onGetStockTotal() {
-  let sum;
-  let i;
-  let currentProduct;
-  sum = 0;
-  for (i = 0; i < PRODUCT_LIST.length; i++) {
-    currentProduct = PRODUCT_LIST[i];
-    sum += currentProduct.quantity;
-  }
-  return sum;
-}
 const handleStockInfoUpdate = function () {
   updateStockInfo(selectorContainer, PRODUCT_LIST, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
 };
