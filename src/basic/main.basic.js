@@ -6,11 +6,15 @@ let lastSel;
 let sel;
 let addBtn;
 let totalAmt = 0;
-const PRODUCT_ONE = "p1";
-const p2 = "p2";
-const product_3 = "p3";
-const p4 = "p4";
-const PRODUCT_5 = `p5`;
+
+const PRODUCT_IDS = {
+  KEYBOARD: "p1",
+  MOUSE: "p2",
+  MONITOR_ARM: "p3",
+  LAPTOP_POUCH: "p4",
+  SPEAKER: "p5",
+};
+
 let cartDisp;
 function main() {
   var root;
@@ -28,7 +32,7 @@ function main() {
   lastSel = null;
   prodList = [
     {
-      id: PRODUCT_ONE,
+      id: PRODUCT_IDS.KEYBOARD,
       name: "버그 없애는 키보드",
       val: 10000,
       originalVal: 10000,
@@ -36,9 +40,17 @@ function main() {
       onSale: false,
       suggestSale: false,
     },
-    { id: p2, name: "생산성 폭발 마우스", val: 20000, originalVal: 20000, q: 30, onSale: false, suggestSale: false },
     {
-      id: product_3,
+      id: PRODUCT_IDS.MOUSE,
+      name: "생산성 폭발 마우스",
+      val: 20000,
+      originalVal: 20000,
+      q: 30,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: PRODUCT_IDS.MONITOR_ARM,
       name: "거북목 탈출 모니터암",
       val: 30000,
       originalVal: 30000,
@@ -47,7 +59,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: p4,
+      id: PRODUCT_IDS.LAPTOP_POUCH,
       name: "에러 방지 노트북 파우치",
       val: 15000,
       originalVal: 15000,
@@ -56,7 +68,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: PRODUCT_5,
+      id: PRODUCT_IDS.SPEAKER,
       name: `코딩할 때 듣는 Lo-Fi 스피커`,
       val: 25000,
       originalVal: 25000,
@@ -371,15 +383,15 @@ function handleCalculateCartStuff() {
         }
       });
       if (q >= 10) {
-        if (curItem.id === PRODUCT_ONE) {
+        if (curItem.id === PRODUCT_IDS.KEYBOARD) {
           disc = 10 / 100;
-        } else if (curItem.id === p2) {
+        } else if (curItem.id === PRODUCT_IDS.MOUSE) {
           disc = 15 / 100;
-        } else if (curItem.id === product_3) {
+        } else if (curItem.id === PRODUCT_IDS.MONITOR_ARM) {
           disc = 20 / 100;
-        } else if (curItem.id === p4) {
+        } else if (curItem.id === PRODUCT_IDS.LAPTOP_POUCH) {
           disc = 5 / 100;
-        } else if (curItem.id === PRODUCT_5) {
+        } else if (curItem.id === PRODUCT_IDS.SPEAKER) {
           disc = 25 / 100;
         }
         if (disc > 0) {
@@ -564,11 +576,11 @@ var doRenderBonusPoints = function () {
       }
     }
     if (!product) continue;
-    if (product.id === PRODUCT_ONE) {
+    if (product.id === PRODUCT_IDS.KEYBOARD) {
       hasKeyboard = true;
-    } else if (product.id === p2) {
+    } else if (product.id === PRODUCT_IDS.MOUSE) {
       hasMouse = true;
-    } else if (product.id === product_3) {
+    } else if (product.id === PRODUCT_IDS.MONITOR_ARM) {
       hasMonitorArm = true;
     }
   }
