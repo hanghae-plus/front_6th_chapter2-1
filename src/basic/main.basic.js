@@ -132,8 +132,7 @@ function render() {
     'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
 
   leftColumn = document.createElement('div');
-  leftColumn['className'] =
-    'bg-white border border-gray-200 p-8 overflow-y-auto';
+  leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto';
 
   sel = document.createElement('select');
   sel.id = 'product-select';
@@ -209,8 +208,7 @@ function render() {
   };
 
   manualOverlay = document.createElement('div');
-  manualOverlay.className =
-    'fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300';
+  manualOverlay.className = 'fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300';
   manualOverlay.onclick = function (e) {
     if (e.target === manualOverlay) {
       manualOverlay.classList.add('hidden');
@@ -384,11 +382,7 @@ function main() {
           }
         }
         if (suggest) {
-          alert(
-            '💝 ' +
-              suggest.name +
-              '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!'
-          );
+          alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
           suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
           suggest.suggestSale = true;
           renderProductSelectOptions();
@@ -497,8 +491,7 @@ function handleCalculateCartStuff() {
 
   totalDiscountRate = 1 - totalAmt / originalTotal;
 
-  document.getElementById('item-count').textContent =
-    '🛍️ ' + itemCnt + ' items in cart';
+  document.getElementById('item-count').textContent = '🛍️ ' + itemCnt + ' items in cart';
   summaryDetails = document.getElementById('summary-details');
   summaryDetails.innerHTML = '';
   if (subTot > 0) {
@@ -698,9 +691,7 @@ function doUpdatePricesInCart() {
   }
   totalCount = 0;
   for (j = 0; j < cartDisp.children.length; j++) {
-    totalCount += parseInt(
-      cartDisp.children[j].querySelector('.quantity-number').textContent
-    );
+    totalCount += parseInt(cartDisp.children[j].querySelector('.quantity-number').textContent);
   }
   cartItems = cartDisp.children;
   for (var i = 0; i < cartItems.length; i++) {
@@ -814,10 +805,7 @@ addBtn.addEventListener('click', function () {
 
 cartDisp.addEventListener('click', function (event) {
   var tgt = event.target;
-  if (
-    tgt.classList.contains('quantity-change') ||
-    tgt.classList.contains('remove-item')
-  ) {
+  if (tgt.classList.contains('quantity-change') || tgt.classList.contains('remove-item')) {
     var prodId = tgt.dataset.productId;
     var itemElem = document.getElementById(prodId);
     var prod = null;
