@@ -1,6 +1,10 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
+beforeEach(() => {
+  vi.setSystemTime(new Date('2025-07-28T10:00:00Z'));
+});
+
 describe('basic 테스트', () => {
   // 공통 헬퍼 함수
   const addItemsToCart = (sel, addBtn, productId, count) => {
@@ -34,7 +38,7 @@ describe('basic 테스트', () => {
     let sel, addBtn, cartDisp, sum, stockInfo, itemCount, loyaltyPoints, discountInfo;
 
     beforeEach(async () => {
-      vi.useRealTimers();
+      // vi.useRealTimers();
       vi.spyOn(window, 'alert').mockImplementation(() => {});
 
       // 전체 DOM 재초기화
@@ -150,7 +154,7 @@ describe('basic 테스트', () => {
         describe('3.3.1 화요일 할인', () => {
           it('화요일에 10% 추가 할인 적용', () => {
             const tuesday = new Date('2024-10-15'); // 화요일
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             vi.setSystemTime(tuesday);
 
             sel.value = 'p1';
@@ -164,12 +168,12 @@ describe('basic 테스트', () => {
             const tuesdayBanner = document.getElementById('tuesday-special');
             expect(tuesdayBanner.classList.contains('hidden')).toBe(false);
 
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
 
           it('화요일 할인은 다른 할인과 중복 적용', () => {
             const tuesday = new Date('2024-10-15');
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             vi.setSystemTime(tuesday);
 
             addItemsToCart(sel, addBtn, 'p1', 10);
@@ -178,55 +182,55 @@ describe('basic 테스트', () => {
             expect(sum.textContent).toContain('₩81,000');
             expect(discountInfo.textContent).toContain('19.0%'); // 총 19% 할인
 
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
         });
 
         describe('3.3.2 번개세일', () => {
           it.skip('번개세일 알림 표시 및 20% 할인 적용', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             await vi.advanceTimersByTimeAsync(40000);
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
 
           it.skip('번개세일 상품은 드롭다운에 ⚡ 아이콘 표시', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             await vi.advanceTimersByTimeAsync(40000);
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
         });
 
         describe('3.3.3 추천할인', () => {
           it.skip('마지막 선택한 상품과 다른 상품 추천 및 5% 할인', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             sel.value = 'p1';
             addBtn.click();
             await vi.advanceTimersByTimeAsync(80000);
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
 
           it.skip('추천할인 상품은 드롭다운에 💝 아이콘 표시', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             sel.value = 'p1';
             addBtn.click();
             await vi.advanceTimersByTimeAsync(80000);
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
         });
 
         describe('3.3.4 할인 중복', () => {
           it.skip('번개세일 + 추천할인 = 25% SUPER SALE', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             await vi.advanceTimersByTimeAsync(40000);
             sel.value = 'p1';
             addBtn.click();
             await vi.advanceTimersByTimeAsync(80000);
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
         });
       });
@@ -247,7 +251,7 @@ describe('basic 테스트', () => {
       describe('4.2 추가 적립', () => {
         it('화요일 구매 시 기본 포인트 2배', () => {
           const tuesday = new Date('2024-10-15');
-          vi.useFakeTimers();
+          // vi.useFakeTimers();
           vi.setSystemTime(tuesday);
 
           sel.value = 'p1';
@@ -257,7 +261,7 @@ describe('basic 테스트', () => {
           expect(loyaltyPoints.textContent).toContain('18p');
           expect(loyaltyPoints.textContent).toContain('화요일 2배');
 
-          vi.useRealTimers();
+          // vi.useRealTimers();
         });
 
         it('키보드+마우스 세트 구매 시 +50p', () => {
@@ -625,12 +629,12 @@ describe('basic 테스트', () => {
       describe('8.3 동시성 이슈', () => {
         it.skip('번개세일과 추천할인이 같은 상품에 적용 시 최대 25%', async () => {
           // 원본 코드의 타이머 구현 문제로 인해 스킵
-          vi.useFakeTimers();
+          // vi.useFakeTimers();
           await vi.advanceTimersByTimeAsync(40000);
           sel.value = 'p1';
           addBtn.click();
           await vi.advanceTimersByTimeAsync(80000);
-          vi.useRealTimers();
+          // vi.useRealTimers();
         });
       });
     });
@@ -639,7 +643,7 @@ describe('basic 테스트', () => {
     describe('복잡한 통합 시나리오', () => {
       it('화요일 + 풀세트 + 대량구매 시나리오', () => {
         const tuesday = new Date('2024-10-15');
-        vi.useFakeTimers();
+        // vi.useFakeTimers();
         vi.setSystemTime(tuesday);
 
         // 키보드 10개, 마우스 10개, 모니터암 10개
@@ -653,13 +657,13 @@ describe('basic 테스트', () => {
         // 포인트 확인: 405포인트(기본) * 2(화요일) + 50(세트) + 100(풀세트) + 100(30개) = 1060포인트
         expect(loyaltyPoints.textContent).toContain('1060p');
 
-        vi.useRealTimers();
+        // vi.useRealTimers();
       });
 
       it.skip('번개세일 + 추천할인 + 화요일 시나리오', async () => {
         // 원본 코드의 타이머 구현 문제로 인해 스킵
         const tuesday = new Date('2024-10-15');
-        vi.useFakeTimers();
+        // vi.useFakeTimers();
         vi.setSystemTime(tuesday);
 
         await vi.advanceTimersByTimeAsync(40000);
@@ -667,7 +671,7 @@ describe('basic 테스트', () => {
         addBtn.click();
         await vi.advanceTimersByTimeAsync(80000);
 
-        vi.useRealTimers();
+        // vi.useRealTimers();
       });
     });
   });
