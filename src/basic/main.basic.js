@@ -45,6 +45,7 @@ import { TUESDAY_DAY_OF_WEEK } from "./data/date.data.js";
 import { Header } from "./components/Header.js";
 import { createManualToggle } from "./components/ManualToggle.js";
 import { MainLayout } from "./components/MainLayout.js";
+import { createTimerManager } from "./components/TimerManager.js";
 
 // 상태 변수
 let itemCounts;
@@ -58,8 +59,6 @@ let addButton;
 let cartDisplay;
 
 function main() {
-  let lightningDelay;
-
   totalAmount = 0;
   itemCounts = 0;
   lastSelect = null;
@@ -81,61 +80,16 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
-  let initStock = 0;
-  for (let i = 0; i < PRODUCT_LIST.length; i++) {
-    initStock += PRODUCT_LIST[i].q;
-  }
-
   onUpdateSelectOptions();
   handleCalculateCartStuff();
-  lightningDelay = Math.random() * LIGHTNING_SALE_MAX_DELAY;
-  setTimeout(() => {
-    setInterval(() => {
-      const luckyIdx = Math.floor(Math.random() * PRODUCT_LIST.length);
-      const luckyItem = PRODUCT_LIST[luckyIdx];
-      if (luckyItem.q > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round((luckyItem.originalVal * (100 - DISCOUNT_RATE_LIGHTNING)) / 100);
-        luckyItem.onSale = true;
-        alert(
-          "⚡번개세일! " + luckyItem.name + "이(가) " + DISCOUNT_RATE_LIGHTNING + "% 할인 중입니다!"
-        );
-        onUpdateSelectOptions();
-        doUpdatePricesInCart();
-      }
-    }, LIGHTNING_SALE_INTERVAL);
-  }, lightningDelay);
-  setTimeout(() => {
-    setInterval(() => {
-      if (cartDisplay.children.length === 0) {
-      }
-      if (lastSelect) {
-        let suggest = null;
-        for (let k = 0; k < PRODUCT_LIST.length; k++) {
-          if (PRODUCT_LIST[k].id !== lastSelect) {
-            if (PRODUCT_LIST[k].q > 0) {
-              if (!PRODUCT_LIST[k].suggestSale) {
-                suggest = PRODUCT_LIST[k];
-                break;
-              }
-            }
-          }
-        }
-        if (suggest) {
-          alert(
-            "💝 " +
-              suggest.name +
-              "은(는) 어떠세요? 지금 구매하시면 " +
-              DISCOUNT_RATE_SUGGESTION +
-              "% 추가 할인!"
-          );
-          suggest.val = Math.round((suggest.val * (100 - DISCOUNT_RATE_SUGGESTION)) / 100);
-          suggest.suggestSale = true;
-          onUpdateSelectOptions();
-          doUpdatePricesInCart();
-        }
-      }
-    }, SUGGESTION_SALE_INTERVAL);
-  }, Math.random() * SUGGESTION_SALE_MAX_DELAY);
+
+  // 타이머 매니저 생성 및 모든 타이머 시작
+  const timerManager = createTimerManager(onUpdateSelectOptions, doUpdatePricesInCart, {
+    lastSelect,
+    cartDisplay,
+  });
+
+  timerManager.startAll();
 }
 
 function onUpdateSelectOptions() {
