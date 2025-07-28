@@ -76,7 +76,7 @@ const main = () => {
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
-        alert("⚡번개세일! " + luckyItem.name + "이(가) 20% 할인 중입니다!");
+        alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
         onUpdateSelectOptions();
         doUpdatePricesInCart();
       }
@@ -98,9 +98,7 @@ const main = () => {
         }
         if (suggest) {
           alert(
-            "💝 " +
-              suggest.name +
-              "은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!"
+            `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`
           );
           suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
           suggest.suggestSale = true;
@@ -129,40 +127,18 @@ const onUpdateSelectOptions = () => {
     if (item.onSale) discountText += " ⚡SALE";
     if (item.suggestSale) discountText += " 💝추천";
     if (item.q === 0) {
-      opt.textContent =
-        item.name + " - " + item.val + "원 (품절)" + discountText;
+      opt.textContent = `${item.name} - ${item.val}원 (품절) ${discountText}`;
       opt.disabled = true;
       opt.className = "text-gray-400";
     } else {
       if (item.onSale && item.suggestSale) {
-        opt.textContent =
-          "⚡💝" +
-          item.name +
-          " - " +
-          item.originalVal +
-          "원 → " +
-          item.val +
-          "원 (25% SUPER SALE!)";
+        opt.textContent = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)`;
         opt.className = "text-purple-600 font-bold";
       } else if (item.onSale) {
-        opt.textContent =
-          "⚡" +
-          item.name +
-          " - " +
-          item.originalVal +
-          "원 → " +
-          item.val +
-          "원 (20% SALE!)";
+        opt.textContent = `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)`;
         opt.className = "text-red-500 font-bold";
       } else if (item.suggestSale) {
-        opt.textContent =
-          "💝" +
-          item.name +
-          " - " +
-          item.originalVal +
-          "원 → " +
-          item.val +
-          "원 (5% 추천할인!)";
+        opt.textContent = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)`;
         opt.className = "text-blue-500 font-bold";
       } else {
         opt.textContent = item.name + " - " + item.val + "원" + discountText;
@@ -263,7 +239,7 @@ const handleCalculateCartStuff = () => {
     tuesdaySpecial.classList.add("hidden");
   }
   document.getElementById("item-count").textContent =
-    "🛍️ " + itemCnt + " items in cart";
+    `🛍️ ${itemCnt} items in cart`;
   let summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
@@ -334,7 +310,7 @@ const handleCalculateCartStuff = () => {
   if (loyaltyPointsDiv) {
     let points = Math.floor(totalAmt / 1000);
     if (points > 0) {
-      loyaltyPointsDiv.textContent = "적립 포인트: " + points + "p";
+      loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
       loyaltyPointsDiv.style.display = "block";
     } else {
       loyaltyPointsDiv.textContent = "적립 포인트: 0p";
@@ -360,7 +336,7 @@ const handleCalculateCartStuff = () => {
     let previousCount = parseInt(
       itemCountElement.textContent.match(/\d+/) || 0
     );
-    itemCountElement.textContent = "🛍️ " + itemCnt + " items in cart";
+    itemCountElement.textContent = `🛍️ ${itemCnt} items in cart`;
     if (previousCount !== itemCnt) {
       itemCountElement.setAttribute("data-changed", "true");
     }
@@ -370,10 +346,9 @@ const handleCalculateCartStuff = () => {
     const item = prodList[stockIdx];
     if (item.q < 5) {
       if (item.q > 0) {
-        stockMsg =
-          stockMsg + item.name + ": 재고 부족 (" + item.q + "개 남음)\n";
+        stockMsg = `${stockMsg} ${item.name}: 재고 부족 (${item.q}개 남음)\n`;
       } else {
-        stockMsg = stockMsg + item.name + ": 품절\n";
+        stockMsg = `${stockMsg} ${item.name}: 품절\n`;
       }
     }
   }
@@ -396,7 +371,7 @@ const doRenderBonusPoints = () => {
   }
   if (basePoints > 0) {
     finalPoints = basePoints;
-    pointsDetail.push("기본: " + basePoints + "p");
+    pointsDetail.push(`기본: ${basePoints}p`);
   }
   if (new Date().getDay() === 2) {
     if (basePoints > 0) {
@@ -467,9 +442,9 @@ const handleStockInfoUpdate = () => {
   prodList.forEach((item) => {
     if (item.q < 5) {
       if (item.q > 0) {
-        infoMsg = infoMsg + item.name + ": 재고 부족 (" + item.q + "개 남음)\n";
+        infoMsg = `${infoMsg} ${item.name}: 재고 부족 (${item.q}개 남음)\n`;
       } else {
-        infoMsg = infoMsg + item.name + ": 품절\n";
+        infoMsg = `${infoMsg} ${item.name}: 품절\n`;
       }
     }
   });
@@ -491,28 +466,13 @@ const doUpdatePricesInCart = () => {
       const priceDiv = cartItems[i].querySelector(".text-lg");
       const nameDiv = cartItems[i].querySelector("h3");
       if (product.onSale && product.suggestSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-purple-600">₩' +
-          product.val.toLocaleString() +
-          "</span>";
-        nameDiv.textContent = "⚡💝" + product.name;
+        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
+        nameDiv.textContent = `⚡💝${product.name}`;
       } else if (product.onSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-red-500">₩' +
-          product.val.toLocaleString() +
-          "</span>";
+        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.val.toLocaleString()}</span>`;
         nameDiv.textContent = "⚡" + product.name;
       } else if (product.suggestSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-blue-500">₩' +
-          product.val.toLocaleString() +
-          "</span>";
+        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.val.toLocaleString()}</span>`;
         nameDiv.textContent = "💝" + product.name;
       } else {
         priceDiv.textContent = "₩" + product.val.toLocaleString();
