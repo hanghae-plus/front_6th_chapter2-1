@@ -1,3 +1,32 @@
+// AppState: 애플리케이션 전체 상태를 관리하는 객체
+const AppState = {
+  // 애플리케이션 상태
+  products: [],
+  bonusPoints: 0,
+  itemCount: 0,
+  lastSelection: null,
+  totalAmount: 0,
+  
+  // DOM 요소 참조
+  elements: {
+    stockInfo: null,
+    productSelect: null,
+    addButton: null,
+    cartDisplay: null,
+    sum: null
+  },
+  
+  // 상품 ID 상수
+  PRODUCT_IDS: {
+    KEYBOARD: 'p1',
+    MOUSE: 'p2', 
+    MONITOR_ARM: 'p3',
+    LAPTOP_POUCH: 'p4',
+    SPEAKER: 'p5'
+  }
+};
+
+// 레거시 호환성을 위한 전역 변수들 (점진적 제거 예정)
 var prodList
 var bonusPts = 0
 var stockInfo
@@ -13,27 +42,29 @@ var p4 = "p4"
 var PRODUCT_5 = `p5`
 var cartDisp
 function initializeApplication() {
+  // AppState 초기화
+  AppState.totalAmount = 0;
+  AppState.itemCount = 0;
+  AppState.lastSelection = null;
+  
+  // 레거시 변수 동기화
   totalAmt = 0;
   itemCnt = 0;
   lastSel = null;
 }
 
 function initializeProductData() {
-  prodList = [
-    {id: PRODUCT_ONE, name: '버그 없애는 키보드', val: 10000, originalVal: 10000, q: 50, onSale: false, suggestSale: false},
-    {id: p2, name: '생산성 폭발 마우스', val: 20000, originalVal: 20000, q: 30, onSale: false, suggestSale: false},
-    {id: product_3, name: "거북목 탈출 모니터암", val: 30000, originalVal: 30000, q: 20, onSale: false, suggestSale: false},
-    {id: p4, name: "에러 방지 노트북 파우치", val: 15000, originalVal: 15000, q: 0, onSale: false, suggestSale: false},
-    {
-      id: PRODUCT_5,
-      name: `코딩할 때 듣는 Lo-Fi 스피커`,
-      val: 25000,
-      originalVal: 25000,
-      q: 10,
-      onSale: false,
-      suggestSale: false
-    }
-  ]
+  // AppState에 상품 데이터 설정
+  AppState.products = [
+    {id: AppState.PRODUCT_IDS.KEYBOARD, name: '버그 없애는 키보드', val: 10000, originalVal: 10000, q: 50, onSale: false, suggestSale: false},
+    {id: AppState.PRODUCT_IDS.MOUSE, name: '생산성 폭발 마우스', val: 20000, originalVal: 20000, q: 30, onSale: false, suggestSale: false},
+    {id: AppState.PRODUCT_IDS.MONITOR_ARM, name: "거북목 탈출 모니터암", val: 30000, originalVal: 30000, q: 20, onSale: false, suggestSale: false},
+    {id: AppState.PRODUCT_IDS.LAPTOP_POUCH, name: "에러 방지 노트북 파우치", val: 15000, originalVal: 15000, q: 0, onSale: false, suggestSale: false},
+    {id: AppState.PRODUCT_IDS.SPEAKER, name: `코딩할 때 듣는 Lo-Fi 스피커`, val: 25000, originalVal: 25000, q: 10, onSale: false, suggestSale: false}
+  ];
+  
+  // 레거시 변수 동기화
+  prodList = AppState.products;
 }
 
 function createDOMElements() {
@@ -55,7 +86,9 @@ function createDOMElements() {
     <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
+  // DOM 요소 생성 및 AppState에 저장
   sel = document.createElement('select');
+  AppState.elements.productSelect = sel;
   sel.id = 'product-select';
   gridContainer = document.createElement('div');
   leftColumn = document.createElement("div");
@@ -65,7 +98,9 @@ function createDOMElements() {
   sel.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
   gridContainer.className = 'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
   addBtn = document.createElement('button');
+  AppState.elements.addButton = addBtn;
   stockInfo = document.createElement('div');
+  AppState.elements.stockInfo = stockInfo;
   addBtn.id = 'add-to-cart';
   stockInfo.id = 'stock-status';
   stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
@@ -76,6 +111,7 @@ function createDOMElements() {
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
   cartDisp = document.createElement('div');
+  AppState.elements.cartDisplay = cartDisp;
   leftColumn.appendChild(cartDisp);
   cartDisp.id = 'cart-items';
   rightColumn = document.createElement('div');
@@ -110,6 +146,7 @@ function createDOMElements() {
     </p>
   `;
   sum = rightColumn.querySelector('#cart-total');
+  AppState.elements.sum = sum;
   manualToggle = document.createElement('button');
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle('hidden');
@@ -264,15 +301,17 @@ function onUpdateSelectOptions() {
   var totalStock;
   var opt;
   var discountText;
-  sel.innerHTML = '';
+  AppState.elements.productSelect.innerHTML = '';
+  sel.innerHTML = ''; // 레거시 동기화
+  
   totalStock = 0;
-  for (var idx = 0; idx < prodList.length; idx++) {
-    var _p = prodList[idx];
+  for (var idx = 0; idx < AppState.products.length; idx++) {
+    var _p = AppState.products[idx];
     totalStock = totalStock + _p.q;
   }
-  for (var i = 0; i < prodList.length; i++) {
+  for (var i = 0; i < AppState.products.length; i++) {
     (function() {
-      var item = prodList[i];
+      var item = AppState.products[i];
       opt = document.createElement("option")
       opt.value = item.id;
       discountText = '';
@@ -296,29 +335,37 @@ function onUpdateSelectOptions() {
           opt.textContent = item.name + ' - ' + item.val + '원' + discountText;
         }
       }
-      sel.appendChild(opt);
+      AppState.elements.productSelect.appendChild(opt);
+      sel.appendChild(opt); // 레거시 동기화
     })();
   }
   if (totalStock < 50) {
-    sel.style.borderColor = 'orange';
+    AppState.elements.productSelect.style.borderColor = 'orange';
+    sel.style.borderColor = 'orange'; // 레거시 동기화
   } else {
-    sel.style.borderColor = '';
+    AppState.elements.productSelect.style.borderColor = '';
+    sel.style.borderColor = ''; // 레거시 동기화
   }
 }
 function calculateCartSubtotal() {
-  var cartItems = cartDisp.children;
+  var cartItems = AppState.elements.cartDisplay.children;
   var subTotal = 0;
   var itemDiscounts = [];
   
+  // AppState 값 초기화
+  AppState.totalAmount = 0;
+  AppState.itemCount = 0;
+  
+  // 레거시 변수 동기화
   totalAmt = 0;
   itemCnt = 0;
   
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       var curItem;
-      for (var j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
+      for (var j = 0; j < AppState.products.length; j++) {
+        if (AppState.products[j].id === cartItems[i].id) {
+          curItem = AppState.products[j];
           break;
         }
       }
@@ -328,6 +375,10 @@ function calculateCartSubtotal() {
       var itemTotal = curItem.val * quantity;
       var discount = 0;
       
+      // AppState 업데이트
+      AppState.itemCount += quantity;
+      
+      // 레거시 변수 동기화
       itemCnt += quantity;
       subTotal += itemTotal;
       
@@ -340,33 +391,29 @@ function calculateCartSubtotal() {
         }
       });
       
-      // 개별 할인 계산
+      // 개별 할인 계산 (AppState.PRODUCT_IDS 사용)
       if (quantity >= 10) {
-        if (curItem.id === PRODUCT_ONE) {
+        if (curItem.id === AppState.PRODUCT_IDS.KEYBOARD) {
           discount = 10 / 100;
-        } else {
-          if (curItem.id === p2) {
-            discount = 15 / 100;
-          } else {
-            if (curItem.id === product_3) {
-              discount = 20 / 100;
-            } else {
-              if (curItem.id === p4) {
-                discount = 5 / 100;
-              } else {
-                if (curItem.id === PRODUCT_5) {
-                  discount = 25 / 100;
-                }
-              }
-            }
-          }
+        } else if (curItem.id === AppState.PRODUCT_IDS.MOUSE) {
+          discount = 15 / 100;
+        } else if (curItem.id === AppState.PRODUCT_IDS.MONITOR_ARM) {
+          discount = 20 / 100;
+        } else if (curItem.id === AppState.PRODUCT_IDS.LAPTOP_POUCH) {
+          discount = 5 / 100;
+        } else if (curItem.id === AppState.PRODUCT_IDS.SPEAKER) {
+          discount = 25 / 100;
         }
         if (discount > 0) {
           itemDiscounts.push({name: curItem.name, discount: discount * 100});
         }
       }
       
-      totalAmt += itemTotal * (1 - discount);
+      var finalItemTotal = itemTotal * (1 - discount);
+      AppState.totalAmount += finalItemTotal;
+      
+      // 레거시 변수 동기화
+      totalAmt += finalItemTotal;
     })();
   }
   
@@ -381,11 +428,12 @@ function calculateFinalDiscount(subTotal) {
   var originalTotal = subTotal;
   
   // 대량구매 할인 (30개 이상)
-  if (itemCnt >= 30) {
-    totalAmt = subTotal * 75 / 100;
+  if (AppState.itemCount >= 30) {
+    AppState.totalAmount = subTotal * 75 / 100;
+    totalAmt = AppState.totalAmount; // 레거시 동기화
     discountRate = 25 / 100;
   } else {
-    discountRate = (subTotal - totalAmt) / subTotal;
+    discountRate = (subTotal - AppState.totalAmount) / subTotal;
   }
   
   // 화요일 할인
@@ -394,9 +442,10 @@ function calculateFinalDiscount(subTotal) {
   var tuesdaySpecial = document.getElementById('tuesday-special');
   
   if (isTuesday) {
-    if (totalAmt > 0) {
-      totalAmt = totalAmt * 90 / 100;
-      discountRate = 1 - (totalAmt / originalTotal);
+    if (AppState.totalAmount > 0) {
+      AppState.totalAmount = AppState.totalAmount * 90 / 100;
+      totalAmt = AppState.totalAmount; // 레거시 동기화
+      discountRate = 1 - (AppState.totalAmount / originalTotal);
       tuesdaySpecial.classList.remove('hidden');
     } else {
       tuesdaySpecial.classList.add('hidden');
@@ -413,10 +462,10 @@ function calculateFinalDiscount(subTotal) {
 }
 
 function updateCartUI(subTotal, itemDiscounts, discountInfo) {
-  var cartItems = cartDisp.children;
+  var cartItems = AppState.elements.cartDisplay.children;
   
-  // 아이템 개수 업데이트
-  document.getElementById('item-count').textContent = '🛍️ ' + itemCnt + ' items in cart';
+  // 아이템 개수 업데이트 (AppState 사용)
+  document.getElementById('item-count').textContent = '🛍️ ' + AppState.itemCount + ' items in cart';
   
   // 요약 정보 업데이트
   var summaryDetails = document.getElementById('summary-details');
@@ -426,9 +475,9 @@ function updateCartUI(subTotal, itemDiscounts, discountInfo) {
     // 개별 아이템 표시
     for (let i = 0; i < cartItems.length; i++) {
       var curItem;
-      for (var j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
+      for (var j = 0; j < AppState.products.length; j++) {
+        if (AppState.products[j].id === cartItems[i].id) {
+          curItem = AppState.products[j];
           break;
         }
       }
@@ -453,7 +502,7 @@ function updateCartUI(subTotal, itemDiscounts, discountInfo) {
     `;
     
     // 할인 정보 표시
-    if (itemCnt >= 30) {
+    if (AppState.itemCount >= 30) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
@@ -492,16 +541,16 @@ function updateCartUI(subTotal, itemDiscounts, discountInfo) {
     `;
   }
   
-  // 총액 업데이트
-  var totalDiv = sum.querySelector('.text-2xl');
+  // 총액 업데이트 (AppState 사용)
+  var totalDiv = AppState.elements.sum.querySelector('.text-2xl');
   if (totalDiv) {
-    totalDiv.textContent = '₩' + Math.round(totalAmt).toLocaleString();
+    totalDiv.textContent = '₩' + Math.round(AppState.totalAmount).toLocaleString();
   }
   
-  // 기본 포인트 표시 업데이트
+  // 기본 포인트 표시 업데이트 (AppState 사용)
   var loyaltyPointsDiv = document.getElementById('loyalty-points');
   if (loyaltyPointsDiv) {
-    var points = Math.floor(totalAmt / 1000);
+    var points = Math.floor(AppState.totalAmount / 1000);
     if (points > 0) {
       loyaltyPointsDiv.textContent = '적립 포인트: ' + points + 'p';
       loyaltyPointsDiv.style.display = 'block';
@@ -515,8 +564,8 @@ function updateCartUI(subTotal, itemDiscounts, discountInfo) {
   var discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
   
-  if (discountInfo.discountRate > 0 && totalAmt > 0) {
-    var savedAmount = discountInfo.originalTotal - totalAmt;
+  if (discountInfo.discountRate > 0 && AppState.totalAmount > 0) {
+    var savedAmount = discountInfo.originalTotal - AppState.totalAmount;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -528,12 +577,12 @@ function updateCartUI(subTotal, itemDiscounts, discountInfo) {
     `;
   }
   
-  // 아이템 카운트 변경 표시
+  // 아이템 카운트 변경 표시 (AppState 사용)
   var itemCountElement = document.getElementById('item-count');
   if (itemCountElement) {
     var previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
-    itemCountElement.textContent = '🛍️ ' + itemCnt + ' items in cart';
-    if (previousCount !== itemCnt) {
+    itemCountElement.textContent = '🛍️ ' + AppState.itemCount + ' items in cart';
+    if (previousCount !== AppState.itemCount) {
       itemCountElement.setAttribute('data-changed', 'true');
     }
   }
@@ -542,8 +591,8 @@ function updateCartUI(subTotal, itemDiscounts, discountInfo) {
 function updateStockStatus() {
   var stockMsg = '';
   
-  for (var stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
-    var item = prodList[stockIdx];
+  for (var stockIdx = 0; stockIdx < AppState.products.length; stockIdx++) {
+    var item = AppState.products[stockIdx];
     if (item.q < 5) {
       if (item.q > 0) {
         stockMsg = stockMsg + item.name + ': 재고 부족 (' + item.q + '개 남음)\n';
@@ -553,6 +602,9 @@ function updateStockStatus() {
     }
   }
   
+  AppState.elements.stockInfo.textContent = stockMsg;
+  
+  // 레거시 변수 동기화
   stockInfo.textContent = stockMsg;
 }
 
