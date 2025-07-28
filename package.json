@@ -13,10 +13,10 @@
     "test:basic": "vitest basic.test.js",
     "test:advanced": "vitest advanced.test.js",
     "test:ui": "vitest --ui",
-    "lint": "eslint src/ --ext .js",
-    "lint:fix": "eslint src/ --ext .js --fix",
-    "format": "prettier --write src/",
-    "format:check": "prettier --check src/"
+    "lint": "eslint src/basic/ --ext .js",
+    "lint:fix": "eslint src/basic/ --ext .js --fix",
+    "format": "prettier --write src/basic/",
+    "format:check": "prettier --check src/basic/"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",

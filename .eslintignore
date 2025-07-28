@@ -1,0 +1,9 @@
+# ESLint가 무시할 파일들
+src/advanced/
+src/main.original.js
+src/setupTests.js
+src/basic/__tests__/
+src/basic/main.basic.bak.js
+
+# 작업 디렉토리만 ESLint 적용 (새 파일 추가 가능)
+!src/basic/ 
