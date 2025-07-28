@@ -31,6 +31,7 @@ let productSelector;
 let addBtn;
 let totalAmt = 0;
 let cartDisp;
+let sum;
 
 function main() {
   let root;
@@ -136,7 +137,7 @@ function main() {
     }, 60000);
   }, Math.random() * 20000);
 }
-let sum;
+
 function onUpdateSelectOptions() {
   let totalStock;
   let opt;
@@ -204,6 +205,7 @@ function onUpdateSelectOptions() {
     productSelector.style.borderColor = "";
   }
 }
+
 function handleCalculateCartStuff() {
   let cartItems;
   let subTot;
@@ -430,6 +432,7 @@ function handleCalculateCartStuff() {
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
+
 const doRenderBonusPoints = function () {
   let basePoints;
   let finalPoints;
@@ -546,6 +549,7 @@ const handleStockInfoUpdate = function () {
   });
   stockInfo.textContent = infoMsg;
 };
+
 function doUpdatePricesInCart() {
   // let totalCount = 0,
   // j = 0;
@@ -606,6 +610,7 @@ function doUpdatePricesInCart() {
   }
   handleCalculateCartStuff();
 }
+
 main();
 addBtn.addEventListener("click", function () {
   const selItem = productSelector.value;
