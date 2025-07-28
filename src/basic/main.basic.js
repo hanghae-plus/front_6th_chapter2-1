@@ -22,11 +22,7 @@ import {
   createLeftColumn,
   createRightColumn,
 } from '../components/Layout.js';
-import {
-  createCartDisplay,
-  createCartItemElement,
-  setupCartEventListeners,
-} from '../components/CartDisplay.js';
+import { createCartDisplay } from '../components/CartDisplay/index.js';
 import { formatPrice } from '../utils/format.js';
 import { createPriceDisplay } from '../components/PriceDisplay.js';
 import { createProductOptions } from '../components/ProductOptions.js';
@@ -521,15 +517,14 @@ addBtn.addEventListener('click', function () {
         alert('재고가 부족합니다.');
       }
     } else {
-      const newItem = createCartItemElement(itemToAdd);
-      cartDisp.appendChild(newItem);
+      cartDisp.addItem(itemToAdd);
       itemToAdd.q--;
     }
     handleCalculateCartStuff();
     lastSel = selItem;
   }
 });
-setupCartEventListeners(cartDisp, {
+cartDisp.setupEventListeners({
   findProductById,
   getQuantityFromElement,
   handleCalculateCartStuff,
