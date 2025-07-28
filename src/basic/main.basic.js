@@ -1,6 +1,7 @@
 import { renderProductSelector } from "./features/shopping-cart/utils/productSelector.js";
 import { renderCartItem } from "./features/shopping-cart/utils/cartDisplay.js";
 import { renderOrderSummary } from "./features/shopping-cart/utils/orderSummary.js";
+import { Header } from "./features/shopping-cart/components/Header.js";
 
 const PRODUCTS = {
   KEYBOARD: "p1",
@@ -227,16 +228,7 @@ function initializeProductData() {
   });
 }
 
-function createHeader() {
-  const header = document.createElement("div");
-  header.className = "mb-8";
-  header.innerHTML = `
-    <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
-    <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-    <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
-  `;
-  return header;
-}
+// TODO: createHeader function moved to HeaderComponent
 
 function createLeftColumn() {
   const leftColumn = document.createElement("div");
@@ -334,7 +326,7 @@ function main() {
   let lightningDelay;
 
   const root = document.getElementById("app");
-  const header = createHeader();
+  const header = Header({ itemCount: totalItemCount });
   const leftColumn = createLeftColumn();
   const rightColumn = createRightColumn();
 
