@@ -1,7 +1,6 @@
 import { PRODUCT_LIST } from "./data/product.data";
 
 // 상태 변수
-let bonusPoints = 0;
 let itemCounts;
 let lastSelect;
 let totalAmount = 0;
@@ -105,7 +104,6 @@ function main() {
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
-  sum = rightColumn.querySelector("#cart-total");
   manualToggle = document.createElement("button");
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle("hidden");
@@ -244,23 +242,23 @@ function main() {
   }, Math.random() * 20000);
 }
 
-let sum;
 function onUpdateSelectOptions() {
-  let totalStock;
-  let opt;
-  let discountText;
   select.innerHTML = "";
-  totalStock = 0;
+
+  // 총 재고 계산
+  let totalStock = 0;
   for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
     const _p = PRODUCT_LIST[idx];
     totalStock = totalStock + _p.q;
   }
+
+  // 옵션 생성
   for (let i = 0; i < PRODUCT_LIST.length; i++) {
     (function () {
       const item = PRODUCT_LIST[i];
-      opt = document.createElement("option");
+      const opt = document.createElement("option");
       opt.value = item.id;
-      discountText = "";
+      let discountText = "";
       if (item.onSale) {
         discountText += " ⚡SALE";
       }
@@ -303,37 +301,18 @@ function onUpdateSelectOptions() {
     select.style.borderColor = "";
   }
 }
+
 function handleCalculateCartStuff() {
-  let cartItems;
-  let subTot;
-  let itemDiscounts;
-  let lowStockItems;
-  let idx;
-  let originalTotal;
-  let bulkDisc;
-  let itemDisc;
-  let savedAmount;
-  let summaryDetails;
-  let totalDiv;
-  let loyaltyPointsDiv;
-  let points;
-  let discountInfoDiv;
-  let itemCountElement;
-  let previousCount;
-  let stockMsg;
-  let pts;
-  let hasP1;
-  let hasPRODUCT_2;
-  let loyaltyDiv;
+  // 초기화
   totalAmount = 0;
   itemCounts = 0;
-  originalTotal = totalAmount;
-  cartItems = cartDisplay.children;
-  subTot = 0;
-  bulkDisc = subTot;
-  itemDiscounts = [];
-  lowStockItems = [];
-  for (idx = 0; idx < PRODUCT_LIST.length; idx++) {
+  let originalTotal = totalAmount;
+  const cartItems = cartDisplay.children;
+  let subTot = 0;
+  const itemDiscounts = [];
+  const lowStockItems = [];
+
+  for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
     if (PRODUCT_LIST[idx].q < 5 && PRODUCT_LIST[idx].q > 0) {
       lowStockItems.push(PRODUCT_LIST[idx].name);
     }
@@ -412,8 +391,10 @@ function handleCalculateCartStuff() {
   } else {
     tuesdaySpecial.classList.add("hidden");
   }
+
+  // DOM 업데이트
   document.getElementById("item-count").textContent = "🛍️ " + itemCounts + " items in cart";
-  summaryDetails = document.getElementById("summary-details");
+  const summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
@@ -475,13 +456,17 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
-  totalDiv = sum.querySelector(".text-2xl");
+
+  // 총액 및 포인트 표시
+  const cartTotalElement = document.getElementById("cart-total");
+  const totalDiv = cartTotalElement.querySelector(".text-2xl");
   if (totalDiv) {
     totalDiv.textContent = "₩" + Math.round(totalAmount).toLocaleString();
   }
-  loyaltyPointsDiv = document.getElementById("loyalty-points");
+
+  const loyaltyPointsDiv = document.getElementById("loyalty-points");
   if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmount / 1000);
+    const points = Math.floor(totalAmount / 1000);
     if (points > 0) {
       loyaltyPointsDiv.textContent = "적립 포인트: " + points + "p";
       loyaltyPointsDiv.style.display = "block";
@@ -490,10 +475,12 @@ function handleCalculateCartStuff() {
       loyaltyPointsDiv.style.display = "block";
     }
   }
-  discountInfoDiv = document.getElementById("discount-info");
+
+  // 할인 정보 표시
+  const discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
   if (discRate > 0 && totalAmount > 0) {
-    savedAmount = originalTotal - totalAmount;
+    const savedAmount = originalTotal - totalAmount;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -504,15 +491,19 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
-  itemCountElement = document.getElementById("item-count");
+
+  // 아이템 카운트 업데이트
+  const itemCountElement = document.getElementById("item-count");
   if (itemCountElement) {
-    previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
     itemCountElement.textContent = "🛍️ " + itemCounts + " items in cart";
     if (previousCount !== itemCounts) {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
-  stockMsg = "";
+
+  // 재고 메시지 생성
+  let stockMsg = "";
   for (let stockIdx = 0; stockIdx < PRODUCT_LIST.length; stockIdx++) {
     const item = PRODUCT_LIST[stockIdx];
     if (item.q < 5) {
@@ -527,6 +518,7 @@ function handleCalculateCartStuff() {
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
+
 const doRenderBonusPoints = function () {
   let basePoints;
   let finalPoints;
@@ -597,13 +589,12 @@ const doRenderBonusPoints = function () {
       }
     }
   }
-  bonusPoints = finalPoints;
   const ptsTag = document.getElementById("loyalty-points");
   if (ptsTag) {
-    if (bonusPoints > 0) {
+    if (finalPoints > 0) {
       ptsTag.innerHTML =
         '<div>적립 포인트: <span class="font-bold">' +
-        bonusPoints +
+        finalPoints +
         "p</span></div>" +
         '<div class="text-2xs opacity-70 mt-1">' +
         pointsDetail.join(", ") +
@@ -615,6 +606,7 @@ const doRenderBonusPoints = function () {
     }
   }
 };
+
 function onGetStockTotal() {
   let sum;
   let i;
@@ -626,6 +618,7 @@ function onGetStockTotal() {
   }
   return sum;
 }
+
 const handleStockInfoUpdate = function () {
   let infoMsg;
   let totalStock;
@@ -645,6 +638,7 @@ const handleStockInfoUpdate = function () {
   });
   stockInfo.textContent = infoMsg;
 };
+
 function doUpdatePricesInCart() {
   let totalCount = 0,
     j = 0;
@@ -703,7 +697,9 @@ function doUpdatePricesInCart() {
   }
   handleCalculateCartStuff();
 }
+
 main();
+
 addButton.addEventListener("click", () => {
   const selItem = select.value;
   let hasItem = false;
@@ -765,6 +761,7 @@ addButton.addEventListener("click", () => {
     lastSelect = selItem;
   }
 });
+
 cartDisplay.addEventListener("click", event => {
   const tgt = event.target;
   if (tgt.classList.contains("quantity-change") || tgt.classList.contains("remove-item")) {
