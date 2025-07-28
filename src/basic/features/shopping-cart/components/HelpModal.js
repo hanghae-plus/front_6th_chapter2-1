@@ -5,7 +5,7 @@
 const HelpModal = () => {
   const toggleButton = document.createElement("button");
   toggleButton.className =
-    "fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
+    "help-toggle fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
   toggleButton.innerHTML = `
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -14,13 +14,13 @@ const HelpModal = () => {
 
   const overlay = document.createElement("div");
   overlay.className =
-    "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
+    "help-overlay fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
 
   const modalPanel = document.createElement("div");
   modalPanel.className =
     "fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300";
   modalPanel.innerHTML = `
-    <button class="absolute top-4 right-4 text-gray-500 hover:text-black" onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')">
+    <button class="help-close absolute top-4 right-4 text-gray-500 hover:text-black">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
@@ -80,26 +80,21 @@ const HelpModal = () => {
     </div>
   `;
 
-  const handleToggle = () => {
-    overlay.classList.toggle("hidden");
-    modalPanel.classList.toggle("translate-x-full");
-  };
-
-  const handleOverlayClick = (e) => {
-    if (e.target === overlay) {
-      overlay.classList.add("hidden");
-      modalPanel.classList.add("translate-x-full");
-    }
-  };
-
-  toggleButton.addEventListener("click", handleToggle);
-  overlay.addEventListener("click", handleOverlayClick);
   overlay.appendChild(modalPanel);
 
   return {
     toggleButton,
     overlay,
     modalPanel,
+
+    handleToggle: () => {
+      overlay.classList.toggle("hidden");
+      modalPanel.classList.toggle("translate-x-full");
+    },
+    handleClose: () => {
+      overlay.classList.add("hidden");
+      modalPanel.classList.add("translate-x-full");
+    },
   };
 };
 

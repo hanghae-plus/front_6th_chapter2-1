@@ -3,6 +3,11 @@ import { renderCartItem } from "./features/shopping-cart/utils/cartDisplay.js";
 import { renderOrderSummary } from "./features/shopping-cart/utils/orderSummary.js";
 import { Header } from "./features/shopping-cart/components/Header.js";
 import { HelpModal } from "./features/shopping-cart/components/HelpModal.js";
+import {
+  handleCartClick,
+  handleAddToCartClick,
+  handleHelpModalClick,
+} from "./features/shopping-cart/events/clickDelegates.js";
 
 const PRODUCTS = {
   KEYBOARD: "p1",
@@ -344,6 +349,29 @@ function main() {
   }
   onUpdateSelectOptions();
   handleCalculateCartStuff();
+
+  addToCartButton.addEventListener("click", (event) => {
+    handleAddToCartClick(event, {
+      onAddToCart: handleAddToCart,
+    });
+  });
+
+  cartDisplayElement.addEventListener("click", (event) => {
+    handleCartClick(event, {
+      cartUtils,
+      productUtils,
+      onCalculate: handleCalculateCartStuff,
+      onUpdateOptions: onUpdateSelectOptions,
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    handleHelpModalClick(event, {
+      onToggle: helpModal.handleToggle,
+      onClose: helpModal.handleClose,
+    });
+  });
+
   lightningDelay = Math.random() * BUSINESS_CONSTANTS.TIMERS.RANDOM_DELAY;
   setTimeout(() => {
     setInterval(function () {
@@ -781,31 +809,3 @@ const handleAddToCart = () => {
     lastSelectedProductId = selectedProductId;
   }
 };
-
-addToCartButton.addEventListener("click", handleAddToCart);
-const handleCartDisplayClick = (event) => {
-  const target = event.target;
-
-  if (
-    target.classList.contains("quantity-change") ||
-    target.classList.contains("remove-item")
-  ) {
-    const productId = target.dataset.productId;
-    const itemElement = document.getElementById(productId);
-
-    const product = productUtils.findById(productId);
-    if (!product) return;
-
-    if (target.classList.contains("quantity-change")) {
-      const quantityChange = parseInt(target.dataset.change);
-      cartUtils.changeItemQuantity(product, itemElement, quantityChange);
-    } else if (target.classList.contains("remove-item")) {
-      cartUtils.removeItem(product, itemElement);
-    }
-
-    handleCalculateCartStuff();
-    onUpdateSelectOptions();
-  }
-};
-
-cartDisplayElement.addEventListener("click", handleCartDisplayClick);
