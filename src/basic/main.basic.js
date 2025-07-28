@@ -20,7 +20,7 @@ const PRODUCT_4 = "p4";
 const PRODUCT_5 = "p5";
 
 function main() {
-  var root;
+  let root;
   let header;
   let gridContainer;
   let leftColumn;
@@ -35,7 +35,7 @@ function main() {
   itemCounts = 0;
   lastSelect = null;
 
-  var root = document.getElementById("app");
+  root = document.getElementById("app");
 
   header = document.createElement("div");
   header.className = "mb-8";
@@ -255,7 +255,7 @@ function onUpdateSelectOptions() {
     const _p = PRODUCT_LIST[idx];
     totalStock = totalStock + _p.q;
   }
-  for (var i = 0; i < PRODUCT_LIST.length; i++) {
+  for (let i = 0; i < PRODUCT_LIST.length; i++) {
     (function () {
       const item = PRODUCT_LIST[i];
       opt = document.createElement("option");
@@ -309,7 +309,7 @@ function handleCalculateCartStuff() {
   let itemDiscounts;
   let lowStockItems;
   let idx;
-  var originalTotal;
+  let originalTotal;
   let bulkDisc;
   let itemDisc;
   let savedAmount;
@@ -391,7 +391,7 @@ function handleCalculateCartStuff() {
     })();
   }
   let discRate = 0;
-  var originalTotal = subTot;
+  originalTotal = subTot;
   if (itemCounts >= 30) {
     totalAmount = (subTot * 75) / 100;
     discRate = 25 / 100;
@@ -417,7 +417,7 @@ function handleCalculateCartStuff() {
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
-      var curItem;
+      let curItem;
       for (let j = 0; j < PRODUCT_LIST.length; j++) {
         if (PRODUCT_LIST[j].id === cartItems[i].id) {
           curItem = PRODUCT_LIST[j];
@@ -527,7 +527,7 @@ function handleCalculateCartStuff() {
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
-var doRenderBonusPoints = function () {
+const doRenderBonusPoints = function () {
   let basePoints;
   let finalPoints;
   let pointsDetail;
@@ -626,7 +626,7 @@ function onGetStockTotal() {
   }
   return sum;
 }
-var handleStockInfoUpdate = function () {
+const handleStockInfoUpdate = function () {
   let infoMsg;
   let totalStock;
   let messageOptimizer;
@@ -779,7 +779,7 @@ cartDisplay.addEventListener("click", event => {
     }
     if (tgt.classList.contains("quantity-change")) {
       const qtyChange = parseInt(tgt.dataset.change);
-      var qtyElem = itemElem.querySelector(".quantity-number");
+      const qtyElem = itemElem.querySelector(".quantity-number");
       const currentQty = parseInt(qtyElem.textContent);
       const newQty = currentQty + qtyChange;
       if (newQty > 0 && newQty <= prod.q + currentQty) {
@@ -792,7 +792,7 @@ cartDisplay.addEventListener("click", event => {
         alert("재고가 부족합니다.");
       }
     } else if (tgt.classList.contains("remove-item")) {
-      var qtyElem = itemElem.querySelector(".quantity-number");
+      const qtyElem = itemElem.querySelector(".quantity-number");
       const remQty = parseInt(qtyElem.textContent);
       prod.q += remQty;
       itemElem.remove();
