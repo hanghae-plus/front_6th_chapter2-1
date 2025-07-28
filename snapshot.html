@@ -1,0 +1,950 @@
+<html lang="en">
+  <head>
+    <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hanghae Shopping Cart</title>
+    <!-- Note: Tailwind CDN is for development only. For production, use PostCSS or Tailwind CLI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "Helvetica Neue",
+                "Arial",
+                "sans-serif",
+              ],
+            },
+            letterSpacing: {
+              "extra-wide": "0.3em",
+              "super-wide": "0.25em",
+            },
+            fontSize: { "2xs": "0.625rem" },
+            maxHeight: { 800: "800px" },
+            backgroundImage: { "gradient-black": "linear-gradient(135deg, #000 0%, #333 100%)" },
+          },
+        },
+      };
+    </script>
+    <style>
+      *,
+      ::before,
+      ::after {
+        --tw-border-spacing-x: 0;
+        --tw-border-spacing-y: 0;
+        --tw-translate-x: 0;
+        --tw-translate-y: 0;
+        --tw-rotate: 0;
+        --tw-skew-x: 0;
+        --tw-skew-y: 0;
+        --tw-scale-x: 1;
+        --tw-scale-y: 1;
+        --tw-pan-x: ;
+        --tw-pan-y: ;
+        --tw-pinch-zoom: ;
+        --tw-scroll-snap-strictness: proximity;
+        --tw-gradient-from-position: ;
+        --tw-gradient-via-position: ;
+        --tw-gradient-to-position: ;
+        --tw-ordinal: ;
+        --tw-slashed-zero: ;
+        --tw-numeric-figure: ;
+        --tw-numeric-spacing: ;
+        --tw-numeric-fraction: ;
+        --tw-ring-inset: ;
+        --tw-ring-offset-width: 0px;
+        --tw-ring-offset-color: #fff;
+        --tw-ring-color: rgb(59 130 246 / 0.5);
+        --tw-ring-offset-shadow: 0 0 #0000;
+        --tw-ring-shadow: 0 0 #0000;
+        --tw-shadow: 0 0 #0000;
+        --tw-shadow-colored: 0 0 #0000;
+        --tw-blur: ;
+        --tw-brightness: ;
+        --tw-contrast: ;
+        --tw-grayscale: ;
+        --tw-hue-rotate: ;
+        --tw-invert: ;
+        --tw-saturate: ;
+        --tw-sepia: ;
+        --tw-drop-shadow: ;
+        --tw-backdrop-blur: ;
+        --tw-backdrop-brightness: ;
+        --tw-backdrop-contrast: ;
+        --tw-backdrop-grayscale: ;
+        --tw-backdrop-hue-rotate: ;
+        --tw-backdrop-invert: ;
+        --tw-backdrop-opacity: ;
+        --tw-backdrop-saturate: ;
+        --tw-backdrop-sepia: ;
+        --tw-contain-size: ;
+        --tw-contain-layout: ;
+        --tw-contain-paint: ;
+        --tw-contain-style: ;
+      }
+      ::backdrop {
+        --tw-border-spacing-x: 0;
+        --tw-border-spacing-y: 0;
+        --tw-translate-x: 0;
+        --tw-translate-y: 0;
+        --tw-rotate: 0;
+        --tw-skew-x: 0;
+        --tw-skew-y: 0;
+        --tw-scale-x: 1;
+        --tw-scale-y: 1;
+        --tw-pan-x: ;
+        --tw-pan-y: ;
+        --tw-pinch-zoom: ;
+        --tw-scroll-snap-strictness: proximity;
+        --tw-gradient-from-position: ;
+        --tw-gradient-via-position: ;
+        --tw-gradient-to-position: ;
+        --tw-ordinal: ;
+        --tw-slashed-zero: ;
+        --tw-numeric-figure: ;
+        --tw-numeric-spacing: ;
+        --tw-numeric-fraction: ;
+        --tw-ring-inset: ;
+        --tw-ring-offset-width: 0px;
+        --tw-ring-offset-color: #fff;
+        --tw-ring-color: rgb(59 130 246 / 0.5);
+        --tw-ring-offset-shadow: 0 0 #0000;
+        --tw-ring-shadow: 0 0 #0000;
+        --tw-shadow: 0 0 #0000;
+        --tw-shadow-colored: 0 0 #0000;
+        --tw-blur: ;
+        --tw-brightness: ;
+        --tw-contrast: ;
+        --tw-grayscale: ;
+        --tw-hue-rotate: ;
+        --tw-invert: ;
+        --tw-saturate: ;
+        --tw-sepia: ;
+        --tw-drop-shadow: ;
+        --tw-backdrop-blur: ;
+        --tw-backdrop-brightness: ;
+        --tw-backdrop-contrast: ;
+        --tw-backdrop-grayscale: ;
+        --tw-backdrop-hue-rotate: ;
+        --tw-backdrop-invert: ;
+        --tw-backdrop-opacity: ;
+        --tw-backdrop-saturate: ;
+        --tw-backdrop-sepia: ;
+        --tw-contain-size: ;
+        --tw-contain-layout: ;
+        --tw-contain-paint: ;
+        --tw-contain-style: ;
+      } /* ! tailwindcss v3.4.16 | MIT License | https://tailwindcss.com */
+      *,
+      ::after,
+      ::before {
+        box-sizing: border-box;
+        border-width: 0;
+        border-style: solid;
+        border-color: #e5e7eb;
+      }
+      ::after,
+      ::before {
+        --tw-content: "";
+      }
+      :host,
+      html {
+        line-height: 1.5;
+        -webkit-text-size-adjust: 100%;
+        -moz-tab-size: 4;
+        tab-size: 4;
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          Helvetica Neue,
+          Arial,
+          sans-serif;
+        font-feature-settings: normal;
+        font-variation-settings: normal;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        margin: 0;
+        line-height: inherit;
+      }
+      hr {
+        height: 0;
+        color: inherit;
+        border-top-width: 1px;
+      }
+      abbr:where([title]) {
+        -webkit-text-decoration: underline dotted;
+        text-decoration: underline dotted;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-size: inherit;
+        font-weight: inherit;
+      }
+      a {
+        color: inherit;
+        text-decoration: inherit;
+      }
+      b,
+      strong {
+        font-weight: bolder;
+      }
+      code,
+      kbd,
+      pre,
+      samp {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+          monospace;
+        font-feature-settings: normal;
+        font-variation-settings: normal;
+        font-size: 1em;
+      }
+      small {
+        font-size: 80%;
+      }
+      sub,
+      sup {
+        font-size: 75%;
+        line-height: 0;
+        position: relative;
+        vertical-align: baseline;
+      }
+      sub {
+        bottom: -0.25em;
+      }
+      sup {
+        top: -0.5em;
+      }
+      table {
+        text-indent: 0;
+        border-color: inherit;
+        border-collapse: collapse;
+      }
+      button,
+      input,
+      optgroup,
+      select,
+      textarea {
+        font-family: inherit;
+        font-feature-settings: inherit;
+        font-variation-settings: inherit;
+        font-size: 100%;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        margin: 0;
+        padding: 0;
+      }
+      button,
+      select {
+        text-transform: none;
+      }
+      button,
+      input:where([type="button"]),
+      input:where([type="reset"]),
+      input:where([type="submit"]) {
+        -webkit-appearance: button;
+        background-color: transparent;
+        background-image: none;
+      }
+      :-moz-focusring {
+        outline: auto;
+      }
+      :-moz-ui-invalid {
+        box-shadow: none;
+      }
+      progress {
+        vertical-align: baseline;
+      }
+      ::-webkit-inner-spin-button,
+      ::-webkit-outer-spin-button {
+        height: auto;
+      }
+      [type="search"] {
+        -webkit-appearance: textfield;
+        outline-offset: -2px;
+      }
+      ::-webkit-search-decoration {
+        -webkit-appearance: none;
+      }
+      ::-webkit-file-upload-button {
+        -webkit-appearance: button;
+        font: inherit;
+      }
+      summary {
+        display: list-item;
+      }
+      blockquote,
+      dd,
+      dl,
+      figure,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      hr,
+      p,
+      pre {
+        margin: 0;
+      }
+      fieldset {
+        margin: 0;
+        padding: 0;
+      }
+      legend {
+        padding: 0;
+      }
+      menu,
+      ol,
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      dialog {
+        padding: 0;
+      }
+      textarea {
+        resize: vertical;
+      }
+      input::placeholder,
+      textarea::placeholder {
+        opacity: 1;
+        color: #9ca3af;
+      }
+      [role="button"],
+      button {
+        cursor: pointer;
+      }
+      :disabled {
+        cursor: default;
+      }
+      audio,
+      canvas,
+      embed,
+      iframe,
+      img,
+      object,
+      svg,
+      video {
+        display: block;
+        vertical-align: middle;
+      }
+      img,
+      video {
+        max-width: 100%;
+        height: auto;
+      }
+      [hidden]:where(:not([hidden="until-found"])) {
+        display: none;
+      }
+      .fixed {
+        position: fixed;
+      }
+      .absolute {
+        position: absolute;
+      }
+      .inset-0 {
+        inset: 0px;
+      }
+      .right-0 {
+        right: 0px;
+      }
+      .right-4 {
+        right: 1rem;
+      }
+      .top-0 {
+        top: 0px;
+      }
+      .top-4 {
+        top: 1rem;
+      }
+      .z-40 {
+        z-index: 40;
+      }
+      .z-50 {
+        z-index: 50;
+      }
+      .mx-auto {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .mb-1 {
+        margin-bottom: 0.25rem;
+      }
+      .mb-2 {
+        margin-bottom: 0.5rem;
+      }
+      .mb-3 {
+        margin-bottom: 0.75rem;
+      }
+      .mb-4 {
+        margin-bottom: 1rem;
+      }
+      .mb-5 {
+        margin-bottom: 1.25rem;
+      }
+      .mb-6 {
+        margin-bottom: 1.5rem;
+      }
+      .mb-8 {
+        margin-bottom: 2rem;
+      }
+      .mt-2 {
+        margin-top: 0.5rem;
+      }
+      .mt-3 {
+        margin-top: 0.75rem;
+      }
+      .mt-4 {
+        margin-top: 1rem;
+      }
+      .mt-6 {
+        margin-top: 1.5rem;
+      }
+      .mt-auto {
+        margin-top: auto;
+      }
+      .flex {
+        display: flex;
+      }
+      .grid {
+        display: grid;
+      }
+      .hidden {
+        display: none;
+      }
+      .h-screen {
+        height: 100vh;
+      }
+      .h-5 {
+        height: 1.25rem;
+      }
+      .h-6 {
+        height: 1.5rem;
+      }
+      .h-full {
+        height: 100%;
+      }
+      .max-h-800 {
+        max-height: 800px;
+      }
+      .w-5 {
+        width: 1.25rem;
+      }
+      .w-6 {
+        width: 1.5rem;
+      }
+      .w-80 {
+        width: 20rem;
+      }
+      .w-full {
+        width: 100%;
+      }
+      .max-w-screen-xl {
+        max-width: 1280px;
+      }
+      .flex-1 {
+        flex: 1 1 0%;
+      }
+      .translate-x-full {
+        --tw-translate-x: 100%;
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
+          skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+          scaleY(var(--tw-scale-y));
+      }
+      .transform {
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
+          skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+          scaleY(var(--tw-scale-y));
+      }
+      .cursor-pointer {
+        cursor: pointer;
+      }
+      .grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .items-baseline {
+        align-items: baseline;
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .gap-2 {
+        gap: 0.5rem;
+      }
+      .gap-6 {
+        gap: 1.5rem;
+      }
+      .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
+      }
+      .overflow-hidden {
+        overflow: hidden;
+      }
+      .overflow-y-auto {
+        overflow-y: auto;
+      }
+      .whitespace-pre-line {
+        white-space: pre-line;
+      }
+      .rounded-full {
+        border-radius: 9999px;
+      }
+      .rounded-lg {
+        border-radius: 0.5rem;
+      }
+      .border {
+        border-width: 1px;
+      }
+      .border-b {
+        border-bottom-width: 1px;
+      }
+      .border-t {
+        border-top-width: 1px;
+      }
+      .border-gray-200 {
+        --tw-border-opacity: 1;
+        border-color: rgb(229 231 235 / var(--tw-border-opacity, 1));
+      }
+      .border-gray-300 {
+        --tw-border-opacity: 1;
+        border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
+      }
+      .border-white\/10 {
+        border-color: rgb(255 255 255 / 0.1);
+      }
+      .bg-gray-50 {
+        --tw-bg-opacity: 1;
+        background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1));
+      }
+      .bg-black {
+        --tw-bg-opacity: 1;
+        background-color: rgb(0 0 0 / var(--tw-bg-opacity, 1));
+      }
+      .bg-black\/50 {
+        background-color: rgb(0 0 0 / 0.5);
+      }
+      .bg-gray-100 {
+        --tw-bg-opacity: 1;
+        background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
+      }
+      .bg-white {
+        --tw-bg-opacity: 1;
+        background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+      }
+      .bg-white\/10 {
+        background-color: rgb(255 255 255 / 0.1);
+      }
+      .p-8 {
+        padding: 2rem;
+      }
+      .p-3 {
+        padding: 0.75rem;
+      }
+      .p-6 {
+        padding: 1.5rem;
+      }
+      .py-3 {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+      }
+      .py-4 {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+      .pb-6 {
+        padding-bottom: 1.5rem;
+      }
+      .pl-2 {
+        padding-left: 0.5rem;
+      }
+      .pt-4 {
+        padding-top: 1rem;
+      }
+      .pt-5 {
+        padding-top: 1.25rem;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .text-right {
+        text-align: right;
+      }
+      .text-sm {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+      }
+      .text-2xl {
+        font-size: 1.5rem;
+        line-height: 2rem;
+      }
+      .text-2xs {
+        font-size: 0.625rem;
+      }
+      .text-5xl {
+        font-size: 3rem;
+        line-height: 1;
+      }
+      .text-base {
+        font-size: 1rem;
+        line-height: 1.5rem;
+      }
+      .text-xl {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+      }
+      .text-xs {
+        font-size: 0.75rem;
+        line-height: 1rem;
+      }
+      .font-bold {
+        font-weight: 700;
+      }
+      .font-medium {
+        font-weight: 500;
+      }
+      .font-normal {
+        font-weight: 400;
+      }
+      .font-semibold {
+        font-weight: 600;
+      }
+      .uppercase {
+        text-transform: uppercase;
+      }
+      .leading-none {
+        line-height: 1;
+      }
+      .leading-relaxed {
+        line-height: 1.625;
+      }
+      .tracking-extra-wide {
+        letter-spacing: 0.3em;
+      }
+      .tracking-super-wide {
+        letter-spacing: 0.25em;
+      }
+      .tracking-tight {
+        letter-spacing: -0.025em;
+      }
+      .tracking-wide {
+        letter-spacing: 0.025em;
+      }
+      .tracking-wider {
+        letter-spacing: 0.05em;
+      }
+      .text-black {
+        --tw-text-opacity: 1;
+        color: rgb(0 0 0 / var(--tw-text-opacity, 1));
+      }
+      .text-blue-400 {
+        --tw-text-opacity: 1;
+        color: rgb(96 165 250 / var(--tw-text-opacity, 1));
+      }
+      .text-gray-400 {
+        --tw-text-opacity: 1;
+        color: rgb(156 163 175 / var(--tw-text-opacity, 1));
+      }
+      .text-gray-500 {
+        --tw-text-opacity: 1;
+        color: rgb(107 114 128 / var(--tw-text-opacity, 1));
+      }
+      .text-gray-600 {
+        --tw-text-opacity: 1;
+        color: rgb(75 85 99 / var(--tw-text-opacity, 1));
+      }
+      .text-gray-700 {
+        --tw-text-opacity: 1;
+        color: rgb(55 65 81 / var(--tw-text-opacity, 1));
+      }
+      .text-red-500 {
+        --tw-text-opacity: 1;
+        color: rgb(239 68 68 / var(--tw-text-opacity, 1));
+      }
+      .text-white {
+        --tw-text-opacity: 1;
+        color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+      }
+      .text-white\/60 {
+        color: rgb(255 255 255 / 0.6);
+      }
+      .antialiased {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      .shadow-2xl {
+        --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+          var(--tw-shadow);
+      }
+      .transition-all {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      .transition-colors {
+        transition-property:
+          color,
+          background-color,
+          border-color,
+          fill,
+          stroke,
+          -webkit-text-decoration-color;
+        transition-property:
+          color, background-color, border-color, text-decoration-color, fill, stroke;
+        transition-property:
+          color,
+          background-color,
+          border-color,
+          text-decoration-color,
+          fill,
+          stroke,
+          -webkit-text-decoration-color;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      .transition-opacity {
+        transition-property: opacity;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      .transition-transform {
+        transition-property: transform;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      .duration-300 {
+        transition-duration: 300ms;
+      }
+      .hover\:-translate-y-0\.5:hover {
+        --tw-translate-y: -0.125rem;
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
+          skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+          scaleY(var(--tw-scale-y));
+      }
+      .hover\:bg-gray-800:hover {
+        --tw-bg-opacity: 1;
+        background-color: rgb(31 41 55 / var(--tw-bg-opacity, 1));
+      }
+      .hover\:bg-gray-900:hover {
+        --tw-bg-opacity: 1;
+        background-color: rgb(17 24 39 / var(--tw-bg-opacity, 1));
+      }
+      .hover\:text-black:hover {
+        --tw-text-opacity: 1;
+        color: rgb(0 0 0 / var(--tw-text-opacity, 1));
+      }
+      .hover\:shadow-lg:hover {
+        --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --tw-shadow-colored:
+          0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+          var(--tw-shadow);
+      }
+      .hover\:shadow-black\/30:hover {
+        --tw-shadow-color: rgb(0 0 0 / 0.3);
+        --tw-shadow: var(--tw-shadow-colored);
+      }
+      @media (min-width: 1024px) {
+        .lg\:grid-cols-\[1fr_360px\] {
+          grid-template-columns: 1fr 360px;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-50 text-black antialiased overflow-hidden h-screen text-sm"
+    cz-shortcut-listen="true"
+  >
+    <div id="app" class="max-w-screen-xl h-screen max-h-800 mx-auto p-8 flex flex-col">
+      <!-- Content will be dynamically generated here -->
+      <div class="mb-8">
+        <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">
+          🛒 Hanghae Online Store
+        </h1>
+        <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
+        <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
+        <div class="bg-white border border-gray-200 p-8 overflow-y-auto">
+          <div class="mb-6 pb-6 border-b border-gray-200">
+            <select
+              id="product-select"
+              class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
+            >
+              <option value="p1">버그 없애는 키보드 - 10000원</option>
+              <option value="p2">생산성 폭발 마우스 - 20000원</option>
+              <option value="p3">거북목 탈출 모니터암 - 30000원</option>
+              <option value="p4" disabled="" class="text-gray-400">
+                에러 방지 노트북 파우치 - 15000원 (품절)
+              </option>
+              <option value="p5">코딩할 때 듣는 Lo-Fi 스피커 - 25000원</option></select
+            ><button
+              id="add-to-cart"
+              class="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all"
+            >
+              Add to Cart
+            </button>
+            <div id="stock-status" class="text-xs text-red-500 mt-3 whitespace-pre-line">
+              에러 방지 노트북 파우치: 품절
+            </div>
+          </div>
+          <div id="cart-items"></div>
+        </div>
+        <div class="bg-black text-white p-8 flex flex-col">
+          <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
+          <div class="flex-1 flex flex-col">
+            <div id="summary-details" class="space-y-3"></div>
+            <div class="mt-auto">
+              <div id="discount-info" class="mb-4"></div>
+              <div id="cart-total" class="pt-5 border-t border-white/10">
+                <div class="flex justify-between items-baseline">
+                  <span class="text-sm uppercase tracking-wider">Total</span>
+                  <div class="text-2xl tracking-tight">₩0</div>
+                </div>
+                <div
+                  id="loyalty-points"
+                  class="text-xs text-blue-400 mt-2 text-right"
+                  style="display: none"
+                >
+                  적립 포인트: 0p
+                </div>
+              </div>
+              <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
+                <div class="flex items-center gap-2">
+                  <span class="text-2xs">🎉</span>
+                  <span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button
+            class="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30"
+          >
+            Proceed to Checkout
+          </button>
+          <p class="mt-4 text-2xs text-white/60 text-center leading-relaxed">
+            Free shipping on all orders.<br />
+            <span id="points-notice">Earn loyalty points with purchase.</span>
+          </p>
+        </div>
+      </div>
+      <button
+        class="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
+        </svg>
+      </button>
+      <div class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300">
+        <div
+          class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300"
+        >
+          <button
+            class="absolute top-4 right-4 text-gray-500 hover:text-black"
+            onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+          <h2 class="text-xl font-bold mb-4">📖 이용 안내</h2>
+
+          <div class="mb-6">
+            <h3 class="text-base font-bold mb-3">💰 할인 정책</h3>
+            <div class="space-y-3">
+              <div class="bg-gray-100 rounded-lg p-3">
+                <p class="font-semibold text-sm mb-1">개별 상품</p>
+                <p class="text-gray-700 text-xs pl-2">
+                  • 키보드 10개↑: 10%<br />
+                  • 마우스 10개↑: 15%<br />
+                  • 모니터암 10개↑: 20%<br />
+                  • 스피커 10개↑: 25%
+                </p>
+              </div>
+
+              <div class="bg-gray-100 rounded-lg p-3">
+                <p class="font-semibold text-sm mb-1">전체 수량</p>
+                <p class="text-gray-700 text-xs pl-2">• 30개 이상: 25%</p>
+              </div>
+
+              <div class="bg-gray-100 rounded-lg p-3">
+                <p class="font-semibold text-sm mb-1">특별 할인</p>
+                <p class="text-gray-700 text-xs pl-2">
+                  • 화요일: +10%<br />
+                  • ⚡번개세일: 20%<br />
+                  • 💝추천할인: 5%
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-base font-bold mb-3">🎁 포인트 적립</h3>
+            <div class="space-y-3">
+              <div class="bg-gray-100 rounded-lg p-3">
+                <p class="font-semibold text-sm mb-1">기본</p>
+                <p class="text-gray-700 text-xs pl-2">• 구매액의 0.1%</p>
+              </div>
+
+              <div class="bg-gray-100 rounded-lg p-3">
+                <p class="font-semibold text-sm mb-1">추가</p>
+                <p class="text-gray-700 text-xs pl-2">
+                  • 화요일: 2배<br />
+                  • 키보드+마우스: +50p<br />
+                  • 풀세트: +100p<br />
+                  • 10개↑: +20p / 20개↑: +50p / 30개↑: +100p
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-4 mt-4">
+            <p class="text-xs font-bold mb-1">💡 TIP</p>
+            <p class="text-2xs text-gray-600 leading-relaxed">
+              • 화요일 대량구매 = MAX 혜택<br />
+              • ⚡+💝 중복 가능<br />
+              • 상품4 = 품절
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.original.js"></script>
+  </body>
+</html>
