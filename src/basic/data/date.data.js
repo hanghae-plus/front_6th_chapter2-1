@@ -1,0 +1,3 @@
+const TUESDAY_DAY_OF_WEEK = 2;
+
+export { TUESDAY_DAY_OF_WEEK };

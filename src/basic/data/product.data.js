@@ -1,4 +1,10 @@
-export const PRODUCT_LIST = [
+const PRODUCT_1 = "p1";
+const PRODUCT_2 = "p2";
+const PRODUCT_3 = "p3";
+const PRODUCT_4 = "p4";
+const PRODUCT_5 = "p5";
+
+const PRODUCT_LIST = [
   {
     id: "p1",
     name: "버그 없애는 키보드",
@@ -45,3 +51,5 @@ export const PRODUCT_LIST = [
     suggestSale: false,
   },
 ];
+
+export { PRODUCT_1, PRODUCT_2, PRODUCT_3, PRODUCT_4, PRODUCT_5, PRODUCT_LIST };
