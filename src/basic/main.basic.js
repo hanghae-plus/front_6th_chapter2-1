@@ -90,33 +90,33 @@ var totalAmt = 0;
 var lastSel = null;
 
 function main() {
-  // 전체 페이지
+  // 전체 페이지 -----
   const root = document.getElementById('app');
 
-  // 헤더
+  // 헤더 -----
   const header = createHeader(); // 장바구니 총 상품 개수 넘겨주기
 
-  // 할인 정보 토글
-  const manualToggle = createManualToggle(); // 토글 이벤트 함수 넘겨주기
-  const manualOverlay = createManualOverlay(); // 클릭 이벤트 함수 넘겨주기
+  // 할인 정보 토글 -----
+  const manualToggle = createManualToggle({
+    onClick: () => {
+      manualOverlay.classList.toggle('hidden');
+      manualColumn.classList.toggle('translate-x-full');
+    },
+  });
+
+  const manualOverlay = createManualOverlay({
+    onClick: (e) => {
+      if (e.target === manualOverlay) {
+        manualOverlay.classList.add('hidden');
+        manualColumn.classList.add('translate-x-full');
+      }
+    },
+  });
+
   const manualColumn = createManualColumn();
-
-  manualToggle.onclick = () => {
-    manualOverlay.classList.toggle('hidden');
-    manualColumn.classList.toggle('translate-x-full');
-  };
-
-  // 오버레이 배경 눌러도 토글 적용
-  manualOverlay.onclick = (e) => {
-    if (e.target === manualOverlay) {
-      manualOverlay.classList.add('hidden');
-      manualColumn.classList.add('translate-x-full');
-    }
-  };
-
   manualOverlay.appendChild(manualColumn);
 
-  // grid = left + right
+  // grid = left + right -----
   const gridContainer = createGridContainer();
   const leftColumn = createLeftColumn();
 
@@ -240,38 +240,9 @@ function onUpdateSelectOptions() {
 
   for (let i = 0; i < productList.length; i++) {
     var item = productList[i];
-    let discountText = '';
 
     // 셀렉터에 넣을 옵션 생성
-    let opt = createProductOption(); // 각 옵션 아이템 넘겨주기
-    // 옵션의 value = 상품의 id
-    opt.value = item.id;
-
-    if (item.onSale) discountText += ' ⚡SALE';
-    if (item.suggestSale) discountText += ' 💝추천';
-    // 품절 상품
-    if (item.q === 0) {
-      opt.textContent = item.name + ' - ' + item.val + '원 (품절)' + discountText;
-      opt.disabled = true;
-      opt.className = 'text-gray-400';
-    } else {
-      if (item.onSale && item.suggestSale) {
-        // 세일 추천 상품
-        opt.textContent = '⚡💝' + item.name + ' - ' + item.originalVal + '원 → ' + item.val + '원 (25% SUPER SALE!)';
-        opt.className = 'text-purple-600 font-bold';
-      } else if (item.onSale) {
-        // 세일 상품
-        opt.textContent = '⚡' + item.name + ' - ' + item.originalVal + '원 → ' + item.val + '원 (20% SALE!)';
-        opt.className = 'text-red-500 font-bold';
-      } else if (item.suggestSale) {
-        // 추천 상품
-        opt.textContent = '💝' + item.name + ' - ' + item.originalVal + '원 → ' + item.val + '원 (5% 추천할인!)';
-        opt.className = 'text-blue-500 font-bold';
-      } else {
-        // 일반 상품
-        opt.textContent = item.name + ' - ' + item.val + '원' + discountText;
-      }
-    }
+    let opt = createProductOption({ item });
     sel.appendChild(opt);
   }
 
@@ -772,82 +743,7 @@ addBtn.addEventListener('click', function () {
       }
     } else {
       // 장바구니에 없던 상품을 추가 (div 요소 생성)
-      const newItem = createCartProduct(); // 인자로 itemToAdd 넘겨주기
-      // 상품의 id를 부여
-      newItem.id = itemToAdd.id;
-      newItem.innerHTML = /* HTML */ `
-        <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-          <div
-            class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"
-          ></div>
-        </div>
-        <div>
-          <h3 class="text-base font-normal mb-1 tracking-tight">
-            ${itemToAdd.onSale && itemToAdd.suggestSale
-              ? '⚡💝'
-              : itemToAdd.onSale
-                ? '⚡'
-                : itemToAdd.suggestSale
-                  ? '💝'
-                  : ''}${itemToAdd.name}
-          </h3>
-          <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-          <p class="text-xs text-black mb-3">
-            ${itemToAdd.onSale || itemToAdd.suggestSale
-              ? '<span class="line-through text-gray-400">₩' +
-                itemToAdd.originalVal.toLocaleString() +
-                '</span> <span class="' +
-                (itemToAdd.onSale && itemToAdd.suggestSale
-                  ? 'text-purple-600'
-                  : itemToAdd.onSale
-                    ? 'text-red-500'
-                    : 'text-blue-500') +
-                '">₩' +
-                itemToAdd.val.toLocaleString() +
-                '</span>'
-              : '₩' + itemToAdd.val.toLocaleString()}
-          </p>
-          <div class="flex items-center gap-4">
-            <button
-              class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-              data-product-id="${itemToAdd.id}"
-              data-change="-1"
-            >
-              −
-            </button>
-            <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-            <button
-              class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-              data-product-id="${itemToAdd.id}"
-              data-change="1"
-            >
-              +
-            </button>
-          </div>
-        </div>
-        <div class="text-right">
-          <div class="text-lg mb-2 tracking-tight tabular-nums">
-            ${itemToAdd.onSale || itemToAdd.suggestSale
-              ? '<span class="line-through text-gray-400">₩' +
-                itemToAdd.originalVal.toLocaleString() +
-                '</span> <span class="' +
-                (itemToAdd.onSale && itemToAdd.suggestSale
-                  ? 'text-purple-600'
-                  : itemToAdd.onSale
-                    ? 'text-red-500'
-                    : 'text-blue-500') +
-                '">₩' +
-                itemToAdd.val.toLocaleString() +
-                '</span>'
-              : '₩' + itemToAdd.val.toLocaleString()}
-          </div>
-          <a
-            class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
-            data-product-id="${itemToAdd.id}"
-            >Remove</a
-          >
-        </div>
-      `;
+      const newItem = createCartProduct({ itemToAdd }); // 인자로 itemToAdd 넘겨주기
       // 장바구니 내 상품 목록에 상품 추가
       cartDisp.appendChild(newItem);
       // 상품의 재고를 1 줄임
