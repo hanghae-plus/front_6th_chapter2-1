@@ -49,7 +49,6 @@ export default [
     },
     rules: {
       // Prettier 통합 규칙
-      'prettier/prettier': 'error',
       'comma-dangle': [
         'error',
         {
@@ -71,6 +70,7 @@ export default [
 
       // 팀 컨벤션 - var 사용 금지
       'no-var': 'error',
+      '@typescript-eslint/no-unused-vars': 'error',
 
       // 팀 컨벤션 - 동등 연산자 (==, !=) 금지
       eqeqeq: ['error', 'always', { null: 'ignore' }],
@@ -81,7 +81,6 @@ export default [
 
       // 팀 컨벤션 - 템플릿 리터럴 규칙
       'prefer-template': 'error',
-      'no-useless-template-literals': 'error',
 
       // 팀 컨벤션 - 상수는 대문자
       camelcase: [
