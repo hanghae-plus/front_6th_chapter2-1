@@ -15,7 +15,12 @@
   "license": "ISC",
   "packageManager": "pnpm@10.13.1",
   "dependencies": {
+    "@clean-code/eslint": "workspace:*",
+    "@clean-code/prettier": "workspace:*",
     "vite": "catalog:vite",
-    "vitest": "catalog:test"
+    "vitest": "catalog:test",
+    "jsdom": "catalog:test",
+    "@testing-library/jest-dom": "catalog:test",
+    "@testing-library/user-event": "catalog:test"
   }
 }
