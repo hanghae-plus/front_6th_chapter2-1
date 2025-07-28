@@ -4,6 +4,7 @@ import { createProductSelector, updateProductOptions, getSelectedProduct, update
 import { createCartItem, updateCartItemQuantity, updateCartItemPrice, updateCartItemPriceStyle } from "./components/CartItem.js";
 import { createOrderSummary, updateOrderSummary } from "./components/OrderSummary.js";
 import { PRODUCT_LIST } from "./data/product.js";
+import { cartService } from "./services/cartService.js";
 
 let stockInfo;
 let itemCnt;
@@ -84,6 +85,14 @@ function createAndAddCartItem(targetProduct, cartDisplay) {
 
 // 장바구니 수량 변경
 function handleQuantityChange(productId, quantityChange, targetProduct) {
+  // 3단계: cartService의 수량 변경 로직 사용
+  const success = cartService.updateCartItemQuantity(productId, quantityChange, PRODUCT_LIST);
+
+  if (!success) {
+    alert("재고가 부족합니다.");
+    return;
+  }
+
   const cartItemElement = document.getElementById(productId);
   if (!cartItemElement) return;
 
@@ -91,14 +100,11 @@ function handleQuantityChange(productId, quantityChange, targetProduct) {
   const currentQuantity = parseInt(quantityElement.textContent);
   const newQuantity = currentQuantity + quantityChange;
 
-  if (newQuantity > 0 && newQuantity <= targetProduct.quantity + currentQuantity) {
-    updateCartItemQuantity(cartItemElement, newQuantity);
-    targetProduct.quantity -= quantityChange;
-  } else if (newQuantity <= 0) {
-    targetProduct.quantity += currentQuantity;
+  if (newQuantity <= 0) {
     cartItemElement.remove();
   } else {
-    alert("재고가 부족합니다.");
+    updateCartItemQuantity(cartItemElement, newQuantity);
+    updateCartItemPriceStyle(cartItemElement, newQuantity);
   }
 
   handleCalculateCartStuff();
@@ -107,13 +113,15 @@ function handleQuantityChange(productId, quantityChange, targetProduct) {
 
 // 장바구니 아이템 제거
 function handleRemoveItem(productId, targetProduct) {
-  const cartItemElement = document.getElementById(productId);
-  if (!cartItemElement) return;
+  // 4단계: cartService의 아이템 제거 로직 사용
+  const success = cartService.removeProductFromCart(productId, PRODUCT_LIST);
 
-  const quantityElement = cartItemElement.querySelector(".quantity-number");
-  const removedQuantity = parseInt(quantityElement.textContent);
-  targetProduct.quantity += removedQuantity;
-  cartItemElement.remove();
+  if (success) {
+    const cartItemElement = document.getElementById(productId);
+    if (cartItemElement) {
+      cartItemElement.remove();
+    }
+  }
 
   handleCalculateCartStuff();
   onUpdateSelectOptions();
@@ -122,16 +130,38 @@ function handleRemoveItem(productId, targetProduct) {
 // 상품을 장바구니에 추가
 function handleAddToCart(productList, cartDisplay) {
   const selectedProductId = getSelectedProduct(selectorContainer);
-  const targetProduct = validateSelectedItem(selectedProductId, productList);
+
+  // 1단계: cartService의 검증 로직만 사용
+  const targetProduct = cartService.validateSelectedProduct(selectedProductId, productList);
 
   if (!targetProduct) return;
 
   const existingCartItem = document.getElementById(targetProduct.id);
 
   if (existingCartItem) {
-    if (!incrementCartItemQuantity(existingCartItem, targetProduct)) return;
+    // 2단계: cartService의 수량 증가 로직 사용
+    const success = cartService.updateCartItemQuantity(targetProduct.id, 1, productList);
+    if (success) {
+      const quantityElement = existingCartItem.querySelector(".quantity-number");
+      const currentQuantity = parseInt(quantityElement.textContent);
+      const newQuantity = currentQuantity + 1;
+      quantityElement.textContent = newQuantity;
+      updateCartItemPriceStyle(existingCartItem, newQuantity);
+    } else {
+      alert("재고가 부족합니다.");
+      return;
+    }
   } else {
-    createAndAddCartItem(targetProduct, cartDisplay);
+    // 2단계: cartService의 새 아이템 추가 로직 사용
+    const success = cartService.addProductToCart(targetProduct, 1);
+    if (success) {
+      const newCartItem = createCartItem({
+        product: targetProduct,
+        onQuantityChange: (productId, change) => handleQuantityChange(productId, change, targetProduct),
+        onRemove: productId => handleRemoveItem(productId, targetProduct),
+      });
+      cartDisplay.appendChild(newCartItem);
+    }
   }
 
   handleCalculateCartStuff();
