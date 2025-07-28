@@ -783,6 +783,7 @@
   >
     <div id="app" class="max-w-screen-xl h-screen max-h-800 mx-auto p-8 flex flex-col">
       <!-- Content will be dynamically generated here -->
+      <!-- 헤더 -->
       <div class="mb-8">
         <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">
           🛒 Hanghae Online Store
@@ -790,9 +791,14 @@
         <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
         <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
       </div>
+
+      <!-- 메인 레이아웃 -->
       <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
+        <!-- 왼쪽 컬럼 -->
         <div class="bg-white border border-gray-200 p-8 overflow-y-auto">
+          <!-- 상품 선택 컨테이너 -->
           <div class="mb-6 pb-6 border-b border-gray-200">
+            <!-- 상품 선택 -->
             <select
               id="product-select"
               class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
@@ -816,8 +822,13 @@
           </div>
           <div id="cart-items"></div>
         </div>
+
+        <!-- 오른쪽 컬럼 -->
         <div class="bg-black text-white p-8 flex flex-col">
+          <!-- 주문 요약 -->
           <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
+
+          <!-- 주문 요약 내용 -->
           <div class="flex-1 flex flex-col">
             <div id="summary-details" class="space-y-3"></div>
             <div class="mt-auto">
@@ -854,6 +865,8 @@
           </p>
         </div>
       </div>
+
+      <!-- 매뉴얼 토글 -->
       <button
         class="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50"
       >
@@ -866,6 +879,8 @@
           ></path>
         </svg>
       </button>
+
+      <!-- 매뉴얼 오버레이 -->
       <div class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300">
         <div
           class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300"
