@@ -12,20 +12,13 @@ var product_3 = 'p3'
 var p4 = "p4"
 var PRODUCT_5 = `p5`
 var cartDisp
-function main() {
-  var root;
-  var header;
-  var gridContainer;
-  var leftColumn;
-  var selectorContainer;
-  var rightColumn;
-  var manualToggle;
-  var manualOverlay;
-  var manualColumn;
-  var lightningDelay;
+function initializeApplication() {
   totalAmt = 0;
   itemCnt = 0;
   lastSel = null;
+}
+
+function initializeProductData() {
   prodList = [
     {id: PRODUCT_ONE, name: '버그 없애는 키보드', val: 10000, originalVal: 10000, q: 50, onSale: false, suggestSale: false},
     {id: p2, name: '생산성 폭발 마우스', val: 20000, originalVal: 20000, q: 30, onSale: false, suggestSale: false},
@@ -41,6 +34,19 @@ function main() {
       suggestSale: false
     }
   ]
+}
+
+function createDOMElements() {
+  var root;
+  var header;
+  var gridContainer;
+  var leftColumn;
+  var selectorContainer;
+  var rightColumn;
+  var manualToggle;
+  var manualOverlay;
+  var manualColumn;
+
   var root = document.getElementById('app')
   header = document.createElement('div');
   header.className = 'mb-8'
@@ -192,13 +198,10 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
-  var initStock = 0;
-  for (var i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
-  }
-  onUpdateSelectOptions();
-  handleCalculateCartStuff();
-  lightningDelay = Math.random() * 10000;
+}
+
+function setupPromotionTimers() {
+  var lightningDelay = Math.random() * 10000;
   setTimeout(() => {
     setInterval(function () {
       var luckyIdx = Math.floor(Math.random() * prodList.length);
@@ -238,6 +241,23 @@ function main() {
       }
     }, 60000);
   }, Math.random() * 20000);
+}
+
+function initializeUI() {
+  var initStock = 0;
+  for (var i = 0; i < prodList.length; i++) {
+    initStock += prodList[i].q;
+  }
+  onUpdateSelectOptions();
+  handleCalculateCartStuff();
+}
+
+function main() {
+  initializeApplication();
+  initializeProductData();
+  createDOMElements();
+  setupPromotionTimers();
+  initializeUI();
 };
 var sum
 function onUpdateSelectOptions() {
