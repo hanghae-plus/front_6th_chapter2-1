@@ -305,41 +305,14 @@ function onUpdateSelectOptions() {
     sel.style.borderColor = '';
   }
 }
-function handleCalculateCartStuff() {
-  var cartItems;
-  var subTot;
-  var itemDiscounts;
-  var lowStockItems;
-  var idx;
-  var originalTotal;
-  var bulkDisc;
-  var itemDisc;
-  var savedAmount;
-  var summaryDetails;
-  var totalDiv;
-  var loyaltyPointsDiv;
-  var points;
-  var discountInfoDiv;
-  var itemCountElement;
-  var previousCount;
-  var stockMsg;
-  var pts;
-  var hasP1;
-  var hasP2;
-  var loyaltyDiv;
+function calculateCartSubtotal() {
+  var cartItems = cartDisp.children;
+  var subTotal = 0;
+  var itemDiscounts = [];
+  
   totalAmt = 0;
   itemCnt = 0;
-  originalTotal = totalAmt
-  cartItems = cartDisp.children;
-  subTot = 0;
-  bulkDisc = subTot;
-  itemDiscounts = [];
-  lowStockItems = [];
-  for (idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].q < 5 && prodList[idx].q > 0) {
-      lowStockItems.push(prodList[idx].name);
-    }
-  }
+  
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       var curItem;
@@ -349,64 +322,81 @@ function handleCalculateCartStuff() {
           break;
         }
       }
+      
       var qtyElem = cartItems[i].querySelector('.quantity-number');
-      var q;
-      var itemTot;
-      var disc;
-      q = parseInt(qtyElem.textContent);
-      itemTot = curItem.val * q;
-      disc = 0;
-      itemCnt += q;
-      subTot += itemTot;
+      var quantity = parseInt(qtyElem.textContent);
+      var itemTotal = curItem.val * quantity;
+      var discount = 0;
+      
+      itemCnt += quantity;
+      subTotal += itemTotal;
+      
+      // DOM 스타일 업데이트
       var itemDiv = cartItems[i];
       var priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
       priceElems.forEach(function (elem) {
         if (elem.classList.contains('text-lg')) {
-          elem.style.fontWeight = q >= 10 ? 'bold' : 'normal';
+          elem.style.fontWeight = quantity >= 10 ? 'bold' : 'normal';
         }
       });
-      if (q >= 10) {
+      
+      // 개별 할인 계산
+      if (quantity >= 10) {
         if (curItem.id === PRODUCT_ONE) {
-          disc = 10 / 100;
+          discount = 10 / 100;
         } else {
           if (curItem.id === p2) {
-            disc = 15 / 100;
+            discount = 15 / 100;
           } else {
             if (curItem.id === product_3) {
-              disc = 20 / 100;
+              discount = 20 / 100;
             } else {
               if (curItem.id === p4) {
-                disc = 5 / 100;
+                discount = 5 / 100;
               } else {
                 if (curItem.id === PRODUCT_5) {
-                  disc = 25 / 100;
+                  discount = 25 / 100;
                 }
               }
             }
           }
         }
-        if (disc > 0) {
-          itemDiscounts.push({name: curItem.name, discount: disc * 100});
+        if (discount > 0) {
+          itemDiscounts.push({name: curItem.name, discount: discount * 100});
         }
       }
-      totalAmt += itemTot * (1 - disc);
+      
+      totalAmt += itemTotal * (1 - discount);
     })();
   }
-  let discRate = 0;
-  var originalTotal = subTot;
+  
+  return {
+    subTotal: subTotal,
+    itemDiscounts: itemDiscounts
+  };
+}
+
+function calculateFinalDiscount(subTotal) {
+  var discountRate = 0;
+  var originalTotal = subTotal;
+  
+  // 대량구매 할인 (30개 이상)
   if (itemCnt >= 30) {
-    totalAmt = subTot * 75 / 100;
-    discRate = 25 / 100;
+    totalAmt = subTotal * 75 / 100;
+    discountRate = 25 / 100;
   } else {
-    discRate = (subTot - totalAmt) / subTot;
+    discountRate = (subTotal - totalAmt) / subTotal;
   }
+  
+  // 화요일 할인
   const today = new Date();
   var isTuesday = today.getDay() === 2;
   var tuesdaySpecial = document.getElementById('tuesday-special');
+  
   if (isTuesday) {
     if (totalAmt > 0) {
       totalAmt = totalAmt * 90 / 100;
-      discRate = 1 - (totalAmt / originalTotal);
+      discountRate = 1 - (totalAmt / originalTotal);
       tuesdaySpecial.classList.remove('hidden');
     } else {
       tuesdaySpecial.classList.add('hidden');
@@ -414,10 +404,26 @@ function handleCalculateCartStuff() {
   } else {
     tuesdaySpecial.classList.add('hidden');
   }
+  
+  return {
+    discountRate: discountRate,
+    originalTotal: originalTotal,
+    isTuesday: isTuesday
+  };
+}
+
+function updateCartUI(subTotal, itemDiscounts, discountInfo) {
+  var cartItems = cartDisp.children;
+  
+  // 아이템 개수 업데이트
   document.getElementById('item-count').textContent = '🛍️ ' + itemCnt + ' items in cart';
-  summaryDetails = document.getElementById('summary-details');
+  
+  // 요약 정보 업데이트
+  var summaryDetails = document.getElementById('summary-details');
   summaryDetails.innerHTML = '';
-  if (subTot > 0) {
+  
+  if (subTotal > 0) {
+    // 개별 아이템 표시
     for (let i = 0; i < cartItems.length; i++) {
       var curItem;
       for (var j = 0; j < prodList.length; j++) {
@@ -436,13 +442,17 @@ function handleCalculateCartStuff() {
         </div>
       `;
     }
+    
+    // 소계 표시
     summaryDetails.innerHTML += `
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
         <span>Subtotal</span>
-        <span>₩${subTot.toLocaleString()}</span>
+        <span>₩${subTotal.toLocaleString()}</span>
       </div>
     `;
+    
+    // 할인 정보 표시
     if (itemCnt >= 30) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
@@ -460,7 +470,9 @@ function handleCalculateCartStuff() {
         `;
       });
     }
-    if (isTuesday) {
+    
+    // 화요일 할인 표시
+    if (discountInfo.isTuesday) {
       if (totalAmt > 0) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-purple-400">
@@ -470,6 +482,8 @@ function handleCalculateCartStuff() {
         `;
       }
     }
+    
+    // 배송 정보 표시
     summaryDetails.innerHTML += `
       <div class="flex justify-between text-sm tracking-wide text-gray-400">
         <span>Shipping</span>
@@ -477,13 +491,17 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
-  totalDiv = sum.querySelector('.text-2xl');
+  
+  // 총액 업데이트
+  var totalDiv = sum.querySelector('.text-2xl');
   if (totalDiv) {
     totalDiv.textContent = '₩' + Math.round(totalAmt).toLocaleString();
   }
-  loyaltyPointsDiv = document.getElementById('loyalty-points');
+  
+  // 기본 포인트 표시 업데이트
+  var loyaltyPointsDiv = document.getElementById('loyalty-points');
   if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmt / 1000);
+    var points = Math.floor(totalAmt / 1000);
     if (points > 0) {
       loyaltyPointsDiv.textContent = '적립 포인트: ' + points + 'p';
       loyaltyPointsDiv.style.display = 'block';
@@ -492,29 +510,38 @@ function handleCalculateCartStuff() {
       loyaltyPointsDiv.style.display = 'block';
     }
   }
-  discountInfoDiv = document.getElementById('discount-info');
+  
+  // 할인 정보 표시
+  var discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
-  if (discRate > 0 && totalAmt > 0) {
-    savedAmount = originalTotal - totalAmt;
+  
+  if (discountInfo.discountRate > 0 && totalAmt > 0) {
+    var savedAmount = discountInfo.originalTotal - totalAmt;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
           <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(discRate * 100).toFixed(1)}%</span>
+          <span class="text-sm font-medium text-green-400">${(discountInfo.discountRate * 100).toFixed(1)}%</span>
         </div>
         <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
       </div>
     `;
   }
-  itemCountElement = document.getElementById('item-count');
+  
+  // 아이템 카운트 변경 표시
+  var itemCountElement = document.getElementById('item-count');
   if (itemCountElement) {
-    previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    var previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
     itemCountElement.textContent = '🛍️ ' + itemCnt + ' items in cart';
     if (previousCount !== itemCnt) {
       itemCountElement.setAttribute('data-changed', 'true');
     }
   }
-  stockMsg = '';
+}
+
+function updateStockStatus() {
+  var stockMsg = '';
+  
   for (var stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
     var item = prodList[stockIdx];
     if (item.q < 5) {
@@ -525,7 +552,24 @@ function handleCalculateCartStuff() {
       }
     }
   }
+  
   stockInfo.textContent = stockMsg;
+}
+
+function handleCalculateCartStuff() {
+  // 1. 장바구니 소계 및 개별 할인 계산
+  var subtotalResult = calculateCartSubtotal();
+  
+  // 2. 전체 할인 계산 (대량구매, 화요일)
+  var discountResult = calculateFinalDiscount(subtotalResult.subTotal);
+  
+  // 3. UI 업데이트
+  updateCartUI(subtotalResult.subTotal, subtotalResult.itemDiscounts, discountResult);
+  
+  // 4. 재고 상태 업데이트
+  updateStockStatus();
+  
+  // 5. 기존 함수들 호출
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
