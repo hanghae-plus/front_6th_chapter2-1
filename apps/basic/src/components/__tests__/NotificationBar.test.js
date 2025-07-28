@@ -51,7 +51,7 @@ describe('NotificationBar 컴포넌트', () => {
       const positionTests = [
         { position: 'top-left', expected: 'top-4 left-4' },
         { position: 'bottom-center', expected: 'bottom-4 left-1/2' },
-        { position: 'top-center', expected: 'top-4 left-1/2' },
+        { position: 'top-center', expected: 'top-4 left-1/2' }
       ];
 
       positionTests.forEach(({ position, expected }) => {
@@ -101,17 +101,24 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationIds = [];
 
       for (let i = 0; i < maxNotifications; i++) {
-        notificationIds.push(NotificationBar.createNotification('info', `메시지 ${i}`));
+        notificationIds.push(
+          NotificationBar.createNotification('info', `메시지 ${i}`)
+        );
       }
 
       // When: 추가 알림 생성
-      const newNotificationId = NotificationBar.createNotification('info', '새 메시지');
+      const newNotificationId = NotificationBar.createNotification(
+        'info',
+        '새 메시지'
+      );
 
       // 애니메이션 완료 대기
       vi.advanceTimersByTime(300);
 
       // Then: 첫 번째 알림이 제거되고 새 알림이 추가되어야 함
-      expect(NotificationBar.state.notifications).toHaveLength(maxNotifications);
+      expect(NotificationBar.state.notifications).toHaveLength(
+        maxNotifications
+      );
       expect(document.getElementById(notificationIds[0])).toBeNull(); // 첫 번째 제거됨
       expect(document.getElementById(newNotificationId)).toBeTruthy(); // 새 알림 존재
     });
@@ -121,9 +128,13 @@ describe('NotificationBar 컴포넌트', () => {
       const duration = 1000;
 
       // When: 자동 닫기 알림 생성
-      const notificationId = NotificationBar.createNotification('info', '자동 닫기 테스트', {
-        duration,
-      });
+      const notificationId = NotificationBar.createNotification(
+        'info',
+        '자동 닫기 테스트',
+        {
+          duration
+        }
+      );
 
       // 초기에는 존재
       expect(document.getElementById(notificationId)).toBeTruthy();
@@ -145,7 +156,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationId = NotificationBar.generateFlashSaleAlert(product);
 
       // Then: 번개세일 스타일의 알림이 생성되어야 함
-      const notification = NotificationBar.state.notifications.find(n => n.id === notificationId);
+      const notification = NotificationBar.state.notifications.find(
+        n => n.id === notificationId
+      );
       expect(notification.type).toBe('flash');
       expect(notification.message).toContain('⚡번개세일!');
       expect(notification.message).toContain('키보드');
@@ -179,7 +192,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationId = NotificationBar.generateRecommendAlert(product);
 
       // Then: 추천할인 스타일의 알림이 생성되어야 함
-      const notification = NotificationBar.state.notifications.find(n => n.id === notificationId);
+      const notification = NotificationBar.state.notifications.find(
+        n => n.id === notificationId
+      );
       expect(notification.type).toBe('recommend');
       expect(notification.message).toContain('💝');
       expect(notification.message).toContain('모니터');
@@ -198,7 +213,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationElement = document.getElementById(notificationId);
       expect(notificationElement.textContent).toContain('💝'); // 하트 아이콘
       expect(notificationElement.textContent).toContain('추천할인'); // 제목
-      expect(notificationElement.className).toContain('bg-gradient-to-r from-purple-50 to-pink-50');
+      expect(notificationElement.className).toContain(
+        'bg-gradient-to-r from-purple-50 to-pink-50'
+      );
     });
   });
 
@@ -211,7 +228,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationId = NotificationBar.generateStockAlert(message);
 
       // Then: 재고 경고 스타일의 알림이 생성되어야 함
-      const notification = NotificationBar.state.notifications.find(n => n.id === notificationId);
+      const notification = NotificationBar.state.notifications.find(
+        n => n.id === notificationId
+      );
       expect(notification.type).toBe('stock');
       expect(notification.message).toBe(message);
       expect(notification.options.customClass).toBe('stock-alert-notification');
@@ -228,7 +247,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationElement = document.getElementById(notificationId);
       expect(notificationElement.textContent).toContain('📦'); // 상자 아이콘
       expect(notificationElement.textContent).toContain('재고 알림'); // 제목
-      expect(notificationElement.className).toContain('border-gray-200 bg-gray-50');
+      expect(notificationElement.className).toContain(
+        'border-gray-200 bg-gray-50'
+      );
     });
   });
 
@@ -244,7 +265,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationElement = document.getElementById(notificationId);
       expect(notificationElement.textContent).toContain('✅');
       expect(notificationElement.textContent).toContain('성공');
-      expect(notificationElement.className).toContain('border-green-200 bg-green-50');
+      expect(notificationElement.className).toContain(
+        'border-green-200 bg-green-50'
+      );
     });
 
     it('경고 알림을 생성해야 한다', () => {
@@ -258,7 +281,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationElement = document.getElementById(notificationId);
       expect(notificationElement.textContent).toContain('⚠️');
       expect(notificationElement.textContent).toContain('경고');
-      expect(notificationElement.className).toContain('border-orange-200 bg-orange-50');
+      expect(notificationElement.className).toContain(
+        'border-orange-200 bg-orange-50'
+      );
     });
 
     it('오류 알림을 생성해야 한다', () => {
@@ -272,7 +297,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationElement = document.getElementById(notificationId);
       expect(notificationElement.textContent).toContain('❌');
       expect(notificationElement.textContent).toContain('오류');
-      expect(notificationElement.className).toContain('border-red-200 bg-red-50');
+      expect(notificationElement.className).toContain(
+        'border-red-200 bg-red-50'
+      );
     });
 
     it('정보 알림을 생성해야 한다', () => {
@@ -286,7 +313,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationElement = document.getElementById(notificationId);
       expect(notificationElement.textContent).toContain('ℹ️');
       expect(notificationElement.textContent).toContain('정보');
-      expect(notificationElement.className).toContain('border-blue-200 bg-blue-50');
+      expect(notificationElement.className).toContain(
+        'border-blue-200 bg-blue-50'
+      );
     });
   });
 
@@ -312,9 +341,13 @@ describe('NotificationBar 컴포넌트', () => {
     it('닫기 콜백이 실행되어야 한다', () => {
       // Given: 닫기 콜백이 있는 알림
       const onCloseSpy = vi.fn();
-      const notificationId = NotificationBar.createNotification('info', '콜백 테스트', {
-        onClose: onCloseSpy,
-      });
+      const notificationId = NotificationBar.createNotification(
+        'info',
+        '콜백 테스트',
+        {
+          onClose: onCloseSpy
+        }
+      );
 
       // When: 알림 닫기
       NotificationBar.closeNotification(notificationId);
@@ -348,7 +381,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationId = NotificationBar.replaceAlert(message);
 
       // Then: 번개세일 알림이 생성되어야 함
-      const notification = NotificationBar.state.notifications.find(n => n.id === notificationId);
+      const notification = NotificationBar.state.notifications.find(
+        n => n.id === notificationId
+      );
       expect(notification.type).toBe('flash');
     });
 
@@ -360,7 +395,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationId = NotificationBar.replaceAlert(message);
 
       // Then: 추천할인 알림이 생성되어야 함
-      const notification = NotificationBar.state.notifications.find(n => n.id === notificationId);
+      const notification = NotificationBar.state.notifications.find(
+        n => n.id === notificationId
+      );
       expect(notification.type).toBe('recommend');
     });
 
@@ -372,7 +409,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationId = NotificationBar.replaceAlert(message);
 
       // Then: 재고 알림이 생성되어야 함
-      const notification = NotificationBar.state.notifications.find(n => n.id === notificationId);
+      const notification = NotificationBar.state.notifications.find(
+        n => n.id === notificationId
+      );
       expect(notification.type).toBe('stock');
     });
 
@@ -384,7 +423,9 @@ describe('NotificationBar 컴포넌트', () => {
       const notificationId = NotificationBar.replaceAlert(message);
 
       // Then: 경고 알림이 생성되어야 함
-      const notification = NotificationBar.state.notifications.find(n => n.id === notificationId);
+      const notification = NotificationBar.state.notifications.find(
+        n => n.id === notificationId
+      );
       expect(notification.type).toBe('warning');
     });
   });
@@ -392,9 +433,13 @@ describe('NotificationBar 컴포넌트', () => {
   describe('이벤트 처리', () => {
     it('닫기 버튼 클릭 시 알림이 닫혀야 한다', () => {
       // Given: 닫기 버튼이 있는 알림
-      const notificationId = NotificationBar.createNotification('info', '닫기 테스트', {
-        closable: true,
-      });
+      const notificationId = NotificationBar.createNotification(
+        'info',
+        '닫기 테스트',
+        {
+          closable: true
+        }
+      );
 
       // When: 닫기 버튼 클릭
       const closeButton = document.querySelector('.notification-close');
@@ -411,9 +456,13 @@ describe('NotificationBar 컴포넌트', () => {
     it('클릭 콜백이 실행되어야 한다', () => {
       // Given: 클릭 콜백이 있는 알림
       const onClickSpy = vi.fn();
-      const notificationId = NotificationBar.createNotification('info', '클릭 테스트', {
-        onClick: onClickSpy,
-      });
+      const notificationId = NotificationBar.createNotification(
+        'info',
+        '클릭 테스트',
+        {
+          onClick: onClickSpy
+        }
+      );
 
       // When: 알림 클릭
       const notificationElement = document.getElementById(notificationId);
@@ -427,7 +476,10 @@ describe('NotificationBar 컴포넌트', () => {
   describe('접근성', () => {
     it('올바른 ARIA 속성을 가져야 한다', () => {
       // Given: 알림 생성
-      const notificationId = NotificationBar.createNotification('info', '접근성 테스트');
+      const notificationId = NotificationBar.createNotification(
+        'info',
+        '접근성 테스트'
+      );
 
       // When: 알림 요소 확인
       const notificationElement = document.getElementById(notificationId);
@@ -443,7 +495,9 @@ describe('NotificationBar 컴포넌트', () => {
 
     it('닫기 버튼에 적절한 레이블이 있어야 한다', () => {
       // Given: 닫기 버튼이 있는 알림
-      NotificationBar.createNotification('info', '접근성 테스트', { closable: true });
+      NotificationBar.createNotification('info', '접근성 테스트', {
+        closable: true
+      });
 
       // When: 닫기 버튼 확인
       const closeButton = document.querySelector('.notification-close');
@@ -458,8 +512,12 @@ describe('NotificationBar 컴포넌트', () => {
       // Given: 다양한 타입의 알림들
 
       // When: 여러 알림 생성 (maxNotifications=3이므로 마지막 3개만 남음)
-      const flashId = NotificationBar.generateFlashSaleAlert({ name: '키보드' });
-      const recommendId = NotificationBar.generateRecommendAlert({ name: '마우스' });
+      const flashId = NotificationBar.generateFlashSaleAlert({
+        name: '키보드'
+      });
+      const recommendId = NotificationBar.generateRecommendAlert({
+        name: '마우스'
+      });
       const stockId = NotificationBar.generateStockAlert('재고가 부족합니다.');
       const successId = NotificationBar.success('처리 완료');
 
@@ -493,9 +551,12 @@ describe('NotificationBar 컴포넌트', () => {
       const step3 = NotificationBar.generateRecommendAlert({ name: '마우스' });
 
       vi.advanceTimersByTime(1000);
-      const step4 = NotificationBar.generateStockAlert('선택한 상품의 재고가 부족합니다.', {
-        duration: 10000,
-      }); // 더 긴 duration
+      const step4 = NotificationBar.generateStockAlert(
+        '선택한 상품의 재고가 부족합니다.',
+        {
+          duration: 10000
+        }
+      ); // 더 긴 duration
 
       // Then: 시간 흐름에 따라 알림이 적절히 관리되어야 함
       // 성공 알림은 기본 5초 후 사라져야 함

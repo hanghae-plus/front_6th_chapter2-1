@@ -9,7 +9,8 @@ export class EventManager {
       this.registeredEventListeners.set(targetElement, new Map());
     }
 
-    const elementEventListeners = this.registeredEventListeners.get(targetElement);
+    const elementEventListeners =
+      this.registeredEventListeners.get(targetElement);
     if (!elementEventListeners.has(eventType)) {
       elementEventListeners.set(eventType, []);
     }
@@ -19,7 +20,8 @@ export class EventManager {
   }
 
   unregisterEventListener(targetElement, eventType, eventHandler) {
-    const elementEventListeners = this.registeredEventListeners.get(targetElement);
+    const elementEventListeners =
+      this.registeredEventListeners.get(targetElement);
     if (elementEventListeners && elementEventListeners.has(eventType)) {
       const eventHandlers = elementEventListeners.get(eventType);
       const handlerIndex = eventHandlers.indexOf(eventHandler);
@@ -31,7 +33,8 @@ export class EventManager {
   }
 
   removeAllEventListenersForType(targetElement, eventType) {
-    const elementEventListeners = this.registeredEventListeners.get(targetElement);
+    const elementEventListeners =
+      this.registeredEventListeners.get(targetElement);
     if (elementEventListeners && elementEventListeners.has(eventType)) {
       const eventHandlers = elementEventListeners.get(eventType);
       eventHandlers.forEach(eventHandler => {
@@ -42,7 +45,8 @@ export class EventManager {
   }
 
   removeAllEventListenersForElement(targetElement) {
-    const elementEventListeners = this.registeredEventListeners.get(targetElement);
+    const elementEventListeners =
+      this.registeredEventListeners.get(targetElement);
     if (elementEventListeners) {
       elementEventListeners.forEach((eventHandlers, eventType) => {
         eventHandlers.forEach(eventHandler => {
@@ -68,7 +72,7 @@ export class EventManager {
     return new CustomEvent(eventName, {
       detail: eventDetail,
       bubbles: true,
-      cancelable: true,
+      cancelable: true
     });
   }
 
@@ -88,9 +92,11 @@ export class EventManager {
 
   // 모든 리스너 정리
   cleanupAllEventListeners() {
-    this.registeredEventListeners.forEach((elementEventListeners, targetElement) => {
-      this.removeAllEventListenersForElement(targetElement);
-    });
+    this.registeredEventListeners.forEach(
+      (elementEventListeners, targetElement) => {
+        this.removeAllEventListenersForElement(targetElement);
+      }
+    );
     this.registeredEventListeners.clear();
   }
 }

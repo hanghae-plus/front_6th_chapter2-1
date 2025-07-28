@@ -58,7 +58,7 @@ describe('PointsCalculator', () => {
     it('키보드+마우스 세트 보너스 50p', () => {
       const cart = [
         { id: 'p1', quantity: 1 }, // 키보드
-        { id: 'p2', quantity: 1 }, // 마우스
+        { id: 'p2', quantity: 1 } // 마우스
       ];
 
       const result = PointsCalculator.calculateSetBonus(cart);
@@ -72,7 +72,7 @@ describe('PointsCalculator', () => {
       const cart = [
         { id: 'p1', quantity: 1 }, // 키보드
         { id: 'p2', quantity: 1 }, // 마우스
-        { id: 'p3', quantity: 1 }, // 모니터암
+        { id: 'p3', quantity: 1 } // 모니터암
       ];
 
       const result = PointsCalculator.calculateSetBonus(cart);
@@ -85,7 +85,7 @@ describe('PointsCalculator', () => {
 
     it('세트 조건 미달 시 0포인트', () => {
       const cart = [
-        { id: 'p1', quantity: 1 }, // 키보드만
+        { id: 'p1', quantity: 1 } // 키보드만
       ];
 
       const result = PointsCalculator.calculateSetBonus(cart);
@@ -130,7 +130,7 @@ describe('PointsCalculator', () => {
       const cart = [
         { id: 'p1', quantity: 10 }, // 키보드 10개
         { id: 'p2', quantity: 10 }, // 마우스 10개
-        { id: 'p3', quantity: 10 }, // 모니터암 10개
+        { id: 'p3', quantity: 10 } // 모니터암 10개
       ];
 
       const result = PointsCalculator.calculateBonusPoints(cart);
@@ -146,12 +146,14 @@ describe('PointsCalculator', () => {
       const cart = [
         { id: 'p1', quantity: 10 }, // 키보드 10개
         { id: 'p2', quantity: 10 }, // 마우스 10개
-        { id: 'p3', quantity: 10 }, // 모니터암 10개
+        { id: 'p3', quantity: 10 } // 모니터암 10개
       ];
       const finalAmount = 100000; // 10만원
       const tuesday = new Date('2024-01-02'); // 화요일
 
-      const result = PointsCalculator.getTotalPoints(cart, finalAmount, { date: tuesday });
+      const result = PointsCalculator.getTotalPoints(cart, finalAmount, {
+        date: tuesday
+      });
 
       // 기본: 100p → 화요일 2배: 200p + 세트보너스: 150p + 수량보너스: 100p = 450p
       expect(result.total).toBe(450);
@@ -169,12 +171,14 @@ describe('PointsCalculator', () => {
 
     it('기본 구매 시나리오 (보너스 없음)', () => {
       const cart = [
-        { id: 'p4', quantity: 1 }, // 헤드폰 1개
+        { id: 'p4', quantity: 1 } // 헤드폰 1개
       ];
       const finalAmount = 30000; // 3만원
       const monday = new Date('2024-01-01'); // 월요일
 
-      const result = PointsCalculator.getTotalPoints(cart, finalAmount, { date: monday });
+      const result = PointsCalculator.getTotalPoints(cart, finalAmount, {
+        date: monday
+      });
 
       // 기본: 30p (보너스 없음)
       expect(result.total).toBe(30);

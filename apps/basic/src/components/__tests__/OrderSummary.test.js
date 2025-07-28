@@ -22,8 +22,8 @@ describe('OrderSummary 컴포넌트', () => {
         individual: [{ productName: '무선 키보드', discountRate: 0.1 }],
         bulk: { discountRate: 0 },
         tuesday: { discountAmount: 10000 },
-        special: [],
-      },
+        special: []
+      }
     };
 
     mockPointsData = {
@@ -31,9 +31,9 @@ describe('OrderSummary 컴포넌트', () => {
       breakdown: {
         base: { points: 100 },
         tuesday: { points: 200 },
-        setBonus: { points: 50 },
+        setBonus: { points: 50 }
       },
-      messages: ['기본: 100p', '화요일 2배', '키보드+마우스 세트 +50p'],
+      messages: ['기본: 100p', '화요일 2배', '키보드+마우스 세트 +50p']
     };
 
     mockOrderData = {
@@ -45,21 +45,21 @@ describe('OrderSummary 컴포넌트', () => {
           name: '무선 키보드',
           quantity: 2,
           unitPrice: 100000,
-          totalPrice: 200000,
+          totalPrice: 200000
         },
         {
           id: 'p2',
           name: '무선 마우스',
           quantity: 1,
           unitPrice: 50000,
-          totalPrice: 50000,
-        },
+          totalPrice: 50000
+        }
       ],
       context: {
         isTuesday: true,
         hasSpecialDiscounts: false,
-        itemCount: 3,
-      },
+        itemCount: 3
+      }
     };
   });
 
@@ -84,7 +84,7 @@ describe('OrderSummary 컴포넌트', () => {
       // Given: 빈 장바구니 데이터
       const emptyOrderData = {
         ...mockOrderData,
-        items: [],
+        items: []
       };
 
       // When: 빈 데이터로 render 호출
@@ -112,7 +112,7 @@ describe('OrderSummary 컴포넌트', () => {
       const options = {
         showDetailedBreakdown: false,
         highlightSavings: false,
-        showPointsPreview: false,
+        showPointsPreview: false
       };
 
       // When: 옵션과 함께 render 호출
@@ -197,11 +197,11 @@ describe('OrderSummary 컴포넌트', () => {
       const discounts = {
         individual: [
           { productName: '무선 키보드', discountRate: 0.1 },
-          { productName: '헤드폰', discountRate: 0.15 },
+          { productName: '헤드폰', discountRate: 0.15 }
         ],
         bulk: { discountRate: 0 },
         tuesday: { discountAmount: 0 },
-        special: [],
+        special: []
       };
 
       // When: 할인 항목 생성
@@ -221,7 +221,7 @@ describe('OrderSummary 컴포넌트', () => {
         individual: [],
         bulk: { discountRate: 0.25 },
         tuesday: { discountAmount: 0 },
-        special: [],
+        special: []
       };
 
       // When: 할인 항목 생성
@@ -241,8 +241,8 @@ describe('OrderSummary 컴포넌트', () => {
         special: [
           { type: 'flash', description: '헤드폰 번개세일', rate: 0.2 },
           { type: 'recommend', description: '마우스 추천할인', rate: 0.15 },
-          { type: 'combo', description: '콤보 할인', rate: 0.3 },
-        ],
+          { type: 'combo', description: '콤보 할인', rate: 0.3 }
+        ]
       };
 
       // When: 할인 항목 생성
@@ -266,7 +266,7 @@ describe('OrderSummary 컴포넌트', () => {
         individual: [],
         bulk: { discountRate: 0 },
         tuesday: { discountAmount: 10000 },
-        special: [],
+        special: []
       };
 
       // When: 할인 항목 생성
@@ -302,7 +302,7 @@ describe('OrderSummary 컴포넌트', () => {
       // Given: 절약 금액이 있는 가격 정보
       const pricing = {
         totalSavings: 60000,
-        discountRate: 0.2,
+        discountRate: 0.2
       };
 
       // When: 절약 정보 생성
@@ -320,7 +320,7 @@ describe('OrderSummary 컴포넌트', () => {
       // Given: 절약 금액이 0인 가격 정보
       const pricing = {
         totalSavings: 0,
-        discountRate: 0,
+        discountRate: 0
       };
 
       // When: 절약 정보 생성
@@ -353,7 +353,9 @@ describe('OrderSummary 컴포넌트', () => {
       expect(result).toContain('points-info');
       expect(result).toContain('적립 포인트');
       expect(result).toContain('350p');
-      expect(result).toContain('기본: 100p, 화요일 2배, 키보드+마우스 세트 +50p');
+      expect(result).toContain(
+        '기본: 100p, 화요일 2배, 키보드+마우스 세트 +50p'
+      );
     });
 
     it('포인트가 0일 때 빈 문자열을 반환해야 한다', () => {
@@ -449,18 +451,22 @@ describe('OrderSummary 컴포넌트', () => {
           subtotal: 300000,
           finalAmount: 240000,
           totalSavings: 60000,
-          individualDiscounts: [{ productName: '무선 키보드', discountRate: 0.1 }],
+          individualDiscounts: [
+            { productName: '무선 키보드', discountRate: 0.1 }
+          ],
           bulkDiscount: { discountRate: 0 },
-          tuesdayDiscount: { discountAmount: 10000 },
+          tuesdayDiscount: { discountAmount: 10000 }
         },
         pointsResult: {
           total: 350,
-          messages: ['기본: 100p', '화요일 2배'],
+          messages: ['기본: 100p', '화요일 2배']
         },
         discountResult: {
-          specialDiscounts: [{ type: 'flash', description: '번개세일', rate: 0.2 }],
+          specialDiscounts: [
+            { type: 'flash', description: '번개세일', rate: 0.2 }
+          ]
         },
-        context: { isTuesday: true },
+        context: { isTuesday: true }
       };
 
       const cartItems = [
@@ -468,12 +474,15 @@ describe('OrderSummary 컴포넌트', () => {
           id: 'p1',
           product: { name: '무선 키보드', val: 100000 },
           quantity: 2,
-          price: 100000,
-        },
+          price: 100000
+        }
       ];
 
       // When: 계산 결과 변환
-      const result = OrderSummary.transformCalculationResults(calculationResults, cartItems);
+      const result = OrderSummary.transformCalculationResults(
+        calculationResults,
+        cartItems
+      );
 
       // Then: OrderSummary 형식으로 변환되어야 함
       expect(result).toHaveProperty('pricing');
@@ -495,11 +504,14 @@ describe('OrderSummary 컴포넌트', () => {
     it('부분적인 계산 결과도 올바르게 처리해야 한다', () => {
       // Given: 일부 데이터만 있는 계산 결과
       const calculationResults = {
-        priceResult: { subtotal: 100000, finalAmount: 100000, totalSavings: 0 },
+        priceResult: { subtotal: 100000, finalAmount: 100000, totalSavings: 0 }
       };
 
       // When: 부분 결과 변환
-      const result = OrderSummary.transformCalculationResults(calculationResults, []);
+      const result = OrderSummary.transformCalculationResults(
+        calculationResults,
+        []
+      );
 
       // Then: 기본값으로 채워져야 함
       expect(result.pricing.subtotal).toBe(100000);
@@ -525,20 +537,38 @@ describe('OrderSummary 컴포넌트', () => {
             tuesday: { discountAmount: 25000 },
             special: [
               { type: 'flash', description: '번개세일', rate: 0.2 },
-              { type: 'combo', description: '콤보할인', rate: 0.1 },
-            ],
-          },
+              { type: 'combo', description: '콤보할인', rate: 0.1 }
+            ]
+          }
         },
         points: {
           total: 500,
-          messages: ['기본: 200p', '화요일 2배', '풀세트 구매 +100p'],
+          messages: ['기본: 200p', '화요일 2배', '풀세트 구매 +100p']
         },
         items: [
-          { id: 'p1', name: '헤드폰', quantity: 2, unitPrice: 150000, totalPrice: 300000 },
-          { id: 'p2', name: '키보드', quantity: 1, unitPrice: 100000, totalPrice: 100000 },
-          { id: 'p3', name: '마우스', quantity: 1, unitPrice: 50000, totalPrice: 50000 },
+          {
+            id: 'p1',
+            name: '헤드폰',
+            quantity: 2,
+            unitPrice: 150000,
+            totalPrice: 300000
+          },
+          {
+            id: 'p2',
+            name: '키보드',
+            quantity: 1,
+            unitPrice: 100000,
+            totalPrice: 100000
+          },
+          {
+            id: 'p3',
+            name: '마우스',
+            quantity: 1,
+            unitPrice: 50000,
+            totalPrice: 50000
+          }
         ],
-        context: { isTuesday: true, hasSpecialDiscounts: true, itemCount: 4 },
+        context: { isTuesday: true, hasSpecialDiscounts: true, itemCount: 4 }
       };
 
       // When: 복잡한 주문 렌더링
@@ -571,12 +601,20 @@ describe('OrderSummary 컴포넌트', () => {
             individual: [],
             bulk: { discountRate: 0 },
             tuesday: { discountAmount: 0 },
-            special: [],
-          },
+            special: []
+          }
         },
         points: { total: 100, messages: ['기본: 100p'] },
-        items: [{ id: 'p1', name: '마우스', quantity: 1, unitPrice: 100000, totalPrice: 100000 }],
-        context: { isTuesday: false, hasSpecialDiscounts: false, itemCount: 1 },
+        items: [
+          {
+            id: 'p1',
+            name: '마우스',
+            quantity: 1,
+            unitPrice: 100000,
+            totalPrice: 100000
+          }
+        ],
+        context: { isTuesday: false, hasSpecialDiscounts: false, itemCount: 1 }
       };
 
       // When: 단순한 주문 렌더링

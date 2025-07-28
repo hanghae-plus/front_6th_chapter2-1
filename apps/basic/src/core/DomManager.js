@@ -16,12 +16,13 @@ export class DOMElementManager {
       discountInformation: null,
       loyaltyPointsDisplay: null,
       tuesdaySpecialBadge: null,
-      itemCountDisplay: null,
+      itemCountDisplay: null
     };
   }
 
   createMainApplicationLayout() {
-    const { applicationHeader, mainGridContainer, helpButton } = this.buildMainLayoutComponents();
+    const { applicationHeader, mainGridContainer, helpButton } =
+      this.buildMainLayoutComponents();
 
     this.cachedElements.rootContainer.appendChild(applicationHeader);
     this.cachedElements.rootContainer.appendChild(mainGridContainer);
@@ -65,7 +66,8 @@ export class DOMElementManager {
 
   createLeftColumn() {
     const leftColumn = document.createElement('div');
-    leftColumn.className = 'bg-white border border-gray-200 p-8 overflow-y-auto';
+    leftColumn.className =
+      'bg-white border border-gray-200 p-8 overflow-y-auto';
 
     const productSelectorContainer = this.createProductSelectorContainer();
     const cartItemsContainer = this.createCartItemsContainer();
@@ -99,7 +101,8 @@ export class DOMElementManager {
   createProductSelectionDropdown() {
     const select = document.createElement('select');
     select.id = 'product-select';
-    select.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
+    select.className =
+      'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
     return select;
   }
 
@@ -176,11 +179,16 @@ export class DOMElementManager {
 
   findAndCacheAllElements() {
     this.cachedElements.cartTotalAmount = document.querySelector('#cart-total');
-    this.cachedElements.orderSummaryDetails = document.getElementById('summary-details');
-    this.cachedElements.discountInformation = document.getElementById('discount-info');
-    this.cachedElements.loyaltyPointsDisplay = document.getElementById('loyalty-points');
-    this.cachedElements.tuesdaySpecialBadge = document.getElementById('tuesday-special');
-    this.cachedElements.itemCountDisplay = document.getElementById('item-count');
+    this.cachedElements.orderSummaryDetails =
+      document.getElementById('summary-details');
+    this.cachedElements.discountInformation =
+      document.getElementById('discount-info');
+    this.cachedElements.loyaltyPointsDisplay =
+      document.getElementById('loyalty-points');
+    this.cachedElements.tuesdaySpecialBadge =
+      document.getElementById('tuesday-special');
+    this.cachedElements.itemCountDisplay =
+      document.getElementById('item-count');
     this.cachedElements.helpButton = document.getElementById('help-button');
   }
 

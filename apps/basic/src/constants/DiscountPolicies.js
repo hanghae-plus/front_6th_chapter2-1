@@ -19,20 +19,20 @@ export const SPECIAL_DISCOUNTS = {
   BULK_PURCHASE: {
     threshold: 30,
     rate: 0.25,
-    description: '대량구매 할인 (30개 이상)',
+    description: '대량구매 할인 (30개 이상)'
   },
   TUESDAY_SPECIAL: {
     rate: 0.1,
-    description: '화요일 추가 할인',
+    description: '화요일 추가 할인'
   },
   FLASH_SALE: {
     rate: 0.2,
-    description: '번개세일',
+    description: '번개세일'
   },
   RECOMMENDATION: {
     rate: 0.05,
-    description: '추천할인',
-  },
+    description: '추천할인'
+  }
 };
 
 /**
@@ -41,7 +41,7 @@ export const SPECIAL_DISCOUNTS = {
 export const DISCOUNT_RULES = {
   BULK_OVERRIDES_INDIVIDUAL: true, // 대량구매 할인이 개별 할인을 덮어씀
   MIN_QUANTITY_FOR_INDIVIDUAL_DISCOUNT: 10, // 개별 상품 할인 최소 수량
-  TUESDAY_APPLIES_AFTER_OTHER_DISCOUNTS: true, // 화요일 할인은 다른 할인 후에 적용
+  TUESDAY_APPLIES_AFTER_OTHER_DISCOUNTS: true // 화요일 할인은 다른 할인 후에 적용
 };
 
 /**
@@ -98,7 +98,12 @@ export function calculateTuesdayDiscount(date = new Date()) {
  * @param {Date} [params.date] - 확인할 날짜
  * @returns {Object} 할인 정보 { rate: number, type: string, description: string }
  */
-export function calculateFinalDiscount({ productId, quantity, totalQuantity, date = new Date() }) {
+export function calculateFinalDiscount({
+  productId,
+  quantity,
+  totalQuantity,
+  date = new Date()
+}) {
   const bulkDiscount = calculateBulkDiscount(totalQuantity);
   const individualDiscount = calculateIndividualDiscount(productId, quantity);
   const tuesdayDiscount = calculateTuesdayDiscount(date);
@@ -127,7 +132,10 @@ export function calculateFinalDiscount({ productId, quantity, totalQuantity, dat
   let finalRate = baseDiscount;
   let finalDescription = description;
 
-  if (tuesdayDiscount > 0 && DISCOUNT_RULES.TUESDAY_APPLIES_AFTER_OTHER_DISCOUNTS) {
+  if (
+    tuesdayDiscount > 0 &&
+    DISCOUNT_RULES.TUESDAY_APPLIES_AFTER_OTHER_DISCOUNTS
+  ) {
     if (baseDiscount > 0) {
       // 기존 할인이 있으면 화요일 할인은 할인된 가격에 추가 적용
       finalRate = baseDiscount + (1 - baseDiscount) * tuesdayDiscount;
@@ -146,7 +154,7 @@ export function calculateFinalDiscount({ productId, quantity, totalQuantity, dat
     description: finalDescription,
     baseDiscount,
     tuesdayDiscount,
-    isBulkOverride: bulkDiscount > 0 && individualDiscount > 0,
+    isBulkOverride: bulkDiscount > 0 && individualDiscount > 0
   };
 }
 
@@ -160,6 +168,6 @@ export function formatDiscountForUI(discountInfo) {
     percentage: Math.round(discountInfo.rate * 100),
     displayText: discountInfo.description,
     type: discountInfo.type,
-    isSpecial: discountInfo.tuesdayDiscount > 0,
+    isSpecial: discountInfo.tuesdayDiscount > 0
   };
 }

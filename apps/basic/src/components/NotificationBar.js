@@ -50,7 +50,7 @@ export class NotificationBar {
     notifications: [],
     maxNotifications: 3,
     isPaused: false,
-    container: null,
+    container: null
   };
 
   /**
@@ -69,10 +69,11 @@ export class NotificationBar {
       'top-center': 'fixed top-4 left-1/2 transform -translate-x-1/2 z-50',
       'bottom-right': 'fixed bottom-4 right-4 z-50',
       'bottom-left': 'fixed bottom-4 left-4 z-50',
-      'bottom-center': 'fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50',
+      'bottom-center': 'fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50'
     };
 
-    const positionClass = positionClasses[position] || positionClasses['top-right'];
+    const positionClass =
+      positionClasses[position] || positionClasses['top-right'];
 
     // 컨테이너 생성
     const container = document.createElement('div');
@@ -105,7 +106,7 @@ export class NotificationBar {
       sound = false,
       onClose = null,
       onClick = null,
-      customClass = '',
+      customClass = ''
     } = options;
 
     // 컨테이너가 없으면 생성
@@ -123,7 +124,7 @@ export class NotificationBar {
       title: NotificationBar.getTitleByType(type),
       message,
       createdAt: Date.now(),
-      options: { duration, closable, persistent, onClose, onClick, customClass },
+      options: { duration, closable, persistent, onClose, onClick, customClass }
     };
 
     // 최대 개수 확인 및 오래된 알림 제거
@@ -157,13 +158,15 @@ export class NotificationBar {
    * @returns {string} 알림 ID
    */
   static generateFlashSaleAlert(product, options = {}) {
-    const message = formatMessage(ALERT_UI.FLASH_SALE, { productName: product.name });
+    const message = formatMessage(ALERT_UI.FLASH_SALE, {
+      productName: product.name
+    });
 
     const defaultOptions = {
       duration: 8000, // 번개세일은 조금 더 오래 표시
       sound: true,
       customClass: 'flash-sale-notification',
-      ...options,
+      ...options
     };
 
     return NotificationBar.createNotification('flash', message, defaultOptions);
@@ -176,16 +179,22 @@ export class NotificationBar {
    * @returns {string} 알림 ID
    */
   static generateRecommendAlert(product, options = {}) {
-    const message = formatMessage(ALERT_UI.RECOMMEND_SALE, { productName: product.name });
+    const message = formatMessage(ALERT_UI.RECOMMEND_SALE, {
+      productName: product.name
+    });
 
     const defaultOptions = {
       duration: 7000,
       sound: true,
       customClass: 'recommend-notification',
-      ...options,
+      ...options
     };
 
-    return NotificationBar.createNotification('recommend', message, defaultOptions);
+    return NotificationBar.createNotification(
+      'recommend',
+      message,
+      defaultOptions
+    );
   }
 
   /**
@@ -198,7 +207,7 @@ export class NotificationBar {
     const defaultOptions = {
       duration: 4000,
       customClass: 'stock-alert-notification',
-      ...options,
+      ...options
     };
 
     return NotificationBar.createNotification('stock', message, defaultOptions);
@@ -233,7 +242,7 @@ export class NotificationBar {
   static error(message, options = {}) {
     const defaultOptions = {
       duration: 6000, // 오류는 조금 더 오래 표시
-      ...options,
+      ...options
     };
     return NotificationBar.createNotification('error', message, defaultOptions);
   }
@@ -257,22 +266,29 @@ export class NotificationBar {
 
     const notificationElement = document.createElement('div');
     notificationElement.id = notification.id;
-    notificationElement.className = NotificationBar.getNotificationClasses(notification);
+    notificationElement.className =
+      NotificationBar.getNotificationClasses(notification);
     notificationElement.setAttribute('role', 'alert');
     notificationElement.setAttribute('aria-atomic', 'true');
 
     // 클릭 이벤트
     if (notification.options.onClick) {
       notificationElement.style.cursor = 'pointer';
-      notificationElement.addEventListener('click', notification.options.onClick);
+      notificationElement.addEventListener(
+        'click',
+        notification.options.onClick
+      );
     }
 
     // HTML 내용 생성
-    notificationElement.innerHTML = NotificationBar.generateNotificationHTML(notification);
+    notificationElement.innerHTML =
+      NotificationBar.generateNotificationHTML(notification);
 
     // 닫기 버튼 이벤트
     if (notification.options.closable) {
-      const closeButton = notificationElement.querySelector('.notification-close');
+      const closeButton = notificationElement.querySelector(
+        '.notification-close'
+      );
       if (closeButton) {
         closeButton.addEventListener('click', e => {
           e.stopPropagation();
@@ -345,7 +361,7 @@ export class NotificationBar {
       'transition-all',
       'duration-300',
       'max-w-sm',
-      'w-full',
+      'w-full'
     ];
 
     // 타입별 테두리 색상
@@ -356,7 +372,7 @@ export class NotificationBar {
       info: 'border-blue-200 bg-blue-50',
       flash: 'border-yellow-300 bg-gradient-to-r from-yellow-50 to-orange-50',
       recommend: 'border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50',
-      stock: 'border-gray-200 bg-gray-50',
+      stock: 'border-gray-200 bg-gray-50'
     };
 
     const typeClass = typeClasses[type] || typeClasses.info;
@@ -378,7 +394,7 @@ export class NotificationBar {
       info: 'ℹ️',
       flash: '⚡',
       recommend: '💝',
-      stock: '📦',
+      stock: '📦'
     };
     return icons[type] || icons.info;
   }
@@ -396,7 +412,7 @@ export class NotificationBar {
       info: '정보',
       flash: '번개세일',
       recommend: '추천할인',
-      stock: '재고 알림',
+      stock: '재고 알림'
     };
     return titles[type] || titles.info;
   }
@@ -406,7 +422,9 @@ export class NotificationBar {
    * @param {string} id - 알림 ID
    */
   static closeNotification(id) {
-    const notification = NotificationBar.state.notifications.find(n => n.id === id);
+    const notification = NotificationBar.state.notifications.find(
+      n => n.id === id
+    );
     if (!notification) return;
 
     const element = document.getElementById(id);
@@ -424,9 +442,8 @@ export class NotificationBar {
     }
 
     // 상태에서 제거
-    NotificationBar.state.notifications = NotificationBar.state.notifications.filter(
-      n => n.id !== id
-    );
+    NotificationBar.state.notifications =
+      NotificationBar.state.notifications.filter(n => n.id !== id);
 
     // 닫기 콜백 실행
     if (notification.options.onClose) {
@@ -464,7 +481,8 @@ export class NotificationBar {
   static playNotificationSound(type) {
     // 간단한 비프음 (실제 프로젝트에서는 오디오 파일 사용)
     try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -479,7 +497,7 @@ export class NotificationBar {
         flash: 659.25, // E5
         recommend: 783.99, // G5
         stock: 493.88, // B4
-        info: 523.25, // C5
+        info: 523.25 // C5
       };
 
       oscillator.frequency.setValueAtTime(
@@ -489,7 +507,10 @@ export class NotificationBar {
       oscillator.type = 'sine';
 
       gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + 0.3
+      );
 
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
@@ -518,7 +539,8 @@ export class NotificationBar {
    */
   static isDuplicate(type, message) {
     return NotificationBar.state.notifications.some(
-      notification => notification.type === type && notification.message === message
+      notification =>
+        notification.type === type && notification.message === message
     );
   }
 
@@ -529,7 +551,8 @@ export class NotificationBar {
   static replaceAlert(message) {
     // ALERT_UI 메시지 타입 감지
     if (message.includes('번개세일') || message.includes('⚡')) {
-      const productName = message.match(/⚡번개세일! (.+?)이\(가\)/)?.[1] || '상품';
+      const productName =
+        message.match(/⚡번개세일! (.+?)이\(가\)/)?.[1] || '상품';
       return NotificationBar.generateFlashSaleAlert({ name: productName });
     } else if (message.includes('추천') || message.includes('💝')) {
       const productName = message.match(/💝 (.+?)은\(는\)/)?.[1] || '상품';

@@ -5,7 +5,11 @@ import { NotificationBar } from '@components/NotificationBar';
 import { OrderSummary } from '@components/OrderSummary';
 import { ProductSelector } from '@components/ProductSelector';
 import { StockInfo } from '@components/StockInfo';
-import { ALERT_UI, POINTS_CONSTANTS, STOCK_CONSTANTS } from '@constants/UIConstants';
+import {
+  ALERT_UI,
+  POINTS_CONSTANTS,
+  STOCK_CONSTANTS
+} from '@constants/UIConstants';
 
 export class ApplicationService {
   constructor(domManager, eventManager, uiUpdater, state, calculationEngine) {
@@ -82,7 +86,7 @@ export class ApplicationService {
         quantity: 1,
         discounts: {},
         subtotal: product.val,
-        stock: product.q,
+        stock: product.q
       };
 
       const newItemHTML = CartItem.render(cartItemData);
@@ -128,15 +132,21 @@ export class ApplicationService {
 
   performFullUpdate() {
     const cartDisplay = this.dom.getCachedElement('cartItemsContainer');
-    const cartItems = this.calculationEngine.extractCartItemsFromDOM(cartDisplay);
+    const cartItems =
+      this.calculationEngine.extractCartItemsFromDOM(cartDisplay);
 
-    const pricingResult = this.calculationEngine.calculateCartPricing(cartItems);
+    const pricingResult =
+      this.calculationEngine.calculateCartPricing(cartItems);
     const pointsResult = this.calculationEngine.calculateLoyaltyPoints(
       cartItems,
       pricingResult.finalAmount
     );
 
-    this.calculationEngine.updateCartStateFromCalculations(cartItems, pricingResult, pointsResult);
+    this.calculationEngine.updateCartStateFromCalculations(
+      cartItems,
+      pricingResult,
+      pointsResult
+    );
 
     this.updateOrderSummary(cartItems, pricingResult, pointsResult);
     this.updateTotalAmount();
@@ -153,7 +163,7 @@ export class ApplicationService {
     const selectHTML = ProductSelector.render(this.state.availableProducts, {
       id: 'product-select',
       className: 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3',
-      placeholder: '',
+      placeholder: ''
     });
 
     const tempDiv = document.createElement('div');
@@ -163,7 +173,10 @@ export class ApplicationService {
     this.dom.setElementInnerHTML(productSelect, newSelect.innerHTML);
 
     // Restore selection if still valid
-    if (currentValue && productSelect.querySelector(`option[value="${currentValue}"]`)) {
+    if (
+      currentValue &&
+      productSelect.querySelector(`option[value="${currentValue}"]`)
+    ) {
       productSelect.value = currentValue;
     }
 
@@ -192,8 +205,10 @@ export class ApplicationService {
       {
         priceResult: pricingResult,
         pointsResult: pointsResult,
-        discountResult: { specialDiscounts: pricingResult.specialDiscounts || [] },
-        context: { isTuesday: new Date().getDay() === 2 },
+        discountResult: {
+          specialDiscounts: pricingResult.specialDiscounts || []
+        },
+        context: { isTuesday: new Date().getDay() === 2 }
       },
       cartItems
     );
@@ -202,7 +217,7 @@ export class ApplicationService {
     const summaryHTML = OrderSummary.render(orderData, {
       showDetailedBreakdown: true,
       highlightSavings: false,
-      showPointsPreview: false,
+      showPointsPreview: false
     });
     this.dom.setElementInnerHTML(summaryDetails, summaryHTML);
 
@@ -226,7 +241,8 @@ export class ApplicationService {
 
     // Update Tuesday special banner
     const isTuesday = new Date().getDay() === 2;
-    const hasTuesdayDiscount = pricingResult.tuesdayDiscount?.discountAmount > 0;
+    const hasTuesdayDiscount =
+      pricingResult.tuesdayDiscount?.discountAmount > 0;
 
     if (isTuesday && hasTuesdayDiscount) {
       this.dom.removeCSSClass(tuesdaySpecial, 'hidden');
@@ -236,8 +252,14 @@ export class ApplicationService {
   }
 
   clearOrderSummary() {
-    this.dom.setElementInnerHTML(this.dom.getCachedElement('orderSummaryDetails'), '');
-    this.dom.setElementInnerHTML(this.dom.getCachedElement('discountInformation'), '');
+    this.dom.setElementInnerHTML(
+      this.dom.getCachedElement('orderSummaryDetails'),
+      ''
+    );
+    this.dom.setElementInnerHTML(
+      this.dom.getCachedElement('discountInformation'),
+      ''
+    );
     this.dom.setElementTextContent(
       this.dom.getCachedElement('loyaltyPointsDisplay'),
       '적립 포인트: 0p'
@@ -247,7 +269,10 @@ export class ApplicationService {
       'display',
       'none'
     );
-    this.dom.addCSSClass(this.dom.getCachedElement('tuesdaySpecialBadge'), 'hidden');
+    this.dom.addCSSClass(
+      this.dom.getCachedElement('tuesdaySpecialBadge'),
+      'hidden'
+    );
   }
 
   updateTotalAmount() {
@@ -290,7 +315,9 @@ export class ApplicationService {
           this.ui.updateElementStyle(
             element,
             'fontWeight',
-            quantity >= POINTS_CONSTANTS.BULK_PURCHASE_THRESHOLD ? 'bold' : 'normal'
+            quantity >= POINTS_CONSTANTS.BULK_PURCHASE_THRESHOLD
+              ? 'bold'
+              : 'normal'
           );
         }
       });

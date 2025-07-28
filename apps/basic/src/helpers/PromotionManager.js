@@ -39,7 +39,8 @@ export class PromotionManager {
 
     if (availableProducts.length === 0) return;
 
-    const luckyItem = availableProducts[Math.floor(Math.random() * availableProducts.length)];
+    const luckyItem =
+      availableProducts[Math.floor(Math.random() * availableProducts.length)];
     luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
     luckyItem.onSale = true;
 
@@ -54,7 +55,9 @@ export class PromotionManager {
 
     const availableProducts = this.state.productList.filter(
       product =>
-        product.id !== this.state.lastSelectedProduct && product.q > 0 && !product.suggestSale
+        product.id !== this.state.lastSelectedProduct &&
+        product.q > 0 &&
+        !product.suggestSale
     );
 
     if (availableProducts.length === 0) return;

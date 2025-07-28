@@ -22,22 +22,22 @@
  */
 export const EVENT_TIMINGS = {
   FLASH_SALE: {
-    startTime: 40000,        // 40초 후 시작
-    duration: 40000,         // 40초 지속
+    startTime: 40000, // 40초 후 시작
+    duration: 40000, // 40초 지속
     enabled: true,
-    probability: 0.3         // 30% 확률로 발생
+    probability: 0.3 // 30% 확률로 발생
   },
   RECOMMENDATION: {
-    startTime: 80000,        // 80초 후 시작
-    duration: 40000,         // 40초 지속
+    startTime: 80000, // 80초 후 시작
+    duration: 40000, // 40초 지속
     enabled: true,
-    probability: 0.5         // 50% 확률로 발생
+    probability: 0.5 // 50% 확률로 발생
   },
   SUGGESTION: {
-    startTime: 120000,       // 2분 후 시작
-    duration: 60000,         // 1분 지속
+    startTime: 120000, // 2분 후 시작
+    duration: 60000, // 1분 지속
     enabled: true,
-    probability: 0.4         // 40% 확률로 발생
+    probability: 0.4 // 40% 확률로 발생
   }
 };
 
@@ -46,18 +46,18 @@ export const EVENT_TIMINGS = {
  */
 export const SPECIAL_DAYS = {
   TUESDAY: {
-    dayOfWeek: 2,           // 화요일
+    dayOfWeek: 2, // 화요일
     name: '화요일',
-    discountRate: 0.1,      // 10% 추가 할인
-    pointsMultiplier: 2,    // 포인트 2배
+    discountRate: 0.1, // 10% 추가 할인
+    pointsMultiplier: 2, // 포인트 2배
     enabled: true
   },
   FRIDAY: {
-    dayOfWeek: 5,           // 금요일 (향후 확장용)
+    dayOfWeek: 5, // 금요일 (향후 확장용)
     name: '금요일',
-    discountRate: 0.05,     // 5% 할인
-    pointsMultiplier: 1.5,  // 포인트 1.5배
-    enabled: false          // 현재 비활성화
+    discountRate: 0.05, // 5% 할인
+    pointsMultiplier: 1.5, // 포인트 1.5배
+    enabled: false // 현재 비활성화
   }
 };
 
@@ -65,31 +65,31 @@ export const SPECIAL_DAYS = {
  * 재고 관련 임계값
  */
 export const STOCK_THRESHOLDS = {
-  LOW_STOCK_WARNING: 5,    // 재고 부족 경고 기준
-  OUT_OF_STOCK: 0,         // 품절 기준
-  CRITICAL_STOCK: 1,       // 위험 재고 기준
-  REORDER_POINT: 10        // 재주문 기준
+  LOW_STOCK_WARNING: 5, // 재고 부족 경고 기준
+  OUT_OF_STOCK: 0, // 품절 기준
+  CRITICAL_STOCK: 1, // 위험 재고 기준
+  REORDER_POINT: 10 // 재주문 기준
 };
 
 /**
  * 수량 관련 임계값
  */
 export const QUANTITY_THRESHOLDS = {
-  INDIVIDUAL_DISCOUNT: 10,  // 개별 상품 할인 기준
-  BULK_DISCOUNT: 30,        // 대량구매 할인 기준
+  INDIVIDUAL_DISCOUNT: 10, // 개별 상품 할인 기준
+  BULK_DISCOUNT: 30, // 대량구매 할인 기준
   BULK_BONUS_LEVELS: [10, 20, 30], // 대량구매 보너스 단계
-  MAX_QUANTITY: 999,        // 최대 구매 수량
-  MIN_QUANTITY: 1           // 최소 구매 수량
+  MAX_QUANTITY: 999, // 최대 구매 수량
+  MIN_QUANTITY: 1 // 최소 구매 수량
 };
 
 /**
  * UI 업데이트 타이밍
  */
 export const UI_TIMINGS = {
-  CART_UPDATE_DELAY: 100,   // 장바구니 업데이트 지연시간 (밀리초)
-  ANIMATION_DURATION: 300,  // 애니메이션 지속시간
-  DEBOUNCE_DELAY: 250,      // 디바운스 지연시간
-  TOAST_DURATION: 3000      // 토스트 메시지 표시 시간
+  CART_UPDATE_DELAY: 100, // 장바구니 업데이트 지연시간 (밀리초)
+  ANIMATION_DURATION: 300, // 애니메이션 지속시간
+  DEBOUNCE_DELAY: 250, // 디바운스 지연시간
+  TOAST_DURATION: 3000 // 토스트 메시지 표시 시간
 };
 
 /**
@@ -99,13 +99,13 @@ export const UI_TIMINGS = {
  */
 export function getCurrentSpecialDay(date = new Date()) {
   const dayOfWeek = date.getDay();
-  
+
   for (const [key, config] of Object.entries(SPECIAL_DAYS)) {
     if (config.enabled && config.dayOfWeek === dayOfWeek) {
       return { ...config, key };
     }
   }
-  
+
   return null;
 }
 
@@ -120,11 +120,13 @@ export function isEventActive(eventName, currentTime = Date.now()) {
   if (!event || !event.enabled) {
     return false;
   }
-  
+
   // 간단한 예: 페이지 로드 시간을 기준으로 계산
   // 실제 구현에서는 더 복잡한 로직이 필요할 수 있음
   const elapsed = currentTime % (event.startTime + event.duration);
-  return elapsed >= event.startTime && elapsed < (event.startTime + event.duration);
+  return (
+    elapsed >= event.startTime && elapsed < event.startTime + event.duration
+  );
 }
 
 /**
@@ -182,7 +184,7 @@ export function getBulkBonusLevel(quantity) {
  */
 export function createDebounced(func, delay = UI_TIMINGS.DEBOUNCE_DELAY) {
   let timeoutId;
-  return function(...args) {
+  return function (...args) {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func.apply(this, args), delay);
   };

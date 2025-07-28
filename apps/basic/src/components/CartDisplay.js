@@ -46,7 +46,7 @@ export class CartDisplay {
       showDiscounts = true,
       allowQuantityChange = true,
       onQuantityChange,
-      onRemove,
+      onRemove
     } = options;
 
     // 데이터 유효성 검사
@@ -66,7 +66,7 @@ export class CartDisplay {
           showDiscounts,
           allowQuantityChange,
           onQuantityChange,
-          onRemove,
+          onRemove
         });
       })
       .join('');
@@ -81,7 +81,10 @@ export class CartDisplay {
    * @param {string} [className=''] - 추가 CSS 클래스
    * @returns {string} 빈 장바구니 HTML
    */
-  static generateEmptyState(message = '장바구니가 비어있습니다', className = '') {
+  static generateEmptyState(
+    message = '장바구니가 비어있습니다',
+    className = ''
+  ) {
     const containerClasses = [
       'flex',
       'flex-col',
@@ -89,7 +92,7 @@ export class CartDisplay {
       'justify-center',
       'py-12',
       'text-center',
-      className,
+      className
     ]
       .filter(Boolean)
       .join(' ');
@@ -117,7 +120,9 @@ export class CartDisplay {
    * @returns {string} 컨테이너로 감싸진 HTML
    */
   static generateContainer(itemsHTML, className = '') {
-    const containerClasses = ['cart-display-container', className].filter(Boolean).join(' ');
+    const containerClasses = ['cart-display-container', className]
+      .filter(Boolean)
+      .join(' ');
 
     return `
       <div class="${containerClasses}">
@@ -150,7 +155,9 @@ export class CartDisplay {
 
       // 수량 추출
       const quantityElement = domItem.querySelector('.quantity-number');
-      const quantity = quantityElement ? parseInt(quantityElement.textContent) : 1;
+      const quantity = quantityElement
+        ? parseInt(quantityElement.textContent)
+        : 1;
 
       // CartItemData 형식으로 변환
       cartItems.push({
@@ -158,7 +165,7 @@ export class CartDisplay {
         quantity: quantity,
         discounts: {},
         subtotal: product.val * quantity,
-        stock: product.q,
+        stock: product.q
       });
     }
 
@@ -176,11 +183,14 @@ export class CartDisplay {
     }
 
     const itemCount = cartItems.length;
-    const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
+    const totalQuantity = cartItems.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
 
     return {
       itemCount,
-      totalQuantity,
+      totalQuantity
     };
   }
 
@@ -253,7 +263,7 @@ export class CartDisplay {
         return {
           ...item,
           quantity: newQuantity,
-          subtotal: item.product.val * newQuantity,
+          subtotal: item.product.val * newQuantity
         };
       }
       return item;

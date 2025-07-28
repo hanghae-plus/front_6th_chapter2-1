@@ -56,7 +56,7 @@ export const DISCOUNT_TYPES = {
   TUESDAY: 'tuesday', // 화요일 특별 할인
   FLASH: 'flash', // 번개세일 (20%)
   RECOMMEND: 'recommend', // 추천할인 (5%)
-  COMBO: 'combo', // 조합 할인 (번개세일+추천 = 25%)
+  COMBO: 'combo' // 조합 할인 (번개세일+추천 = 25%)
 };
 
 /**
@@ -68,7 +68,7 @@ export const DISCOUNT_PRIORITY = {
   [DISCOUNT_TYPES.FLASH]: 2, // 특별 할인들
   [DISCOUNT_TYPES.RECOMMEND]: 2,
   [DISCOUNT_TYPES.COMBO]: 2,
-  [DISCOUNT_TYPES.TUESDAY]: 3, // 화요일 할인은 최후 적용
+  [DISCOUNT_TYPES.TUESDAY]: 3 // 화요일 할인은 최후 적용
 };
 
 /**
@@ -81,7 +81,7 @@ export const DISCOUNT_POLICIES = {
     threshold: 10,
     canCombineWith: [DISCOUNT_TYPES.TUESDAY],
     priority: DISCOUNT_PRIORITY[DISCOUNT_TYPES.INDIVIDUAL],
-    description: '개별 상품 할인 (10개 이상)',
+    description: '개별 상품 할인 (10개 이상)'
   },
   [DISCOUNT_TYPES.BULK]: {
     type: DISCOUNT_TYPES.BULK,
@@ -89,7 +89,7 @@ export const DISCOUNT_POLICIES = {
     threshold: 30,
     canCombineWith: [DISCOUNT_TYPES.TUESDAY],
     priority: DISCOUNT_PRIORITY[DISCOUNT_TYPES.BULK],
-    description: '대량구매 할인 (30개 이상)',
+    description: '대량구매 할인 (30개 이상)'
   },
   [DISCOUNT_TYPES.TUESDAY]: {
     type: DISCOUNT_TYPES.TUESDAY,
@@ -99,32 +99,32 @@ export const DISCOUNT_POLICIES = {
       DISCOUNT_TYPES.BULK,
       DISCOUNT_TYPES.FLASH,
       DISCOUNT_TYPES.RECOMMEND,
-      DISCOUNT_TYPES.COMBO,
+      DISCOUNT_TYPES.COMBO
     ],
     priority: DISCOUNT_PRIORITY[DISCOUNT_TYPES.TUESDAY],
-    description: '화요일 추가 할인',
+    description: '화요일 추가 할인'
   },
   [DISCOUNT_TYPES.FLASH]: {
     type: DISCOUNT_TYPES.FLASH,
     rate: 0.2, // 20%
     canCombineWith: [DISCOUNT_TYPES.RECOMMEND, DISCOUNT_TYPES.TUESDAY],
     priority: DISCOUNT_PRIORITY[DISCOUNT_TYPES.FLASH],
-    description: '번개세일',
+    description: '번개세일'
   },
   [DISCOUNT_TYPES.RECOMMEND]: {
     type: DISCOUNT_TYPES.RECOMMEND,
     rate: 0.05, // 5%
     canCombineWith: [DISCOUNT_TYPES.FLASH, DISCOUNT_TYPES.TUESDAY],
     priority: DISCOUNT_PRIORITY[DISCOUNT_TYPES.RECOMMEND],
-    description: '추천할인',
+    description: '추천할인'
   },
   [DISCOUNT_TYPES.COMBO]: {
     type: DISCOUNT_TYPES.COMBO,
     rate: 0.25, // 25% (번개세일 20% + 추천할인 5%)
     canCombineWith: [DISCOUNT_TYPES.TUESDAY],
     priority: DISCOUNT_PRIORITY[DISCOUNT_TYPES.COMBO],
-    description: '번개세일 + 추천할인',
-  },
+    description: '번개세일 + 추천할인'
+  }
 };
 
 /**
@@ -144,12 +144,15 @@ export class DiscountEngine {
         appliedDiscounts: [],
         totalSavings: 0,
         finalAmount: 0,
-        availableDiscounts: [],
+        availableDiscounts: []
       };
     }
 
     const { date = new Date() } = context || {};
-    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const subtotal = cart.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
     let currentAmount = subtotal;
 
     // 1. 모든 가능한 할인 조사
@@ -178,7 +181,7 @@ export class DiscountEngine {
       finalAmount: currentAmount,
       availableDiscounts: availableDiscounts.filter(
         d => !appliedDiscounts.some(applied => applied.type === d.type)
-      ),
+      )
     };
   }
 
@@ -196,14 +199,18 @@ export class DiscountEngine {
     const prioritizedDiscounts = this.prioritizeDiscounts(availableDiscounts);
 
     // 2. 할인 조합 생성
-    const combinations = this._generateDiscountCombinations(prioritizedDiscounts);
+    const combinations =
+      this._generateDiscountCombinations(prioritizedDiscounts);
 
     // 3. 최대 절약 금액 조합 선택
     let bestCombination = [];
     let maxSavings = 0;
 
     for (const combination of combinations) {
-      const totalRate = combination.reduce((sum, discount) => sum + discount.rate, 0);
+      const totalRate = combination.reduce(
+        (sum, discount) => sum + discount.rate,
+        0
+      );
       if (totalRate > maxSavings) {
         maxSavings = totalRate;
         bestCombination = combination;
@@ -223,7 +230,7 @@ export class DiscountEngine {
     if (!item || !rule) {
       return {
         eligible: false,
-        reason: 'Invalid item or rule',
+        reason: 'Invalid item or rule'
       };
     }
 
@@ -234,7 +241,7 @@ export class DiscountEngine {
         if (item.quantity < threshold) {
           return {
             eligible: false,
-            reason: `수량이 ${threshold}개 미만입니다 (현재: ${item.quantity}개)`,
+            reason: `수량이 ${threshold}개 미만입니다 (현재: ${item.quantity}개)`
           };
         }
         break;
@@ -243,7 +250,7 @@ export class DiscountEngine {
         if (!item.product?.onSale) {
           return {
             eligible: false,
-            reason: '번개세일 대상 상품이 아닙니다',
+            reason: '번개세일 대상 상품이 아닙니다'
           };
         }
         break;
@@ -252,7 +259,7 @@ export class DiscountEngine {
         if (!item.product?.suggestSale) {
           return {
             eligible: false,
-            reason: '추천할인 대상 상품이 아닙니다',
+            reason: '추천할인 대상 상품이 아닙니다'
           };
         }
         break;
@@ -261,7 +268,7 @@ export class DiscountEngine {
         if (!item.product?.onSale || !item.product?.suggestSale) {
           return {
             eligible: false,
-            reason: '번개세일과 추천할인이 모두 적용된 상품이 아닙니다',
+            reason: '번개세일과 추천할인이 모두 적용된 상품이 아닙니다'
           };
         }
         break;
@@ -277,7 +284,7 @@ export class DiscountEngine {
 
     return {
       eligible: true,
-      reason: '할인 적용 가능',
+      reason: '할인 적용 가능'
     };
   }
 
@@ -294,7 +301,7 @@ export class DiscountEngine {
         rate: 0,
         amount: 0,
         description: '적용된 할인 없음',
-        eligible: false,
+        eligible: false
       };
     }
 
@@ -304,7 +311,9 @@ export class DiscountEngine {
 
     // 번개세일 + 추천할인 조합 특별 처리
     const flashDiscount = discounts.find(d => d.type === DISCOUNT_TYPES.FLASH);
-    const recommendDiscount = discounts.find(d => d.type === DISCOUNT_TYPES.RECOMMEND);
+    const recommendDiscount = discounts.find(
+      d => d.type === DISCOUNT_TYPES.RECOMMEND
+    );
 
     if (flashDiscount && recommendDiscount) {
       return {
@@ -313,7 +322,7 @@ export class DiscountEngine {
         amount: 0, // 나중에 계산
         description: DISCOUNT_POLICIES[DISCOUNT_TYPES.COMBO].description,
         eligible: true,
-        combinedFrom: [DISCOUNT_TYPES.FLASH, DISCOUNT_TYPES.RECOMMEND],
+        combinedFrom: [DISCOUNT_TYPES.FLASH, DISCOUNT_TYPES.RECOMMEND]
       };
     }
 
@@ -334,7 +343,7 @@ export class DiscountEngine {
       amount: 0,
       description: combinedDescription.join(' + '),
       eligible: true,
-      combinedFrom: combinedTypes,
+      combinedFrom: combinedTypes
     };
   }
 
@@ -378,7 +387,7 @@ export class DiscountEngine {
           amount: 0,
           description: `${item.product.name} ${DISCOUNT_POLICIES[DISCOUNT_TYPES.INDIVIDUAL].description}`,
           eligible: true,
-          productId: item.id,
+          productId: item.id
         });
       }
     }
@@ -390,7 +399,7 @@ export class DiscountEngine {
         rate: DISCOUNT_POLICIES[DISCOUNT_TYPES.BULK].rate,
         amount: 0,
         description: DISCOUNT_POLICIES[DISCOUNT_TYPES.BULK].description,
-        eligible: true,
+        eligible: true
       });
     }
 
@@ -401,7 +410,7 @@ export class DiscountEngine {
         rate: DISCOUNT_POLICIES[DISCOUNT_TYPES.TUESDAY].rate,
         amount: 0,
         description: DISCOUNT_POLICIES[DISCOUNT_TYPES.TUESDAY].description,
-        eligible: true,
+        eligible: true
       });
     }
 
@@ -414,7 +423,7 @@ export class DiscountEngine {
         amount: 0,
         description: DISCOUNT_POLICIES[DISCOUNT_TYPES.FLASH].description,
         eligible: true,
-        items: flashSaleItems.map(item => item.id),
+        items: flashSaleItems.map(item => item.id)
       });
     }
 
@@ -427,12 +436,14 @@ export class DiscountEngine {
         amount: 0,
         description: DISCOUNT_POLICIES[DISCOUNT_TYPES.RECOMMEND].description,
         eligible: true,
-        items: recommendItems.map(item => item.id),
+        items: recommendItems.map(item => item.id)
       });
     }
 
     // 6. 번개세일 + 추천할인 조합 검사
-    const comboItems = cart.filter(item => item.product?.onSale && item.product?.suggestSale);
+    const comboItems = cart.filter(
+      item => item.product?.onSale && item.product?.suggestSale
+    );
     if (comboItems.length > 0) {
       availableDiscounts.push({
         type: DISCOUNT_TYPES.COMBO,
@@ -440,7 +451,7 @@ export class DiscountEngine {
         amount: 0,
         description: DISCOUNT_POLICIES[DISCOUNT_TYPES.COMBO].description,
         eligible: true,
-        items: comboItems.map(item => item.id),
+        items: comboItems.map(item => item.id)
       });
     }
 
@@ -468,7 +479,9 @@ export class DiscountEngine {
 
     // 2. 조합 할인들 (번개세일 + 추천할인이 가장 중요)
     const flashDiscount = discounts.find(d => d.type === DISCOUNT_TYPES.FLASH);
-    const recommendDiscount = discounts.find(d => d.type === DISCOUNT_TYPES.RECOMMEND);
+    const recommendDiscount = discounts.find(
+      d => d.type === DISCOUNT_TYPES.RECOMMEND
+    );
     const comboDiscount = discounts.find(d => d.type === DISCOUNT_TYPES.COMBO);
 
     // 번개세일 + 추천할인 조합이 있으면 콤보로 대체
@@ -477,12 +490,16 @@ export class DiscountEngine {
     }
 
     // 3. 화요일 할인과의 조합
-    const tuesdayDiscount = discounts.find(d => d.type === DISCOUNT_TYPES.TUESDAY);
+    const tuesdayDiscount = discounts.find(
+      d => d.type === DISCOUNT_TYPES.TUESDAY
+    );
     if (tuesdayDiscount) {
       for (const discount of discounts) {
         if (
           discount.type !== DISCOUNT_TYPES.TUESDAY &&
-          policies[discount.type]?.canCombineWith?.includes(DISCOUNT_TYPES.TUESDAY)
+          policies[discount.type]?.canCombineWith?.includes(
+            DISCOUNT_TYPES.TUESDAY
+          )
         ) {
           combinations.push([discount, tuesdayDiscount]);
         }
@@ -490,7 +507,9 @@ export class DiscountEngine {
     }
 
     // 4. 개별 할인과 대량 할인은 배타적 (둘 중 하나만)
-    const individualDiscounts = discounts.filter(d => d.type === DISCOUNT_TYPES.INDIVIDUAL);
+    const individualDiscounts = discounts.filter(
+      d => d.type === DISCOUNT_TYPES.INDIVIDUAL
+    );
     const bulkDiscount = discounts.find(d => d.type === DISCOUNT_TYPES.BULK);
 
     // 대량할인이 있으면 개별할인과 결합하지 않음

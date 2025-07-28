@@ -16,7 +16,7 @@ describe('StockInfo 컴포넌트', () => {
       { id: 'p2', name: '재고 부족 상품', q: 3 },
       { id: 'p3', name: '품절 상품', q: 0 },
       { id: 'p4', name: '또 다른 정상 상품', q: 20 },
-      { id: 'p5', name: '또 다른 재고 부족 상품', q: 2 },
+      { id: 'p5', name: '또 다른 재고 부족 상품', q: 2 }
     ];
   });
 
@@ -52,7 +52,7 @@ describe('StockInfo 컴포넌트', () => {
       const options = {
         showWarningsOnly: true,
         showSummary: false,
-        highlightCritical: true,
+        highlightCritical: true
       };
 
       // When: 옵션과 함께 render 호출
@@ -80,9 +80,15 @@ describe('StockInfo 컴포넌트', () => {
       expect(result).toHaveProperty('summary');
 
       expect(result.items).toHaveLength(5);
-      expect(result.items.filter(item => item.urgencyLevel === 'critical')).toHaveLength(1); // 품절
-      expect(result.items.filter(item => item.urgencyLevel === 'warning')).toHaveLength(2); // 재고 부족
-      expect(result.items.filter(item => item.urgencyLevel === 'normal')).toHaveLength(2); // 정상
+      expect(
+        result.items.filter(item => item.urgencyLevel === 'critical')
+      ).toHaveLength(1); // 품절
+      expect(
+        result.items.filter(item => item.urgencyLevel === 'warning')
+      ).toHaveLength(2); // 재고 부족
+      expect(
+        result.items.filter(item => item.urgencyLevel === 'normal')
+      ).toHaveLength(2); // 정상
     });
 
     it('빈 배열에 대해 안전하게 처리해야 한다', () => {
@@ -105,7 +111,7 @@ describe('StockInfo 컴포넌트', () => {
         { urgencyLevel: 'warning' },
         { urgencyLevel: 'warning' },
         { urgencyLevel: 'critical' },
-        { urgencyLevel: 'normal' },
+        { urgencyLevel: 'normal' }
       ];
 
       // When: 요약 정보 계산
@@ -123,9 +129,12 @@ describe('StockInfo 컴포넌트', () => {
       // Given: 모든 정상 상품들
       const healthyProducts = [
         { id: 'p1', name: '상품1', q: 50 },
-        { id: 'p2', name: '상품2', q: 30 },
+        { id: 'p2', name: '상품2', q: 30 }
       ];
-      const healthyItems = [{ urgencyLevel: 'normal' }, { urgencyLevel: 'normal' }];
+      const healthyItems = [
+        { urgencyLevel: 'normal' },
+        { urgencyLevel: 'normal' }
+      ];
 
       // When: 요약 정보 계산
       const result = StockInfo.calculateSummary(healthyProducts, healthyItems);
@@ -144,7 +153,7 @@ describe('StockInfo 컴포넌트', () => {
       const items = [
         { productName: '정상 상품', quantity: 50, urgencyLevel: 'normal' },
         { productName: '재고 부족 상품', quantity: 3, urgencyLevel: 'warning' },
-        { productName: '품절 상품', quantity: 0, urgencyLevel: 'critical' },
+        { productName: '품절 상품', quantity: 0, urgencyLevel: 'critical' }
       ];
 
       // When: 재고 목록 생성
@@ -178,7 +187,7 @@ describe('StockInfo 컴포넌트', () => {
       const item = {
         productName: '정상 상품',
         quantity: 50,
-        urgencyLevel: 'normal',
+        urgencyLevel: 'normal'
       };
 
       // When: 아이템 생성
@@ -197,7 +206,7 @@ describe('StockInfo 컴포넌트', () => {
       const item = {
         productName: '재고 부족 상품',
         quantity: 3,
-        urgencyLevel: 'warning',
+        urgencyLevel: 'warning'
       };
 
       // When: 아이템 생성
@@ -215,7 +224,7 @@ describe('StockInfo 컴포넌트', () => {
       const item = {
         productName: '품절 상품',
         quantity: 0,
-        urgencyLevel: 'critical',
+        urgencyLevel: 'critical'
       };
       const options = { highlightCritical: true };
 
@@ -239,7 +248,7 @@ describe('StockInfo 컴포넌트', () => {
         warningCount: 0,
         criticalCount: 0,
         healthScore: 100,
-        overallStatus: 'healthy',
+        overallStatus: 'healthy'
       };
 
       // When: 요약 생성
@@ -262,7 +271,7 @@ describe('StockInfo 컴포넌트', () => {
         warningCount: 1,
         criticalCount: 2,
         healthScore: 40,
-        overallStatus: 'critical',
+        overallStatus: 'critical'
       };
 
       // When: 요약 생성
@@ -296,7 +305,7 @@ describe('StockInfo 컴포넌트', () => {
       // Given: 모든 정상 재고 상품들
       const healthyProducts = [
         { id: 'p1', name: '상품1', q: 50 },
-        { id: 'p2', name: '상품2', q: 30 },
+        { id: 'p2', name: '상품2', q: 30 }
       ];
 
       // When: 간단한 재고 텍스트 생성
@@ -320,7 +329,7 @@ describe('StockInfo 컴포넌트', () => {
     it('DOM 요소의 텍스트를 올바르게 업데이트해야 한다', () => {
       // Given: 모의 DOM 요소
       const mockElement = {
-        textContent: '',
+        textContent: ''
       };
 
       // When: DOM 요소 업데이트
@@ -349,14 +358,14 @@ describe('StockInfo 컴포넌트', () => {
         { id: 'p2', name: '마우스', q: 4 },
         { id: 'p3', name: '모니터', q: 0 },
         { id: 'p4', name: '스피커', q: 1 },
-        { id: 'p5', name: '헤드폰', q: 25 },
+        { id: 'p5', name: '헤드폰', q: 25 }
       ];
 
       // When: 전체 렌더링
       const result = StockInfo.render(complexProducts, {
         showSummary: true,
         showStockLevels: true,
-        highlightCritical: true,
+        highlightCritical: true
       });
 
       // Then: 모든 요소가 올바르게 포함되어야 함

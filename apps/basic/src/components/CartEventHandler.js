@@ -42,11 +42,15 @@ export class CartEventHandler {
    */
   static setupEventListeners(cartContainer, callbacks) {
     if (!cartContainer) {
-      throw new Error('CartEventHandler.setupEventListeners: cartContainer는 필수입니다.');
+      throw new Error(
+        'CartEventHandler.setupEventListeners: cartContainer는 필수입니다.'
+      );
     }
 
     if (!callbacks) {
-      throw new Error('CartEventHandler.setupEventListeners: callbacks는 필수입니다.');
+      throw new Error(
+        'CartEventHandler.setupEventListeners: callbacks는 필수입니다.'
+      );
     }
 
     // 기존 이벤트 리스너 제거 (중복 방지)
@@ -69,7 +73,10 @@ export class CartEventHandler {
    */
   static removeEventListeners(cartContainer) {
     if (cartContainer && cartContainer._cartClickHandler) {
-      cartContainer.removeEventListener('click', cartContainer._cartClickHandler);
+      cartContainer.removeEventListener(
+        'click',
+        cartContainer._cartClickHandler
+      );
       delete cartContainer._cartClickHandler;
     }
   }
@@ -104,7 +111,9 @@ export class CartEventHandler {
    */
   static handleQuantityChange(target, onQuantityChange) {
     if (!onQuantityChange || typeof onQuantityChange !== 'function') {
-      console.warn('CartEventHandler: onQuantityChange 콜백이 제공되지 않았습니다.');
+      console.warn(
+        'CartEventHandler: onQuantityChange 콜백이 제공되지 않았습니다.'
+      );
       return;
     }
 
@@ -114,7 +123,7 @@ export class CartEventHandler {
     if (!productId || isNaN(changeAmount)) {
       console.error('CartEventHandler: 유효하지 않은 수량 변경 데이터입니다.', {
         productId,
-        changeAmount,
+        changeAmount
       });
       return;
     }
@@ -122,13 +131,19 @@ export class CartEventHandler {
     // 현재 수량 찾기
     const itemElement = document.getElementById(productId);
     if (!itemElement) {
-      console.error('CartEventHandler: 상품 요소를 찾을 수 없습니다.', productId);
+      console.error(
+        'CartEventHandler: 상품 요소를 찾을 수 없습니다.',
+        productId
+      );
       return;
     }
 
     const quantityElement = itemElement.querySelector('.quantity-number');
     if (!quantityElement) {
-      console.error('CartEventHandler: 수량 요소를 찾을 수 없습니다.', productId);
+      console.error(
+        'CartEventHandler: 수량 요소를 찾을 수 없습니다.',
+        productId
+      );
       return;
     }
 
@@ -141,7 +156,7 @@ export class CartEventHandler {
       currentQuantity,
       changeAmount,
       newQuantity,
-      target,
+      target
     };
 
     // 콜백 호출
@@ -155,32 +170,41 @@ export class CartEventHandler {
    */
   static handleRemoveItem(target, onRemoveItem) {
     if (!onRemoveItem || typeof onRemoveItem !== 'function') {
-      console.warn('CartEventHandler: onRemoveItem 콜백이 제공되지 않았습니다.');
+      console.warn(
+        'CartEventHandler: onRemoveItem 콜백이 제공되지 않았습니다.'
+      );
       return;
     }
 
     const productId = target.dataset.productId;
 
     if (!productId) {
-      console.error('CartEventHandler: 유효하지 않은 제거 데이터입니다.', { productId });
+      console.error('CartEventHandler: 유효하지 않은 제거 데이터입니다.', {
+        productId
+      });
       return;
     }
 
     // 현재 수량 찾기
     const itemElement = document.getElementById(productId);
     if (!itemElement) {
-      console.error('CartEventHandler: 상품 요소를 찾을 수 없습니다.', productId);
+      console.error(
+        'CartEventHandler: 상품 요소를 찾을 수 없습니다.',
+        productId
+      );
       return;
     }
 
     const quantityElement = itemElement.querySelector('.quantity-number');
-    const currentQuantity = quantityElement ? parseInt(quantityElement.textContent) : 0;
+    const currentQuantity = quantityElement
+      ? parseInt(quantityElement.textContent)
+      : 0;
 
     // 제거 이벤트 데이터 생성
     const removeItemEvent = {
       productId,
       currentQuantity,
-      target,
+      target
     };
 
     // 콜백 호출
@@ -274,7 +298,11 @@ export class CartEventHandler {
    * @param {function} updateSelectOptions - 선택 옵션 업데이트 함수
    * @returns {CartEventCallbacks} main.basic.js 호환 콜백 객체
    */
-  static createMainBasicCompatibleCallbacks(productList, calculateCartStuff, updateSelectOptions) {
+  static createMainBasicCompatibleCallbacks(
+    productList,
+    calculateCartStuff,
+    updateSelectOptions
+  ) {
     return {
       onQuantityChange: event => {
         const { productId, newQuantity } = event;
@@ -318,7 +346,7 @@ export class CartEventHandler {
         // 장바구니 재계산 및 UI 업데이트
         calculateCartStuff();
         updateSelectOptions();
-      },
+      }
     };
   }
 }
