@@ -9,6 +9,9 @@ import {
   ManualColumn,
   Header,
   CartItem,
+  AddButton,
+  StockInfoText,
+  CartItemBox,
 } from "./components";
 import { prodList } from "./data";
 import {
@@ -54,25 +57,23 @@ function main() {
   manualOverlay = ManualOverlay();
   manualColumn = ManualColumn();
   productSelector = ProductSelector();
+  addBtn = AddButton();
+  stockInfo = StockInfoText();
+  cartDisp = CartItemBox();
 
-  // sel = document.createElement("select");
-  // sel.id = "product-select";
-  // sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
-  addBtn = document.createElement("button");
-  stockInfo = document.createElement("div");
-  addBtn.id = "add-to-cart";
-  stockInfo.id = "stock-status";
-  stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
-  addBtn.innerHTML = "Add to Cart";
-  addBtn.className =
-    "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
   selectorContainer.appendChild(productSelector);
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
-  cartDisp = document.createElement("div");
   leftColumn.appendChild(cartDisp);
-  cartDisp.id = "cart-items";
+  gridContainer.appendChild(leftColumn);
+  gridContainer.appendChild(rightColumn);
+  manualOverlay.appendChild(manualColumn);
+  root.appendChild(header);
+  root.appendChild(gridContainer);
+  root.appendChild(manualToggle);
+  root.appendChild(manualOverlay);
+
   sum = rightColumn.querySelector("#cart-total");
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle("hidden");
@@ -84,13 +85,6 @@ function main() {
       manualColumn.classList.add("translate-x-full");
     }
   };
-  gridContainer.appendChild(leftColumn);
-  gridContainer.appendChild(rightColumn);
-  manualOverlay.appendChild(manualColumn);
-  root.appendChild(header);
-  root.appendChild(gridContainer);
-  root.appendChild(manualToggle);
-  root.appendChild(manualOverlay);
   // let initStock = 0;
   // for (let i = 0; i < prodList.length; i++) {
   //   initStock += prodList[i].q;
