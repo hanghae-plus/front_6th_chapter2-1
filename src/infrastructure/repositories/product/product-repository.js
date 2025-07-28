@@ -11,7 +11,7 @@ class ProductRepository {
       name: product.name,
       price: product.val,
       originalVal: product.originalVal,
-      q: product.q,
+      quantity: product.q,
       onSale: product.onSale,
       suggestSale: product.suggestSale,
     });

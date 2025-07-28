@@ -19,8 +19,16 @@ class Quantity {
     return this.value > quantity.getQuantity();
   }
 
+  isGreaterThanOrEqualTo(quantity) {
+    return this.value >= quantity.getQuantity();
+  }
+
   isLessThan(quantity) {
     return this.value < quantity.getQuantity();
+  }
+
+  isLessThanOrEqualTo(quantity) {
+    return this.value <= quantity.getQuantity();
   }
 
   equals(quantity) {
