@@ -1,3 +1,43 @@
+function Option({ item }) {
+  let discountText = '';
+  if (item.onSale) discountText += ' ⚡SALE';
+  if (item.suggestSale) discountText += ' 💝추천';
+
+  if (item.q === 0) {
+    return /* HTML */ `
+      <option value="${item.id}" disabled class="text-gray-400">
+        ${item.name} - ${item.val}원 (품절) ${discountText}
+      </option>
+    `;
+  }
+
+  if (item.onSale && item.suggestSale) {
+    return /* HTML */ `
+      <option value="${item.id}" class="text-purple-600 font-bold">
+        ⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)
+      </option>
+    `;
+  }
+  if (item.onSale) {
+    return /* HTML */ `
+      <option value="${item.id}" class="text-red-500 font-bold">
+        ⚡ ${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)
+      </option>
+    `;
+  }
+  if (item.suggestSale) {
+    return /* HTML */ `
+      <option value="${item.id}" class="text-blue-500 font-bold">
+        💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)
+      </option>
+    `;
+  }
+
+  return /* HTML */ `
+    <option value="${item.id}">${item.name} - ${item.val}원${discountText}</option>
+  `;
+}
+
 function Header() {
   return /* HTML */ `
     <div class="mb-8">
@@ -269,35 +309,10 @@ function main() {
       const _p = prodList[idx];
       totalStock = totalStock + _p.q;
     }
-    for (let i = 0; i < prodList.length; i++) {
-      (function () {
-        const item = prodList[i];
-        const opt = document.createElement('option');
-        opt.value = item.id;
-        let discountText = '';
-        if (item.onSale) discountText += ' ⚡SALE';
-        if (item.suggestSale) discountText += ' 💝추천';
-        if (item.q === 0) {
-          opt.textContent = `${item.name} - ${item.val}원 (품절) ${discountText}`;
-          opt.disabled = true;
-          opt.className = 'text-gray-400';
-        } else {
-          if (item.onSale && item.suggestSale) {
-            opt.textContent = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)`;
-            opt.className = 'text-purple-600 font-bold';
-          } else if (item.onSale) {
-            opt.textContent = `⚡ ${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)`;
-            opt.className = 'text-red-500 font-bold';
-          } else if (item.suggestSale) {
-            opt.textContent = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)`;
-            opt.className = 'text-blue-500 font-bold';
-          } else {
-            opt.textContent = `${item.name} - ${item.val}원${discountText}`;
-          }
-        }
-        sel.appendChild(opt);
-      })();
-    }
+
+    const optionsHTML = prodList.map((item) => Option({ item })).join('');
+    sel.innerHTML = optionsHTML;
+
     if (totalStock < 50) {
       sel.style.borderColor = 'orange';
     } else {
