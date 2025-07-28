@@ -1,0 +1,201 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 🛠️ JavaScript to React-Like Refactoring Cursorules
+
+## Purpose
+
+This document defines strict refactoring rules for transforming legacy JavaScript "spaghetti" code into a React-like structure. The goal is **to improve maintainability without altering existing business logic**, inspired by JSX-style rendering, event delegation, and isolated state handling.
+
+> ⚠️ Never modify existing business logic.
+> ⚠️ Only restructure code without changing its behavior.
+
+---
+
+## 👑 Role Assumed
+
+The refactoring is executed by a senior JavaScript expert (CTO-level) responsible for safe architectural migration, ensuring minimal friction and zero regression.
+
+---
+
+## ✅ Principles
+
+### 1. Componentization First
+
+Extract related DOM + logic into modular components.
+
+* ✅ Good: `function ProductCard(props) { ... }`
+* ❌ Bad: `function renderProductBlock() { ... }`
+
+### 2. JSX-Like Function Structure
+
+Structure the component's return to reflect JSX semantics via:
+
+* Template literals
+* `document.createElement`
+* Consistent nesting and layout hierarchy
+
+### 3. Event Delegation Pattern
+
+Avoid direct event listeners inside loops or for every element.
+
+* ✅ `container.addEventListener('click', handleClick)`
+* ❌ `el.addEventListener('click', ...)` inside `.forEach`
+
+### 4. State Isolation
+
+Simulate `useState` behavior via top-level scope isolation.
+
+* ✅ `let isOpen = false` with updater function
+* ❌ Mutating state directly inside a handler
+
+### 5. Immutable Thinking
+
+Prefer immutable operations. Avoid in-place mutations unless absolutely necessary.
+
+### 6. Render Function Convention
+
+* Use PascalCase or `renderX` naming
+* Must accept `props` (or equivalent arguments)
+* Must be pure and side-effect free
+
+### 7. Early Return in Handlers
+
+Avoid deep nesting in event handlers.
+
+* ✅ `if (!target) return;`
+* ❌ Deep `if-else` or `switch-case` chains
+
+### 8. Naming Convention
+
+* ✅ Use **camelCase** for variables, functions, and handlers
+* ✅ Use **PascalCase** only for component-like pure render functions (like React)
+* ❌ Avoid snake\_case or inconsistent casing
+
+---
+
+## 🧩 Directory Structure
+
+```plaintext
+src/
+├── components/
+│   └── ProductCard.js       ← React-like component
+├── dom/
+│   └── domHelpers.js        ← DOM abstraction helpers
+├── state/
+│   └── stateStore.js        ← isolated state manager
+└── events/
+    └── clickDelegates.js    ← centralized event delegation
+```
+
+---
+
+## 🔒 Safety Rules
+
+* ❌ Never rename variables or functions unless unused
+* ❌ Never alter logic branches or flow
+* ✅ Use `// TODO:` comments to mark refactored boundaries
+* ✅ Add `/** Pure render function */` JSDoc for all JSX-like components
+
+---
+
+## 🧪 Testing & QA
+
+> 🔁 Refactoring without regression is non-negotiable.
+
+* ✅ **Always run tests via `pnpm test` before and after changes**
+* ✅ **Run tests frequently during refactor**, especially after any structural or state change
+* ❌ **Do not commit if any test fails**, even if the failure seems unrelated
+* ✅ Perform DOM snapshot diffing (if available)
+* ✅ Use `console.assert` to validate structural equivalence
+* ⚠️ Temporary logs allowed **within component scope only**, and must be removed before commit
+* ✅ Component output must be **visually and functionally identical** pre/post refactor
+
+---
+
+## 📝 Example Conversion
+
+### Before
+
+```js
+const button = document.createElement('button');
+button.innerText = 'Click me';
+button.onclick = function () {
+  alert('clicked');
+};
+document.body.appendChild(button);
+```
+
+### After
+
+```ts
+/** Pure render function */
+function ClickButton(): HTMLElement {
+  const button = document.createElement('button');
+  button.innerText = 'Click me';
+  button.addEventListener('click', handleClick);
+  return button;
+}
+
+function handleClick() {
+  alert('clicked');
+}
+
+document.body.appendChild(ClickButton());
+```
+
+---
+
+## 🧭 Migration Phases
+
+1. **Phase 1** – Extract component boundaries
+2. **Phase 2** – Centralize event delegation
+3. **Phase 3** – Isolate state per component
+4. **Phase 4** – JSX/React compatibility pass
+
+---
+
+## 🛑 Anti-Patterns
+
+| Pattern                          | Why to Avoid                  |
+| -------------------------------- | ----------------------------- |
+| `.innerHTML = ...`               | XSS-prone, hard to test       |
+| Global `let count = 0`           | Shared state = bugs           |
+| Direct DOM mutation              | Untrackable, brittle          |
+| Nested functions in render logic | Unreadable and non-composable |
+
+---
+
+## 📌 PR Checklist
+
+* [ ] No logic modifications
+* [ ] JSX-style component naming used
+* [ ] Event handlers prefixed with `handle`
+* [ ] No loop-level `.addEventListener`
+* [ ] `// TODO:` comment added where necessary
+* [ ] ✅ `pnpm test` passes locally **before each commit**
+
+---
+
+## 📎 Git Commit Tags
+
+Use these prefixes in commit messages:
+
+* `refactor(component):` Refactor logic into a React-like component
+* `refactor(event):` Apply event delegation pattern
+* `refactor(state):` Isolate or lift state cleanly
+* `test(regression):` Add missing test or fix test artifact
+* `docs(cursorules):` Update cursorule documentation
+
+---
+
+## ✍️ Notes
+
+This document evolves alongside the codebase.
+Suggest additions and improvements via pull request under the tag:
+
+```text
+docs(cursorules): update rulebook
+```
