@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@helpers/*": ["src/helpers/*"],
+      "@constants/*": ["src/constants/*"],
+      "@core/*": ["src/core/*"],
+      "@services/*": ["src/services/*"],
+      "@tests/*": ["src/__tests__/*"]
+    },
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "preserve"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

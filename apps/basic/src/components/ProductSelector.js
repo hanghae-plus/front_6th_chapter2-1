@@ -1,4 +1,4 @@
-import { CSS_CLASSES, DISCOUNT_CONSTANTS, STOCK_CONSTANTS } from '../constants/UIConstants.js';
+import { CSS_CLASSES, DISCOUNT_CONSTANTS, STOCK_CONSTANTS } from '@constants/UIConstants';
 
 /**
  * @fileoverview ProductSelector 컴포넌트

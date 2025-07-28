@@ -4,36 +4,17 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start:basic": "vite serve --open ./index.basic.html",
-    "start:advanced": "vite serve --open ./index.advanced.html",
-    "test": "vitest",
-    "test:basic": "vitest basic.test.js",
-    "test:advanced": "vitest advanced.test.js",
-    "test:ui": "vitest --ui",
-    "lint": "eslint src/basic --ext .js,.ts",
-    "lint:fix": "eslint src/basic --ext .js,.ts --fix",
-    "format": "prettier --write \"src/basic/**/*.{js,ts,json}\"",
-    "format:check": "prettier --check \"src/basic/**/*.{js,ts,json}\"",
-    "type-check": "tsc --noEmit",
-    "dev:setup": "npm run lint && npm run format && npm run type-check"
+    "dev:basic": "pnpm --filter @clean-code/basic dev",
+    "dev:advanced": "pnpm --filter @clean-code/advanced dev",
+    "dev:original": "pnpm --filter @clean-code/original dev",
+    "test:basic": "pnpm --filter @clean-code/basic test",
+    "test:advanced": "pnpm --filter @clean-code/advanced test",
+    "test:original": "pnpm --filter @clean-code/original test"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/user-event": "^14.6.1",
-    "@typescript-eslint/eslint-plugin": "^8.38.0",
-    "@typescript-eslint/parser": "^8.38.0",
-    "@vitest/ui": "^3.2.4",
     "eslint": "^9.32.0",
-    "eslint-config-prettier": "^9.1.2",
-    "globals": "^16.3.0",
-    "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
-    "typescript": "^5.8.3",
-    "vite": "^7.0.5",
-    "vitest": "^3.2.4"
+    "typescript": "^5.8.3"
   }
 }

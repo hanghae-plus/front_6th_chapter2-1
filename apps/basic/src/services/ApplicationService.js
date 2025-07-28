@@ -1,11 +1,11 @@
-import { CartEventHandler } from '../components/CartEventHandler.js';
-import { CartItem } from '../components/CartItem.js';
-import { HelpModal } from '../components/HelpModal.js';
-import { NotificationBar } from '../components/NotificationBar.js';
-import { OrderSummary } from '../components/OrderSummary.js';
-import { ProductSelector } from '../components/ProductSelector.js';
-import { StockInfo } from '../components/StockInfo.js';
-import { ALERT_UI, POINTS_CONSTANTS, STOCK_CONSTANTS } from '../constants/UIConstants.js';
+import { CartEventHandler } from '@components/CartEventHandler';
+import { CartItem } from '@components/CartItem';
+import { HelpModal } from '@components/HelpModal';
+import { NotificationBar } from '@components/NotificationBar';
+import { OrderSummary } from '@components/OrderSummary';
+import { ProductSelector } from '@components/ProductSelector';
+import { StockInfo } from '@components/StockInfo';
+import { ALERT_UI, POINTS_CONSTANTS, STOCK_CONSTANTS } from '@constants/UIConstants';
 
 export class ApplicationService {
   constructor(domManager, eventManager, uiUpdater, state, calculationEngine) {

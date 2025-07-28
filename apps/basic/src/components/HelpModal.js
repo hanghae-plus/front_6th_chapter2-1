@@ -6,7 +6,7 @@
  * 재사용 가능하고 접근성을 고려한 모달 시스템으로 구현
  */
 
-import { MANUAL_DATA } from '../constants/UIConstants.js';
+import { MANUAL_DATA } from '@constants/UIConstants';
 
 /**
  * @typedef {Object} HelpModalOptions

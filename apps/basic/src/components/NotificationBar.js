@@ -6,7 +6,7 @@
  * 재사용 가능하고 사용자 친화적인 알림 시스템으로 구현
  */
 
-import { ALERT_UI, formatMessage } from '../constants/UIConstants.js';
+import { ALERT_UI, formatMessage } from '@constants/UIConstants';
 
 /**
  * @typedef {Object} NotificationOptions

@@ -1,0 +1,28 @@
+packages:
+  - apps/*
+  - packages/*
+
+catalogs:
+  react:
+    # react
+    'react': '^19.1.0'
+    '@types/react': '^19.1.6'
+    # react-dom
+    'react-dom': '^19.1.0'
+    '@types/react-dom': '^19.1.2'
+
+  vite:
+    'vite': '^7.0.5'
+
+  config:
+    '@typescript-eslint/eslint-plugin': '^8.38.0'
+    '@typescript-eslint/parser': '^8.38.0'
+    'eslint-config-prettier': '^9.1.2'
+    'prettier': '^3.6.2'
+
+  test:
+    '@testing-library/jest-dom': '^6.6.3'
+    '@testing-library/user-event': '^14.6.1'
+    'vitest/ui': '^3.2.4'
+    'vitest': '^3.2.4'
+    'jsdom': '^26.1.0'
