@@ -1,14 +1,27 @@
+import App from "./App.js";
+import { createManualToggle } from "./components/ManualToggle.js";
+import { createTimerManager } from "./components/TimerManager.js";
+import { TUESDAY_DAY_OF_WEEK } from "./data/date.data.js";
 import {
+  DISCOUNT_RATE_BULK,
+  DISCOUNT_RATE_LIGHTNING,
   DISCOUNT_RATE_PRODUCT_1,
   DISCOUNT_RATE_PRODUCT_2,
   DISCOUNT_RATE_PRODUCT_3,
   DISCOUNT_RATE_PRODUCT_4,
   DISCOUNT_RATE_PRODUCT_5,
-  DISCOUNT_RATE_BULK,
-  DISCOUNT_RATE_TUESDAY,
-  DISCOUNT_RATE_LIGHTNING,
   DISCOUNT_RATE_SUGGESTION,
+  DISCOUNT_RATE_TUESDAY,
 } from "./data/discount.data.js";
+import {
+  POINT_BONUS_FULL_SET,
+  POINT_BONUS_KEYBOARD_MOUSE_SET,
+  POINT_BONUS_QUANTITY_TIER1,
+  POINT_BONUS_QUANTITY_TIER2,
+  POINT_BONUS_QUANTITY_TIER3,
+  POINT_MULTIPLIER_TUESDAY,
+  POINT_RATE_BASE,
+} from "./data/point.data.js";
 import {
   PRODUCT_1,
   PRODUCT_2,
@@ -18,34 +31,14 @@ import {
   PRODUCT_LIST,
 } from "./data/product.data.js";
 import {
-  MIN_QUANTITY_FOR_DISCOUNT,
+  LOW_STOCK_THRESHOLD,
   MIN_QUANTITY_FOR_BULK_DISCOUNT,
+  MIN_QUANTITY_FOR_DISCOUNT,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER1,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER2,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER3,
-  LOW_STOCK_THRESHOLD,
   TOTAL_STOCK_WARNING_THRESHOLD,
 } from "./data/quantity.data.js";
-import {
-  POINT_RATE_BASE,
-  POINT_BONUS_KEYBOARD_MOUSE_SET,
-  POINT_BONUS_FULL_SET,
-  POINT_BONUS_QUANTITY_TIER1,
-  POINT_BONUS_QUANTITY_TIER2,
-  POINT_BONUS_QUANTITY_TIER3,
-  POINT_MULTIPLIER_TUESDAY,
-} from "./data/point.data.js";
-import {
-  LIGHTNING_SALE_MAX_DELAY,
-  LIGHTNING_SALE_INTERVAL,
-  SUGGESTION_SALE_INTERVAL,
-  SUGGESTION_SALE_MAX_DELAY,
-} from "./data/time.data.js";
-import { TUESDAY_DAY_OF_WEEK } from "./data/date.data.js";
-import { Header } from "./components/Header.js";
-import { createManualToggle } from "./components/ManualToggle.js";
-import { MainLayout } from "./components/MainLayout.js";
-import { createTimerManager } from "./components/TimerManager.js";
 
 // 상태 변수
 let itemCounts;
@@ -63,20 +56,19 @@ function main() {
   itemCounts = 0;
   lastSelect = null;
 
+  // 앱 진입점
   const root = document.getElementById("app");
+  new App(root);
 
   // 매뉴얼 토글 컴포넌트 생성
   const { manualToggle, manualOverlay } = createManualToggle();
 
   // 메인 레이아웃 컴포넌트 생성
-  const mainLayoutComponent = MainLayout();
-  select = mainLayoutComponent.select;
-  addButton = mainLayoutComponent.addButton;
-  stockInfo = mainLayoutComponent.stockInfo;
-  cartDisplay = mainLayoutComponent.cartDisplay;
+  select = document.querySelector("#product-select");
+  addButton = document.querySelector("#add-to-cart");
+  stockInfo = document.querySelector("#stock-status");
+  cartDisplay = document.querySelector("#cart-items");
 
-  root.appendChild(Header());
-  root.appendChild(mainLayoutComponent.gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
