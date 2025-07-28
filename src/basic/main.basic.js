@@ -22,45 +22,27 @@ import {
   PRODUCT_FIVE,
 } from "./constants";
 
-let bonusPts = 0;
-let stockInfo;
-let itemCnt;
-let lastSel;
-// let sel;
-let productSelector;
-let addBtn;
+// let bonusPts = 0;
+let itemCnt = 0;
+let lastSel = null;
 let totalAmt = 0;
-let cartDisp;
 let sum;
+let productSelector = ProductSelector();
+let addBtn = AddButton();
+let stockInfo = StockInfoText();
+let cartDisp = CartItemBox();
 
 function main() {
-  let root;
-  let header;
-  let gridContainer;
-  let leftColumn;
-  let selectorContainer;
-  let rightColumn;
-  let manualToggle;
-  let manualOverlay;
-  let manualColumn;
-  let lightningDelay;
-  totalAmt = 0;
-  itemCnt = 0;
-  lastSel = null;
-
-  root = document.getElementById("app");
-  header = Header();
-  gridContainer = GridContainer();
-  leftColumn = LeftColumn();
-  selectorContainer = SelectorContainer();
-  rightColumn = RightColumn();
-  manualToggle = ManualToggle();
-  manualOverlay = ManualOverlay();
-  manualColumn = ManualColumn();
-  productSelector = ProductSelector();
-  addBtn = AddButton();
-  stockInfo = StockInfoText();
-  cartDisp = CartItemBox();
+  let root = document.getElementById("app");
+  let header = Header();
+  let gridContainer = GridContainer();
+  let leftColumn = LeftColumn();
+  let selectorContainer = SelectorContainer();
+  let rightColumn = RightColumn();
+  let manualToggle = ManualToggle();
+  let manualOverlay = ManualOverlay();
+  let manualColumn = ManualColumn();
+  let randomBaseDelay = Math.random() * 10000;
 
   selectorContainer.appendChild(productSelector);
   selectorContainer.appendChild(addBtn);
@@ -92,7 +74,6 @@ function main() {
   // }
   onUpdateSelectOptions();
   handleCalculateCartStuff();
-  lightningDelay = Math.random() * 10000;
   setTimeout(() => {
     setInterval(function () {
       const luckyIdx = Math.floor(Math.random() * prodList.length);
@@ -105,7 +86,7 @@ function main() {
         doUpdatePricesInCart();
       }
     }, 30000);
-  }, lightningDelay);
+  }, randomBaseDelay);
   setTimeout(function () {
     setInterval(function () {
       // if (cartDisp.children.length === 0) {
@@ -135,15 +116,15 @@ function main() {
         }
       }
     }, 60000);
-  }, Math.random() * 20000);
+  }, randomBaseDelay * 2);
 }
 
 function onUpdateSelectOptions() {
-  let totalStock;
-  let opt;
-  let discountText;
+  let totalStock = 0;
+  let opt = null;
+  let discountText = "";
   productSelector.innerHTML = "";
-  totalStock = 0;
+
   for (let idx = 0; idx < prodList.length; idx++) {
     const _p = prodList[idx];
     totalStock = totalStock + _p.q;
@@ -153,7 +134,6 @@ function onUpdateSelectOptions() {
       const item = prodList[i];
       opt = document.createElement("option");
       opt.value = item.id;
-      discountText = "";
       if (item.onSale) discountText += " ⚡SALE";
       if (item.suggestSale) discountText += " 💝추천";
       if (item.q === 0) {
@@ -207,43 +187,43 @@ function onUpdateSelectOptions() {
 }
 
 function handleCalculateCartStuff() {
-  let cartItems;
-  let subTot;
-  let itemDiscounts;
-  let lowStockItems;
-  let idx;
-  let originalTotal;
+  let cartItems = cartDisp.children;
+  let subTot = 0;
+  let itemDiscounts = [];
+  let lowStockItems = [];
+  // let idx;
+  let originalTotal = totalAmt;
   // let bulkDisc;
   // let itemDisc;
-  let savedAmount;
-  let summaryDetails;
-  let totalDiv;
-  let loyaltyPointsDiv;
-  let points;
-  let discountInfoDiv;
-  let itemCountElement;
-  let previousCount;
-  let stockMsg;
+  // let savedAmount;
+  // let summaryDetails;
+  // let totalDiv;
+  // let loyaltyPointsDiv;
+  // let points;
+  // let discountInfoDiv;
+  // let itemCountElement;
+  // let previousCount;
+  // let stockMsg;
   // let pts;
   // let hasP1;
   // let hasP2;
   // let loyaltyDiv;
   totalAmt = 0;
   itemCnt = 0;
-  originalTotal = totalAmt;
-  cartItems = cartDisp.children;
-  subTot = 0;
+  // originalTotal = totalAmt;
+  // cartItems = cartDisp.children;
+  // subTot = 0;
   // bulkDisc = subTot;
-  itemDiscounts = [];
-  lowStockItems = [];
-  for (idx = 0; idx < prodList.length; idx++) {
+  // itemDiscounts = [];
+  // lowStockItems = [];
+  for (let idx = 0; idx < prodList.length; idx++) {
     if (prodList[idx].q < 5 && prodList[idx].q > 0) {
       lowStockItems.push(prodList[idx].name);
     }
   }
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
-      let curItem;
+      let curItem = null;
       for (let j = 0; j < prodList.length; j++) {
         if (prodList[j].id === cartItems[i].id) {
           curItem = prodList[j];
@@ -251,12 +231,10 @@ function handleCalculateCartStuff() {
         }
       }
       const qtyElem = cartItems[i].querySelector(".quantity-number");
-      let q;
-      let itemTot;
-      let disc;
-      q = parseInt(qtyElem.textContent);
-      itemTot = curItem.val * q;
-      disc = 0;
+      let q = parseInt(qtyElem.textContent);
+      let itemTot = curItem.val * q;
+      let disc = 0;
+
       itemCnt += q;
       subTot += itemTot;
       const itemDiv = cartItems[i];
@@ -317,11 +295,11 @@ function handleCalculateCartStuff() {
   }
   document.getElementById("item-count").textContent =
     "🛍️ " + itemCnt + " items in cart";
-  summaryDetails = document.getElementById("summary-details");
+  let summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
-      let curItem;
+      let curItem = null;
       for (let j = 0; j < prodList.length; j++) {
         if (prodList[j].id === cartItems[i].id) {
           curItem = prodList[j];
@@ -379,13 +357,13 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
-  totalDiv = sum.querySelector(".text-2xl");
+  let totalDiv = sum.querySelector(".text-2xl");
   if (totalDiv) {
     totalDiv.textContent = "₩" + Math.round(totalAmt).toLocaleString();
   }
-  loyaltyPointsDiv = document.getElementById("loyalty-points");
+  let loyaltyPointsDiv = document.getElementById("loyalty-points");
   if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmt / 1000);
+    let points = Math.floor(totalAmt / 1000);
     if (points > 0) {
       loyaltyPointsDiv.textContent = "적립 포인트: " + points + "p";
       loyaltyPointsDiv.style.display = "block";
@@ -394,10 +372,10 @@ function handleCalculateCartStuff() {
       loyaltyPointsDiv.style.display = "block";
     }
   }
-  discountInfoDiv = document.getElementById("discount-info");
+  let discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
   if (discRate > 0 && totalAmt > 0) {
-    savedAmount = originalTotal - totalAmt;
+    let savedAmount = originalTotal - totalAmt;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -408,15 +386,17 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
-  itemCountElement = document.getElementById("item-count");
+  let itemCountElement = document.getElementById("item-count");
   if (itemCountElement) {
-    previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    let previousCount = parseInt(
+      itemCountElement.textContent.match(/\d+/) || 0
+    );
     itemCountElement.textContent = "🛍️ " + itemCnt + " items in cart";
     if (previousCount !== itemCnt) {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
-  stockMsg = "";
+  let stockMsg = "";
   for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
     const item = prodList[stockIdx];
     if (item.q < 5) {
@@ -434,20 +414,20 @@ function handleCalculateCartStuff() {
 }
 
 const doRenderBonusPoints = function () {
-  let basePoints;
-  let finalPoints;
-  let pointsDetail;
-  let hasKeyboard;
-  let hasMouse;
-  let hasMonitorArm;
-  let nodes;
-  if (cartDisp.children.length === 0) {
+  let basePoints = Math.floor(totalAmt / 1000);
+  let finalPoints = 0;
+  let pointsDetail = [];
+  let hasKeyboard = false;
+  let hasMouse = false;
+  let hasMonitorArm = false;
+  let nodes = cartDisp.children;
+  if (nodes.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
   }
-  basePoints = Math.floor(totalAmt / 1000);
-  finalPoints = 0;
-  pointsDetail = [];
+  // basePoints = Math.floor(totalAmt / 1000);
+  // finalPoints = 0;
+  // pointsDetail = [];
   if (basePoints > 0) {
     finalPoints = basePoints;
     pointsDetail.push("기본: " + basePoints + "p");
@@ -458,10 +438,10 @@ const doRenderBonusPoints = function () {
       pointsDetail.push("화요일 2배");
     }
   }
-  hasKeyboard = false;
-  hasMouse = false;
-  hasMonitorArm = false;
-  nodes = cartDisp.children;
+  // hasKeyboard = false;
+  // hasMouse = false;
+  // hasMonitorArm = false;
+  // nodes = cartDisp.children;
   for (const node of nodes) {
     let product = null;
     for (let pIdx = 0; pIdx < prodList.length; pIdx++) {
@@ -501,7 +481,7 @@ const doRenderBonusPoints = function () {
       }
     }
   }
-  bonusPts = finalPoints;
+  let bonusPts = finalPoints;
   const ptsTag = document.getElementById("loyalty-points");
   if (ptsTag) {
     if (bonusPts > 0) {
@@ -531,10 +511,10 @@ const doRenderBonusPoints = function () {
 //   return sum;
 // }
 const handleStockInfoUpdate = function () {
-  let infoMsg;
+  let infoMsg = "";
   // let totalStock;
   // let messageOptimizer;
-  infoMsg = "";
+  // infoMsg = "";
   // totalStock = onGetStockTotal();
   // if (totalStock < 30) {
   // }
@@ -553,7 +533,7 @@ const handleStockInfoUpdate = function () {
 function doUpdatePricesInCart() {
   // let totalCount = 0,
   // j = 0;
-  let cartItems;
+  let cartItems = cartDisp.children;
   // while (cartDisp.children[j]) {
   //   // const qty = cartDisp.children[j].querySelector(".quantity-number");
   //   // totalCount += qty ? parseInt(qty.textContent) : 0;
@@ -565,7 +545,7 @@ function doUpdatePricesInCart() {
   //     cartDisp.children[j].querySelector(".quantity-number").textContent
   //   );
   // }
-  cartItems = cartDisp.children;
+  // cartItems = cartDisp.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
     let product = null;
