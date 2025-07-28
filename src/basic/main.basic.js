@@ -1,17 +1,8 @@
 import { PRICES, DISCOUNT_RATES, PRODUCT_DISCOUNTS, INITIAL_STOCK, QUANTITY_THRESHOLDS, POINTS_QUANTITY_THRESHOLDS, POINTS, QUANTITY_BONUS_POINTS, TIMERS } from "./constants/index.js";
-
-import {
-  createHeader,
-  updateHeaderItemCount,
-  createProductSelector,
-  updateProductOptions,
-  updateStockInfo,
-  getSelectedProduct,
-  createCartItem,
-  updateCartItemQuantity,
-  updateCartItemPrice,
-  updateCartItemPriceStyle,
-} from "./components/index.js";
+import { createHeader, updateHeaderItemCount } from "./components/Header.js";
+import { createProductSelector, updateProductOptions, getSelectedProduct, updateStockInfo } from "./components/ProductSelector.js";
+import { createCartItem, updateCartItemQuantity, updateCartItemPrice, updateCartItemPriceStyle } from "./components/CartItem.js";
+import { createOrderSummary, updateOrderSummary } from "./components/OrderSummary.js";
 
 const prodList = [
   {
@@ -60,7 +51,7 @@ const prodList = [
     suggestSale: false,
   },
 ];
-let bonusPts = 0;
+const bonusPts = 0;
 let stockInfo;
 let itemCnt;
 let lastSel;
@@ -108,7 +99,7 @@ function validateSelectedItem(selectedProductId, productList) {
  * @param {Object} targetProduct - 추가할 상품 객체
  * @returns {boolean} 성공 여부
  */
-function increaseCartItemQuantity(cartItemElement, targetProduct) {
+function incrementCartItemQuantity(cartItemElement, targetProduct) {
   const quantityElement = cartItemElement.querySelector(".quantity-number");
   const currentQuantity = parseInt(quantityElement.textContent);
   const newQuantity = currentQuantity + 1;
@@ -201,8 +192,9 @@ function handleAddToCart(productList, cartDisplay) {
   if (!targetProduct) return;
 
   const existingCartItem = document.getElementById(targetProduct.id);
+
   if (existingCartItem) {
-    if (!increaseCartItemQuantity(existingCartItem, targetProduct)) return;
+    if (!incrementCartItemQuantity(existingCartItem, targetProduct)) return;
   } else {
     createAndAddCartItem(targetProduct, cartDisplay);
   }
@@ -220,55 +212,45 @@ function main() {
   header = createHeader({ itemCount: 0 });
 
   const gridContainer = document.createElement("div");
+  gridContainer.className = "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
+
   const leftColumn = document.createElement("div");
   leftColumn["className"] = "bg-white border border-gray-200 p-8 overflow-y-auto";
-  gridContainer.className = "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
 
   // ProductSelector 컴포넌트 생성
   selectorContainer = createProductSelector({
     products: prodList,
-    onProductSelect: () => {},
+    onProductSelect: () => {
+      console.log("select");
+    },
     onAddToCart: () => {
+      console.log("add");
       handleAddToCart(prodList, cartDisp);
     },
   });
 
-  leftColumn.appendChild(selectorContainer);
   cartDisp = document.createElement("div");
-  leftColumn.appendChild(cartDisp);
   cartDisp.id = "cart-items";
+  leftColumn.appendChild(selectorContainer);
+  leftColumn.appendChild(cartDisp);
+
   const rightColumn = document.createElement("div");
   rightColumn.className = "bg-black text-white p-8 flex flex-col";
-  rightColumn.innerHTML = `
-    <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
-    <div class="flex-1 flex flex-col">
-      <div id="summary-details" class="space-y-3"></div>
-      <div class="mt-auto">
-        <div id="discount-info" class="mb-4"></div>
-        <div id="cart-total" class="pt-5 border-t border-white/10">
-          <div class="flex justify-between items-baseline">
-            <span class="text-sm uppercase tracking-wider">Total</span>
-            <div class="text-2xl tracking-tight">₩0</div>
-          </div>
-          <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
-        </div>
-        <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
-          <div class="flex items-center gap-2">
-            <span class="text-2xs">🎉</span>
-            <span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button class="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">
-      Proceed to Checkout
-    </button>
-    <p class="mt-4 text-2xs text-white/60 text-center leading-relaxed">
-      Free shipping on all orders.<br>
-      <span id="points-notice">Earn loyalty points with purchase.</span>
-    </p>
-  `;
-  sum = rightColumn.querySelector("#cart-total");
+
+  // OrderSummary 컴포넌트 생성
+  const orderSummary = createOrderSummary({
+    cartItems: [],
+    subtotal: 0,
+    totalAmount: 0,
+    itemDiscounts: [],
+    isTuesday: new Date().getDay() === 2,
+    onCheckout: () => {
+      console.log("Proceed to checkout");
+    },
+  });
+
+  rightColumn.appendChild(orderSummary);
+
   const manualToggle = document.createElement("button");
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle("hidden");
@@ -431,25 +413,19 @@ function handleCalculateCartStuff() {
   let bulkDisc;
   let itemDisc;
   let savedAmount;
-  const summaryDetails = document.getElementById("summary-details");
-  const loyaltyPointsDiv = document.getElementById("loyalty-points");
-  let points;
-  const discountInfoDiv = document.getElementById("discount-info");
   const itemCountElement = document.getElementById("item-count");
   let previousCount;
   let stockMsg;
-  let pts;
-  let hasP1;
-  let hasP2;
-  let loyaltyDiv;
   totalAmt = 0;
   itemCnt = 0;
   subTot = 0;
+
   for (idx = 0; idx < prodList.length; idx++) {
     if (prodList[idx].quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING && prodList[idx].quantity > 0) {
       lowStockItems.push(prodList[idx].name);
     }
   }
+
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       let curItem;
@@ -501,6 +477,7 @@ function handleCalculateCartStuff() {
       totalAmt += itemTot * (1 - disc);
     })();
   }
+
   let discRate = 0;
   const originalTotal = subTot;
   if (itemCnt >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
@@ -512,111 +489,31 @@ function handleCalculateCartStuff() {
 
   const today = new Date();
   const isTuesday = today.getDay() === 2;
-  const tuesdaySpecial = document.getElementById("tuesday-special");
+
   if (isTuesday) {
     if (totalAmt > 0) {
       totalAmt = totalAmt * DISCOUNT_RATES.TUESDAY_SPECIAL;
-
       discRate = 1 - totalAmt / originalTotal;
-      tuesdaySpecial.classList.remove("hidden");
-    } else {
-      tuesdaySpecial.classList.add("hidden");
     }
-  } else {
-    tuesdaySpecial.classList.add("hidden");
   }
+
   updateHeaderItemCount(header, itemCnt);
-  summaryDetails.innerHTML = "";
-  if (subTot > 0) {
-    for (let i = 0; i < cartItems.length; i++) {
-      let curItem;
-      for (let j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
-          break;
-        }
-      }
-      const qtyElem = cartItems[i].querySelector(".quantity-number");
-      const q = parseInt(qtyElem.textContent);
-      const itemTotal = curItem.price * q;
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-xs tracking-wide text-gray-400">
-          <span>${curItem.name} x ${q}</span>
-          <span>₩${itemTotal.toLocaleString()}</span>
-        </div>
-      `;
-    }
 
-    summaryDetails.innerHTML += `
-      <div class="border-t border-white/10 my-3"></div>
-      <div class="flex justify-between text-sm tracking-wide">
-        <span>Subtotal</span>
-        <span>₩${subTot.toLocaleString()}</span>
-      </div>
-    `;
+  // OrderSummary 컴포넌트 업데이트
+  const orderSummary = document.querySelector(".bg-black.text-white.p-8.flex.flex-col > div");
+  if (orderSummary) {
+    updateOrderSummary(orderSummary, {
+      cartItems: Array.from(cartItems),
+      subtotal: subTot,
+      totalAmount: totalAmt,
+      itemDiscounts,
+      isTuesday,
+      itemCount: itemCnt,
+      discountRate: discRate,
+      savedAmount: originalTotal - totalAmt,
+    });
+  }
 
-    if (itemCnt >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">🎉 대량구매 할인 (${QUANTITY_THRESHOLDS.BULK_PURCHASE}개 이상)</span>
-          <span class="text-xs">-${(1 - DISCOUNT_RATES.BULK_PURCHASE) * 100}%</span>
-        </div>
-      `;
-    } else if (itemDiscounts.length > 0) {
-      itemDiscounts.forEach(item => {
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-green-400">
-            <span class="text-xs">${item.name} (10개↑)</span>
-            <span class="text-xs">-${item.discount}%</span>
-          </div>
-        `;
-      });
-    }
-    if (isTuesday) {
-      if (totalAmt > 0) {
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-purple-400">
-            <span class="text-xs">🌟 화요일 추가 할인</span>
-            <span class="text-xs">-10%</span>
-          </div>
-        `;
-      }
-    }
-    summaryDetails.innerHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-gray-400">
-        <span>Shipping</span>
-        <span>Free</span>
-      </div>
-    `;
-  }
-  const totalDiv = sum.querySelector(".text-2xl");
-  if (totalDiv) {
-    totalDiv.textContent = "₩" + Math.round(totalAmt).toLocaleString();
-  }
-  if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmt / POINTS.BASE_RATE);
-    if (points > 0) {
-      loyaltyPointsDiv.textContent = "적립 포인트: " + points + "p";
-      loyaltyPointsDiv.style.display = "block";
-    } else {
-      loyaltyPointsDiv.textContent = "적립 포인트: 0p";
-      loyaltyPointsDiv.style.display = "block";
-    }
-  }
-  discountInfoDiv.innerHTML = "";
-
-  if (discRate > 0 && totalAmt > 0) {
-    savedAmount = originalTotal - totalAmt;
-    discountInfoDiv.innerHTML = `
-      <div class="bg-green-500/20 rounded-lg p-3">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(discRate * 100).toFixed(1)}%</span>
-        </div>
-        <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
-      </div>
-    `;
-  }
   if (itemCountElement) {
     previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
     itemCountElement.textContent = "🛍️ " + itemCnt + " items in cart";
@@ -624,8 +521,8 @@ function handleCalculateCartStuff() {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
-  stockMsg = "";
 
+  stockMsg = "";
   for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
     const item = prodList[stockIdx];
     if (item.quantity < 5) {
@@ -636,93 +533,14 @@ function handleCalculateCartStuff() {
       }
     }
   }
-  // stockInfo가 존재하는 경우에만 업데이트
+
   if (stockInfo) {
     stockInfo.textContent = stockMsg;
   }
 
   handleStockInfoUpdate();
-  doRenderBonusPoints();
 }
-const doRenderBonusPoints = function () {
-  let hasKeyboard;
-  let hasMouse;
-  let hasMonitorArm;
-  if (cartDisp.children.length === 0) {
-    document.getElementById("loyalty-points").style.display = "none";
-    return;
-  }
-  const basePoints = Math.floor(totalAmt / POINTS.BASE_RATE);
-  let finalPoints = 0;
-  const pointsDetail = [];
 
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push("기본: " + basePoints + "p");
-  }
-  if (new Date().getDay() === 2) {
-    if (basePoints > 0) {
-      finalPoints = basePoints * POINTS.TUESDAY_MULTIPLIER;
-      pointsDetail.push("화요일 2배");
-    }
-  }
-  hasKeyboard = false;
-  hasMouse = false;
-  hasMonitorArm = false;
-  const nodes = cartDisp.children;
-  for (const node of nodes) {
-    let product = null;
-
-    for (let pIdx = 0; pIdx < prodList.length; pIdx++) {
-      if (prodList[pIdx].id === node.id) {
-        product = prodList[pIdx];
-        break;
-      }
-    }
-    if (!product) continue;
-    if (product.id === "p1") {
-      hasKeyboard = true;
-    } else if (product.id === "p2") {
-      hasMouse = true;
-    } else if (product.id === "p3") {
-      hasMonitorArm = true;
-    }
-  }
-  if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + POINTS.KEYBOARD_MOUSE_SET;
-    pointsDetail.push("키보드+마우스 세트 +50p");
-  }
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + POINTS.FULL_SET;
-    pointsDetail.push("풀세트 구매 +100p");
-  }
-
-  if (itemCnt >= POINTS_QUANTITY_THRESHOLDS.LARGE_BULK) {
-    finalPoints = finalPoints + QUANTITY_BONUS_POINTS.LARGE_BULK;
-    pointsDetail.push("대량구매(30개+) +100p");
-  } else {
-    if (itemCnt >= POINTS_QUANTITY_THRESHOLDS.MEDIUM_BULK) {
-      finalPoints = finalPoints + QUANTITY_BONUS_POINTS.MEDIUM_BULK;
-      pointsDetail.push("대량구매(20개+) +50p");
-    } else {
-      if (itemCnt >= POINTS_QUANTITY_THRESHOLDS.SMALL_BULK) {
-        finalPoints = finalPoints + QUANTITY_BONUS_POINTS.SMALL_BULK;
-        pointsDetail.push("대량구매(10개+) +20p");
-      }
-    }
-  }
-  bonusPts = finalPoints;
-  const ptsTag = document.getElementById("loyalty-points");
-  if (ptsTag) {
-    if (bonusPts > 0) {
-      ptsTag.innerHTML = '<div>적립 포인트: <span class="font-bold">' + bonusPts + "p</span></div>" + '<div class="text-2xs opacity-70 mt-1">' + pointsDetail.join(", ") + "</div>";
-      ptsTag.style.display = "block";
-    } else {
-      ptsTag.textContent = "적립 포인트: 0p";
-      ptsTag.style.display = "block";
-    }
-  }
-};
 function onGetStockTotal() {
   let sum;
   let i;

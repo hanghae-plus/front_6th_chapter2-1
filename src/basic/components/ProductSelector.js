@@ -1,19 +1,19 @@
+// 상수 정의
+const STOCK_WARNING_THRESHOLD = 50;
+const LOW_STOCK_THRESHOLD = 5;
+
 /**
  * ProductSelector 컴포넌트
  * 상품 선택 드롭다운과 장바구니 추가 버튼을 렌더링합니다.
  *
- * @param {Object} props
- * @param {Array} props.products - 상품 목록
- * @param {Function} props.onProductSelect - 상품 선택 시 호출되는 콜백
- * @param {Function} props.onAddToCart - 장바구니 추가 시 호출되는 콜백
- * @param {string} [props.containerClassName="mb-6 pb-6 border-b border-gray-200"] - 컨테이너 클래스
+ * @param {Array} products - 상품 목록
+ * @param {Function} onProductSelect - 상품 선택 시 호출되는 콜백
+ * @param {Function} onAddToCart - 장바구니 추가 시 호출되는 콜백
  * @returns {HTMLElement} ProductSelector DOM 요소
  */
-export function createProductSelector(props) {
-  const { products, onProductSelect, onAddToCart, containerClassName = "mb-6 pb-6 border-b border-gray-200" } = props;
-
+export function createProductSelector({ products, onProductSelect, onAddToCart }) {
   const selectorContainer = document.createElement("div");
-  selectorContainer.className = containerClassName;
+  selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
 
   // 상품 선택 드롭다운
   const select = document.createElement("select");
@@ -52,11 +52,70 @@ export function createProductSelector(props) {
       totalStock += products[idx].quantity;
     }
 
-    updateProductOptions(selectorContainer, products, totalStock, 5);
-    updateStockInfo(selectorContainer, products, 5);
+    updateProductOptions(selectorContainer, products, totalStock, LOW_STOCK_THRESHOLD);
+    updateStockInfo(selectorContainer, products, LOW_STOCK_THRESHOLD);
   }
 
   return selectorContainer;
+}
+
+/**
+ * 상품 옵션의 텍스트를 생성합니다.
+ *
+ * @param {Object} item - 상품 정보
+ * @returns {string} 옵션 텍스트
+ */
+function createOptionText(item) {
+  const discountText = createDiscountText(item);
+
+  if (item.quantity === 0) {
+    return `${item.name} - ${item.price}원 (품절)${discountText}`;
+  }
+
+  if (item.onSale && item.suggestSale) {
+    return `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (25% SUPER SALE!)`;
+  } else if (item.onSale) {
+    return `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (20% SALE!)`;
+  } else if (item.suggestSale) {
+    return `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (5% 추천할인!)`;
+  } else {
+    return `${item.name} - ${item.price}원${discountText}`;
+  }
+}
+
+/**
+ * 할인 텍스트를 생성합니다.
+ *
+ * @param {Object} item - 상품 정보
+ * @returns {string} 할인 텍스트
+ */
+function createDiscountText(item) {
+  let discountText = "";
+  if (item.onSale) discountText += " ⚡SALE";
+  if (item.suggestSale) discountText += " 💝추천";
+  return discountText;
+}
+
+/**
+ * 옵션의 CSS 클래스를 결정합니다.
+ *
+ * @param {Object} item - 상품 정보
+ * @returns {string} CSS 클래스
+ */
+function getOptionClassName(item) {
+  if (item.quantity === 0) {
+    return "text-gray-400";
+  }
+
+  if (item.onSale && item.suggestSale) {
+    return "text-purple-600 font-bold";
+  } else if (item.onSale) {
+    return "text-red-500 font-bold";
+  } else if (item.suggestSale) {
+    return "text-blue-500 font-bold";
+  }
+
+  return "";
 }
 
 /**
@@ -65,47 +124,36 @@ export function createProductSelector(props) {
  * @param {HTMLElement} selectorElement - ProductSelector DOM 요소
  * @param {Array} products - 상품 목록
  * @param {number} totalStock - 전체 재고 수량
- * @param {number} lowStockThreshold - 재고 부족 임계값
  */
-export function updateProductOptions(selectorElement, products, totalStock, lowStockThreshold = 5) {
+export function updateProductOptions(selectorElement, products, totalStock) {
   const select = selectorElement.querySelector("#product-select");
   if (!select) return;
 
-  select.innerHTML = "";
+  // innerHTML을 사용하여 한 번에 모든 옵션 생성
+  const optionsHTML = products
+    .map(item => {
+      const optionText = createOptionText(item);
+      const className = getOptionClassName(item);
+      const disabled = item.quantity === 0 ? "disabled" : "";
 
-  for (let i = 0; i < products.length; i++) {
-    const item = products[i];
-    const option = document.createElement("option");
-    option.value = item.id;
+      return `<option value="${item.id}" class="${className}" ${disabled}>${optionText}</option>`;
+    })
+    .join("");
 
-    let discountText = "";
-    if (item.onSale) discountText += " ⚡SALE";
-    if (item.suggestSale) discountText += " 💝추천";
-
-    if (item.quantity === 0) {
-      option.textContent = `${item.name} - ${item.price}원 (품절)${discountText}`;
-      option.disabled = true;
-      option.className = "text-gray-400";
-    } else {
-      if (item.onSale && item.suggestSale) {
-        option.textContent = `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (25% SUPER SALE!)`;
-        option.className = "text-purple-600 font-bold";
-      } else if (item.onSale) {
-        option.textContent = `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (20% SALE!)`;
-        option.className = "text-red-500 font-bold";
-      } else if (item.suggestSale) {
-        option.textContent = `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (5% 추천할인!)`;
-        option.className = "text-blue-500 font-bold";
-      } else {
-        option.textContent = `${item.name} - ${item.price}원${discountText}`;
-      }
-    }
-
-    select.appendChild(option);
-  }
+  select.innerHTML = optionsHTML;
 
   // 전체 재고가 부족할 때 드롭다운 테두리 색상 변경
-  if (totalStock < 50) {
+  updateSelectBorderColor(select, totalStock);
+}
+
+/**
+ * 드롭다운의 테두리 색상을 업데이트합니다.
+ *
+ * @param {HTMLElement} select - select 요소
+ * @param {number} totalStock - 전체 재고 수량
+ */
+function updateSelectBorderColor(select, totalStock) {
+  if (totalStock < STOCK_WARNING_THRESHOLD) {
     select.style.borderColor = "orange";
   } else {
     select.style.borderColor = "";
@@ -119,24 +167,21 @@ export function updateProductOptions(selectorElement, products, totalStock, lowS
  * @param {Array} products - 상품 목록
  * @param {number} lowStockThreshold - 재고 부족 임계값
  */
-export function updateStockInfo(selectorElement, products, lowStockThreshold = 5) {
+export function updateStockInfo(selectorElement, products, lowStockThreshold = LOW_STOCK_THRESHOLD) {
   const stockInfo = selectorElement.querySelector("#stock-status");
   if (!stockInfo) return;
 
-  let stockMessage = "";
-
-  for (let stockIdx = 0; stockIdx < products.length; stockIdx++) {
-    const item = products[stockIdx];
-    if (item.quantity < lowStockThreshold) {
+  const stockMessages = products
+    .filter(item => item.quantity < lowStockThreshold)
+    .map(item => {
       if (item.quantity > 0) {
-        stockMessage += `${item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
+        return `${item.name}: 재고 부족 (${item.quantity}개 남음)`;
       } else {
-        stockMessage += `${item.name}: 품절\n`;
+        return `${item.name}: 품절`;
       }
-    }
-  }
+    });
 
-  stockInfo.textContent = stockMessage;
+  stockInfo.textContent = stockMessages.join("\n");
 }
 
 /**
