@@ -6,11 +6,15 @@ var lastSel;
 var sel;
 var addBtn;
 var totalAmt = 0;
-var PRODUCT_ONE = 'p1';
-var p2 = 'p2';
-var product_3 = 'p3';
-var p4 = 'p4';
-var PRODUCT_5 = `p5`;
+
+const PRODUCT_IDS = {
+  P1: 'p1', // 버그 없애는 키보드
+  P2: 'p2', // 생산성 폭발 마우스
+  P3: 'p3', // 거북목 탈출 모니터암
+  P4: 'p4', // 에러 방지 노트북 파우치
+  P5: 'p5', // 코딩할 때 듣는 Lo-Fi 스피커
+};
+
 var cartDisp;
 function main() {
   var root;
@@ -28,7 +32,7 @@ function main() {
   lastSel = null;
   prodList = [
     {
-      id: PRODUCT_ONE,
+      id: PRODUCT_IDS.P1,
       name: '버그 없애는 키보드',
       val: 10000,
       originalVal: 10000,
@@ -37,7 +41,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: p2,
+      id: PRODUCT_IDS.P2,
       name: '생산성 폭발 마우스',
       val: 20000,
       originalVal: 20000,
@@ -46,7 +50,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: product_3,
+      id: PRODUCT_IDS.P3,
       name: '거북목 탈출 모니터암',
       val: 30000,
       originalVal: 30000,
@@ -55,7 +59,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: p4,
+      id: PRODUCT_IDS.P4,
       name: '에러 방지 노트북 파우치',
       val: 15000,
       originalVal: 15000,
@@ -64,7 +68,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: PRODUCT_5,
+      id: PRODUCT_IDS.P5,
       name: `코딩할 때 듣는 Lo-Fi 스피커`,
       val: 25000,
       originalVal: 25000,
@@ -410,19 +414,19 @@ function handleCalculateCartStuff() {
         }
       });
       if (q >= 10) {
-        if (curItem.id === PRODUCT_ONE) {
+        if (curItem.id === PRODUCT_IDS.P1) {
           disc = 10 / 100;
         } else {
-          if (curItem.id === p2) {
+          if (curItem.id === PRODUCT_IDS.P2) {
             disc = 15 / 100;
           } else {
-            if (curItem.id === product_3) {
+            if (curItem.id === PRODUCT_IDS.P3) {
               disc = 20 / 100;
             } else {
-              if (curItem.id === p4) {
+              if (curItem.id === PRODUCT_IDS.P4) {
                 disc = 5 / 100;
               } else {
-                if (curItem.id === PRODUCT_5) {
+                if (curItem.id === PRODUCT_IDS.P5) {
                   disc = 25 / 100;
                 }
               }
@@ -613,11 +617,11 @@ var doRenderBonusPoints = function () {
       }
     }
     if (!product) continue;
-    if (product.id === PRODUCT_ONE) {
+    if (product.id === PRODUCT_IDS.P1) {
       hasKeyboard = true;
-    } else if (product.id === p2) {
+    } else if (product.id === PRODUCT_IDS.P2) {
       hasMouse = true;
-    } else if (product.id === product_3) {
+    } else if (product.id === PRODUCT_IDS.P3) {
       hasMonitorArm = true;
     }
   }
