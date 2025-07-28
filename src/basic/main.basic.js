@@ -1,56 +1,10 @@
-import { PRICES, DISCOUNT_RATES, PRODUCT_DISCOUNTS, INITIAL_STOCK, QUANTITY_THRESHOLDS, POINTS_QUANTITY_THRESHOLDS, POINTS, QUANTITY_BONUS_POINTS, TIMERS } from "./constants/index.js";
+import { DISCOUNT_RATES, PRODUCT_DISCOUNTS, QUANTITY_THRESHOLDS, TIMERS } from "./constants/index.js";
 import { createHeader, updateHeaderItemCount } from "./components/Header.js";
 import { createProductSelector, updateProductOptions, getSelectedProduct, updateStockInfo } from "./components/ProductSelector.js";
 import { createCartItem, updateCartItemQuantity, updateCartItemPrice, updateCartItemPriceStyle } from "./components/CartItem.js";
 import { createOrderSummary, updateOrderSummary } from "./components/OrderSummary.js";
+import { PRODUCT_LIST } from "./data/product.js";
 
-const prodList = [
-  {
-    id: "p1",
-    name: "버그 없애는 키보드",
-    price: PRICES.KEYBOARD,
-    originalPrice: PRICES.KEYBOARD,
-    quantity: INITIAL_STOCK.KEYBOARD,
-    onSale: false,
-    suggestSale: false,
-  },
-  {
-    id: "p2",
-    name: "생산성 폭발 마우스",
-    price: PRICES.MOUSE,
-    originalPrice: PRICES.MOUSE,
-    quantity: INITIAL_STOCK.MOUSE,
-    onSale: false,
-    suggestSale: false,
-  },
-  {
-    id: "p3",
-    name: "거북목 탈출 모니터암",
-    price: PRICES.MONITOR_ARM,
-    originalPrice: PRICES.MONITOR_ARM,
-    quantity: INITIAL_STOCK.MONITOR_ARM,
-    onSale: false,
-    suggestSale: false,
-  },
-  {
-    id: "p4",
-    name: "에러 방지 노트북 파우치",
-    price: PRICES.LAPTOP_POUCH,
-    originalPrice: PRICES.LAPTOP_POUCH,
-    quantity: INITIAL_STOCK.LAPTOP_POUCH,
-    onSale: false,
-    suggestSale: false,
-  },
-  {
-    id: "p5",
-    name: "코딩할 때 듣는 Lo-Fi 스피커",
-    price: PRICES.SPEAKER,
-    originalPrice: PRICES.SPEAKER,
-    quantity: INITIAL_STOCK.SPEAKER,
-    onSale: false,
-    suggestSale: false,
-  },
-];
 const bonusPts = 0;
 let stockInfo;
 let itemCnt;
@@ -219,13 +173,13 @@ function main() {
 
   // ProductSelector 컴포넌트 생성
   selectorContainer = createProductSelector({
-    products: prodList,
+    products: PRODUCT_LIST,
     onProductSelect: () => {
       console.log("select");
     },
     onAddToCart: () => {
       console.log("add");
-      handleAddToCart(prodList, cartDisp);
+      handleAddToCart(PRODUCT_LIST, cartDisp);
     },
   });
 
@@ -351,8 +305,8 @@ function main() {
   const lightningDelay = Math.random() * TIMERS.LIGHTNING_SALE_DELAY;
   setTimeout(() => {
     setInterval(() => {
-      const luckyIdx = Math.floor(Math.random() * prodList.length);
-      const luckyItem = prodList[luckyIdx];
+      const luckyIdx = Math.floor(Math.random() * PRODUCT_LIST.length);
+      const luckyItem = PRODUCT_LIST[luckyIdx];
       if (luckyItem.quantity > 0 && !luckyItem.onSale) {
         luckyItem.price = Math.round(luckyItem.originalPrice * DISCOUNT_RATES.LIGHTNING_SALE);
         luckyItem.onSale = true;
@@ -370,11 +324,11 @@ function main() {
       if (lastSel) {
         let suggest = null;
 
-        for (let k = 0; k < prodList.length; k++) {
-          if (prodList[k].id !== lastSel) {
-            if (prodList[k].quantity > 0) {
-              if (!prodList[k].suggestSale) {
-                suggest = prodList[k];
+        for (let k = 0; k < PRODUCT_LIST.length; k++) {
+          if (PRODUCT_LIST[k].id !== lastSel) {
+            if (PRODUCT_LIST[k].quantity > 0) {
+              if (!PRODUCT_LIST[k].suggestSale) {
+                suggest = PRODUCT_LIST[k];
                 break;
               }
             }
@@ -395,14 +349,14 @@ function main() {
 let sum;
 function onUpdateSelectOptions() {
   let totalStock = 0;
-  for (let idx = 0; idx < prodList.length; idx++) {
-    const _p = prodList[idx];
+  for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
+    const _p = PRODUCT_LIST[idx];
     totalStock = totalStock + _p.quantity;
   }
 
   // ProductSelector 컴포넌트 업데이트
-  updateProductOptions(selectorContainer, prodList, totalStock, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
-  updateStockInfo(selectorContainer, prodList, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
+  updateProductOptions(selectorContainer, PRODUCT_LIST, totalStock, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
+  updateStockInfo(selectorContainer, PRODUCT_LIST, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
 }
 function handleCalculateCartStuff() {
   const cartItems = cartDisp.children;
@@ -420,18 +374,18 @@ function handleCalculateCartStuff() {
   itemCnt = 0;
   subTot = 0;
 
-  for (idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING && prodList[idx].quantity > 0) {
-      lowStockItems.push(prodList[idx].name);
+  for (idx = 0; idx < PRODUCT_LIST.length; idx++) {
+    if (PRODUCT_LIST[idx].quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING && PRODUCT_LIST[idx].quantity > 0) {
+      lowStockItems.push(PRODUCT_LIST[idx].name);
     }
   }
 
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       let curItem;
-      for (let j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
+      for (let j = 0; j < PRODUCT_LIST.length; j++) {
+        if (PRODUCT_LIST[j].id === cartItems[i].id) {
+          curItem = PRODUCT_LIST[j];
           break;
         }
       }
@@ -523,8 +477,8 @@ function handleCalculateCartStuff() {
   }
 
   stockMsg = "";
-  for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
-    const item = prodList[stockIdx];
+  for (let stockIdx = 0; stockIdx < PRODUCT_LIST.length; stockIdx++) {
+    const item = PRODUCT_LIST[stockIdx];
     if (item.quantity < 5) {
       if (item.quantity > 0) {
         stockMsg = stockMsg + item.name + ": 재고 부족 (" + item.quantity + "개 남음)\n";
@@ -546,14 +500,14 @@ function onGetStockTotal() {
   let i;
   let currentProduct;
   sum = 0;
-  for (i = 0; i < prodList.length; i++) {
-    currentProduct = prodList[i];
+  for (i = 0; i < PRODUCT_LIST.length; i++) {
+    currentProduct = PRODUCT_LIST[i];
     sum += currentProduct.quantity;
   }
   return sum;
 }
 const handleStockInfoUpdate = function () {
-  updateStockInfo(selectorContainer, prodList, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
+  updateStockInfo(selectorContainer, PRODUCT_LIST, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
 };
 function doUpdatePricesInCart() {
   let totalCount = 0,
@@ -572,9 +526,9 @@ function doUpdatePricesInCart() {
     const itemId = cartItems[i].id;
     let product = null;
 
-    for (let productIdx = 0; productIdx < prodList.length; productIdx++) {
-      if (prodList[productIdx].id === itemId) {
-        product = prodList[productIdx];
+    for (let productIdx = 0; productIdx < PRODUCT_LIST.length; productIdx++) {
+      if (PRODUCT_LIST[productIdx].id === itemId) {
+        product = PRODUCT_LIST[productIdx];
         break;
       }
     }

@@ -1,12 +1,6 @@
-/**
- * CartItem 컴포넌트
- * 장바구니 아이템 카드를 렌더링합니다.
- *
- * @param {Object} props.product - 상품 정보
- * @param {Function} props.onQuantityChange - 수량 변경 시 호출되는 콜백
- * @param {Function} props.onRemove - 제거 시 호출되는 콜백
- * @returns {HTMLElement} CartItem DOM 요소
- */
+import { getProductDisplayName, getPriceDisplayHTML } from "../utils/productDisplay.js";
+
+// CartItem 컴포넌트 생성
 export function createCartItem({ product, onQuantityChange, onRemove }) {
   const cartItem = document.createElement("div");
   cartItem.id = product.id;
@@ -65,53 +59,7 @@ export function createCartItem({ product, onQuantityChange, onRemove }) {
   return cartItem;
 }
 
-/**
- * 상품의 표시 이름을 생성합니다.
- *
- * @param {Object} product - 상품 정보
- * @returns {string} 표시할 상품명
- */
-function getProductDisplayName(product) {
-  let prefix = "";
-  if (product.onSale && product.suggestSale) {
-    prefix = "⚡💝";
-  } else if (product.onSale) {
-    prefix = "⚡";
-  } else if (product.suggestSale) {
-    prefix = "💝";
-  }
-  return prefix + product.name;
-}
-
-/**
- * 상품의 가격 표시 HTML을 생성합니다.
- *
- * @param {Object} product - 상품 정보
- * @returns {string} 가격 표시 HTML
- */
-function getPriceDisplayHTML(product) {
-  if (product.onSale || product.suggestSale) {
-    let colorClass = "";
-    if (product.onSale && product.suggestSale) {
-      colorClass = "text-purple-600";
-    } else if (product.onSale) {
-      colorClass = "text-red-500";
-    } else if (product.suggestSale) {
-      colorClass = "text-blue-500";
-    }
-
-    return `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="${colorClass}">₩${product.price.toLocaleString()}</span>`;
-  } else {
-    return `₩${product.price.toLocaleString()}`;
-  }
-}
-
-/**
- * CartItem의 수량을 업데이트합니다.
- *
- * @param {HTMLElement} cartItemElement - CartItem DOM 요소
- * @param {number} newQuantity - 새로운 수량
- */
+// CartItem의 수량을 업데이트합니다.
 export function updateCartItemQuantity(cartItemElement, newQuantity) {
   const quantityElement = cartItemElement.querySelector(".quantity-number");
   if (quantityElement) {
@@ -119,12 +67,7 @@ export function updateCartItemQuantity(cartItemElement, newQuantity) {
   }
 }
 
-/**
- * CartItem의 가격을 업데이트합니다.
- *
- * @param {HTMLElement} cartItemElement - CartItem DOM 요소
- * @param {Object} product - 업데이트된 상품 정보
- */
+// CartItem의 가격을 업데이트합니다.
 export function updateCartItemPrice(cartItemElement, product) {
   const priceElements = cartItemElement.querySelectorAll(".text-lg, .text-xs");
   const nameElement = cartItemElement.querySelector("h3");
@@ -142,12 +85,7 @@ export function updateCartItemPrice(cartItemElement, product) {
   });
 }
 
-/**
- * CartItem의 수량에 따라 가격 표시 스타일을 업데이트합니다.
- *
- * @param {HTMLElement} cartItemElement - CartItem DOM 요소
- * @param {number} quantity - 현재 수량
- */
+// CartItem의 수량에 따라 가격 표시 스타일을 업데이트합니다.
 export function updateCartItemPriceStyle(cartItemElement, quantity) {
   const priceElements = cartItemElement.querySelectorAll(".text-lg");
   priceElements.forEach(element => {

@@ -1,12 +1,4 @@
-/**
- * Header 컴포넌트
- * 쇼핑몰 헤더를 렌더링합니다.
- *
- * @param {number} itemCount - 장바구니 아이템 수
- * @param {string} title - 헤더 제목
- * @param {string} subtitle - 헤더 부제목
- * @returns {HTMLElement} 헤더 DOM 요소
- */
+// Header 컴포넌트
 export function createHeader({ itemCount = 0, title = "🛒 Hanghae Online Store", subtitle = "Shopping Cart" }) {
   const header = document.createElement("div");
   header.className = "mb-8";
@@ -20,13 +12,7 @@ export function createHeader({ itemCount = 0, title = "🛒 Hanghae Online Store
   return header;
 }
 
-/**
- * Header 컴포넌트 업데이트 함수
- * 아이템 카운트를 동적으로 업데이트합니다.
- *
- * @param {HTMLElement} headerElement - 헤더 DOM 요소
- * @param {number} itemCount - 새로운 아이템 수
- */
+// Header 컴포넌트 아이템 수 업데이트 함수
 export function updateHeaderItemCount(headerElement, itemCount) {
   const itemCountElement = headerElement.querySelector("#item-count");
   if (itemCountElement) {

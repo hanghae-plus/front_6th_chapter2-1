@@ -18,19 +18,7 @@ const POINTS_QUANTITY_THRESHOLDS = {
   LARGE_BULK: 30,
 };
 
-/**
- * OrderSummary 컴포넌트
- * 주문 요약 정보를 렌더링합니다.
- *
- * @param {Object} props
- * @param {Array} props.cartItems - 장바구니 아이템들
- * @param {number} props.subtotal - 소계
- * @param {number} props.totalAmount - 총액
- * @param {Array} props.itemDiscounts - 아이템 할인 정보
- * @param {boolean} props.isTuesday - 화요일 여부
- * @param {Function} props.onCheckout - 체크아웃 버튼 클릭 시 호출되는 콜백
- * @returns {HTMLElement} OrderSummary DOM 요소
- */
+// OrderSummary 컴포넌트
 export function createOrderSummary({ cartItems, subtotal, totalAmount, itemDiscounts, isTuesday, onCheckout }) {
   const orderSummaryContainer = document.createElement("div");
   orderSummaryContainer.className = "flex-1 flex flex-col";
