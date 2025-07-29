@@ -19,18 +19,19 @@ import {
   PRODUCT_ONE,
   PRODUCT_TWO,
   PRODUCT_THREE,
-  PRODUCT_FOUR,
-  PRODUCT_FIVE,
+  // PRODUCT_FOUR,
+  // PRODUCT_FIVE,
+  DISCOUNT_RATE,
 } from "./constants";
 
-let itemCnt = 0;
+let totalItemCount = 0;
 let lastSel = null;
-let totalAmt = 0;
+let totalDiscountedPrice = 0;
 let sum;
 let productSelector = ProductSelector();
 let addBtn = AddButton();
 let stockInfo = StockInfoText();
-let cartDisp = CartItemBox();
+let cartItemBox = CartItemBox();
 
 const main = () => {
   let root = document.getElementById("app");
@@ -48,7 +49,7 @@ const main = () => {
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
-  leftColumn.appendChild(cartDisp);
+  leftColumn.appendChild(cartItemBox);
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
@@ -114,83 +115,59 @@ const onUpdateSelectOptions = () => {
 };
 
 const handleCalculateCartStuff = () => {
-  let cartItems = cartDisp.children;
-  let subTot = 0;
+  totalDiscountedPrice = 0;
+  totalItemCount = 0;
+
+  let totalOriginalPrice = 0;
   let itemDiscounts = [];
-  let lowStockItems = [];
-  let originalTotal = totalAmt;
 
-  totalAmt = 0;
-  itemCnt = 0;
-
-  for (let idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].quantity < 5 && prodList[idx].quantity > 0) {
-      lowStockItems.push(prodList[idx].name);
-    }
-  }
+  const cartItems = cartItemBox.children;
   for (let i = 0; i < cartItems.length; i++) {
-    let curItem = null;
-    for (let j = 0; j < prodList.length; j++) {
-      if (prodList[j].id === cartItems[i].id) {
-        curItem = prodList[j];
-        break;
-      }
-    }
-    const qtyElem = cartItems[i].querySelector(".quantity-number");
-    let q = parseInt(qtyElem.textContent);
-    let itemTot = curItem.price * q;
-    let disc = 0;
+    const cartItem = prodList.find((item) => item.id === cartItems[i].id);
+    const itemQuantity = Number(
+      cartItems[i].querySelector(".quantity-number").textContent
+    );
+    const itemPrice = cartItem.price * itemQuantity;
 
-    itemCnt += q;
-    subTot += itemTot;
-    const itemDiv = cartItems[i];
-    const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
-    priceElems.forEach((elem) => {
-      if (elem.classList.contains("text-lg")) {
-        elem.style.fontWeight = q >= 10 ? "bold" : "normal";
+    totalItemCount += itemQuantity;
+    totalOriginalPrice += itemPrice;
+
+    const priceTexts = cartItems[i].querySelectorAll(".text-lg, .text-xs");
+    priceTexts.forEach((text) => {
+      if (text.classList.contains("text-lg")) {
+        text.style.fontWeight = itemQuantity >= 10 ? "bold" : "normal";
       }
     });
-    if (q >= 10) {
-      if (curItem.id === PRODUCT_ONE) {
-        disc = 10 / 100;
-      } else {
-        if (curItem.id === PRODUCT_TWO) {
-          disc = 15 / 100;
-        } else {
-          if (curItem.id === PRODUCT_THREE) {
-            disc = 20 / 100;
-          } else {
-            if (curItem.id === PRODUCT_FOUR) {
-              disc = 5 / 100;
-            } else {
-              if (curItem.id === PRODUCT_FIVE) {
-                disc = 25 / 100;
-              }
-            }
-          }
-        }
-      }
-      if (disc > 0) {
-        itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
+
+    let discountRate = 0;
+    if (itemQuantity >= 10) {
+      discountRate = DISCOUNT_RATE[cartItem.id] || 0;
+
+      if (discountRate > 0) {
+        itemDiscounts.push({
+          name: cartItem.name,
+          discount: discountRate * 100,
+        });
       }
     }
-    totalAmt += itemTot * (1 - disc);
+    totalDiscountedPrice += itemPrice * (1 - discountRate);
   }
+
   let discRate = 0;
-  originalTotal = subTot;
-  if (itemCnt >= 30) {
-    totalAmt = (subTot * 75) / 100;
+  if (totalItemCount >= 30) {
+    totalDiscountedPrice = (totalOriginalPrice * 75) / 100;
     discRate = 25 / 100;
   } else {
-    discRate = (subTot - totalAmt) / subTot;
+    discRate = (totalOriginalPrice - totalDiscountedPrice) / totalOriginalPrice;
   }
+
   const today = new Date();
   const isTuesday = today.getDay() === 2;
   const tuesdaySpecial = document.getElementById("tuesday-special");
   if (isTuesday) {
-    if (totalAmt > 0) {
-      totalAmt = (totalAmt * 90) / 100;
-      discRate = 1 - totalAmt / originalTotal;
+    if (totalDiscountedPrice > 0) {
+      totalDiscountedPrice = (totalDiscountedPrice * 90) / 100;
+      discRate = 1 - totalDiscountedPrice / totalOriginalPrice;
       tuesdaySpecial.classList.remove("hidden");
     } else {
       tuesdaySpecial.classList.add("hidden");
@@ -198,11 +175,13 @@ const handleCalculateCartStuff = () => {
   } else {
     tuesdaySpecial.classList.add("hidden");
   }
+
   document.getElementById("item-count").textContent =
-    `🛍️ ${itemCnt} items in cart`;
+    `🛍️ ${totalItemCount} items in cart`;
+
   let summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
-  if (subTot > 0) {
+  if (totalOriginalPrice > 0) {
     for (let i = 0; i < cartItems.length; i++) {
       let curItem = null;
       for (let j = 0; j < prodList.length; j++) {
@@ -225,10 +204,10 @@ const handleCalculateCartStuff = () => {
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
         <span>Subtotal</span>
-        <span>₩${subTot.toLocaleString()}</span>
+        <span>₩${totalOriginalPrice.toLocaleString()}</span>
       </div>
     `;
-    if (itemCnt >= 30) {
+    if (totalItemCount >= 30) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
@@ -246,7 +225,7 @@ const handleCalculateCartStuff = () => {
       });
     }
     if (isTuesday) {
-      if (totalAmt > 0) {
+      if (totalDiscountedPrice > 0) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-purple-400">
             <span class="text-xs">🌟 화요일 추가 할인</span>
@@ -262,13 +241,16 @@ const handleCalculateCartStuff = () => {
       </div>
     `;
   }
+
   let totalDiv = sum.querySelector(".text-2xl");
   if (totalDiv) {
-    totalDiv.textContent = "₩" + Math.round(totalAmt).toLocaleString();
+    totalDiv.textContent =
+      "₩" + Math.round(totalDiscountedPrice).toLocaleString();
   }
+
   let loyaltyPointsDiv = document.getElementById("loyalty-points");
   if (loyaltyPointsDiv) {
-    let points = Math.floor(totalAmt / 1000);
+    let points = Math.floor(totalDiscountedPrice / 1000);
     if (points > 0) {
       loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
       loyaltyPointsDiv.style.display = "block";
@@ -277,10 +259,11 @@ const handleCalculateCartStuff = () => {
       loyaltyPointsDiv.style.display = "block";
     }
   }
+
   let discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
-  if (discRate > 0 && totalAmt > 0) {
-    let savedAmount = originalTotal - totalAmt;
+  if (discRate > 0 && totalDiscountedPrice > 0) {
+    let savedAmount = totalOriginalPrice - totalDiscountedPrice;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -291,16 +274,18 @@ const handleCalculateCartStuff = () => {
       </div>
     `;
   }
+
   let itemCountElement = document.getElementById("item-count");
   if (itemCountElement) {
     let previousCount = parseInt(
       itemCountElement.textContent.match(/\d+/) || 0
     );
-    itemCountElement.textContent = `🛍️ ${itemCnt} items in cart`;
-    if (previousCount !== itemCnt) {
+    itemCountElement.textContent = `🛍️ ${totalItemCount} items in cart`;
+    if (previousCount !== totalItemCount) {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
+
   let stockMsg = "";
   for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
     const item = prodList[stockIdx];
@@ -318,13 +303,13 @@ const handleCalculateCartStuff = () => {
 };
 
 const doRenderBonusPoints = () => {
-  let basePoints = Math.floor(totalAmt / 1000);
+  let basePoints = Math.floor(totalDiscountedPrice / 1000);
   let finalPoints = 0;
   let pointsDetail = [];
   let hasKeyboard = false;
   let hasMouse = false;
   let hasMonitorArm = false;
-  let nodes = cartDisp.children;
+  let nodes = cartItemBox.children;
   if (nodes.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
@@ -364,15 +349,15 @@ const doRenderBonusPoints = () => {
     finalPoints = finalPoints + 100;
     pointsDetail.push("풀세트 구매 +100p");
   }
-  if (itemCnt >= 30) {
+  if (totalItemCount >= 30) {
     finalPoints = finalPoints + 100;
     pointsDetail.push("대량구매(30개+) +100p");
   } else {
-    if (itemCnt >= 20) {
+    if (totalItemCount >= 20) {
       finalPoints = finalPoints + 50;
       pointsDetail.push("대량구매(20개+) +50p");
     } else {
-      if (itemCnt >= 10) {
+      if (totalItemCount >= 10) {
         finalPoints = finalPoints + 20;
         pointsDetail.push("대량구매(10개+) +20p");
       }
@@ -409,7 +394,7 @@ const handleStockInfoUpdate = () => {
 };
 
 const doUpdatePricesInCart = () => {
-  let cartItems = cartDisp.children;
+  let cartItems = cartItemBox.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
     let product = null;
@@ -473,14 +458,14 @@ addBtn.addEventListener("click", () => {
       }
     } else {
       const cartItem = CartItem(itemToAdd);
-      cartDisp.appendChild(cartItem);
+      cartItemBox.appendChild(cartItem);
       itemToAdd.quantity--;
     }
     handleCalculateCartStuff();
     lastSel = selItem;
   }
 });
-cartDisp.addEventListener("click", (event) => {
+cartItemBox.addEventListener("click", (event) => {
   const tgt = event.target;
   if (
     tgt.classList.contains("quantity-change") ||
