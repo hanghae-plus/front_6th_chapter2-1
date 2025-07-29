@@ -109,7 +109,7 @@ const SALE_INTERVALS = {
   LIGHTNING_SALE_INITIAL_DELAY: 10000, // 최대 10초 후 첫 번째 세일 시작
 };
 
-// ✅ 상품 데이터 관리
+// 상품 데이터 관리
 const useProductData = {
   products: [
     {
@@ -158,6 +158,14 @@ const useProductData = {
       suggestSale: false,
     },
   ],
+
+  /**
+   * 상품 목록 반환
+   * @returns {Array} 상품 목록 배열
+   */
+  getProducts() {
+    return [...this.products];
+  },
 };
 
 let cartDisp;
@@ -335,8 +343,9 @@ function main() {
   lightningDelay = Math.random() * SALE_INTERVALS.LIGHTNING_SALE_INITIAL_DELAY;
   setTimeout(() => {
     setInterval(function () {
-      const luckyIdx = Math.floor(Math.random() * useProductData.products.length);
-      const luckyItem = useProductData.products[luckyIdx];
+      const products = useProductData.getProducts();
+      const luckyIdx = Math.floor(Math.random() * products.length);
+      const luckyItem = products[luckyIdx];
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * (100 - DISCOUNT_RULES.LIGHTNING_SALE_RATE)) / 100);
         luckyItem.onSale = true;
@@ -352,11 +361,12 @@ function main() {
       }
       if (lastSel) {
         let suggest = null;
-        for (let k = 0; k < useProductData.products.length; k++) {
-          if (useProductData.products[k].id !== lastSel) {
-            if (useProductData.products[k].q > 0) {
-              if (!useProductData.products[k].suggestSale) {
-                suggest = useProductData.products[k];
+        const products = useProductData.getProducts();
+        for (let k = 0; k < products.length; k++) {
+          if (products[k].id !== lastSel) {
+            if (products[k].q > 0) {
+              if (!products[k].suggestSale) {
+                suggest = products[k];
                 break;
               }
             }
@@ -382,13 +392,17 @@ function onUpdateSelectOptions() {
   let discountText;
   sel.innerHTML = "";
   totalStock = 0;
-  for (let idx = 0; idx < useProductData.products.length; idx++) {
-    const _p = useProductData.products[idx];
+
+  const products = useProductData.getProducts();
+
+  for (let idx = 0; idx < products.length; idx++) {
+    const _p = products[idx];
     totalStock += _p.q;
   }
-  for (var i = 0; i < useProductData.products.length; i++) {
+
+  for (var i = 0; i < products.length; i++) {
     (function () {
-      const item = useProductData.products[i];
+      const item = products[i];
       opt = document.createElement("option");
       opt.value = item.id;
       discountText = "";
@@ -413,6 +427,7 @@ function onUpdateSelectOptions() {
       sel.appendChild(opt);
     })();
   }
+
   if (totalStock < STOCK_THRESHOLDS.TOTAL_STOCK_WARNING) {
     sel.style.borderColor = "orange";
   } else {
@@ -442,17 +457,21 @@ function handleCalculateCartStuff() {
   subTot = 0;
   itemDiscounts = [];
   lowStockItems = [];
-  for (idx = 0; idx < useProductData.products.length; idx++) {
-    if (useProductData.products[idx].q < 5 && useProductData.products[idx].q > 0) {
-      lowStockItems.push(useProductData.products[idx].name);
+
+  const products = useProductData.getProducts();
+
+  for (idx = 0; idx < products.length; idx++) {
+    if (products[idx].q < 5 && products[idx].q > 0) {
+      lowStockItems.push(products[idx].name);
     }
   }
+
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       let curItem;
-      for (let j = 0; j < useProductData.products.length; j++) {
-        if (useProductData.products[j].id === cartItems[i].id) {
-          curItem = useProductData.products[j];
+      for (let j = 0; j < products.length; j++) {
+        if (products[j].id === cartItems[i].id) {
+          curItem = products[j];
           break;
         }
       }
@@ -515,9 +534,9 @@ function handleCalculateCartStuff() {
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
       var curItem;
-      for (let j = 0; j < useProductData.products.length; j++) {
-        if (useProductData.products[j].id === cartItems[i].id) {
-          curItem = useProductData.products[j];
+      for (let j = 0; j < products.length; j++) {
+        if (products[j].id === cartItems[i].id) {
+          curItem = products[j];
           break;
         }
       }
@@ -611,8 +630,8 @@ function handleCalculateCartStuff() {
     }
   }
   stockMsg = "";
-  for (let stockIdx = 0; stockIdx < useProductData.products.length; stockIdx++) {
-    const item = useProductData.products[stockIdx];
+  for (let stockIdx = 0; stockIdx < products.length; stockIdx++) {
+    const item = products[stockIdx];
     if (item.q < 5) {
       if (item.q > 0) {
         stockMsg = `${stockMsg + item.name}: 재고 부족 (${item.q}개 남음)\n`;
@@ -661,9 +680,10 @@ var doRenderBonusPoints = function () {
   nodes = cartDisp.children;
   for (const node of nodes) {
     let product = null;
-    for (let pIdx = 0; pIdx < useProductData.products.length; pIdx++) {
-      if (useProductData.products[pIdx].id === node.id) {
-        product = useProductData.products[pIdx];
+    const products = useProductData.getProducts();
+    for (let pIdx = 0; pIdx < products.length; pIdx++) {
+      if (products[pIdx].id === node.id) {
+        product = products[pIdx];
         break;
       }
     }
@@ -737,7 +757,9 @@ var handleStockInfoUpdate = function () {
   totalStock = onGetStockTotal();
   if (totalStock < STOCK_THRESHOLDS.TOTAL_STOCK_CRITICAL) {
   }
-  useProductData.products.forEach(function (item) {
+
+  const products = useProductData.getProducts();
+  products.forEach(function (item) {
     if (item.q < STOCK_THRESHOLDS.LOW_STOCK_WARNING) {
       if (item.q > 0) {
         infoMsg = `${infoMsg + item.name}: 재고 부족 (${item.q}개 남음)\n`;
@@ -750,12 +772,14 @@ var handleStockInfoUpdate = function () {
 };
 function doUpdatePricesInCart() {
   const cartItems = cartDisp.children;
+  const products = useProductData.getProducts();
+
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
     let product = null;
-    for (let productIdx = 0; productIdx < useProductData.products.length; productIdx++) {
-      if (useProductData.products[productIdx].id === itemId) {
-        product = useProductData.products[productIdx];
+    for (let productIdx = 0; productIdx < products.length; productIdx++) {
+      if (products[productIdx].id === itemId) {
+        product = products[productIdx];
         break;
       }
     }
@@ -847,12 +871,15 @@ cartDisp.addEventListener("click", function (event) {
     const prodId = tgt.dataset.productId;
     const itemElem = document.getElementById(prodId);
     let prod = null;
-    for (let prdIdx = 0; prdIdx < useProductData.products.length; prdIdx++) {
-      if (useProductData.products[prdIdx].id === prodId) {
-        prod = useProductData.products[prdIdx];
+
+    const products = useProductData.getProducts();
+    for (let prdIdx = 0; prdIdx < products.length; prdIdx++) {
+      if (products[prdIdx].id === prodId) {
+        prod = products[prdIdx];
         break;
       }
     }
+
     if (tgt.classList.contains("quantity-change")) {
       const qtyChange = parseInt(tgt.dataset.change);
       var qtyElem = itemElem.querySelector(".quantity-number");
