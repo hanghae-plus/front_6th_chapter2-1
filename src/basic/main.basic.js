@@ -1,8 +1,6 @@
-import { renderProductSelector } from "./features/shopping-cart/utils/productSelector.js";
-import { renderCartItem } from "./features/shopping-cart/utils/cartDisplay.js";
-import { renderOrderSummary } from "./features/shopping-cart/utils/orderSummary.js";
 import { Header } from "./features/shopping-cart/components/Header.js";
 import { HelpModal } from "./features/shopping-cart/components/HelpModal.js";
+import { ProductSelector } from "./features/shopping-cart/components/ProductSelector.js";
 import {
   handleCartClick,
   handleAddToCartClick,
@@ -53,23 +51,8 @@ const BUSINESS_CONSTANTS = {
   },
 };
 
-const appState = {
-  productList: [],
-
-  totalAmount: 0,
-  totalItemCount: 0,
-  bonusPoints: 0,
-  lastSelectedProductId: null,
-
-  elements: {
-    productSelector: null,
-    addToCartButton: null,
-    cartDisplayElement: null,
-    stockInfoElement: null,
-    summaryElement: null,
-  },
-};
-
+// TODO: Convert to local state pattern
+// Each component will manage its own state with useState-like pattern
 let productList = [];
 let bonusPoints = 0;
 let stockInfoElement = null;
@@ -131,12 +114,11 @@ const stateActions = {
   ],
 
   updateState: (newState) => {
-    Object.assign(appState, newState);
-    productList = appState.productList;
-    totalAmount = appState.totalAmount;
-    totalItemCount = appState.totalItemCount;
-    bonusPoints = appState.bonusPoints;
-    lastSelectedProductId = appState.lastSelectedProductId;
+    productList = newState.productList;
+    totalAmount = newState.totalAmount;
+    totalItemCount = newState.totalItemCount;
+    bonusPoints = newState.bonusPoints;
+    lastSelectedProductId = newState.lastSelectedProductId;
   },
 };
 
@@ -243,10 +225,13 @@ function createLeftColumn() {
   const selectorContainer = document.createElement("div");
   selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
 
-  const productSelectorElement = document.createElement("select");
-  productSelectorElement.id = "product-select";
-  productSelectorElement.className =
-    "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
+  const productSelectorElement = ProductSelector({
+    products: productList,
+    selectedProductId: lastSelectedProductId,
+    onSelectionChange: (productId) => {
+      lastSelectedProductId = productId;
+    },
+  });
 
   const addToCartButtonElement = document.createElement("button");
   addToCartButtonElement.id = "add-to-cart";
@@ -261,11 +246,7 @@ function createLeftColumn() {
 
   const cartDisplayElementCreated = document.createElement("div");
   cartDisplayElementCreated.id = "cart-items";
-
-  appState.elements.productSelector = productSelectorElement;
-  appState.elements.addToCartButton = addToCartButtonElement;
-  appState.elements.stockInfoElement = stockInfoElementCreated;
-  appState.elements.cartDisplayElement = cartDisplayElementCreated;
+  cartDisplayElementCreated.className = "space-y-3";
 
   productSelector = productSelectorElement;
   addToCartButton = addToCartButtonElement;
@@ -279,6 +260,28 @@ function createLeftColumn() {
   leftColumn.appendChild(cartDisplayElementCreated);
 
   return leftColumn;
+}
+
+// Centralized calculation function (replaces handleCalculateCartStuff)
+function calculateAndUpdateTotals() {
+  const cartItems = cartDisplayElement.getItems
+    ? cartDisplayElement.getItems()
+    : [];
+
+  // Update summary component
+  if (summaryElement && summaryElement.updateCartItems) {
+    summaryElement.updateCartItems(cartItems);
+  }
+
+  // Update header item count
+  const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const headerItemCount = document.getElementById("item-count");
+  if (headerItemCount) {
+    headerItemCount.textContent = `🛍️ ${itemCount} items in cart`;
+  }
+
+  // Update global variables for legacy compatibility
+  totalItemCount = itemCount;
 }
 
 function createRightColumn() {
@@ -315,8 +318,8 @@ function createRightColumn() {
   `;
 
   const summaryElementCreated = rightColumn.querySelector("#cart-total");
-  appState.elements.summaryElement = summaryElementCreated;
 
+  // Keep global reference for legacy compatibility
   summaryElement = summaryElementCreated;
 
   return rightColumn;
@@ -427,11 +430,39 @@ function main() {
 }
 
 function onUpdateSelectOptions() {
-  return renderProductSelector({
-    products: productList,
-    containerElement: productSelector,
-    stockThreshold: BUSINESS_CONSTANTS.STOCK.STOCK_WARNING_THRESHOLD,
-  });
+  // Update ProductSelector with new products data
+  if (productSelector && productSelector.updateProducts) {
+    productSelector.updateProducts(productList, lastSelectedProductId);
+  }
+
+  // Update stock info
+  const totalStock = productList.reduce((sum, p) => sum + p.q, 0);
+  const isLowStock =
+    totalStock < BUSINESS_CONSTANTS.STOCK.STOCK_WARNING_THRESHOLD;
+
+  if (stockInfoElement) {
+    if (isLowStock) {
+      const lowStockItems = productList
+        .filter(
+          (p) => p.q < BUSINESS_CONSTANTS.STOCK.LOW_STOCK_THRESHOLD && p.q > 0
+        )
+        .map((p) => `${p.name}: ${p.q}개 남음`)
+        .join("\n");
+
+      const outOfStockItems = productList
+        .filter((p) => p.q === 0)
+        .map((p) => `${p.name}: 품절`)
+        .join("\n");
+
+      stockInfoElement.textContent = [lowStockItems, outOfStockItems]
+        .filter(Boolean)
+        .join("\n");
+    } else {
+      stockInfoElement.textContent = "";
+    }
+  }
+
+  return { totalStock, isLowStock };
 }
 
 function handleCalculateCartStuff() {
@@ -736,6 +767,156 @@ const productUtils = {
     return products.some((product) => product.id === productId);
   },
 };
+
+// Render order summary based on original implementation
+function renderOrderSummary({
+  cartItems,
+  products,
+  subtotal,
+  totalItemCount,
+  itemDiscounts,
+  isTuesday,
+  totalAmount,
+  containerElement,
+  bulkDiscountThreshold,
+}) {
+  if (!containerElement) return;
+
+  containerElement.innerHTML = "";
+
+  if (subtotal > 0) {
+    // Add each cart item
+    for (let i = 0; i < cartItems.length; i++) {
+      let curItem = null;
+      for (let j = 0; j < products.length; j++) {
+        if (products[j].id === cartItems[i].id) {
+          curItem = products[j];
+          break;
+        }
+      }
+      if (curItem) {
+        const qtyElem = cartItems[i].querySelector(".quantity-number");
+        const q = parseInt(qtyElem.textContent);
+        const itemTotal = curItem.val * q;
+        containerElement.innerHTML += `
+          <div class="flex justify-between text-xs tracking-wide text-gray-400">
+            <span>${curItem.name} x ${q}</span>
+            <span>₩${itemTotal.toLocaleString()}</span>
+          </div>
+        `;
+      }
+    }
+
+    // Add subtotal
+    containerElement.innerHTML += `
+      <div class="border-t border-white/10 my-3"></div>
+      <div class="flex justify-between text-sm tracking-wide">
+        <span>Subtotal</span>
+        <span>₩${subtotal.toLocaleString()}</span>
+      </div>
+    `;
+
+    // Add bulk discount
+    if (totalItemCount >= 30) {
+      containerElement.innerHTML += `
+        <div class="flex justify-between text-sm tracking-wide text-green-400">
+          <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
+          <span class="text-xs">-25%</span>
+        </div>
+      `;
+    } else if (itemDiscounts.length > 0) {
+      // Add individual item discounts
+      itemDiscounts.forEach(function (item) {
+        containerElement.innerHTML += `
+          <div class="flex justify-between text-sm tracking-wide text-green-400">
+            <span class="text-xs">${item.name} (10개↑)</span>
+            <span class="text-xs">-${item.discount}%</span>
+          </div>
+        `;
+      });
+    }
+
+    // Add Tuesday discount
+    if (isTuesday && totalAmount > 0) {
+      containerElement.innerHTML += `
+        <div class="flex justify-between text-sm tracking-wide text-purple-400">
+          <span class="text-xs">🌟 화요일 추가 할인</span>
+          <span class="text-xs">-10%</span>
+        </div>
+      `;
+    }
+  }
+}
+
+// Render cart item based on original implementation
+function renderCartItem({ product, quantity, containerElement }) {
+  const newItem = document.createElement("div");
+  newItem.id = product.id;
+  newItem.className =
+    "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
+  newItem.innerHTML = `
+    <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
+      <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+    </div>
+    <div>
+      <h3 class="text-base font-normal mb-1 tracking-tight">${
+        product.onSale && product.suggestSale
+          ? "⚡💝"
+          : product.onSale
+          ? "⚡"
+          : product.suggestSale
+          ? "💝"
+          : ""
+      }${product.name}</h3>
+      <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
+      <p class="text-xs text-black mb-3">${
+        product.onSale || product.suggestSale
+          ? '<span class="line-through text-gray-400">₩' +
+            product.originalVal.toLocaleString() +
+            '</span> <span class="' +
+            (product.onSale && product.suggestSale
+              ? "text-purple-600"
+              : product.onSale
+              ? "text-red-500"
+              : "text-blue-500") +
+            '">₩' +
+            product.val.toLocaleString() +
+            "</span>"
+          : "₩" + product.val.toLocaleString()
+      }</p>
+      <div class="flex items-center gap-4">
+        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
+          product.id
+        }" data-change="-1">−</button>
+        <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">${quantity}</span>
+        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
+          product.id
+        }" data-change="1">+</button>
+      </div>
+    </div>
+    <div class="text-right">
+      <div class="text-lg mb-2 tracking-tight tabular-nums">${
+        product.onSale || product.suggestSale
+          ? '<span class="line-through text-gray-400">₩' +
+            product.originalVal.toLocaleString() +
+            '</span> <span class="' +
+            (product.onSale && product.suggestSale
+              ? "text-purple-600"
+              : product.onSale
+              ? "text-red-500"
+              : "text-blue-500") +
+            '">₩' +
+            product.val.toLocaleString() +
+            "</span>"
+          : "₩" + product.val.toLocaleString()
+      }</div>
+      <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${
+        product.id
+      }">Remove</a>
+    </div>
+  `;
+  containerElement.appendChild(newItem);
+}
 
 const cartUtils = {
   updateItemQuantity: (product, existingItem) => {

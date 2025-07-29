@@ -1,62 +1,183 @@
-const CartDisplay = ({ product, quantity = 1 }) => {
-  const getPriceDisplay = (product) => {
-    if (product.onSale || product.suggestSale) {
-      const colorClass =
-        product.onSale && product.suggestSale
-          ? "text-purple-600"
-          : product.onSale
-          ? "text-red-500"
-          : "text-blue-500";
+/**
+ * Pure render function for Cart Display with local state
+ * @param {Object} props - Component properties
+ * @param {Array} props.cartItems - Cart items array
+ * @param {Function} props.onItemChange - Callback when items change
+ * @param {Function} props.onTotalsUpdate - Callback when totals need update
+ * @returns {HTMLElement} Cart display element
+ */
+function CartDisplay(props = {}) {
+  const { cartItems = [], onItemChange, onTotalsUpdate } = props;
 
-      return `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="${colorClass}">₩${product.val.toLocaleString()}</span>`;
+  // Local state (useState-like pattern)
+  let internalCartItems = [...cartItems];
+
+  const cartContainer = document.createElement("div");
+  cartContainer.id = "cart-items"; // Keep for test compatibility
+  cartContainer.className = "space-y-3";
+
+  // Local state updaters
+  const updateCartItem = (productId, newQuantity) => {
+    const itemIndex = internalCartItems.findIndex(
+      (item) => item.id === productId
+    );
+
+    if (itemIndex >= 0) {
+      if (newQuantity <= 0) {
+        // Remove item
+        internalCartItems.splice(itemIndex, 1);
+      } else {
+        // Update quantity
+        internalCartItems[itemIndex] = {
+          ...internalCartItems[itemIndex],
+          quantity: newQuantity,
+        };
+      }
+
+      // Re-render and notify parent
+      renderCartItems();
+      notifyParent();
     }
-    return `₩${product.val.toLocaleString()}`;
   };
 
-  const getProductNameDisplay = (product) => {
-    let prefix = "";
-    if (product.onSale && product.suggestSale) prefix = "⚡💝";
-    else if (product.onSale) prefix = "⚡";
-    else if (product.suggestSale) prefix = "💝";
+  const addCartItem = (product, quantity = 1) => {
+    const existingItemIndex = internalCartItems.findIndex(
+      (item) => item.id === product.id
+    );
 
-    return `${prefix}${product.name}`;
+    if (existingItemIndex >= 0) {
+      // Update existing item
+      const newQuantity =
+        internalCartItems[existingItemIndex].quantity + quantity;
+      updateCartItem(product.id, newQuantity);
+    } else {
+      // Add new item
+      const newItem = {
+        id: product.id,
+        name: product.name,
+        price: product.val,
+        quantity: quantity,
+        product: product,
+      };
+
+      internalCartItems.push(newItem);
+      renderCartItems();
+      notifyParent();
+    }
   };
 
-  const getRemoveButtonClass = (product) => {
-    if (product.onSale && product.suggestSale) return "text-purple-600";
-    if (product.onSale) return "text-red-500";
-    if (product.suggestSale) return "text-blue-500";
-    return "text-gray-600";
+  const removeCartItem = (productId) => {
+    updateCartItem(productId, 0);
   };
 
-  return /* html */ `
-    <div id="${
-      product.id
-    }" class="flex justify-between items-center mb-2 first:pt-0 last:border-b-0 border-b border-gray-200 pb-2">
-      <div class="flex items-center">
-        <div class="bg-gradient-black w-12 h-12 rounded mr-3 flex items-center justify-center text-white text-xs">
-          IMG
+  // Notify parent of changes
+  const notifyParent = () => {
+    if (onItemChange) {
+      onItemChange([...internalCartItems]);
+    }
+    if (onTotalsUpdate) {
+      onTotalsUpdate();
+    }
+  };
+
+  // Render individual cart item
+  const createCartItemElement = (item) => {
+    const itemDiv = document.createElement("div");
+    itemDiv.id = item.id;
+    itemDiv.className =
+      "bg-white border border-gray-200 rounded-lg p-4 shadow-sm";
+
+    itemDiv.innerHTML = `
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <h3 class="font-medium text-gray-900">${item.name}</h3>
+          <p class="text-sm text-gray-500">₩${item.price.toLocaleString()} x ${
+      item.quantity
+    }</p>
+          <p class="text-lg font-bold text-gray-900">₩${(
+            item.price * item.quantity
+          ).toLocaleString()}</p>
         </div>
-        <div>
-          <h3 class="font-semibold">${getProductNameDisplay(product)}</h3>
-          <p class="text-sm text-gray-600">${getPriceDisplay(
-            product
-          )} x <span class="quantity-number">${quantity}</span></p>
+        <div class="flex items-center space-x-2 ml-4">
+          <button 
+            class="quantity-change w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center"
+            data-product-id="${item.id}"
+            data-change="-1">
+            <span class="text-gray-600 font-medium">-</span>
+          </button>
+          <span class="w-8 text-center font-medium">${item.quantity}</span>
+          <button 
+            class="quantity-change w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center"
+            data-product-id="${item.id}"
+            data-change="1">
+            <span class="text-gray-600 font-medium">+</span>
+          </button>
+          <button 
+            class="remove-item ml-2 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
+            data-product-id="${item.id}">
+            Remove
+          </button>
         </div>
       </div>
-      <div>
-        <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${
-          product.id
-        }" data-change="-1">-</button>
-        <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${
-          product.id
-        }" data-change="1">+</button>
-        <button class="remove-item ${getRemoveButtonClass(
-          product
-        )} px-2 py-1 rounded" data-product-id="${product.id}">삭제</button>
-      </div>
-    </div>
-  `;
-};
+    `;
 
-export default CartDisplay;
+    return itemDiv;
+  };
+
+  // Render all cart items
+  const renderCartItems = () => {
+    cartContainer.innerHTML = "";
+
+    if (internalCartItems.length === 0) {
+      cartContainer.innerHTML = `
+        <div class="text-center py-8 text-gray-500">
+          <p>장바구니가 비어있습니다</p>
+        </div>
+      `;
+      return;
+    }
+
+    internalCartItems.forEach((item) => {
+      cartContainer.appendChild(createCartItemElement(item));
+    });
+  };
+
+  // Event delegation for cart interactions
+  cartContainer.addEventListener("click", (event) => {
+    const target = event.target;
+    const productId = target.dataset.productId;
+
+    if (!productId) return;
+
+    if (target.classList.contains("quantity-change")) {
+      const change = parseInt(target.dataset.change);
+      const currentItem = internalCartItems.find(
+        (item) => item.id === productId
+      );
+
+      if (currentItem) {
+        const newQuantity = Math.max(0, currentItem.quantity + change);
+        updateCartItem(productId, newQuantity);
+      }
+    } else if (target.classList.contains("remove-item")) {
+      removeCartItem(productId);
+    }
+  });
+
+  // Initial render
+  renderCartItems();
+
+  // Expose methods for external updates
+  cartContainer.addItem = addCartItem;
+  cartContainer.updateItem = updateCartItem;
+  cartContainer.removeItem = removeCartItem;
+  cartContainer.updateItems = (newItems) => {
+    internalCartItems = [...newItems];
+    renderCartItems();
+  };
+  cartContainer.getItems = () => [...internalCartItems];
+
+  return cartContainer;
+}
+
+export { CartDisplay };
