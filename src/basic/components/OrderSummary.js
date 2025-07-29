@@ -1,22 +1,4 @@
-// 상수 정의
-const POINTS = {
-  BASE_RATE: 1000,
-  TUESDAY_MULTIPLIER: 2,
-  KEYBOARD_MOUSE_SET: 50,
-  FULL_SET: 100,
-};
-
-const QUANTITY_BONUS_POINTS = {
-  SMALL_BULK: 20,
-  MEDIUM_BULK: 50,
-  LARGE_BULK: 100,
-};
-
-const POINTS_QUANTITY_THRESHOLDS = {
-  SMALL_BULK: 10,
-  MEDIUM_BULK: 20,
-  LARGE_BULK: 30,
-};
+import { POINTS, POINTS_QUANTITY_THRESHOLDS, QUANTITY_BONUS_POINTS } from "../constants/index.js";
 
 // OrderSummary 컴포넌트
 export function createOrderSummary({ cartItems, subtotal, totalAmount, itemDiscounts, isTuesday, onCheckout }) {
@@ -24,7 +6,7 @@ export function createOrderSummary({ cartItems, subtotal, totalAmount, itemDisco
   orderSummaryContainer.className = "flex-1 flex flex-col";
 
   // 주문 요약 HTML 구조 생성
-  orderSummaryContainer.innerHTML = `
+  orderSummaryContainer.innerHTML = /* HTML */ `
     <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
     <div class="flex-1 flex flex-col">
       <div id="summary-details" class="space-y-3"></div>
@@ -49,7 +31,7 @@ export function createOrderSummary({ cartItems, subtotal, totalAmount, itemDisco
       Proceed to Checkout
     </button>
     <p class="mt-4 text-2xs text-white/60 text-center leading-relaxed">
-      Free shipping on all orders.<br>
+      Free shipping on all orders.<br />
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
@@ -155,7 +137,7 @@ export function updateSummaryDetails(orderSummaryElement, cartItems, subtotal, i
     `;
   }
 
-  summaryDetails.innerHTML = `
+  summaryDetails.innerHTML = /* HTML */ `
     ${itemsHTML}
     <div class="border-t border-white/10 my-3"></div>
     <div class="flex justify-between text-sm tracking-wide">
@@ -182,7 +164,7 @@ export function updateDiscountInfo(orderSummaryElement, discountRate, savedAmoun
   if (!discountInfo) return;
 
   if (discountRate > 0 && savedAmount > 0) {
-    discountInfo.innerHTML = `
+    discountInfo.innerHTML = /* HTML */ `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
           <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
@@ -225,7 +207,7 @@ export function updateLoyaltyPoints(orderSummaryElement, cartItems, totalAmount,
   const points = calculateLoyaltyPoints(cartItems, totalAmount, isTuesday, itemCount);
 
   if (points.totalPoints > 0) {
-    loyaltyPointsDiv.innerHTML = `
+    loyaltyPointsDiv.innerHTML = /* HTML */ `
       <div>적립 포인트: <span class="font-bold">${points.totalPoints}p</span></div>
       <div class="text-2xs opacity-70 mt-1">${points.details.join(", ")}</div>
     `;
