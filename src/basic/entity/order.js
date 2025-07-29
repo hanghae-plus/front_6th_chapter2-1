@@ -74,6 +74,7 @@ export const getOrderSummary = ({ cartItems }) => {
     `🛍️ ${totalItemCount} items in cart`;
 
   return {
+    cartItems,
     totalOriginalPrice,
     prodList,
     totalItemCount,
