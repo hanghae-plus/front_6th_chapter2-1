@@ -294,6 +294,7 @@ function onUpdateSelectOptions() {
   });
 }
 
+// handleCalculateCartStuff 리팩토링 시작
 function handleCalculateCartStuff() {
   const cartItems = cartDisp.children;
   let subTotal = 0;
