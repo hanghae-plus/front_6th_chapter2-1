@@ -47,9 +47,25 @@ export function Header({ itemCount }) {
   `;
 }
 
+// ProductOptions Component - 모든 상품 옵션 생성
+export function ProductOptions({ products, totalStock }) {
+  const borderColor = totalStock < 50 ? 'orange' : '';
+
+  const options = products.map(item => {
+    const optionData = ProductOption({item: item});
+    return `<option value="${item.id}" class="${optionData.className || ''}" ${optionData.disabled ? 'disabled' : ''}>${optionData.html}</option>`;
+  }).join('');
+
+  return {
+    html: options,
+    borderColor: borderColor
+  };
+}
+
 // ProductOption Component
 export function ProductOption({ item }) {
-  var discountText = '';
+  let discountText = '';
+
   if (item.onSale) discountText += ' ⚡SALE';
   if (item.suggestSale) discountText += ' 💝추천';
   
@@ -90,8 +106,8 @@ export function ProductOption({ item }) {
 
 // CartItem Component
 export function CartItem({ item, quantity = 1 }) {
-  var priceData = ProductPrice({ product: item });
-  
+  const priceData = ProductPrice({product: item});
+
   return `
     <div id="${item.id}" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
       ${ProductImage()}
@@ -202,8 +218,8 @@ export function SummarySubtotal({ amount }) {
 
 // SummaryDiscounts Component
 export function SummaryDiscounts({ itemCount, discounts, isTuesday }) {
-  var html = '';
-  
+  let html = '';
+
   if (itemCount >= 30) {
     html += DiscountItem({ 
       label: '🎉 대량구매 할인 (30개 이상)', 
@@ -251,26 +267,23 @@ export function SummaryShipping() {
 
 // StockStatus Component
 export function StockStatus({ products }) {
-  var messages = [];
-  
-  products.forEach(function(item) {
-    if (item.q < 5) {
+  return products
+    .filter(item => item.q < 5)
+    .map(item => {
       if (item.q > 0) {
-        messages.push(`${item.name}: 재고 부족 (${item.q}개 남음)`);
+        return `${item.name}: 재고 부족 (${item.q}개 남음)`;
       } else {
-        messages.push(`${item.name}: 품절`);
+        return `${item.name}: 품절`;
       }
-    }
-  });
-  
-  return messages.join('\n');
+    })
+    .join('\n');
 }
 
 // ProductPrice Component Helper
 export function ProductPrice({ product }) {
-  var namePrefix = '';
-  var priceHTML = '';
-  
+  let namePrefix = '';
+  let priceHTML = '';
+
   if (product.onSale && product.suggestSale) {
     namePrefix = '⚡💝';
     priceHTML = PriceWithDiscount({ 
@@ -293,16 +306,12 @@ export function ProductPrice({ product }) {
       color: 'text-blue-500' 
     });
   } else {
-    priceHTML = Price({ amount: product.val });
+    priceHTML = `₩${product.val.toLocaleString()}`
   }
   
   return { namePrefix, priceHTML };
 }
 
-// Price Component
-export function Price({ amount }) {
-  return `₩${amount.toLocaleString()}`;
-}
 
 // PriceWithDiscount Component
 export function PriceWithDiscount({ original, current, color }) {
@@ -334,25 +343,6 @@ export function ProductSelector() {
       <select id="product-select" class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"></select>
       <button id="add-to-cart" class="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all">Add to Cart</button>
       <div id="stock-status" class="text-xs text-red-500 mt-3 whitespace-pre-line"></div>
-    </div>
-  `;
-}
-
-// RightColumn Component
-export function RightColumn() {
-  return `
-    <div class="bg-black text-white p-8 flex flex-col">
-      <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
-      <div class="flex-1 flex flex-col">
-        <div id="summary-details" class="space-y-3"></div>
-        <div class="mt-auto">
-          <div id="discount-info" class="mb-4"></div>
-          ${CartTotal()}
-          ${TuesdaySpecialBanner()}
-        </div>
-      </div>
-      ${CheckoutButton()}
-      ${ShippingNotice()}
     </div>
   `;
 }
@@ -409,24 +399,6 @@ export function HelpButton() {
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
     </button>
-  `;
-}
-
-// HelpOverlay Component
-export function HelpOverlay() {
-  return '<div class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>';
-}
-
-// HelpSidebar Component
-export function HelpSidebar() {
-  return `
-    <div class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300">
-      ${HelpCloseButton()}
-      <h2 class="text-xl font-bold mb-4">📖 이용 안내</h2>
-      ${HelpDiscountSection()}
-      ${HelpPointsSection()}
-      ${HelpTips()}
-    </div>
   `;
 }
 
