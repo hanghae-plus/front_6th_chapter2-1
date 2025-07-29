@@ -231,10 +231,7 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
-  let initStock = 0;
-  for (let i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
-  }
+
   onUpdateSelectOptions();
   handleCalculateCartStuff();
   lightningDelay = Math.random() * 10000;
@@ -329,8 +326,6 @@ function handleCalculateCartStuff() {
   let lowStockItems;
   let idx;
   var originalTotal;
-  let bulkDisc;
-  let itemDisc;
   let savedAmount;
   let summaryDetails;
   let totalDiv;
@@ -340,16 +335,12 @@ function handleCalculateCartStuff() {
   let itemCountElement;
   let previousCount;
   let stockMsg;
-  let pts;
-  let hasP1;
-  let hasP2;
-  let loyaltyDiv;
+
   totalAmt = 0;
   itemCnt = 0;
   originalTotal = totalAmt;
   cartItems = cartDisp.children;
   subTot = 0;
-  bulkDisc = subTot;
   itemDiscounts = [];
   lowStockItems = [];
   for (idx = 0; idx < prodList.length; idx++) {
@@ -630,7 +621,6 @@ function onGetStockTotal() {
 var handleStockInfoUpdate = function () {
   let infoMsg;
   let totalStock;
-  let messageOptimizer;
   infoMsg = "";
   totalStock = onGetStockTotal();
   if (totalStock < 30) {
@@ -647,19 +637,7 @@ var handleStockInfoUpdate = function () {
   stockInfo.textContent = infoMsg;
 };
 function doUpdatePricesInCart() {
-  let totalCount = 0;
-  let j = 0;
-  let cartItems;
-  while (cartDisp.children[j]) {
-    const qty = cartDisp.children[j].querySelector(".quantity-number");
-    totalCount += qty ? parseInt(qty.textContent) : 0;
-    j++;
-  }
-  totalCount = 0;
-  for (j = 0; j < cartDisp.children.length; j++) {
-    totalCount += parseInt(cartDisp.children[j].querySelector(".quantity-number").textContent);
-  }
-  cartItems = cartDisp.children;
+  const cartItems = cartDisp.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
     let product = null;
