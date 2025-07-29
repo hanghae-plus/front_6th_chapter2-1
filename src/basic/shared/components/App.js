@@ -4,7 +4,10 @@ import { ProductSelector } from "../../features/product/components/ProductSelect
 import { ELEMENT_IDS } from "../constants/element-ids.js";
 import { htmlToElement } from "../utils/dom.js";
 
-import { productState } from "../../features/product/store/ProductStore.js";
+import {
+  productState,
+  setProductState,
+} from "../../features/product/store/ProductStore.js";
 
 /**
  * Main App Component - JSX-like Template
@@ -15,7 +18,10 @@ export const App = () => {
     products: productState.products,
     selectedProductId: productState.lastSelectedProduct,
     onSelectionChange: (productId) => {
-      productState.lastSelectedProduct = productId;
+      setProductState({
+        ...productState,
+        lastSelectedProduct: productId,
+      });
     },
   });
 

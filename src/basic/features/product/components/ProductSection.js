@@ -1,13 +1,17 @@
 import { ProductSelector } from "./ProductSelector.js";
 import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
 import { htmlToElement } from "../../../shared/utils/dom.js";
+import { productState, setProductState } from "../store/ProductStore.js";
 
 export const ProductSection = () => {
   const productSelectorElement = ProductSelector({
-    products: window.productStore.getProducts(),
-    selectedProductId: window.productStore.getLastSelectedProduct(),
+    products: productState.products,
+    selectedProductId: productState.lastSelectedProduct,
     onSelectionChange: (productId) => {
-      window.productStore.setLastSelectedProduct(productId);
+      setProductState({
+        ...productState,
+        lastSelectedProduct: productId,
+      });
     },
   });
 
