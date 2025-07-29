@@ -29,7 +29,12 @@ class Header {
 
     const productCountElement = this.container.querySelector('#item-count');
     if (productCountElement) {
-      productCountElement.textCount = `🛍️ ${newCount} items in cart`;
+      productCountElement.textContent = `🛍️ ${newCount} items in cart`;
+      this.productsCount = newCount;
+    }
+
+    if (this.productsCount !== newCount) {
+      productCountElement.setAttribute('data-changed', 'true');
     }
   }
 }
