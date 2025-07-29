@@ -1,13 +1,5 @@
-/**
- * 주문 요약 컴포넌트
- * 선언적 프로그래밍 패러다임을 적용한 주문 요약 UI
- */
-
 import React from 'react';
 
-/**
- * 주문 요약 컴포넌트 Props
- */
 interface OrderSummaryProps {
   subtotal: number;
   discount: number;
@@ -15,9 +7,6 @@ interface OrderSummaryProps {
   points: number;
 }
 
-/**
- * 요약 행 컴포넌트 Props
- */
 interface SummaryRowProps {
   label: string;
   value: string | number;
@@ -25,12 +14,8 @@ interface SummaryRowProps {
   isDiscount?: boolean;
 }
 
-/**
- * 요약 행 컴포넌트
- * 개별 요약 정보를 표시하는 재사용 가능한 컴포넌트
- */
-const SummaryRow: React.FC<SummaryRowProps> = React.memo(
-  ({ label, value, isTotal = false, isDiscount = false }) => {
+const SummaryRow = React.memo(
+  ({ label, value, isTotal = false, isDiscount = false }: SummaryRowProps) => {
     const rowClass = React.useMemo(() => {
       const classes = ['flex justify-between py-2'];
       if (isTotal)
@@ -59,41 +44,32 @@ const SummaryRow: React.FC<SummaryRowProps> = React.memo(
 
 SummaryRow.displayName = 'SummaryRow';
 
-/**
- * 할인 정보 컴포넌트 Props
- */
 interface DiscountInfoProps {
   discount: number;
   subtotal: number;
 }
 
-/**
- * 할인 정보 컴포넌트
- * 할인 정보를 표시하는 컴포넌트
- */
-const DiscountInfo: React.FC<DiscountInfoProps> = React.memo(
-  ({ discount, subtotal }) => {
-    const discountPercentage = React.useMemo(() => {
-      if (subtotal === 0) return 0;
-      return Math.round((discount / subtotal) * 100);
-    }, [discount, subtotal]);
+const DiscountInfo = React.memo(({ discount, subtotal }: DiscountInfoProps) => {
+  const discountPercentage = React.useMemo(() => {
+    if (subtotal === 0) return 0;
+    return Math.round((discount / subtotal) * 100);
+  }, [discount, subtotal]);
 
-    if (discount === 0) return null;
+  if (discount === 0) return null;
 
-    return (
-      <div className='mb-4'>
-        <SummaryRow
-          label='할인 금액'
-          value={`-${discount.toLocaleString()}원`}
-          isDiscount={true}
-        />
-        <div className='text-center text-sm text-green-600 font-medium'>
-          할인율: {discountPercentage}%
-        </div>
+  return (
+    <div className='mb-4'>
+      <SummaryRow
+        label='할인 금액'
+        value={`-${discount.toLocaleString()}원`}
+        isDiscount={true}
+      />
+      <div className='text-center text-sm text-green-600 font-medium'>
+        할인율: {discountPercentage}%
       </div>
-    );
-  }
-);
+    </div>
+  );
+});
 
 DiscountInfo.displayName = 'DiscountInfo';
 
@@ -123,21 +99,14 @@ const PointsInfo: React.FC<PointsInfoProps> = React.memo(({ points }) => {
 
 PointsInfo.displayName = 'PointsInfo';
 
-/**
- * 주문하기 버튼 컴포넌트 Props
- */
 interface CheckoutButtonProps {
   total: number;
   itemCount: number;
 }
 
-/**
- * 주문하기 버튼 컴포넌트
- * 주문 진행을 위한 버튼 컴포넌트
- */
-const CheckoutButton: React.FC<CheckoutButtonProps> = React.memo(
-  ({ total, itemCount }) => {
-    const handleCheckout = React.useCallback(() => {
+const CheckoutButton = React.memo(
+  ({ total, itemCount }: CheckoutButtonProps) => {
+    const handleCheckout = () => {
       if (itemCount === 0) {
         alert('장바구니에 상품을 추가해주세요.');
         return;
@@ -145,7 +114,7 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = React.memo(
 
       // 실제 주문 로직은 여기에 구현
       alert(`주문 금액: ${total.toLocaleString()}원\n주문이 완료되었습니다!`);
-    }, [total, itemCount]);
+    };
 
     const isDisabled = itemCount === 0;
     const buttonText = isDisabled ? '상품을 추가해주세요' : '주문하기';
@@ -176,12 +145,8 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = React.memo(
 
 CheckoutButton.displayName = 'CheckoutButton';
 
-/**
- * 주문 요약 컴포넌트
- * 주문의 전체적인 요약 정보를 표시하는 메인 컴포넌트
- */
-export const OrderSummary: React.FC<OrderSummaryProps> = React.memo(
-  ({ subtotal, discount, total, points }) => {
+export const OrderSummary = React.memo(
+  ({ subtotal, discount, total, points }: OrderSummaryProps) => {
     const savings = React.useMemo(() => {
       return discount > 0 ? discount : 0;
     }, [discount]);

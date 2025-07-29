@@ -1,54 +1,46 @@
-/**
- * 장바구니 아이템 컴포넌트
- * 선언적 프로그래밍 패러다임을 적용한 장바구니 아이템 UI
- */
-
 import React from 'react';
 import { CartItem as CartItemType } from '../../types/cart.types';
 
-/**
- * 장바구니 아이템 컴포넌트 Props
- */
 interface CartItemProps {
   item: CartItemType;
   onRemove: (productId: string) => void;
   onUpdateQuantity: (productId: string, quantity: number) => void;
 }
 
-/**
- * 수량 조절 컴포넌트 Props
- */
 interface QuantityControlProps {
   quantity: number;
   onQuantityChange: (quantity: number) => void;
   productName: string;
+  productId: string;
+  maxStock: number;
 }
 
-/**
- * 수량 조절 컴포넌트
- * 수량 증가/감소 버튼과 입력 필드를 포함하는 컴포넌트
- */
-const QuantityControl: React.FC<QuantityControlProps> = React.memo(
-  ({ quantity, onQuantityChange, productName }) => {
-    const handleQuantityChange = React.useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newQuantity = parseInt(e.target.value, 10);
-        if (!isNaN(newQuantity) && newQuantity >= 0) {
-          onQuantityChange(newQuantity);
-        }
-      },
-      [onQuantityChange]
-    );
+const QuantityControl = React.memo(
+  ({
+    quantity,
+    onQuantityChange,
+    productName,
+    productId,
+    maxStock
+  }: QuantityControlProps) => {
+    const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newQuantity = parseInt(e.target.value, 10);
+      if (!isNaN(newQuantity) && newQuantity >= 0 && newQuantity <= maxStock) {
+        onQuantityChange(newQuantity);
+      }
+    };
 
-    const handleIncrement = React.useCallback(() => {
-      onQuantityChange(quantity + 1);
-    }, [quantity, onQuantityChange]);
+    const handleIncrement = () => {
+      if (quantity < maxStock) {
+        onQuantityChange(quantity + 1);
+      }
+    };
 
-    const handleDecrement = React.useCallback(() => {
-      if (quantity > 1) {
+    const handleDecrement = () => {
+      if (quantity > 0) {
         onQuantityChange(quantity - 1);
       }
-    }, [quantity, onQuantityChange]);
+    };
 
     return (
       <div className='flex items-center gap-2'>
@@ -56,23 +48,28 @@ const QuantityControl: React.FC<QuantityControlProps> = React.memo(
           onClick={handleDecrement}
           disabled={quantity <= 1}
           className='w-8 h-8 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center'
-          aria-label={`${productName} 수량 감소`}>
+          aria-label={`${productName} 수량 감소`}
+          data-testid={`decrease-${productId}`}>
           -
         </button>
 
         <input
           type='number'
           min='1'
+          max={maxStock}
           value={quantity}
           onChange={handleQuantityChange}
           className='w-16 h-8 text-center border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
           aria-label={`${productName} 수량`}
+          data-testid={`quantity-${productId}`}
         />
 
         <button
           onClick={handleIncrement}
-          className='w-8 h-8 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 flex items-center justify-center'
-          aria-label={`${productName} 수량 증가`}>
+          disabled={quantity >= maxStock}
+          className='w-8 h-8 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center'
+          aria-label={`${productName} 수량 증가`}
+          data-testid={`increase-${productId}`}>
           +
         </button>
       </div>
@@ -96,8 +93,8 @@ interface ProductInfoProps {
  * 상품 정보 컴포넌트
  * 상품의 기본 정보와 가격 정보를 표시하는 컴포넌트
  */
-const ProductInfo: React.FC<ProductInfoProps> = React.memo(
-  ({ product, quantity, subtotal, discount }) => {
+const ProductInfo = React.memo(
+  ({ product, quantity, subtotal, discount }: ProductInfoProps) => {
     const hasDiscount = discount > 0;
     const finalPrice = subtotal - discount;
 
@@ -145,22 +142,15 @@ const ProductInfo: React.FC<ProductInfoProps> = React.memo(
 
 ProductInfo.displayName = 'ProductInfo';
 
-/**
- * 장바구니 아이템 컴포넌트
- * 개별 장바구니 아이템을 표시하고 관리하는 컴포넌트
- */
-export const CartItem: React.FC<CartItemProps> = React.memo(
-  ({ item, onRemove, onUpdateQuantity }) => {
-    const handleQuantityChange = React.useCallback(
-      (quantity: number) => {
-        onUpdateQuantity(item.product.id, quantity);
-      },
-      [item.product.id, onUpdateQuantity]
-    );
+export const CartItem = React.memo(
+  ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
+    const handleQuantityChange = (quantity: number) => {
+      onUpdateQuantity(item.product.id, quantity);
+    };
 
-    const handleRemove = React.useCallback(() => {
+    const handleRemove = () => {
       onRemove(item.product.id);
-    }, [item.product.id, onRemove]);
+    };
 
     return (
       <div className='bg-white border border-gray-200 rounded-lg p-4 shadow-sm'>
@@ -177,12 +167,15 @@ export const CartItem: React.FC<CartItemProps> = React.memo(
               quantity={item.quantity}
               onQuantityChange={handleQuantityChange}
               productName={item.product.name}
+              productId={item.product.id}
+              maxStock={item.product.stock}
             />
 
             <button
               onClick={handleRemove}
               className='bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors'
-              aria-label={`${item.product.name} 장바구니에서 삭제`}>
+              aria-label={`${item.product.name} 장바구니에서 삭제`}
+              data-testid={`remove-${item.product.id}`}>
               삭제
             </button>
           </div>

@@ -1,17 +1,9 @@
-/**
- * 할인 정책 상수 정의
- * 모든 할인 관련 정책을 중앙집중적으로 관리합니다.
- */
-
 import {
   DiscountPolicy,
   DiscountRules,
   SpecialDiscount
 } from '../types/promotion.types';
 
-/**
- * 특별 할인 정책 상수
- */
 export const SPECIAL_DISCOUNTS: Record<string, SpecialDiscount> = {
   BULK_PURCHASE: {
     threshold: 30,
@@ -32,19 +24,21 @@ export const SPECIAL_DISCOUNTS: Record<string, SpecialDiscount> = {
   }
 } as const;
 
-/**
- * 할인 적용 규칙 상수
- */
 export const DISCOUNT_RULES: DiscountRules = {
   bulkOverridesIndividual: true, // 대량구매 할인이 개별 할인을 덮어씀
   minQuantityForIndividualDiscount: 10, // 개별 상품 할인 최소 수량
   tuesdayAppliesAfterOtherDiscounts: true // 화요일 할인은 다른 할인 후에 적용
 } as const;
 
-/**
- * 할인 정책 배열
- */
 export const DISCOUNT_POLICIES: DiscountPolicy[] = [
+  {
+    id: 'basic-discount',
+    type: 'percentage',
+    value: 10,
+    minAmount: 100000,
+    maxDiscount: 50000,
+    description: '기본 할인 (10만원 이상)'
+  },
   {
     id: 'bulk-purchase',
     type: 'percentage',

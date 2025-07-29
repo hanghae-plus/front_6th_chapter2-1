@@ -2,8 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
-ReactDOM.createRoot(document.getElementById('app')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const appContainer = document.getElementById('app');
+
+if (appContainer) {
+  ReactDOM.createRoot(appContainer).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}

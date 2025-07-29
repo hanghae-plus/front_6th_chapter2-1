@@ -1,22 +1,5 @@
-/**
- * 장바구니 Context API 구현
- * React Context API를 활용한 전역 상태 관리
- */
-
-import React, {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useReducer
-} from 'react';
-import {
-  CartActions,
-  CartContextType,
-  CartItem,
-  CartState
-} from '../types/cart.types';
+import { useReducer } from 'react';
+import { CartItem, CartState } from '../types/cart.types';
 import { Product } from '../types/product.types';
 import {
   calculateItemDiscount,
@@ -34,7 +17,7 @@ const initialState: CartState = {
 };
 
 // 액션 타입 정의
-type CartAction =
+export type CartAction =
   | { type: 'ADD_TO_CART'; payload: { product: Product; quantity: number } }
   | { type: 'REMOVE_FROM_CART'; payload: { productId: string } }
   | {
@@ -44,17 +27,40 @@ type CartAction =
   | { type: 'CLEAR_CART' }
   | { type: 'RECALCULATE_TOTALS' };
 
-// Context 생성
-const CartContext = createContext<CartContextType | undefined>(undefined);
+// 액션 생성자들 (Action Creators)
+export const cartActions = {
+  addToCart: (product: Product, quantity: number): CartAction => ({
+    type: 'ADD_TO_CART',
+    payload: { product, quantity }
+  }),
+
+  removeFromCart: (productId: string): CartAction => ({
+    type: 'REMOVE_FROM_CART',
+    payload: { productId }
+  }),
+
+  updateQuantity: (productId: string, quantity: number): CartAction => ({
+    type: 'UPDATE_QUANTITY',
+    payload: { productId, quantity }
+  }),
+
+  clearCart: (): CartAction => ({
+    type: 'CLEAR_CART'
+  }),
+
+  recalculateTotals: (): CartAction => ({
+    type: 'RECALCULATE_TOTALS'
+  })
+};
 
 // 선언적 헬퍼 함수들
 const createCartItem = (product: Product, quantity: number): CartItem => {
   const item: CartItem = {
     product,
     quantity,
-    subtotal: 0, // 임시값, 아래에서 계산
-    discount: 0, // 임시값, 아래에서 계산
-    points: 0 // 임시값, 아래에서 계산
+    subtotal: 0,
+    discount: 0,
+    points: 0
   };
 
   return {
@@ -105,16 +111,17 @@ const updateItemQuantity = (
   items: CartItem[],
   productId: string,
   quantity: number
-) =>
-  items
-    .map(item =>
-      item.product.id === productId
-        ? updateCartItem(item, Math.max(0, quantity))
-        : item
-    )
-    .filter(item => item.quantity > 0);
+) => {
+  if (quantity <= 0) {
+    return items.filter(item => item.product.id !== productId);
+  }
 
-// 총계 계산 함수 (이미 선언적)
+  return items.map(item =>
+    item.product.id === productId ? updateCartItem(item, quantity) : item
+  );
+};
+
+// 총계 계산 함수
 const calculateCartTotals = (items: CartItem[]): CartState => {
   const totalPrice = items.reduce((sum, item) => sum + item.subtotal, 0);
   const totalDiscount = items.reduce((sum, item) => sum + item.discount, 0);
@@ -130,7 +137,7 @@ const calculateCartTotals = (items: CartItem[]): CartState => {
   };
 };
 
-// 리듀서 구현 (선언적으로 개선)
+// 리듀서 구현
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'ADD_TO_CART': {
@@ -166,68 +173,55 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
   }
 };
 
-// Provider 컴포넌트
-export const CartProvider: React.FC<{ children: ReactNode }> = ({
-  children
-}) => {
+// ViewModel Hook
+export const useCartViewModel = () => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  // 액션 함수들 - useCallback으로 메모이제이션
-  const addToCart = useCallback((product: Product, quantity: number) => {
-    dispatch({ type: 'ADD_TO_CART', payload: { product, quantity } });
-  }, []);
+  // 액션 디스패치 함수들
+  const addToCart = (product: Product, quantity: number) => {
+    dispatch(cartActions.addToCart(product, quantity));
+  };
 
-  const removeFromCart = useCallback((productId: string) => {
-    dispatch({ type: 'REMOVE_FROM_CART', payload: { productId } });
-  }, []);
+  const removeFromCart = (productId: string) => {
+    dispatch(cartActions.removeFromCart(productId));
+  };
 
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
-    dispatch({ type: 'UPDATE_QUANTITY', payload: { productId, quantity } });
-  }, []);
+  const updateQuantity = (productId: string, quantity: number) => {
+    dispatch(cartActions.updateQuantity(productId, quantity));
+  };
 
-  const clearCart = useCallback(() => {
-    dispatch({ type: 'CLEAR_CART' });
-  }, []);
+  const clearCart = () => {
+    dispatch(cartActions.clearCart());
+  };
 
-  // Context 값 메모이제이션
-  const value: CartContextType = useMemo(
-    () => ({
-      ...state,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart
-    }),
-    [state, addToCart, removeFromCart, updateQuantity, clearCart]
-  );
+  const recalculateTotals = () => {
+    dispatch(cartActions.recalculateTotals());
+  };
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
-};
+  // 계산된 값들
+  const cartSummary = {
+    totalItems: state.itemCount,
+    totalPrice: state.totalPrice,
+    totalDiscount: state.totalDiscount,
+    totalPoints: state.totalPoints,
+    finalPrice: state.totalPrice - state.totalDiscount
+  };
 
-// Hook 구현
-export const useCart = (): CartContextType => {
-  const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
-  return context;
-};
+  const cartItems = state.items;
 
-// 성능 최적화를 위한 분리된 Hook들
-export const useCartState = (): CartState => {
-  const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCartState must be used within a CartProvider');
-  }
-  const { items, totalPrice, totalDiscount, totalPoints, itemCount } = context;
-  return { items, totalPrice, totalDiscount, totalPoints, itemCount };
-};
+  const isEmpty = state.items.length === 0;
 
-export const useCartActions = (): CartActions => {
-  const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCartActions must be used within a CartProvider');
-  }
-  const { addToCart, removeFromCart, updateQuantity, clearCart } = context;
-  return { addToCart, removeFromCart, updateQuantity, clearCart };
+  return {
+    // 상태
+    cartItems,
+    cartSummary,
+    isEmpty,
+
+    // 액션들
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    recalculateTotals
+  };
 };

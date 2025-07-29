@@ -2,7 +2,7 @@
  * 장바구니 관련 타입 정의
  */
 
-import { Product } from "./product.types";
+import { Product } from './product.types';
 
 export interface CartItem {
   product: Product;
@@ -18,6 +18,7 @@ export interface CartState {
   totalDiscount: number;
   totalPoints: number;
   itemCount: number;
+  onStockIncrease?: (productId: string, quantity: number) => void;
 }
 
 export interface CartActions {
@@ -25,6 +26,7 @@ export interface CartActions {
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  onStockIncrease?: (productId: string, quantity: number) => void;
 }
 
 export interface CartContextType extends CartState, CartActions {}

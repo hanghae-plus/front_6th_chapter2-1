@@ -4,14 +4,14 @@
 
 import {
   DISCOUNT_RULES,
-  SPECIAL_DISCOUNTS,
-} from "../constants/discountPolicies";
-import { getProductById } from "../constants/products";
+  SPECIAL_DISCOUNTS
+} from '../constants/discountPolicies';
+import { getProductById } from '../constants/products';
 import {
   DiscountInfo,
   DiscountPolicy,
-  DiscountUIInfo,
-} from "../types/promotion.types";
+  DiscountUIInfo
+} from '../types/promotion.types';
 
 /**
  * 개별 상품의 할인율을 가져옵니다
@@ -19,7 +19,7 @@ import {
  * @returns 할인율 (0.1 = 10%)
  */
 export const getProductDiscountRate = (productId: string): number =>
-  getProductById(productId)?.discountRate || 0;
+  getProductById(productId)?.discountRate ?? 0;
 
 /**
  * 수량에 따른 개별 상품 할인율을 계산합니다
@@ -29,7 +29,7 @@ export const getProductDiscountRate = (productId: string): number =>
  */
 export const calculateIndividualDiscount = (
   productId: string,
-  quantity: number,
+  quantity: number
 ): number =>
   quantity < DISCOUNT_RULES.minQuantityForIndividualDiscount
     ? 0
@@ -41,7 +41,7 @@ export const calculateIndividualDiscount = (
  * @returns 대량구매 할인율
  */
 export const calculateBulkDiscount = (totalQuantity: number): number =>
-  totalQuantity >= (SPECIAL_DISCOUNTS.BULK_PURCHASE.threshold || 0)
+  totalQuantity >= (SPECIAL_DISCOUNTS.BULK_PURCHASE.threshold ?? 0)
     ? SPECIAL_DISCOUNTS.BULK_PURCHASE.rate
     : 0;
 
@@ -59,13 +59,13 @@ export const calculateTuesdayDiscount = (date: Date = new Date()): number =>
 const determineDiscountType = (
   bulkDiscount: number,
   individualDiscount: number,
-  productId: string,
+  productId: string
 ) => {
   if (bulkDiscount > 0 && DISCOUNT_RULES.bulkOverridesIndividual) {
     return {
       baseDiscount: bulkDiscount,
-      type: "bulk",
-      description: SPECIAL_DISCOUNTS.BULK_PURCHASE.description,
+      type: 'bulk',
+      description: SPECIAL_DISCOUNTS.BULK_PURCHASE.description
     };
   }
 
@@ -73,15 +73,15 @@ const determineDiscountType = (
     const product = getProductById(productId);
     return {
       baseDiscount: individualDiscount,
-      type: "individual",
-      description: `${product?.name} 개별 할인`,
+      type: 'individual',
+      description: `${product?.name} 개별 할인`
     };
   }
 
   return {
     baseDiscount: 0,
-    type: "none",
-    description: "",
+    type: 'none',
+    description: ''
   };
 };
 
@@ -92,7 +92,7 @@ const applyTuesdayDiscount = (
   baseDiscount: number,
   tuesdayDiscount: number,
   description: string,
-  discountType: string,
+  discountType: string
 ) => {
   if (
     tuesdayDiscount <= 0 ||
@@ -101,7 +101,7 @@ const applyTuesdayDiscount = (
     return {
       finalRate: baseDiscount,
       finalDescription: description,
-      discountType,
+      discountType
     };
   }
 
@@ -109,14 +109,14 @@ const applyTuesdayDiscount = (
     return {
       finalRate: baseDiscount + (1 - baseDiscount) * tuesdayDiscount,
       finalDescription: `${description} + ${SPECIAL_DISCOUNTS.TUESDAY_SPECIAL.description}`,
-      discountType: `${discountType}+tuesday`,
+      discountType: `${discountType}+tuesday`
     };
   }
 
   return {
     finalRate: tuesdayDiscount,
     finalDescription: SPECIAL_DISCOUNTS.TUESDAY_SPECIAL.description,
-    discountType: "tuesday",
+    discountType: 'tuesday'
   };
 };
 
@@ -129,7 +129,7 @@ export const calculateFinalDiscount = ({
   productId,
   quantity,
   totalQuantity,
-  date = new Date(),
+  date = new Date()
 }: {
   productId: string;
   quantity: number;
@@ -143,18 +143,18 @@ export const calculateFinalDiscount = ({
   const {
     baseDiscount,
     type: discountType,
-    description,
+    description
   } = determineDiscountType(bulkDiscount, individualDiscount, productId);
 
   const {
     finalRate,
     finalDescription,
-    discountType: finalType,
+    discountType: finalType
   } = applyTuesdayDiscount(
     baseDiscount,
     tuesdayDiscount,
     description,
-    discountType,
+    discountType
   );
 
   return {
@@ -164,7 +164,7 @@ export const calculateFinalDiscount = ({
     baseDiscount,
     tuesdayDiscount,
     isBulkOverride: bulkDiscount > 0 && individualDiscount > 0,
-    isSpecial: tuesdayDiscount > 0,
+    isSpecial: tuesdayDiscount > 0
   };
 };
 
@@ -174,12 +174,12 @@ export const calculateFinalDiscount = ({
  * @returns UI 표시용 할인 정보
  */
 export const formatDiscountForUI = (
-  discountInfo: DiscountInfo,
+  discountInfo: DiscountInfo
 ): DiscountUIInfo => ({
   percentage: Math.round(discountInfo.rate * 100),
   displayText: discountInfo.description,
   type: discountInfo.type,
-  isSpecial: discountInfo.tuesdayDiscount > 0,
+  isSpecial: discountInfo.tuesdayDiscount > 0
 });
 
 /**
@@ -187,16 +187,24 @@ export const formatDiscountForUI = (
  */
 const calculatePolicyDiscount = (
   totalAmount: number,
-  policy: DiscountPolicy,
+  policy: DiscountPolicy
 ): number => {
-  if (totalAmount < (policy.minAmount || 0)) return 0;
+  if (totalAmount < (policy.minAmount ?? 0)) return 0;
 
-  const discount =
-    policy.type === "percentage"
+  const baseDiscount =
+    policy.type === 'percentage'
       ? totalAmount * (policy.value / 100)
-      : policy.value;
+      : policy.type === 'fixed'
+        ? policy.value
+        : 0;
 
-  return policy.maxDiscount ? Math.min(discount, policy.maxDiscount) : discount;
+  // 최대 할인 한도 적용
+  const limitedDiscount = policy.maxDiscount
+    ? Math.min(baseDiscount, policy.maxDiscount)
+    : baseDiscount;
+
+  // 음수 할인 방지
+  return Math.max(0, limitedDiscount);
 };
 
 /**
@@ -207,9 +215,9 @@ const calculatePolicyDiscount = (
  */
 export const calculateTotalDiscount = (
   totalAmount: number,
-  policies: DiscountPolicy[],
+  policies: DiscountPolicy[]
 ): number =>
   policies.reduce(
     (total, policy) => total + calculatePolicyDiscount(totalAmount, policy),
-    0,
+    0
   );
