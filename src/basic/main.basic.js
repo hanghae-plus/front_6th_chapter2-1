@@ -4,7 +4,7 @@ var stockInfo;
 var itemCnt;
 var lastSel;
 var sel;
-var addBtnss;
+var addBtn;
 var totalAmt = 0;
 var PRODUCT_ONE = 'p1';
 var p2 = 'p2';
