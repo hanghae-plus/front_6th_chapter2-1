@@ -28,9 +28,7 @@ export default [
       
       // 코드 품질 규칙
       'complexity': ['warn', 10],
-      'max-lines-per-function': ['warn', 20],
       'max-depth': ['warn', 3],
-      'max-lines': ['warn', 100],
       'max-params': ['warn', 4],
       
       // 가독성 규칙
@@ -73,7 +71,6 @@ export default [
     },
     rules: {
       'no-console': 'off',
-      'max-lines-per-function': 'off',
       'complexity': 'off'
     }
   },

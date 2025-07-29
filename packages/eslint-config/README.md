@@ -60,7 +60,6 @@ export default reactConfig;
 - `prefer-const`: 가능한 경우 `const` 사용
 - `no-console`: `console` 사용 경고
 - `complexity`: 함수 복잡도 제한 (10)
-- `max-lines-per-function`: 함수당 최대 라인 수 (20)
 - `max-depth`: 중첩 깊이 제한 (3)
 
 ### TypeScript 규칙
@@ -94,7 +93,6 @@ pnpm lint:fix
 테스트 파일(`*.test.js`, `*.test.ts`, `*.test.tsx`)에는 다음과 같은 특별 규칙이 적용됩니다:
 
 - `no-console`: 허용 (테스트 로그용)
-- `max-lines-per-function`: 제한 없음
 - `complexity`: 제한 없음
 - TypeScript 관련 엄격한 규칙들 완화
 
