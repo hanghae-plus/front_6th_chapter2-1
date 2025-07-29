@@ -23,17 +23,10 @@ import { createOrderSummary } from '../components/OrderSummary/index.js';
 import { startLightningSale } from '../services/lightningSale.js';
 import { startSuggestSale } from '../services/suggestSale.js';
 import { getAllProducts } from '../managers/product.js';
+import { getSelectedProduct, setSelectedProduct } from '../managers/selectedProduct.js';
 import { getProduct, setProduct } from '../managers/product.js';
 import { updateUIAfterCartChange } from '../utils/uiUpdateUtils.js';
 
-// 마지막 선택 상품 상태 관리
-const lastSelectionState = {
-  value: null,
-  get: () => lastSelectionState.value,
-  set: (newValue) => {
-    lastSelectionState.value = newValue;
-  },
-};
 
 function main() {
   let root;
@@ -100,7 +93,7 @@ function main() {
   // 서비스 시작
   startLightningSale(onUpdateSelectOptions, handlePriceUpdate);
   startSuggestSale(
-    lastSelectionState.get,
+    getSelectedProduct,
     onUpdateSelectOptions,
     handlePriceUpdate
   );
@@ -179,7 +172,7 @@ function handleAddToCart() {
   updateUIAfterCartChange({ ...cartData, cartItems }, discountData);
 
   handleStockInfoUpdate();
-  lastSelectionState.set(selectedProductId);
+  setSelectedProduct(selectedProductId);
 }
 
 // 수량 변경 전용 핸들러

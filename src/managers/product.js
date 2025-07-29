@@ -73,13 +73,3 @@ export function getAllProducts() {
   return products;
 }
 
-// === 마지막 선택 상품 관리 ===
-let lastSelectedProduct = null;
-
-export function getLastSelectedProduct() {
-  return lastSelectedProduct;
-}
-
-export function setLastSelectedProduct(productId) {
-  lastSelectedProduct = productId;
-}

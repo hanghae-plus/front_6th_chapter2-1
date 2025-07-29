@@ -2,18 +2,19 @@ import { TIMER_DELAYS, DISCOUNT_RATES } from '../constants/shopPolicy.js';
 import { setProduct, getAllProducts } from '../managers/product.js';
 
 export function startSuggestSale(
-  lastSelectedProduct,
+  getSelectedProduct,
   onUpdate,
   onPriceUpdate
 ) {
   setTimeout(function () {
     setInterval(function () {
-      if (lastSelectedProduct) {
+      const selectedProductId = getSelectedProduct();
+      if (selectedProductId) {
         let suggest = null;
 
         const allProducts = getAllProducts();
         for (let k = 0; k < allProducts.length; k++) {
-          if (allProducts[k].id !== lastSelectedProduct) {
+          if (allProducts[k].id !== selectedProductId) {
             if (allProducts[k].quantity > 0) {
               if (!allProducts[k].isSuggestSale) {
                 suggest = allProducts[k];
