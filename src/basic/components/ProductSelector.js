@@ -135,8 +135,8 @@ export function updateStockInfo(products) {
 }
 
 // 선택된 상품 ID를 가져옵니다.
-export function getSelectedProduct(container) {
-  const select = container.querySelector("#product-select");
+export function getSelectedProduct() {
+  const select = document.querySelector("#product-select");
   return select ? select.value : null;
 }
 

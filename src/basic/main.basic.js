@@ -28,7 +28,7 @@ let productService; // 전역 ProductService 인스턴스
 let cartService; // 전역 CartService 인스턴스
 
 // 장바구니 수량 변경
-function handleQuantityChange(productId, quantityChange, selectorContainer) {
+function handleQuantityChange(productId, quantityChange) {
   // 3단계: cartService의 수량 변경 로직 사용
   const success = cartService.updateCartItemQuantity(productId, quantityChange, PRODUCT_LIST);
 
@@ -50,12 +50,12 @@ function handleQuantityChange(productId, quantityChange, selectorContainer) {
     updateCartItemPriceStyle(cartItemElement, newQuantity);
   }
 
-  updateCartSummary(selectorContainer);
-  onUpdateSelectOptions(selectorContainer);
+  updateCartSummary();
+  onUpdateSelectOptions();
 }
 
 // 장바구니 아이템 제거
-function handleRemoveItem(productId, selectorContainer) {
+function handleRemoveItem(productId) {
   // 4단계: cartService의 아이템 제거 로직 사용
   const success = cartService.removeProductFromCart(productId, PRODUCT_LIST);
 
@@ -66,13 +66,13 @@ function handleRemoveItem(productId, selectorContainer) {
     }
   }
 
-  updateCartSummary(selectorContainer);
-  onUpdateSelectOptions(selectorContainer);
+  updateCartSummary();
+  onUpdateSelectOptions();
 }
 
 // 상품을 장바구니에 추가
-function handleAddToCart(productList, selectorContainer) {
-  const selectedProductId = getSelectedProduct(selectorContainer);
+function handleAddToCart(productList) {
+  const selectedProductId = getSelectedProduct();
 
   // 1단계: cartService의 검증 로직만 사용
   const targetProduct = cartService.validateSelectedProduct(selectedProductId, productList);
@@ -99,14 +99,14 @@ function handleAddToCart(productList, selectorContainer) {
     if (success) {
       const newCartItem = createCartItem({
         product: targetProduct,
-        onQuantityChange: (productId, change) => handleQuantityChange(productId, change, selectorContainer),
-        onRemove: productId => handleRemoveItem(productId, selectorContainer),
+        onQuantityChange: (productId, change) => handleQuantityChange(productId, change),
+        onRemove: productId => handleRemoveItem(productId),
       });
       document.querySelector("#cart-items").appendChild(newCartItem);
     }
   }
 
-  updateCartSummary(selectorContainer);
+  updateCartSummary();
 }
 
 function main() {
@@ -130,7 +130,7 @@ function main() {
     },
     onAddToCart: () => {
       console.log("add");
-      handleAddToCart(productService.getProducts(), selectorContainer);
+      handleAddToCart(productService.getProducts());
     },
   });
 
@@ -160,7 +160,7 @@ function main() {
   root.appendChild(manualSystem.toggle);
   root.appendChild(manualSystem.overlay);
 
-  onUpdateSelectOptions(selectorContainer);
+  onUpdateSelectOptions();
   updateCartSummary(cartDisplay, selectorContainer);
 
   // 타이머 서비스 초기화 및 시작
@@ -168,9 +168,7 @@ function main() {
   timerService.startLightningSaleTimer();
   timerService.startSuggestSaleTimer();
 }
-function onUpdateSelectOptions(selectorContainer) {
-  const totalStock = productService.calculateTotalStock();
-
+function onUpdateSelectOptions() {
   // ProductSelector 컴포넌트 업데이트
   updateProductOptions(productService.getProducts());
   updateStockInfo(productService.getProducts());
@@ -227,11 +225,12 @@ function updateStockDisplay() {
   }
 }
 
-const handleStockInfoUpdate = function (selectorContainer) {
+const handleStockInfoUpdate = function () {
   updateStockInfo(PRODUCT_LIST);
 };
 
-function doUpdatePricesInCart(cartDisplay, selectorContainer) {
+function doUpdatePricesInCart() {
+  const cartDisplay = document.querySelector("#cart-items");
   const cartItems = cartDisplay.children;
 
   // 장바구니 아이템들의 가격 업데이트
@@ -242,10 +241,10 @@ function doUpdatePricesInCart(cartDisplay, selectorContainer) {
     }
   }
 
-  updateCartSummary(cartDisplay, selectorContainer);
+  updateCartSummary();
 }
 
-function updateCartSummary(selectorContainer) {
+function updateCartSummary() {
   const cartDisplay = document.querySelector("#cart-items");
   const cartItems = cartDisplay.children;
 
@@ -257,7 +256,7 @@ function updateCartSummary(selectorContainer) {
 
   // 4. UI 업데이트
   updateCartUI(cartItems, cartTotals, discountResult);
-  handleStockInfoUpdate(selectorContainer);
+  handleStockInfoUpdate();
 }
 
 function updateCartUI(cartItems, cartTotals, discountResult) {
