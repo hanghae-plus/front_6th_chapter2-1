@@ -1,51 +1,46 @@
-import { BUSINESS_CONSTANTS } from "../../../shared/constants/business.js";
-import StockManager from "./StockManager.js";
-
-// Service instance
-let stockManager;
+// 리액트처럼 간단한 state import
+import { productState, setProductState } from "../store/ProductStore.js";
+import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
 
 export const initializeProductService = () => {
-  stockManager = new StockManager(BUSINESS_CONSTANTS);
+  // 초기화 로직이 필요하면 여기에
 };
 
 export const updateProductSelector = () => {
   const productSelector = document.getElementById("product-select");
-  if (!productSelector || !productSelector.updateProducts) return;
+  if (!productSelector) return;
 
   productSelector.updateProducts(
-    window.productStore.getProducts(),
-    window.productStore.getLastSelectedProduct()
+    productState.products,
+    productState.lastSelectedProduct
   );
 
-  const totalStock = window.productStore
-    .getProducts()
-    .reduce((sum, p) => sum + p.q, 0);
+  const totalStock = productState.products.reduce(
+    (sum, product) => sum + product.q,
+    0
+  );
 
-  // Original logic: border color change based on stock
-  if (totalStock < BUSINESS_CONSTANTS.STOCK.STOCK_WARNING_THRESHOLD) {
-    if (productSelector && productSelector.style) {
-      productSelector.style.borderColor = "orange";
-    }
+  if (totalStock < 50) {
+    productSelector.style.borderColor = "orange";
   } else {
-    if (productSelector && productSelector.style) {
-      productSelector.style.borderColor = "";
-    }
+    productSelector.style.borderColor = "";
   }
 };
 
 export const updateStockInfo = () => {
-  const stockInfoElement = document.getElementById("stock-status");
+  const stockInfoElement = document.getElementById(ELEMENT_IDS.STOCK_STATUS);
   if (!stockInfoElement) return;
 
+  // 모든 재고 부족/품절 상품을 표시
   let infoMsg = "";
-  const products = window.productStore.getProducts();
+  const products = productState.products;
 
-  products.forEach(function (item) {
-    if (item.q < BUSINESS_CONSTANTS.STOCK.LOW_STOCK_THRESHOLD) {
+  products.forEach((item) => {
+    if (item.q < 5) {
       if (item.q > 0) {
-        infoMsg = infoMsg + item.name + ": 재고 부족 (" + item.q + "개 남음)\n";
+        infoMsg += `${item.name}: 재고 부족 (${item.q}개 남음)\n`;
       } else {
-        infoMsg = infoMsg + item.name + ": 품절\n";
+        infoMsg += `${item.name}: 품절\n`;
       }
     }
   });
@@ -53,14 +48,13 @@ export const updateStockInfo = () => {
   stockInfoElement.textContent = infoMsg;
 };
 
-// Product utilities
+// 간단한 유틸들
 export const productUtils = {
-  findById: (productId, products = window.productStore.getProducts()) => {
-    return products.find((product) => product.id === productId) || null;
+  findById: (productId, products = productState.products) => {
+    return products.find((p) => p.id === productId);
   },
 
-  isValid: (productId, products = window.productStore.getProducts()) => {
-    if (!productId) return false;
-    return products.some((product) => product.id === productId);
+  isValid: (productId, products = productState.products) => {
+    return products.some((p) => p.id === productId);
   },
 };

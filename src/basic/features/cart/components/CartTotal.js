@@ -37,7 +37,6 @@ export const renderCartTotal = ({ amount, discountRate, point }) => {
   const cartTotal = document.getElementById(ELEMENT_IDS.CART_TOTAL);
   if (!cartTotal) return;
 
-  // Only update the total amount div, preserve existing loyalty-points
   const totalAmountDiv = cartTotal.querySelector(".text-2xl");
   if (totalAmountDiv) {
     totalAmountDiv.innerHTML = `₩${Math.round(amount).toLocaleString()}${
@@ -48,6 +47,4 @@ export const renderCartTotal = ({ amount, discountRate, point }) => {
         : ""
     }`;
   }
-
-  // Don't overwrite loyalty-points - doRenderBonusPoints handles that separately
 };

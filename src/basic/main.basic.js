@@ -1,16 +1,12 @@
 import { App } from "./shared/components/App.js";
 import { initialProducts } from "./features/product/constants/productConstants.js";
 
-// Simple state imports
+// 리액트처럼 간단한 state import
 import {
   productState,
   setProductState,
 } from "./features/product/store/ProductStore.js";
 import { cartState, setCartState } from "./features/cart/store/CartStore.js";
-
-// Import stores for backward compatibility
-import ProductStore from "./features/product/store/ProductStore.js";
-import CartStore from "./features/cart/store/CartStore.js";
 
 import {
   initializeCartService,
@@ -38,23 +34,13 @@ import { registerCartEvents } from "./features/cart/events/cartEventHandler.js";
 const main = (callbackFn) => {
   const root = document.getElementById("app");
 
-  // Set initial product data
+  // 리액트처럼 간단한 초기화
   setProductState({
     products: initialProducts,
     amount: 0,
     itemCount: 0,
     lastSelectedProduct: null,
   });
-
-  // Make states globally accessible (for services compatibility)
-  window.productState = productState;
-  window.setProductState = setProductState;
-  window.cartState = cartState;
-  window.setCartState = setCartState;
-
-  // Backward compatibility - create store instances for existing code
-  window.productStore = ProductStore.createInstance();
-  window.cartStore = CartStore.createInstance();
 
   initializeCartService();
   initializePointService();

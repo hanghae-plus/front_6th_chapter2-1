@@ -4,27 +4,25 @@ import { ProductSelector } from "../../features/product/components/ProductSelect
 import { ELEMENT_IDS } from "../constants/element-ids.js";
 import { htmlToElement } from "../utils/dom.js";
 
+import { productState } from "../../features/product/store/ProductStore.js";
+
 /**
  * Main App Component - JSX-like Template
  * @returns {Object} App elements and references
  */
 export const App = () => {
-  // Create ProductSelector with initial props
   const productSelectorElement = ProductSelector({
-    products: window.productStore.getProducts(),
-    selectedProductId: window.productStore.getLastSelectedProduct(),
+    products: productState.products,
+    selectedProductId: productState.lastSelectedProduct,
     onSelectionChange: (productId) => {
-      window.productStore.setLastSelectedProduct(productId);
+      productState.lastSelectedProduct = productId;
     },
   });
 
-  // Create header
-  const header = Header({ itemCount: window.productStore.getItemCount() });
+  const header = Header({ itemCount: productState.itemCount });
 
-  // Create help modal
   const helpModal = HelpModal();
 
-  // Main app layout
   const appHTML = /* html */ `
     <div class="bg-gray-100 p-8">
       <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-8">
@@ -81,12 +79,10 @@ export const App = () => {
 
   const appElement = htmlToElement(appHTML);
 
-  // Insert header at the beginning
   appElement
     .querySelector(".max-w-md")
     .insertBefore(header, appElement.querySelector(".grid"));
 
-  // Insert ProductSelector in the left column
   const selectorContainer = appElement.querySelector(".border-b");
   selectorContainer.insertBefore(
     productSelectorElement,

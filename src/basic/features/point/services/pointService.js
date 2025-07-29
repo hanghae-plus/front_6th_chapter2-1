@@ -1,8 +1,12 @@
+// 리액트처럼 간단한 state import
+import {
+  productState,
+  setProductState,
+} from "../../product/store/ProductStore.js";
+import PointsCalculator from "./PointsCalculator.js";
 import { BUSINESS_CONSTANTS } from "../../../shared/constants/business.js";
 import { PRODUCTS } from "../../product/constants/productConstants.js";
-import PointsCalculator from "./PointsCalculator.js";
 
-// Service instance
 let pointsCalculator;
 
 export const initializePointService = () => {
@@ -10,20 +14,21 @@ export const initializePointService = () => {
 };
 
 export const calculateAndRenderPoints = (cartResults) => {
-  const { totalAmount, totalItemCount } = cartResults;
+  // DOM에서 카트 요소들 가져오기
   const cartDisplayElement = document.getElementById("cart-items");
   const cartElements = cartDisplayElement.children;
 
-  // Calculate and render bonus points
   const pointsResults = pointsCalculator.calculateAndRender(
-    totalAmount,
-    totalItemCount,
+    cartResults.totalAmount,
+    cartResults.totalItemCount,
     cartElements,
-    window.productStore.getProducts()
+    productState.products
   );
 
-  // Update Store
-  window.productStore.setPoint(pointsResults.points);
+  // 리액트처럼 간단하게 state 업데이트
+  setProductState({
+    point: pointsResults.points,
+  });
 
   return pointsResults;
 };
