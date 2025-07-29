@@ -84,6 +84,7 @@ function createStockStatus() {
 // ProductSelector 컴포넌트를 생성합니다.
 export function createProductSelector({ products, onProductSelect, onAddToCart }) {
   const container = document.createElement("div");
+  container.id = "product-selector";
   container.className = "mb-6 pb-6 border-b border-gray-200";
 
   const select = createProductSelect(products);
@@ -97,15 +98,15 @@ export function createProductSelector({ products, onProductSelect, onAddToCart }
   container.appendChild(button);
   container.appendChild(stockInfo);
 
-  updateProductOptions(container, products);
+  updateProductOptions(products);
   updateStockInfo(container, products);
 
   return container;
 }
 
 // 상품 옵션을 갱신합니다.
-export function updateProductOptions(container, products) {
-  const select = container.querySelector("#product-select");
+export function updateProductOptions(products) {
+  const select = document.querySelector("#product-select");
   if (!select) return;
 
   select.innerHTML = "";

@@ -28,7 +28,7 @@ let productService; // 전역 ProductService 인스턴스
 let cartService; // 전역 CartService 인스턴스
 
 // 장바구니 수량 변경
-function handleQuantityChange(productId, quantityChange, cartDisplay, selectorContainer) {
+function handleQuantityChange(productId, quantityChange, selectorContainer) {
   // 3단계: cartService의 수량 변경 로직 사용
   const success = cartService.updateCartItemQuantity(productId, quantityChange, PRODUCT_LIST);
 
@@ -50,7 +50,7 @@ function handleQuantityChange(productId, quantityChange, cartDisplay, selectorCo
     updateCartItemPriceStyle(cartItemElement, newQuantity);
   }
 
-  updateCartSummary(cartDisplay, selectorContainer);
+  updateCartSummary(selectorContainer);
   onUpdateSelectOptions(selectorContainer);
 }
 
@@ -172,8 +172,8 @@ function onUpdateSelectOptions(selectorContainer) {
   const totalStock = productService.calculateTotalStock();
 
   // ProductSelector 컴포넌트 업데이트
-  updateProductOptions(selectorContainer, productService.getProducts(), totalStock, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
-  updateStockInfo(selectorContainer, productService.getProducts(), QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
+  updateProductOptions(productService.getProducts());
+  updateStockInfo(selectorContainer, productService.getProducts());
 }
 
 function updateCartItemStyles(cartItems) {
@@ -228,7 +228,7 @@ function updateStockDisplay() {
 }
 
 const handleStockInfoUpdate = function (selectorContainer) {
-  updateStockInfo(selectorContainer, PRODUCT_LIST, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
+  updateStockInfo(selectorContainer, PRODUCT_LIST);
 };
 
 function doUpdatePricesInCart(cartDisplay, selectorContainer) {
