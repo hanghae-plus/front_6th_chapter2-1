@@ -1,11 +1,11 @@
 export function createTuesdayDiscount({
   isTuesday = false,
-  totalAmt = 0,
+  total = 0,
   tuesdayMessage = 'Tuesday Special 10% Applied',
 }) {
   const container = document.createElement('div');
 
-  if (isTuesday && totalAmt > 0) {
+  if (isTuesday && total > 0) {
     container.innerHTML = `
       <div class="flex items-center space-x-2">
         <span class="text-purple-400">🌟</span>

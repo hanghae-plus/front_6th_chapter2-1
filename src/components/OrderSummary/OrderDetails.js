@@ -1,18 +1,18 @@
 import { getProduct } from '../../managers/product.js';
 
 export function createOrderDetails({
-  subTot,
+  originalTotal,
   cartItems,
   itemCnt,
   itemDiscounts,
   isTuesday,
-  totalAmt,
+  total,
   constants,
   getQuantityFromElement,
 }) {
   const container = document.createElement('div');
 
-  if (subTot > 0) {
+  if (originalTotal > 0) {
     let html = '';
 
     // 개별 장바구니 항목 표시
@@ -35,7 +35,7 @@ export function createOrderDetails({
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
         <span>Subtotal</span>
-        <span>₩${subTot.toLocaleString()}</span>
+        <span>₩${originalTotal.toLocaleString()}</span>
       </div>
     `;
 
@@ -59,7 +59,7 @@ export function createOrderDetails({
     }
 
     // 화요일 추가 할인
-    if (isTuesday && totalAmt > 0) {
+    if (isTuesday && total > 0) {
       html += `
         <div class="flex justify-between text-sm tracking-wide text-purple-400">
           <span class="text-xs">🌟 화요일 추가 할인</span>

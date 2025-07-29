@@ -10,9 +10,8 @@ import {
 } from '../components/Layout.js';
 import { createCartDisplay } from '../components/CartDisplay/index.js';
 import { getQuantityFromElement } from '../utils/global/index.js';
-import { calculateDiscounts } from '../utils/discountUtils.js';
 import {
-  calculateCartTotals,
+  calculateCartSummary,
   addItemToCart,
   updateCartItemQuantity,
   removeCartItem,
@@ -163,13 +162,8 @@ function handleAddToCart() {
   // 장바구니 추가 후 필요한 업데이트들
   const cartDisp = document.getElementById('cart-items');
   const cartItems = cartDisp.children;
-  const cartData = calculateCartTotals(cartItems);
-  const discountData = calculateDiscounts(
-    cartData.subTot,
-    cartData.totalAmt,
-    cartData.itemCnt
-  );
-  updateUIAfterCartChange({ ...cartData, cartItems }, discountData);
+  const summary = calculateCartSummary(cartItems);
+  updateUIAfterCartChange(summary);
 
   handleStockInfoUpdate();
   setSelectedProduct(selectedProductId);
@@ -210,13 +204,8 @@ function handleQuantityChange(productId, change) {
   // 수량 변경 후 필요한 업데이트들
   const cartDisp = document.getElementById('cart-items');
   const cartItems = cartDisp.children;
-  const cartData = calculateCartTotals(cartItems);
-  const discountData = calculateDiscounts(
-    cartData.subTot,
-    cartData.totalAmt,
-    cartData.itemCnt
-  );
-  updateUIAfterCartChange({ ...cartData, cartItems }, discountData);
+  const summary = calculateCartSummary(cartItems);
+  updateUIAfterCartChange(summary);
 
   handleStockInfoUpdate();
 }
@@ -240,13 +229,8 @@ function handleRemoveItem(productId) {
   // 상품 제거 후 필요한 업데이트들
   const cartDisp = document.getElementById('cart-items');
   const cartItems = cartDisp.children;
-  const cartData = calculateCartTotals(cartItems);
-  const discountData = calculateDiscounts(
-    cartData.subTot,
-    cartData.totalAmt,
-    cartData.itemCnt
-  );
-  updateUIAfterCartChange({ ...cartData, cartItems }, discountData);
+  const summary = calculateCartSummary(cartItems);
+  updateUIAfterCartChange(summary);
 
   handleStockInfoUpdate();
 }

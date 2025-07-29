@@ -29,22 +29,20 @@ function updateItemCount(itemCnt) {
   }
 }
 
-function replaceOrderSummary(cartData, discountData) {
-  const { subTot, itemDiscounts, itemCnt, cartItems } = cartData;
-  const { discRate, originalTotal, finalTotal, isTuesday } = discountData;
+function replaceOrderSummary(summary) {
+  const { originalTotal, itemDiscounts, itemCnt, cartItems, discRate, finalTotal, isTuesday } = summary;
 
   const rightColumn = document.querySelector('.right-column');
   rightColumn.querySelector('.order-summary-section')?.remove();
 
   const newOrderSummary = createOrderSummary({
-    subTot,
+    originalTotal,
     cartItems,
     itemCnt,
     itemDiscounts,
     isTuesday,
-    totalAmt: finalTotal,
+    total: finalTotal,
     discRate,
-    originalTotal,
     getProduct,
     getQuantityFromElement,
   });
@@ -66,7 +64,7 @@ function updateDiscountInfo(discRate, finalTotal, originalTotal) {
   discountInfoDiv.appendChild(
     createDiscountInfo({
       discRate,
-      totalAmt: finalTotal,
+      total: finalTotal,
       originalTotal,
       formatPrice,
     })
@@ -188,18 +186,18 @@ function renderBonusPoints(totalAmt, itemCnt) {
   renderPointsToDOM(finalPoints, pointsDetail);
 }
 
-export function updateUIAfterCartChange(cartData, discountData) {
+export function updateUIAfterCartChange(summary) {
   const {
     finalTotal,
     isTuesday: isTuesdayFlag,
     discRate,
     originalTotal,
-  } = discountData;
-  const { itemCnt } = cartData;
+    itemCnt,
+  } = summary;
 
   updateTuesdaySpecial(isTuesdayFlag, finalTotal);
   updateItemCount(itemCnt);
-  replaceOrderSummary(cartData, discountData);
+  replaceOrderSummary(summary);
   updateCartTotal(finalTotal);
   updateDiscountInfo(discRate, finalTotal, originalTotal);
   renderBonusPoints(finalTotal, itemCnt);

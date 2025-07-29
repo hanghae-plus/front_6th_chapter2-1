@@ -2,13 +2,13 @@ import { formatPrice } from '../utils/global/index.js';
 
 export function createDiscountInfo({
   discRate = 0,
-  totalAmt = 0,
+  total = 0,
   originalTotal = 0,
 }) {
   const container = document.createElement('div');
-  if (!(discRate > 0 && totalAmt > 0)) return container;
+  if (!(discRate > 0 && total > 0)) return container;
 
-  const savedAmount = originalTotal - totalAmt;
+  const savedAmount = originalTotal - total;
   container.innerHTML = `
     <div class="bg-green-500/20 rounded-lg p-3">
       <div class="flex justify-between items-center mb-1">

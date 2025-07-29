@@ -1,9 +1,10 @@
 import { QUANTITY_THRESHOLDS } from '../constants/shopPolicy.js';
 import { getQuantityFromElement, getProductDiscount } from './productUtils.js';
 import { getProduct } from '../managers/product.js';
+import { calculateDiscounts } from './discountUtils.js';
 
 export function calculateCartTotals(cartItems) {
-  const result = { subTot: 0, itemDiscounts: [], totalAmt: 0, itemCnt: 0 };
+  const result = { originalTotal: 0, itemDiscounts: [], total: 0, itemCnt: 0 };
 
   for (const cartItem of cartItems) {
     const product = getProduct(cartItem.id);
@@ -25,8 +26,8 @@ export function calculateCartTotals(cartItems) {
       });
     }
 
-    result.subTot += itemTotal;
-    result.totalAmt += itemTotal * (1 - discount);
+    result.originalTotal += itemTotal;
+    result.total += itemTotal * (1 - discount);
     result.itemCnt += quantity;
   }
 
@@ -100,5 +101,20 @@ export function removeCartItem(productId, currentCartQuantity) {
     success: true,
     stockToRestore: currentCartQuantity,
     product,
+  };
+}
+
+export function calculateCartSummary(cartItems) {
+  const cartTotals = calculateCartTotals(cartItems);
+  const discounts = calculateDiscounts(
+    cartTotals.originalTotal,
+    cartTotals.total,
+    cartTotals.itemCnt
+  );
+  
+  return {
+    ...cartTotals,
+    ...discounts,
+    cartItems,
   };
 }

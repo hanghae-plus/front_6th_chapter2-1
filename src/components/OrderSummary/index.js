@@ -8,12 +8,12 @@ import {
 } from '../../constants/shopPolicy.js';
 
 export function createOrderSummary({
-  subTot = 0,
+  originalTotal = 0,
   cartItems = [],
   itemCnt = 0,
   itemDiscounts = [],
   isTuesday = false,
-  totalAmt = 0,
+  total = 0,
   getQuantityFromElement,
 }) {
   const container = document.createElement('div');
@@ -24,12 +24,12 @@ export function createOrderSummary({
 
   // 주문 요약 상세 내용 생성
   const summaryDetails = createOrderDetails({
-    subTot,
+    originalTotal,
     cartItems,
     itemCnt,
     itemDiscounts,
     isTuesday,
-    totalAmt,
+    total,
     constants,
     getQuantityFromElement,
   });
@@ -38,13 +38,13 @@ export function createOrderSummary({
 
   // 장바구니 총액 생성
   const cartTotal = createCartTotal({
-    totalAmt,
+    total,
   });
 
   // 화요일 특별 할인 생성
   const tuesdaySpecial = createTuesdayDiscount({
     isTuesday,
-    totalAmt,
+    total,
     tuesdayMessage,
   });
 
