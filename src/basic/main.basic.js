@@ -1,4 +1,4 @@
-import { LOW_TOTAL_STOCK_THRESHOLD } from './domain/const';
+import { LOW_TOTAL_STOCK_THRESHOLD } from './domain/product';
 import productManager from './domain/product';
 
 // let productList;
