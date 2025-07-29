@@ -1,7 +1,7 @@
 import { LOW_TOTAL_STOCK_THRESHOLD } from './domain/const';
-import { getStockStatusMessage, getTotalStock } from './domain/product';
+import productManager from './domain/product';
 
-let productList;
+// let productList;
 
 let lastSelectedItem;
 let selectedItem;
@@ -172,7 +172,7 @@ function main() {
   totalAmount = 0;
   itemCount = 0;
   lastSelectedItem = null;
-  productList = [
+  productManager.setProducts([
     {
       id: PRODUCT_ONE,
       name: '버그 없애는 키보드',
@@ -218,7 +218,7 @@ function main() {
       onSale: false,
       suggestSale: false,
     },
-  ];
+  ]);
   /**  ==================== 상수 및 변수 끝 ================================ */
 
   selectedItem = document.createElement('select');
@@ -256,9 +256,9 @@ function main() {
   handleCalculateCartStuff();
 
   setTimeout(() => {
-    setInterval(function () {
-      const luckyIdx = Math.floor(Math.random() * productList.length);
-      const luckyItem = productList[luckyIdx];
+    setInterval(() => {
+      const luckyIdx = Math.floor(Math.random() * productManager.getProductCount());
+      const luckyItem = productManager.getProductAt(luckyIdx);
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
@@ -268,15 +268,17 @@ function main() {
       }
     }, 30000);
   }, lightningDelay);
-  setTimeout(function () {
-    setInterval(function () {
+
+  setTimeout(() => {
+    setInterval(() => {
       if (lastSelectedItem) {
         let suggest = null;
-        for (let k = 0; k < productList.length; k++) {
-          if (productList[k].id !== lastSelectedItem) {
-            if (productList[k].q > 0) {
-              if (!productList[k].suggestSale) {
-                suggest = productList[k];
+        for (let k = 0; k < productManager.getProductCount(); k++) {
+          const product = productManager.getProductAt(k);
+          if (product.id !== lastSelectedItem) {
+            if (product.q > 0) {
+              if (!product.suggestSale) {
+                suggest = product[k];
                 break;
               }
             }
@@ -303,18 +305,18 @@ let sum;
  * UI에 시각적으로 구분(색상/텍스트 등)
  */
 function onUpdateSelectOptions() {
-  let totalStock;
+  // let totalStock;
   let opt;
   let discountText;
   selectedItem.innerHTML = '';
-  totalStock = 0;
-  for (let idx = 0; idx < productList.length; idx++) {
-    const _p = productList[idx];
-    totalStock = totalStock + _p.q;
-  }
-  for (let i = 0; i < productList.length; i++) {
+  // totalStock = 0;
+  // for (let idx = 0; idx < productManager.getProductCount(); idx++) {
+  //   const _p = productManager.getProductAt(idx);
+  //   totalStock = totalStock + _p.q;
+  // }
+  for (let i = 0; i < productManager.getProductCount(); i++) {
     (function () {
-      const item = productList[i];
+      const item = productManager.getProductAt(i);
       opt = document.createElement('option');
       opt.value = item.id;
       discountText = '';
@@ -341,7 +343,8 @@ function onUpdateSelectOptions() {
       selectedItem.appendChild(opt);
     })();
   }
-  if (totalStock < 50) {
+
+  if (productManager.getTotalStock() < LOW_TOTAL_STOCK_THRESHOLD) {
     selectedItem.style.borderColor = 'orange';
   } else {
     selectedItem.style.borderColor = '';
@@ -386,17 +389,19 @@ function handleCalculateCartStuff() {
   bulkDisc = subTot;
   itemDiscounts = [];
   lowStockItems = [];
-  for (idx = 0; idx < productList.length; idx++) {
-    if (productList[idx].q < 5 && productList[idx].q > 0) {
-      lowStockItems.push(productList[idx].name);
+  for (idx = 0; idx < productManager.getProductCount(); idx++) {
+    const product = productManager.getProductAt(idx);
+    if (0 < product.q && product.q < 5) {
+      lowStockItems.push(product.name);
     }
   }
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       let curItem;
-      for (let j = 0; j < productList.length; j++) {
-        if (productList[j].id === cartItems[i].id) {
-          curItem = productList[j];
+      for (let j = 0; j < productManager.getProductCount(); j++) {
+        const product = productManager.getProductAt(j);
+        if (product.id === cartItems[i].id) {
+          curItem = product;
           break;
         }
       }
@@ -471,9 +476,10 @@ function handleCalculateCartStuff() {
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
       var curItem;
-      for (let j = 0; j < productList.length; j++) {
-        if (productList[j].id === cartItems[i].id) {
-          curItem = productList[j];
+      for (let j = 0; j < productManager.getProductCount(); j++) {
+        const product = productManager.getProductAt(j);
+        if (product.id === cartItems[i].id) {
+          curItem = product;
           break;
         }
       }
@@ -566,8 +572,8 @@ function handleCalculateCartStuff() {
     }
   }
   stockMsg = '';
-  for (let stockIdx = 0; stockIdx < productList.length; stockIdx++) {
-    const item = productList[stockIdx];
+  for (let stockIdx = 0; stockIdx < productManager.getProductCount(); stockIdx++) {
+    const item = productManager.getProductAt(stockIdx);
     if (item.q < 5) {
       if (item.q > 0) {
         stockMsg = stockMsg + item.name + ': 재고 부족 (' + item.q + '개 남음)\n';
@@ -620,9 +626,10 @@ const doRenderBonusPoints = function () {
   nodes = cartDisplay.children;
   for (const node of nodes) {
     let product = null;
-    for (let pIdx = 0; pIdx < productList.length; pIdx++) {
-      if (productList[pIdx].id === node.id) {
-        product = productList[pIdx];
+    for (let pIdx = 0; pIdx < productManager.getProductCount(); pIdx++) {
+      const currentProduct = productManager.getProductAt(pIdx);
+      if (currentProduct.id === node.id) {
+        product = currentProduct;
         break;
       }
     }
@@ -678,18 +685,16 @@ const doRenderBonusPoints = function () {
 
 /**  재고 부족/품절 상품의 메시지를 stockInfo에 표시 */
 const handleStockUpdate = () => {
-  let infoMsg = '';
-  const totalStock = getTotalStock(productList);
+  const totalStock = productManager.getTotalStock();
 
   if (totalStock < LOW_TOTAL_STOCK_THRESHOLD) {
     // @todo 전체 재고가 50개 미만일 경우 상품 선택 드롭다운 테두리 색상 orange로 변경
   }
-  productList.forEach((product) => {
-    infoMsg += getStockStatusMessage(product);
-  });
+
+  const infoMessage = productManager.getLowStockMessages();
 
   // @todo ui업데이트. 따로 분리
-  stockInfo.textContent = infoMsg;
+  stockInfo.textContent = infoMessage;
 };
 
 /** 장바구니 내 각 상품의 UI 가격 정보 업데이트 */
@@ -710,9 +715,10 @@ function doUpdatePricesInCart() {
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
     let product = null;
-    for (let productIdx = 0; productIdx < productList.length; productIdx++) {
-      if (productList[productIdx].id === itemId) {
-        product = productList[productIdx];
+    for (let productIdx = 0; productIdx < productManager.getProductCount(); productIdx++) {
+      const currentProduct = productManager.getProductAt(productIdx);
+      if (currentProduct.id === itemId) {
+        product = currentProduct;
         break;
       }
     }
@@ -758,8 +764,9 @@ main();
 addCartButton.addEventListener('click', function () {
   const selItem = selectedItem.value;
   let hasItem = false;
-  for (let idx = 0; idx < productList.length; idx++) {
-    if (productList[idx].id === selItem) {
+  for (let idx = 0; idx < productManager.getProductCount(); idx++) {
+    const currentProduct = productManager.getProductAt(idx);
+    if (currentProduct.id === selItem) {
       hasItem = true;
       break;
     }
@@ -768,9 +775,10 @@ addCartButton.addEventListener('click', function () {
     return;
   }
   let itemToAdd = null;
-  for (let j = 0; j < productList.length; j++) {
-    if (productList[j].id === selItem) {
-      itemToAdd = productList[j];
+  for (let j = 0; j < productManager.getProductCount(); j++) {
+    const currentProduct = productManager.getProductAt(j);
+    if (currentProduct.id === selItem) {
+      itemToAdd = currentProduct;
       break;
     }
   }
@@ -824,9 +832,10 @@ cartDisplay.addEventListener('click', function (event) {
     const prodId = tgt.dataset.productId;
     const itemElem = document.getElementById(prodId);
     let prod = null;
-    for (let prdIdx = 0; prdIdx < productList.length; prdIdx++) {
-      if (productList[prdIdx].id === prodId) {
-        prod = productList[prdIdx];
+    for (let prdIdx = 0; prdIdx < productManager.getProductCount(); prdIdx++) {
+      const currentProduct = productManager.getProductAt(prdIdx);
+      if (currentProduct.id === prodId) {
+        prod = currentProduct;
         break;
       }
     }
