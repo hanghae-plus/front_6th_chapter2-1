@@ -296,35 +296,34 @@ function handleCalculateCartStuff() {
   itemDiscounts = [];
 
   for (let i = 0; i < cartItems.length; i++) {
-    var curItem;
-    for (var j = 0; j < prodList.length; j++) {
-      if (prodList[j].id === cartItems[i].id) {
-        curItem = prodList[j];
-        break;
-      }
-    }
-    var qtyElem = cartItems[i].querySelector(".quantity-number");
-    var q;
-    var itemTot;
+    const cartItem = cartItems[i];
+    const curItem = prodList.find((product) => product.id === cartItem.id);
+    if (!curItem) continue;
 
-    q = parseInt(qtyElem.textContent);
-    itemTot = curItem.val * q;
+    const qtyElem = cartItem.querySelector(".quantity-number");
+    const q = parseInt(qtyElem.textContent);
+    const itemTot = curItem.val * q;
+
+    // 전역 변수 업데이트
     itemCnt += q;
     subTot += itemTot;
-    var itemDiv = cartItems[i];
-    var priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
-    priceElems.forEach(function (elem) {
-      if (elem.classList.contains("text-lg")) {
-        elem.style.fontWeight = q >= 10 ? "bold" : "normal";
-      }
+
+    // UI 스타일 업데이트
+    const priceElems = cartItem.querySelectorAll(".text-lg");
+    priceElems.forEach((elem) => {
+      elem.style.fontWeight = q >= 10 ? "bold" : "normal";
     });
 
+    // 할인 계산
     const disc = calculateItemDiscount(curItem.id, q);
     if (disc > 0) {
       itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
     }
+
+    // 최종 가격 계산
     totalAmt += itemTot * (1 - disc);
   }
+
   let discRate = 0;
   var originalTotal = subTot;
   if (itemCnt >= 30) {
