@@ -99,8 +99,8 @@ function handleAddToCart(productList) {
     if (success) {
       const newCartItem = createCartItem({
         product: targetProduct,
-        onQuantityChange: (productId, change) => handleQuantityChange(productId, change),
-        onRemove: productId => handleRemoveItem(productId),
+        onQuantityChange: handleQuantityChange,
+        onRemove: handleRemoveItem,
       });
       document.querySelector("#cart-items").appendChild(newCartItem);
     }

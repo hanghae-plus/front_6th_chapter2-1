@@ -1,4 +1,4 @@
-import { getProductDisplayName, getPriceDisplayHTML, calculateDiscountRate } from "../utils/productDisplay.js";
+import { getProductDisplayName, getPriceDisplayHTML, calculateDiscountRate, getDiscountStatus } from "../utils/productDisplay.js";
 
 // CartItem 컴포넌트 생성
 export function createCartItem({ product, onQuantityChange, onRemove }) {
@@ -7,7 +7,8 @@ export function createCartItem({ product, onQuantityChange, onRemove }) {
   cartItem.className = "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
 
   const discountRate = calculateDiscountRate(product);
-  const discountDisplay = discountRate > 0 ? `<span class="text-xs text-red-500 font-medium">-${(discountRate * 100).toFixed(0)}%</span>` : "";
+  const discountStatus = getDiscountStatus(product);
+  const discountDisplay = discountRate > 0 ? `<span class="text-xs text-red-500 font-medium">-${(discountRate * 100).toFixed(0)}% ${discountStatus}</span>` : "";
 
   cartItem.innerHTML = /* HTML */ `
     <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
@@ -80,7 +81,8 @@ export function updateCartItemPrice(cartItemElement, product) {
   }
 
   const discountRate = calculateDiscountRate(product);
-  const discountDisplay = discountRate > 0 ? `<span class="text-xs text-red-500 font-medium">-${(discountRate * 100).toFixed(0)}%</span>` : "";
+  const discountStatus = getDiscountStatus(product);
+  const discountDisplay = discountRate > 0 ? `<span class="text-xs text-red-500 font-medium">-${(discountRate * 100).toFixed(0)}% ${discountStatus}</span>` : "";
 
   priceElements.forEach(element => {
     if (element.classList.contains("text-lg")) {

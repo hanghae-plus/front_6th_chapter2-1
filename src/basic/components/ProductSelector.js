@@ -1,5 +1,5 @@
 import { STOCK_WARNING_THRESHOLD, LOW_STOCK_THRESHOLD } from "../constants/index.js";
-import { calculateDiscountRate } from "../utils/productDisplay.js";
+import { calculateDiscountRate, getDiscountStatus } from "../utils/productDisplay.js";
 
 // 옵션 텍스트를 생성합니다.
 function getOptionText(item) {
@@ -9,15 +9,16 @@ function getOptionText(item) {
 
   const discountRate = calculateDiscountRate(item);
   const discountPercent = discountRate > 0 ? (discountRate * 100).toFixed(0) : 0;
+  const discountStatus = getDiscountStatus(item);
 
-  if (item.onSale && item.suggestSale) {
-    return `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (-${discountPercent}% SUPER SALE!)`;
+  if (discountStatus === "SUPER SALE") {
+    return `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (-${discountPercent}% ${discountStatus}!)`;
   }
-  if (item.onSale) {
-    return `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (-${discountPercent}% SALE!)`;
+  if (discountStatus === "SALE") {
+    return `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (-${discountPercent}% ${discountStatus}!)`;
   }
-  if (item.suggestSale) {
-    return `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (-${discountPercent}% 추천할인!)`;
+  if (discountStatus === "추천할인") {
+    return `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (-${discountPercent}% ${discountStatus}!)`;
   }
   return `${item.name} - ${item.price}원`;
 }
@@ -25,9 +26,11 @@ function getOptionText(item) {
 // 옵션의 CSS 클래스를 생성합니다.
 function getOptionClass(item) {
   if (item.quantity === 0) return "text-gray-400";
-  if (item.onSale && item.suggestSale) return "text-purple-600 font-bold";
-  if (item.onSale) return "text-red-500 font-bold";
-  if (item.suggestSale) return "text-blue-500 font-bold";
+
+  const discountStatus = getDiscountStatus(item);
+  if (discountStatus === "SUPER SALE") return "text-purple-600 font-bold";
+  if (discountStatus === "SALE") return "text-red-500 font-bold";
+  if (discountStatus === "추천할인") return "text-blue-500 font-bold";
   return "";
 }
 
@@ -109,10 +112,10 @@ export function createProductSelector({ products, onProductSelect, onAddToCart }
 
 // 상품 옵션을 갱신합니다.
 export function updateProductOptions(products) {
-  const select = document.querySelector("#product-select");
-  if (!select) return;
+  const productSelect = document.querySelector("#product-select");
+  if (!productSelect) return;
 
-  select.innerHTML = "";
+  productSelect.innerHTML = "";
 
   products.forEach(item => {
     const option = document.createElement("option");
@@ -120,25 +123,25 @@ export function updateProductOptions(products) {
     option.textContent = getOptionText(item);
     option.className = getOptionClass(item);
     if (item.quantity === 0) option.disabled = true;
-    select.appendChild(option);
+    productSelect.appendChild(option);
   });
 
   const totalStock = products.reduce((sum, item) => sum + item.quantity, 0);
-  select.style.borderColor = totalStock < STOCK_WARNING_THRESHOLD ? "orange" : "";
+  productSelect.style.borderColor = totalStock < STOCK_WARNING_THRESHOLD ? "orange" : "";
 }
 
 // 재고 정보를 갱신합니다.
 export function updateStockInfo(products) {
-  const info = document.querySelector("#stock-status");
-  if (!info) return;
+  const stockStatus = document.querySelector("#stock-status");
+  if (!stockStatus) return;
 
   const messages = products.filter(item => isLowStock(item)).map(item => (item.quantity > 0 ? `${item.name}: 재고 부족 (${item.quantity}개 남음)` : `${item.name}: 품절`));
 
-  info.textContent = messages.join("\n");
+  stockStatus.textContent = messages.join("\n");
 }
 
 // 선택된 상품 ID를 가져옵니다.
 export function getSelectedProduct() {
-  const select = document.querySelector("#product-select");
-  return select ? select.value : null;
+  const productSelect = document.querySelector("#product-select");
+  return productSelect ? productSelect.value : null;
 }
