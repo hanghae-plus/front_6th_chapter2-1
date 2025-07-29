@@ -10,7 +10,7 @@ import {
  * 전역 상품 데이터
  * 앱 전체에서 공유되는 상품 목록과 상태
  */
-export let products = [
+let products = [
   {
     id: KEYBOARD_ID,
     name: '버그 없애는 키보드',
@@ -58,11 +58,28 @@ export let products = [
   },
 ];
 
-/**
- * 상품 ID로 상품을 찾습니다.
- * @param {string} productId - 찾을 상품 ID
- * @returns {Object|undefined} 찾은 상품 객체 또는 undefined
- */
-export function findProductById(productId) {
+export function getProduct(productId) {
   return products.find((product) => product.id === productId);
+}
+
+export function setProduct(productId, updates) {
+  const product = getProduct(productId);
+  Object.assign(product, { ...product, ...updates });
+  return product;
+}
+
+// 모든 상품 조회
+export function getAllProducts() {
+  return products;
+}
+
+// === 마지막 선택 상품 관리 ===
+let lastSelectedProduct = null;
+
+export function getLastSelectedProduct() {
+  return lastSelectedProduct;
+}
+
+export function setLastSelectedProduct(productId) {
+  lastSelectedProduct = productId;
 }

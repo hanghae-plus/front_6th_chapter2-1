@@ -45,7 +45,3 @@ export function getBulkBonus(itemCount) {
 export function getQuantityFromElement(element) {
   return parseInt(element.textContent) || 0;
 }
-
-export function findProductById(productList, productId) {
-  return productList.find((product) => product.id === productId);
-}
