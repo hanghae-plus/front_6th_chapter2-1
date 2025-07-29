@@ -1,12 +1,12 @@
 import { QUANTITY_THRESHOLDS } from '../constants/shopPolicy.js';
 import { getQuantityFromElement, getProductDiscount } from './productUtils.js';
-import { findProductById } from '../data/products.js';
+import { getProduct } from '../managers/ProductManager.js';
 
 export function calculateCartTotals(cartItems) {
   const result = { subTot: 0, itemDiscounts: [], totalAmt: 0, itemCnt: 0 };
 
   for (const cartItem of cartItems) {
-    const product = findProductById(cartItem.id);
+    const product = getProduct(cartItem.id);
     // 수량 추출하는 로직인데 이건 돔조작에 의존하고있음. 다른 방법 찾아보기
     const quantity = getQuantityFromElement(
       cartItem.querySelector('.quantity-number')
@@ -34,7 +34,7 @@ export function calculateCartTotals(cartItems) {
 }
 
 export function addItemToCart(productId, currentCartQuantity = 0) {
-  const product = findProductById(productId);
+  const product = getProduct(productId);
 
   if (!product) {
     return { success: false, error: '상품을 찾을 수 없습니다.' };
@@ -59,7 +59,7 @@ export function addItemToCart(productId, currentCartQuantity = 0) {
 }
 
 export function updateCartItemQuantity(productId, change, currentCartQuantity) {
-  const product = findProductById(productId);
+  const product = getProduct(productId);
 
   if (!product) {
     return { success: false, error: '상품을 찾을 수 없습니다.' };
@@ -90,7 +90,7 @@ export function updateCartItemQuantity(productId, change, currentCartQuantity) {
 }
 
 export function removeCartItem(productId, currentCartQuantity) {
-  const product = findProductById(productId);
+  const product = getProduct(productId);
 
   if (!product) {
     return { success: false, error: '상품을 찾을 수 없습니다.' };

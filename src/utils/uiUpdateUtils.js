@@ -1,11 +1,15 @@
 import { createDiscountInfo } from '../components/DiscountInfo.js';
 import { createOrderSummary } from '../components/OrderSummary/index.js';
-import { findProductById } from '../data/products.js';
+import { getProduct } from '../managers/ProductManager.js';
 import { getBulkBonus } from './productUtils.js';
 import { createPointsDisplay } from '../components/PointsDisplay.js';
 import { POINT_RATES } from '../constants/shopPolicy.js';
 import { KEYBOARD_ID, MOUSE_ID, MONITOR_ID } from '../constants/productId.js';
-import { isTuesday, formatPrice, getQuantityFromElement } from './global/index.js';
+import {
+  isTuesday,
+  formatPrice,
+  getQuantityFromElement,
+} from './global/index.js';
 
 function updateTuesdaySpecial(isTuesdayFlag, finalTotal) {
   const tuesdaySpecial = document.getElementById('tuesday-special');
@@ -41,7 +45,7 @@ function replaceOrderSummary(cartData, discountData) {
     totalAmt: finalTotal,
     discRate,
     originalTotal,
-    findProductById,
+    getProduct,
     getQuantityFromElement,
   });
   newOrderSummary.classList.add('order-summary-section');
@@ -77,7 +81,7 @@ function calculateTuesdayBonus(basePoints) {
   if (basePoints > 0 && isTuesday()) {
     return {
       points: basePoints * POINT_RATES.TUESDAY_MULTIPLIER,
-      detail: `화요일 ${POINT_RATES.TUESDAY_MULTIPLIER}배`
+      detail: `화요일 ${POINT_RATES.TUESDAY_MULTIPLIER}배`,
     };
   }
   return null;
@@ -89,7 +93,7 @@ function checkProductsInCart(nodes) {
   let hasMonitorArm = false;
 
   for (const node of nodes) {
-    const product = findProductById(node.id);
+    const product = getProduct(node.id);
     if (!product) continue;
     if (product.id === KEYBOARD_ID) {
       hasKeyboard = true;
@@ -99,27 +103,27 @@ function checkProductsInCart(nodes) {
       hasMonitorArm = true;
     }
   }
-  
+
   return { hasKeyboard, hasMouse, hasMonitorArm };
 }
 
 function calculateSetBonuses(hasKeyboard, hasMouse, hasMonitorArm) {
   const bonuses = [];
-  
+
   if (hasKeyboard && hasMouse) {
     bonuses.push({
       points: POINT_RATES.SETS.KEYBOARD_MOUSE,
-      detail: `키보드+마우스 세트 +${POINT_RATES.SETS.KEYBOARD_MOUSE}p`
+      detail: `키보드+마우스 세트 +${POINT_RATES.SETS.KEYBOARD_MOUSE}p`,
     });
   }
 
   if (hasKeyboard && hasMouse && hasMonitorArm) {
     bonuses.push({
       points: POINT_RATES.SETS.FULL_SET,
-      detail: `풀세트 구매 +${POINT_RATES.SETS.FULL_SET}p`
+      detail: `풀세트 구매 +${POINT_RATES.SETS.FULL_SET}p`,
     });
   }
-  
+
   return bonuses;
 }
 
@@ -167,8 +171,8 @@ function renderBonusPoints(totalAmt, itemCnt) {
 
   const { hasKeyboard, hasMouse, hasMonitorArm } = checkProductsInCart(nodes);
   const setBonuses = calculateSetBonuses(hasKeyboard, hasMouse, hasMonitorArm);
-  
-  setBonuses.forEach(bonus => {
+
+  setBonuses.forEach((bonus) => {
     finalPoints += bonus.points;
     pointsDetail.push(bonus.detail);
   });
@@ -185,7 +189,12 @@ function renderBonusPoints(totalAmt, itemCnt) {
 }
 
 export function updateUIAfterCartChange(cartData, discountData) {
-  const { finalTotal, isTuesday: isTuesdayFlag, discRate, originalTotal } = discountData;
+  const {
+    finalTotal,
+    isTuesday: isTuesdayFlag,
+    discRate,
+    originalTotal,
+  } = discountData;
   const { itemCnt } = cartData;
 
   updateTuesdaySpecial(isTuesdayFlag, finalTotal);

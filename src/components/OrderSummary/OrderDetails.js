@@ -1,3 +1,5 @@
+import { getProduct } from '../../managers/ProductManager.js';
+
 export function createOrderDetails({
   subTot,
   cartItems,
@@ -6,7 +8,6 @@ export function createOrderDetails({
   isTuesday,
   totalAmt,
   constants,
-  findProductById,
   getQuantityFromElement,
 }) {
   const container = document.createElement('div');
@@ -16,7 +17,7 @@ export function createOrderDetails({
 
     // 개별 장바구니 항목 표시
     for (let i = 0; i < cartItems.length; i++) {
-      const curItem = findProductById(cartItems[i].id);
+      const curItem = getProduct(cartItems[i].id);
       const qtyElem = cartItems[i].querySelector('.quantity-number');
       const q = getQuantityFromElement(qtyElem);
       const itemTotal = curItem.price * q;

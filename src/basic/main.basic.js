@@ -22,7 +22,8 @@ import { createProductOptions } from '../components/ProductOptions.js';
 import { createOrderSummary } from '../components/OrderSummary/index.js';
 import { startLightningSale } from '../services/lightningSale.js';
 import { startSuggestSale } from '../services/suggestSale.js';
-import { products, findProductById } from '../data/products.js';
+import { products } from '../data/products.js';
+import { getProduct } from '../managers/ProductManager.js';
 import { updateUIAfterCartChange } from '../utils/uiUpdateUtils.js';
 
 // 마지막 선택 상품 상태 관리
@@ -59,7 +60,6 @@ function main() {
     itemDiscounts: [],
     isTuesday: false,
     totalAmt: 0,
-    findProductById,
     getQuantityFromElement,
   });
 
@@ -266,7 +266,7 @@ function handlePriceUpdate() {
   const cartItems = cartDisp.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
-    const product = findProductById(itemId);
+    const product = getProduct(itemId);
     if (product) {
       const priceDiv = cartItems[i].querySelector('.text-lg');
       const nameDiv = cartItems[i].querySelector('h3');

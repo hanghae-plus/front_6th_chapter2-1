@@ -14,7 +14,6 @@ export function createOrderSummary({
   itemDiscounts = [],
   isTuesday = false,
   totalAmt = 0,
-  findProductById,
   getQuantityFromElement,
 }) {
   const container = document.createElement('div');
@@ -32,7 +31,6 @@ export function createOrderSummary({
     isTuesday,
     totalAmt,
     constants,
-    findProductById,
     getQuantityFromElement,
   });
 
