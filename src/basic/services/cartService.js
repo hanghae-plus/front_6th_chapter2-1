@@ -2,20 +2,21 @@ import CartStore from "../store/cartStore.js";
 
 // 장바구니 서비스
 export class CartService {
-  constructor() {
+  constructor(productService) {
     this.cartStore = new CartStore();
+    this.productService = productService;
   }
 
   /**
    * 선택된 상품의 유효성을 검증합니다.
    *
    * @param {string} selectedProductId - 선택된 상품 ID
-   * @param {Array} productList - 상품 목록
    * @returns {Object|null} 유효한 상품 객체 또는 null
    */
-  validateSelectedProduct(selectedProductId, productList) {
+  validateSelectedProduct(selectedProductId) {
     if (!selectedProductId) return null;
 
+    const productList = this.productService.getProducts();
     const targetProduct = productList.find(product => product.id === selectedProductId);
     return targetProduct && targetProduct.quantity > 0 ? targetProduct : null;
   }
@@ -36,10 +37,10 @@ export class CartService {
    *
    * @param {string} productId - 상품 ID
    * @param {number} quantityChange - 수량 변경값
-   * @param {Array} productList - 전체 상품 목록
    * @returns {boolean} 성공 여부
    */
-  updateCartItemQuantity(productId, quantityChange, productList) {
+  updateCartItemQuantity(productId, quantityChange) {
+    const productList = this.productService.getProducts();
     return this.cartStore.updateCartItemQuantity(productId, quantityChange, productList);
   }
 
@@ -47,10 +48,10 @@ export class CartService {
    * 장바구니에서 상품을 제거합니다.
    *
    * @param {string} productId - 상품 ID
-   * @param {Array} productList - 전체 상품 목록
    * @returns {boolean} 성공 여부
    */
-  removeProductFromCart(productId, productList) {
+  removeProductFromCart(productId) {
+    const productList = this.productService.getProducts();
     return this.cartStore.removeFromCart(productId, productList);
   }
 

@@ -52,7 +52,7 @@ function calculateProductDiscountInfos(products) {
 // Event Bus 이벤트 리스너 초기화
 function initEventBusListeners() {
   // 각 컴포넌트별 이벤트 리스너 초기화
-  new CartEventListeners(uiEventBus, cartService, productService, PRODUCT_LIST, discountService);
+  new CartEventListeners(uiEventBus, cartService, discountService);
   new ProductEventListeners(uiEventBus, productService);
 }
 
@@ -61,7 +61,7 @@ function main() {
 
   // ProductService 초기화
   productService = new ProductService();
-  cartService = new CartService();
+  cartService = new CartService(productService);
 
   const header = createHeader({ itemCount: 0 });
 
