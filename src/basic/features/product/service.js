@@ -19,30 +19,26 @@ export const getTotalStock = (products) => {
 };
 
 /**
- * @todo `할인상태`와 `재고상태`가 함께 있음 → 분리 고려
  * @description 상품 판매 상태에 따라 판매 문구 반환
  * @param {Product} product - 상품
  * @returns {string} 상품판매 정보 텍스트 (이름 - 가격 - 할인정보)
  */
 export const getSalesInfoText = (product) => {
-  // 번개세일 && 추천할인
-  if (product.onSale && product.suggestSale) {
-    return `⚡💝${product.name} - ${product.originalValue}원 → ${product.value}원 (25% SUPER SALE!)`;
-  }
-  // 번개세일
-  if (product.onSale) {
-    return `⚡${product.name} - ${product.originalValue}원 → ${product.value}원 (20% SALE!)`;
-  }
-  // 추천할인
-  if (product.suggestSale) {
-    return `💝${product.name} - ${product.originalValue}원 → ${product.value}원 (5% 추천할인!)`;
-  }
-  // 품절
-  if (product.quantity === 0) {
-    return `${product.name} - ${product.value}원 (품절)`;
-  }
+  const status = getSaleStatus(product);
 
-  return `${product.name} - ${product.value}원`;
+  switch (status) {
+    case 'SUPER':
+      return `⚡💝${product.name} - ${product.originalValue}원 → ${product.value}원 (25% SUPER SALE!)`;
+    case 'SALE':
+      return `⚡${product.name} - ${product.originalValue}원 → ${product.value}원 (20% SALE!)`;
+    case 'SUGGEST':
+      return `💝${product.name} - ${product.originalValue}원 → ${product.value}원 (5% 추천할인!)`;
+    case 'OUT_OF_STOCK':
+      return `${product.name} - ${product.value}원 (품절)`;
+    case 'NORMAL':
+    default:
+      return `${product.name} - ${product.value}원`;
+  }
 };
 
 /**
@@ -86,7 +82,7 @@ export const isOutOfStock = (product) => {
  * @param {Product} product - 상품
  * @returns {'OUT_OF_STOCK' | 'SUPER' | 'SALE' | 'SUGGEST' | 'NORMAL'} 상품판매 상태
  */
-export const getProductSaleStatus = (product) => {
+export const getSaleStatus = (product) => {
   // 품절
   if (product.quantity === 0) {
     return 'OUT_OF_STOCK';
