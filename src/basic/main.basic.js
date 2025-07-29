@@ -114,52 +114,58 @@ const onUpdateSelectOptions = () => {
   productSelector.style.borderColor = totalStock < 50 ? "orange" : "";
 };
 
-const handleCalculateCartStuff = () => {
-  totalDiscountedPrice = 0;
-  totalItemCount = 0;
+const getQuantity = (item) =>
+  Number(item.querySelector(".quantity-number").textContent);
+const sumFn = (acc, cur) => acc + cur;
 
-  let totalOriginalPrice = 0;
-  let itemDiscounts = [];
-
-  const cartItems = cartItemBox.children;
-  for (let i = 0; i < cartItems.length; i++) {
-    const cartItem = prodList.find((item) => item.id === cartItems[i].id);
-    const itemQuantity = Number(
-      cartItems[i].querySelector(".quantity-number").textContent
-    );
-    const itemPrice = cartItem.price * itemQuantity;
-
-    totalItemCount += itemQuantity;
-    totalOriginalPrice += itemPrice;
-
-    const priceTexts = cartItems[i].querySelectorAll(".text-lg, .text-xs");
+const setPriceFontWeight = (cartItems) => {
+  cartItems.forEach((item) => {
+    const priceTexts = item.querySelectorAll(".text-lg");
     priceTexts.forEach((text) => {
-      if (text.classList.contains("text-lg")) {
-        text.style.fontWeight = itemQuantity >= 10 ? "bold" : "normal";
-      }
+      text.style.fontWeight = getQuantity(item) >= 10 ? "bold" : "normal";
     });
+  });
+};
 
-    let discountRate = 0;
-    if (itemQuantity >= 10) {
-      discountRate = DISCOUNT_RATE[cartItem.id] || 0;
+const handleCalculateCartStuff = () => {
+  const cartItems = [...cartItemBox.children];
+  const prodListMap = new Map(prodList.map((item) => [item.id, item]));
 
-      if (discountRate > 0) {
-        itemDiscounts.push({
-          name: cartItem.name,
-          discount: discountRate * 100,
-        });
-      }
-    }
-    totalDiscountedPrice += itemPrice * (1 - discountRate);
-  }
+  totalItemCount = cartItems.map((item) => getQuantity(item)).reduce(sumFn, 0);
+  totalDiscountedPrice = cartItems
+    .map(
+      (item) =>
+        prodListMap.get(item.id).price *
+        getQuantity(item) *
+        (1 - (getQuantity(item) >= 10 ? DISCOUNT_RATE[item.id] || 0 : 0))
+    )
+    .reduce(sumFn, 0);
 
-  let discRate = 0;
-  if (totalItemCount >= 30) {
-    totalDiscountedPrice = (totalOriginalPrice * 75) / 100;
-    discRate = 25 / 100;
-  } else {
-    discRate = (totalOriginalPrice - totalDiscountedPrice) / totalOriginalPrice;
-  }
+  const totalOriginalPrice = cartItems
+    .map((item) => prodListMap.get(item.id).price * getQuantity(item))
+    .reduce(sumFn, 0);
+
+  const itemDiscounts = cartItems
+    .filter(
+      (item) => (getQuantity(item) >= 10 && DISCOUNT_RATE[item.id]) || 0 > 0
+    )
+    .map((item) => ({
+      name: prodListMap.get(item.id).name,
+      discount:
+        (getQuantity(item) >= 10 ? DISCOUNT_RATE[item.id] || 0 : 0) * 100,
+    }));
+
+  setPriceFontWeight(cartItems);
+
+  let totalDiscountRate =
+    totalItemCount >= 30
+      ? 25 / 100
+      : (totalOriginalPrice - totalDiscountedPrice) / totalOriginalPrice;
+
+  totalDiscountedPrice =
+    totalItemCount >= 30
+      ? (totalOriginalPrice * 75) / 100
+      : totalDiscountedPrice;
 
   const today = new Date();
   const isTuesday = today.getDay() === 2;
@@ -167,7 +173,7 @@ const handleCalculateCartStuff = () => {
   if (isTuesday) {
     if (totalDiscountedPrice > 0) {
       totalDiscountedPrice = (totalDiscountedPrice * 90) / 100;
-      discRate = 1 - totalDiscountedPrice / totalOriginalPrice;
+      totalDiscountRate = 1 - totalDiscountedPrice / totalOriginalPrice;
       tuesdaySpecial.classList.remove("hidden");
     } else {
       tuesdaySpecial.classList.add("hidden");
@@ -262,13 +268,13 @@ const handleCalculateCartStuff = () => {
 
   let discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
-  if (discRate > 0 && totalDiscountedPrice > 0) {
+  if (totalDiscountRate > 0 && totalDiscountedPrice > 0) {
     let savedAmount = totalOriginalPrice - totalDiscountedPrice;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
           <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(discRate * 100).toFixed(1)}%</span>
+          <span class="text-sm font-medium text-green-400">${(totalDiscountRate * 100).toFixed(1)}%</span>
         </div>
         <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
       </div>
