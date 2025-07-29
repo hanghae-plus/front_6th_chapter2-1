@@ -1,21 +1,21 @@
-import { Header } from "./features/shopping-cart/components/Header.js";
-import { HelpModal } from "./features/shopping-cart/components/HelpModal.js";
-import { ProductSelector } from "./features/shopping-cart/components/ProductSelector.js";
-import { renderCartItem } from "./features/shopping-cart/components/CartItem.js";
-import { renderOrderSummaryDetails } from "./features/shopping-cart/components/OrderSummaryDetails.js";
-import { renderCartTotal } from "./features/shopping-cart/components/CartTotal.js";
-import { ELEMENT_IDS } from "./features/shopping-cart/constants/element-ids.js";
+import { Header } from "./shared/components/Header.js";
+import { HelpModal } from "./shared/components/HelpModal.js";
+import { ProductSelector } from "./features/product/components/ProductSelector.js";
+import { renderCartItem } from "./features/cart/components/CartItem.js";
+import { renderOrderSummaryDetails } from "./features/order/components/OrderSummaryDetails.js";
+import { renderCartTotal } from "./features/cart/components/CartTotal.js";
+import { ELEMENT_IDS } from "./shared/constants/element-ids.js";
 import {
   handleCartClick,
   handleAddToCartClick,
   handleHelpModalClick,
-} from "./features/shopping-cart/events/clickDelegates.js";
+} from "./shared/events/clickDelegates.js";
 
 // Feature Business Logic
-import CartCalculator from "./features/shopping-cart/business/CartCalculator.js";
-import PointsCalculator from "./features/shopping-cart/business/PointsCalculator.js";
-import StockManager from "./features/shopping-cart/business/StockManager.js";
-import PriceUpdater from "./features/shopping-cart/business/PriceUpdater.js";
+import CartCalculator from "./features/cart/service/CartCalculator.js";
+import PointsCalculator from "./features/point/service/PointsCalculator.js";
+import StockManager from "./features/product/service/StockManager.js";
+import PriceUpdater from "./features/cart/service/PriceUpdater.js";
 
 const PRODUCTS = {
   KEYBOARD: "p1",

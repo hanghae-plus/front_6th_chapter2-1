@@ -1,4 +1,4 @@
-import { getSummaryDetailsElement } from "../utils/dom.js";
+import { getSummaryDetailsElement } from "../../../shared/utils/dom.js";
 
 /**
  * OrderSummaryDetails Component - Pure HTML Template

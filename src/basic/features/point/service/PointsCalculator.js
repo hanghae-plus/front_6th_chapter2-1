@@ -3,7 +3,7 @@
  * Handles loyalty points calculation and rendering
  */
 
-import { ELEMENT_IDS } from "../constants/element-ids.js";
+import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
 
 export class PointsCalculator {
   constructor(constants = {}, products = {}) {

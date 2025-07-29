@@ -1,5 +1,5 @@
-import { ELEMENT_IDS } from "../constants/element-ids.js";
-import { getCartTotalElement } from "../utils/dom.js";
+import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
+import { getCartTotalElement } from "../../../shared/utils/dom.js";
 
 /**
  * CartTotal Component - Pure HTML Template
