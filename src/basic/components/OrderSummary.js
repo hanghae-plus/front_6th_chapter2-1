@@ -1,5 +1,3 @@
-import { orderService } from "../services/orderService.js";
-
 // OrderSummary 컴포넌트
 export function createOrderSummary({ onCheckout }) {
   const orderSummaryContainer = document.createElement("div");
@@ -41,11 +39,6 @@ export function createOrderSummary({ onCheckout }) {
   if (onCheckout) {
     checkoutButton.addEventListener("click", onCheckout);
   }
-
-  // OrderService 구독
-  orderService.subscribeToChanges(orderState => {
-    updateOrderSummaryUI(orderSummaryContainer, orderState);
-  });
 
   return orderSummaryContainer;
 }
@@ -145,7 +138,7 @@ export function updateSummaryDetails(orderSummaryElement, cartItems, subtotal, i
  * @param {number} discountRate - 할인율 (0-1)
  * @param {number} savedAmount - 절약 금액
  */
-export function updateDiscountInfo(orderSummaryElement, discountRate, savedAmount) {
+function updateDiscountInfo(orderSummaryElement, discountRate, savedAmount) {
   const discountInfo = orderSummaryElement.querySelector("#discount-info");
   if (!discountInfo) return;
 
@@ -170,7 +163,7 @@ export function updateDiscountInfo(orderSummaryElement, discountRate, savedAmoun
  * @param {HTMLElement} orderSummaryElement - OrderSummary DOM 요소
  * @param {number} totalAmount - 총액
  */
-export function updateTotalAmount(orderSummaryElement, totalAmount) {
+function updateTotalAmount(orderSummaryElement, totalAmount) {
   const totalDiv = orderSummaryElement.querySelector("#cart-total .text-2xl");
   if (totalDiv) {
     totalDiv.textContent = "₩" + Math.round(totalAmount).toLocaleString();
@@ -184,7 +177,7 @@ export function updateTotalAmount(orderSummaryElement, totalAmount) {
  * @param {number} totalPoints - 총 포인트
  * @param {Array} pointsDetails - 포인트 상세 내역
  */
-export function updateLoyaltyPoints(orderSummaryElement, totalPoints, pointsDetails) {
+function updateLoyaltyPoints(orderSummaryElement, totalPoints, pointsDetails) {
   const loyaltyPointsDiv = orderSummaryElement.querySelector("#loyalty-points");
   if (!loyaltyPointsDiv) return;
 
@@ -200,27 +193,7 @@ export function updateLoyaltyPoints(orderSummaryElement, totalPoints, pointsDeta
   }
 }
 
-/**
- * OrderSummary UI를 업데이트합니다.
- */
-function updateOrderSummaryUI(orderSummaryElement, orderState) {
-  const { totalAmount, discountRate, savedAmount, totalPoints, pointsDetails, isTuesday } = orderState;
-
-  // 기존 update 함수들을 호출하되, orderState에서 데이터를 가져옴
-  updateDiscountInfo(orderSummaryElement, discountRate, savedAmount);
-  updateTotalAmount(orderSummaryElement, totalAmount);
-  updateLoyaltyPoints(orderSummaryElement, totalPoints, pointsDetails);
-  updateTuesdaySpecial(orderSummaryElement, isTuesday, totalAmount);
-}
-
-/**
- * 화요일 특별 할인 배너를 업데이트합니다.
- *
- * @param {HTMLElement} orderSummaryElement - OrderSummary DOM 요소
- * @param {boolean} isTuesday - 화요일 여부
- * @param {number} totalAmount - 총액
- */
-export function updateTuesdaySpecial(orderSummaryElement, isTuesday, totalAmount) {
+function updateTuesdaySpecial(orderSummaryElement, isTuesday, totalAmount) {
   const tuesdaySpecial = orderSummaryElement.querySelector("#tuesday-special");
   if (!tuesdaySpecial) return;
 
@@ -235,22 +208,14 @@ export function updateTuesdaySpecial(orderSummaryElement, isTuesday, totalAmount
  * OrderSummary의 모든 정보를 한 번에 업데이트합니다.
  *
  * @param {HTMLElement} orderSummaryElement - OrderSummary DOM 요소
- * @param {Object} data - 업데이트할 데이터
- * @param {Array} data.cartItems - 장바구니 아이템들
- * @param {number} data.subtotal - 소계
- * @param {number} data.totalAmount - 총액
- * @param {Array} data.itemDiscounts - 아이템 할인 정보
- * @param {boolean} data.isTuesday - 화요일 여부
- * @param {number} data.itemCount - 총 아이템 수량
- * @param {number} data.discountRate - 할인율
- * @param {number} data.savedAmount - 절약 금액
+ * @param {Object} orderState - OrderService에서 받은 상태 데이터
  */
-export function updateOrderSummary(orderSummaryElement, data) {
-  const { cartItems, subtotal, totalAmount, itemDiscounts, isTuesday, itemCount, discountRate, savedAmount } = data;
+export function updateOrderSummary(orderSummaryElement, orderState) {
+  const { subtotal, totalAmount, discountRate, savedAmount, itemCount, itemDiscounts, isTuesday, totalPoints, pointsDetails } = orderState;
 
-  updateSummaryDetails(orderSummaryElement, cartItems, subtotal, itemCount, itemDiscounts, isTuesday);
+  updateSummaryDetails(orderSummaryElement, [], subtotal, itemCount, itemDiscounts, isTuesday);
   updateDiscountInfo(orderSummaryElement, discountRate, savedAmount);
   updateTotalAmount(orderSummaryElement, totalAmount);
-  updateLoyaltyPoints(orderSummaryElement, cartItems, totalAmount, isTuesday, itemCount);
+  updateLoyaltyPoints(orderSummaryElement, totalPoints, pointsDetails);
   updateTuesdaySpecial(orderSummaryElement, isTuesday, totalAmount);
 }

@@ -4,7 +4,7 @@ import { QUANTITY_THRESHOLDS } from "./constants/index.js";
 import { createHeader, updateHeaderItemCount } from "./components/Header.js";
 import { createProductSelector, updateProductOptions, getSelectedProduct, updateStockInfo } from "./components/ProductSelector.js";
 import { createCartItem, updateCartItemQuantity, updateCartItemPrice, updateCartItemPriceStyle } from "./components/CartItem.js";
-import { createOrderSummary } from "./components/OrderSummary.js";
+import { createOrderSummary, updateOrderSummary } from "./components/OrderSummary.js";
 import { createManualSystem } from "./components/Manual.js";
 import { createLayoutSystem } from "./components/Layout.js";
 import { createCartDisplay } from "./components/CartDisplay.js";
@@ -160,6 +160,11 @@ function main() {
     onCheckout: () => {
       console.log("Proceed to checkout");
     },
+  });
+
+  // OrderService 구독하여 OrderSummary 업데이트
+  orderService.subscribeToChanges(orderState => {
+    updateOrderSummary(orderSummary, orderState);
   });
 
   rightColumn.appendChild(orderSummary);
