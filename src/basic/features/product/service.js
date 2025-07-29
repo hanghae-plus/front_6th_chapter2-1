@@ -1,14 +1,17 @@
 /**
+ * @typedef {Object} Product
+ * @property {string} id
+ * @property {string} name
+ * @property {number} value
+ * @property {number} originalValue
+ * @property {number} quantity
+ * @property {boolean} onSale
+ * @property {boolean} suggestSale
+ */
+
+/**
  * @description 상품 재고 총합 계산
- * @param {{
- *  id: string;
- *  name: string;
- *  value: number;
- *  originalValue: number;
- *  quantity: number;
- *  onSale: boolean;
- *  suggestSale: boolean;
- * }[]} products - 상품 목록
+ * @param {Product[]} products - 상품 목록
  * @returns {number} 총 재고 수량
  */
 export const getTotalStock = (products) => {
@@ -18,15 +21,7 @@ export const getTotalStock = (products) => {
 /**
  * @todo `할인상태`와 `재고상태`가 함께 있음 → 분리 고려
  * @description 상품 판매 상태에 따라 판매 문구 반환
- * @param {{
- *  id: string;
- *  name: string;
- *  value: number;
- *  originalValue: number;
- *  quantity: number;
- *  onSale: boolean;
- *  suggestSale: boolean;
- * }} product - 상품
+ * @param {Product} product - 상품
  * @returns {string} 상품판매 정보 텍스트 (이름 - 가격 - 할인정보)
  */
 export const getSalesInfoText = (product) => {
@@ -53,15 +48,7 @@ export const getSalesInfoText = (product) => {
 /**
  * @todo `getSalesInfoText` 함수와 분기 로직 중복되므로 개선 고려
  * @description 상품 판매 상태에 따라 `<option>` 요소에 적용할 CSS 반환
- * @param {{
- *  id: string;
- *  name: string;
- *  value: number;
- *  originalValue: number;
- *  quantity: number;
- *  onSale: boolean;
- *  suggestSale: boolean;
- * }} product - 상품
+ * @param {Product} product - 상품
  * @returns {string} tailwind CSS 클래스명
  */
 export const getProductOptionStyle = (product) => {
@@ -87,15 +74,7 @@ export const getProductOptionStyle = (product) => {
 
 /**
  * @description 상품의 재고 유무 반환
- * @param {{
- *  id: string;
- *  name: string;
- *  value: number;
- *  originalValue: number;
- *  quantity: number;
- *  onSale: boolean;
- *  suggestSale: boolean;
- * }} product - 상품
+ * @param {Product} product - 상품
  * @returns {boolean} 상품 재고 유무
  */
 export const isOutOfStock = (product) => {
