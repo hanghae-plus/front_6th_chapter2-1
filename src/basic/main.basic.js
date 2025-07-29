@@ -726,39 +726,39 @@ function onGetStockTotal() {
   return calculateTotalStock();
 }
 function doUpdatePricesInCart() {
-  var totalCount = 0, j = 0;
-  var cartItems;
-  while (cartDisp.children[j]) {
-    var qty = cartDisp.children[j].querySelector('.quantity-number');
-    totalCount += qty ? parseInt(qty.textContent) : 0;
-    j++;
-  }
-  totalCount = 0;
-  for (j = 0; j < cartDisp.children.length; j++) {
-    totalCount += parseInt(cartDisp.children[j].querySelector('.quantity-number').textContent);
-  }
-  cartItems = cartDisp.children;
+  var cartItems = cartDisp.children;
+  
+  // 장바구니의 각 아이템에 대해 가격과 이름 업데이트
   for (var i = 0; i < cartItems.length; i++) {
     var itemId = cartItems[i].id;
     var product = findProductById(itemId);
+    
     if (product) {
       var priceDiv = cartItems[i].querySelector('.text-lg');
       var nameDiv = cartItems[i].querySelector('h3');
+      
+      // 세일 상태에 따른 가격 및 이름 표시
       if (product.onSale && product.suggestSale) {
+        // 번개세일 + 추천할인
         priceDiv.innerHTML = '<span class="line-through text-gray-400">₩' + product.originalVal.toLocaleString() + '</span> <span class="text-purple-600">₩' + product.val.toLocaleString() + '</span>';
         nameDiv.textContent = '⚡💝' + product.name;
       } else if (product.onSale) {
+        // 번개세일만
         priceDiv.innerHTML = '<span class="line-through text-gray-400">₩' + product.originalVal.toLocaleString() + '</span> <span class="text-red-500">₩' + product.val.toLocaleString() + '</span>';
         nameDiv.textContent = '⚡' + product.name;
       } else if (product.suggestSale) {
+        // 추천할인만
         priceDiv.innerHTML = '<span class="line-through text-gray-400">₩' + product.originalVal.toLocaleString() + '</span> <span class="text-blue-500">₩' + product.val.toLocaleString() + '</span>';
         nameDiv.textContent = '💝' + product.name;
       } else {
+        // 일반 가격
         priceDiv.textContent = '₩' + product.val.toLocaleString();
         nameDiv.textContent = product.name;
       }
     }
   }
+  
+  // 전체 계산 업데이트
   handleCalculateCartStuff();
 }
 main();
