@@ -84,3 +84,20 @@ export const getProductOptionStyle = (product) => {
 
   return '';
 };
+
+/**
+ * @description 상품의 재고 유무 반환
+ * @param {{
+ *  id: string;
+ *  name: string;
+ *  value: number;
+ *  originalValue: number;
+ *  quantity: number;
+ *  onSale: boolean;
+ *  suggestSale: boolean;
+ * }} product - 상품
+ * @returns {boolean} 상품 재고 유무
+ */
+export const isOutOfStock = (product) => {
+  return product.quantity === 0;
+};
