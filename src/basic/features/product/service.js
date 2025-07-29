@@ -10,6 +10,10 @@
  */
 
 /**
+ * @typedef {'OUT_OF_STOCK' | 'SUPER' | 'SALE' | 'SUGGEST' | 'NORMAL'} SaleStatus
+ */
+
+/**
  * @description 상품 재고 총합 계산
  * @param {Product[]} products - 상품 목록
  * @returns {number} 총 재고 수량
@@ -42,30 +46,23 @@ export const getSalesInfoText = (product) => {
 };
 
 /**
- * @todo `getSalesInfoText` 함수와 분기 로직 중복되므로 개선 고려
  * @description 상품 판매 상태에 따라 `<option>` 요소에 적용할 CSS 반환
- * @param {Product} product - 상품
+ * @param {SaleStatus} status - 상품 판매 상태
  * @returns {string} tailwind CSS 클래스명
  */
-export const getProductOptionStyle = (product) => {
-  // 번개세일 && 추천할인
-  if (product.onSale && product.suggestSale) {
-    return 'text-purple-600 font-bold';
+export const getProductOptionStyle = (status) => {
+  switch (status) {
+    case 'SUPER':
+      return 'text-purple-600 font-bold';
+    case 'SALE':
+      return 'text-red-500 font-bold';
+    case 'SUGGEST':
+      return 'text-blue-500 font-bold';
+    case 'OUT_OF_STOCK':
+      return 'text-gray-400';
+    default:
+      return '';
   }
-  // 번개세일
-  if (product.onSale) {
-    return 'text-red-500 font-bold';
-  }
-  // 추천할인
-  if (product.suggestSale) {
-    return 'text-blue-500 font-bold';
-  }
-  // 품절
-  if (product.quantity === 0) {
-    return 'text-gray-400';
-  }
-
-  return '';
 };
 
 /**
@@ -80,7 +77,7 @@ export const isOutOfStock = (product) => {
 /**
  * @description 상품 판매 상태 반환
  * @param {Product} product - 상품
- * @returns {'OUT_OF_STOCK' | 'SUPER' | 'SALE' | 'SUGGEST' | 'NORMAL'} 상품판매 상태
+ * @returns {SaleStatus} 상품판매 상태
  */
 export const getSaleStatus = (product) => {
   // 품절
