@@ -1,9 +1,10 @@
-import { updateCartItemQuantity, updateCartItemPriceStyle } from "../components/CartItem.js";
-import { updateHeaderItemCount } from "../components/Header.js";
-import { discountService } from "../services/discountService.js";
-import { orderService } from "../services/orderService.js";
-import { generateStockWarningMessage } from "../utils/stockUtils.js";
-import { PRODUCT_LIST } from "../data/product.js";
+import { updateCartItemQuantity, updateCartItemPriceStyle } from "../../components/CartItem.js";
+import { updateHeaderItemCount } from "../../components/Header.js";
+import { createCartItem } from "../../components/CartItem.js";
+import { discountService } from "../../services/discountService.js";
+import { orderService } from "../../services/orderService.js";
+import { generateStockWarningMessage } from "../../utils/stockUtils.js";
+import { PRODUCT_LIST } from "../../data/product.js";
 
 /**
  * Cart 관련 이벤트 리스너
@@ -17,16 +18,48 @@ export class CartEventListeners {
   }
 
   initCartEventListeners() {
-    // 장바구니 아이템 추가 이벤트
+    // 장바구니 아이템 추가 이벤트 - DOM 생성 처리
     this.uiEventBus.on("cart:item:added", data => {
       console.log("Cart item added:", data);
-      // 향후 다른 컴포넌트들이 이 이벤트를 구독할 수 있음
+
+      if (data.success) {
+        // 기존 아이템 확인
+        const existingCartItem = document.getElementById(data.product.id);
+
+        if (existingCartItem) {
+          // 기존 아이템이 있으면 수량 증가
+          const currentQuantity = this.getCartItemQuantity(existingCartItem);
+          const newQuantity = currentQuantity + 1;
+
+          // 수량 업데이트
+          updateCartItemQuantity(existingCartItem, newQuantity);
+          updateCartItemPriceStyle(existingCartItem, newQuantity);
+        } else {
+          // 새 아이템 생성
+          const discountInfo = this.calculateProductDiscountInfo(data.product);
+          const newCartItem = this.createCartItemElement({
+            product: data.product,
+            discountInfo,
+            onQuantityChange: (productId, change) => {
+              // 전역 함수 호출
+              if (window.handleQuantityChange) {
+                window.handleQuantityChange(productId, change);
+              }
+            },
+            onRemove: productId => {
+              // 전역 함수 호출
+              if (window.handleRemoveItem) {
+                window.handleRemoveItem(productId);
+              }
+            },
+          });
+          document.querySelector("#cart-items").appendChild(newCartItem);
+        }
+      }
     });
 
     // 장바구니 수량 변경 이벤트 - UI 업데이트 처리
     this.uiEventBus.on("cart:quantity:changed", data => {
-      console.log("Cart quantity changed:", data);
-
       const cartItemElement = document.getElementById(data.productId);
       if (!cartItemElement) return;
 
@@ -41,8 +74,6 @@ export class CartEventListeners {
 
     // 장바구니 아이템 제거 이벤트 - UI 업데이트 처리
     this.uiEventBus.on("cart:item:removed", data => {
-      console.log("Cart item removed:", data);
-
       if (data.success) {
         const cartItemElement = document.getElementById(data.productId);
         if (cartItemElement) {
@@ -53,7 +84,6 @@ export class CartEventListeners {
 
     // 장바구니 요약 업데이트 이벤트
     this.uiEventBus.on("cart:summary:updated", () => {
-      console.log("Cart summary updated");
       // updateCartSummary 함수 호출
       this.updateCartSummary();
     });
@@ -135,5 +165,18 @@ export class CartEventListeners {
     if (stockInfo) {
       stockInfo.textContent = stockMsg;
     }
+  }
+
+  // 🎯 개선: DOM 생성 관련 함수들
+  calculateProductDiscountInfo(product) {
+    return {
+      rate: discountService.calculateProductDiscountRate(product),
+      status: discountService.getProductDiscountStatus(product),
+    };
+  }
+
+  createCartItemElement({ product, discountInfo, onQuantityChange, onRemove }) {
+    // import된 createCartItem 함수 사용
+    return createCartItem({ product, discountInfo, onQuantityChange, onRemove });
   }
 }

@@ -45,7 +45,6 @@ export class TimerService {
 
   executeSuggestSale() {
     if (this.cartDisplay.children.length === 0) {
-      console.log("cartDisplay 길이가 0입니다.");
       return;
     }
 

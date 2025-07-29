@@ -1,6 +1,6 @@
-import { updateProductOptions, updateStockInfo } from "../components/ProductSelector.js";
-import { PRODUCT_LIST } from "../data/product.js";
-import { discountService } from "../services/discountService.js";
+import { updateProductOptions, updateStockInfo } from "../../components/ProductSelector.js";
+import { PRODUCT_LIST } from "../../data/product.js";
+import { discountService } from "../../services/discountService.js";
 
 /**
  * Product 관련 이벤트 리스너
@@ -15,7 +15,6 @@ export class ProductEventListeners {
   initProductEventListeners() {
     // 상품 옵션 업데이트 이벤트
     this.uiEventBus.on("product:options:updated", () => {
-      console.log("Product options updated");
       this.onUpdateSelectOptions();
     });
   }
