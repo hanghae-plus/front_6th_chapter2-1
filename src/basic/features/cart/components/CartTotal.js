@@ -1,12 +1,11 @@
 import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
-import { getCartTotalElement } from "../../../shared/utils/dom.js";
 
 /**
  * CartTotal Component - Pure HTML Template
  * @param {Object} props - Component props
  * @param {number} props.amount - Total amount
  * @param {number} props.discountRate - Discount rate (0-1)
- * @param {number} props.point - Loyalty points
+ * @param {number} props.point - Points to display
  */
 const CartTotal = ({ amount, discountRate, point }) => {
   return /* html */ `<div class="pt-5 border-t border-white/10">
@@ -35,7 +34,7 @@ export default CartTotal;
  * @param {Object} props - Component props
  */
 export const renderCartTotal = ({ amount, discountRate, point }) => {
-  const cartTotal = getCartTotalElement();
+  const cartTotal = document.getElementById(ELEMENT_IDS.CART_TOTAL);
   if (!cartTotal) return;
 
   // Only update the total amount div, preserve existing loyalty-points

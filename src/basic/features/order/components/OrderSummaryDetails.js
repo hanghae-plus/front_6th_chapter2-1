@@ -1,99 +1,84 @@
-import { getSummaryDetailsElement } from "../../../shared/utils/dom.js";
+import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
+import { htmlToElement } from "../../../shared/utils/dom.js";
 
 /**
  * OrderSummaryDetails Component - Pure HTML Template
- * @param {Object} props - Component props
- * @param {Array} props.cartItems - Cart items with product info
- * @param {number} props.subtotal - Subtotal amount
- * @param {number} props.totalItemCount - Total item count
- * @param {Array} props.itemDiscounts - Individual item discounts
- * @param {boolean} props.isTuesday - Tuesday discount status
- * @param {number} props.totalAmount - Final total amount
+ * @param {Array} cartItems - Array of cart items
  */
-const OrderSummaryDetails = ({
-  cartItems = [],
-  subtotal = 0,
-  totalItemCount = 0,
-  itemDiscounts = [],
-  isTuesday = false,
-  totalAmount = 0,
-}) => {
-  // Empty state
-  if (subtotal === 0) {
-    return /* html */ `<div class="text-gray-400 text-sm">장바구니가 비어있습니다</div>`;
+const OrderSummaryDetails = (cartItems = []) => {
+  if (!cartItems.length) {
+    return /* html */ `
+      <div class="text-center text-sm text-gray-400 py-8">
+        Empty Cart
+      </div>
+    `;
   }
 
-  // Cart items section
-  const cartItemsHtml = cartItems
+  return cartItems
     .map(
-      ({ product, quantity }) => /* html */ `
-    <div class="flex justify-between text-xs tracking-wide text-gray-400">
-      <span>${product.name} x ${quantity}</span>
-      <span>₩${(product.val * quantity).toLocaleString()}</span>
-    </div>
-  `
-    )
-    .join("");
-
-  // Discounts section
-  const discountsHtml = (() => {
-    if (totalItemCount >= 30) {
-      // Bulk discount
-      return /* html */ `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-          <span class="text-xs">-25%</span>
-        </div>
-      `;
-    } else if (itemDiscounts.length > 0) {
-      // Individual item discounts
-      return itemDiscounts
-        .map(
-          (item) => /* html */ `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">${item.name} (10개↑)</span>
-          <span class="text-xs">-${item.discount}%</span>
+      (item) => /* html */ `
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-200">${item.name} × ${item.quantity}</span>
+          <span class="text-white">₩${(
+            item.price * item.quantity
+          ).toLocaleString()}</span>
         </div>
       `
-        )
-        .join("");
-    }
-    return "";
-  })();
-
-  // Tuesday discount section
-  const tuesdayDiscountHtml =
-    isTuesday && totalAmount > 0
-      ? /* html */ `
-    <div class="flex justify-between text-sm tracking-wide text-purple-400">
-      <span class="text-xs">🌟 화요일 추가 할인</span>
-      <span class="text-xs">-10%</span>
-    </div>
-  `
-      : "";
-
-  return /* html */ `
-    ${cartItemsHtml}
-    <div class="border-t border-white/10 my-3"></div>
-    <div class="flex justify-between text-sm tracking-wide">
-      <span>Subtotal</span>
-      <span>₩${subtotal.toLocaleString()}</span>
-    </div>
-    ${discountsHtml}
-    ${tuesdayDiscountHtml}
-  `;
+    )
+    .join("");
 };
 
 export default OrderSummaryDetails;
 
 /**
- * Render OrderSummaryDetails to DOM
- * @param {Object} props - Component props (same as OrderSummaryDetails)
+ * Extract cart items from DOM for rendering
+ * @returns {Array} Array of cart item objects
  */
-export const renderOrderSummaryDetails = (props) => {
-  const summaryDetailsContainer = getSummaryDetailsElement();
-  if (!summaryDetailsContainer) return;
+const getCartItemsFromDOM = () => {
+  const cartContainer = document.getElementById(ELEMENT_IDS.CART_ITEMS);
+  const cartElements = cartContainer.querySelectorAll("article[id]");
 
-  const summaryHtml = OrderSummaryDetails(props);
-  summaryDetailsContainer.innerHTML = summaryHtml;
+  return Array.from(cartElements).map((element) => {
+    const productId = element.id;
+    const nameElement = element.querySelector("h3");
+    const quantityElement = element.querySelector(".quantity-number");
+    const priceElement = element.querySelector(".text-lg");
+
+    // Extract product name (remove icons)
+    const fullName = nameElement?.textContent || "";
+    const name = fullName.replace(/^[⚡💝]+/, "").trim();
+
+    // Extract quantity
+    const quantity = parseInt(quantityElement?.textContent || "0");
+
+    // Extract price from the right column
+    let price = 0;
+    if (priceElement) {
+      const priceText = priceElement.textContent;
+      const match = priceText.match(/₩([\d,]+)/);
+      if (match) {
+        price = parseInt(match[1].replace(/,/g, ""));
+      }
+    }
+
+    return {
+      id: productId,
+      name,
+      quantity,
+      price: Math.round(price / quantity) || 0,
+    };
+  });
+};
+
+/**
+ * Render OrderSummaryDetails to DOM
+ */
+export const renderOrderSummaryDetails = () => {
+  const cartItems = getCartItemsFromDOM();
+  const orderSummaryHtml = OrderSummaryDetails(cartItems);
+
+  const summaryDetailsContainer = document.getElementById(
+    ELEMENT_IDS.SUMMARY_DETAILS
+  );
+  summaryDetailsContainer.innerHTML = orderSummaryHtml;
 };

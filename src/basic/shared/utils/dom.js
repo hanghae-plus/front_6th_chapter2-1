@@ -1,53 +1,48 @@
-import { ELEMENT_IDS } from "../constants/element-ids.js";
+/**
+ * DOM Utility functions
+ */
 
-// DOM Element Getters
-export const getAppElement = () => document.getElementById(ELEMENT_IDS.APP);
-export const getProductSelectElement = () =>
-  document.getElementById(ELEMENT_IDS.PRODUCT_SELECT);
-export const getAddToCartElement = () =>
-  document.getElementById(ELEMENT_IDS.ADD_TO_CART);
-export const getStockStatusElement = () =>
-  document.getElementById(ELEMENT_IDS.STOCK_STATUS);
-export const getCartItemsElement = () =>
-  document.getElementById(ELEMENT_IDS.CART_ITEMS);
-export const getCartTotalElement = () =>
-  document.getElementById(ELEMENT_IDS.CART_TOTAL);
-export const getSummaryDetailsElement = () =>
-  document.getElementById(ELEMENT_IDS.SUMMARY_DETAILS);
-export const getDiscountInfoElement = () =>
-  document.getElementById(ELEMENT_IDS.DISCOUNT_INFO);
-export const getLoyaltyPointsElement = () =>
-  document.getElementById(ELEMENT_IDS.LOYALTY_POINTS);
-export const getItemCountElement = () =>
-  document.getElementById(ELEMENT_IDS.ITEM_COUNT);
-export const getTuesdaySpecialElement = () =>
-  document.getElementById(ELEMENT_IDS.TUESDAY_SPECIAL);
-
-// Product Item Getter (by ID)
-export const getProductItemElement = (productId) =>
-  document.getElementById(productId);
-
-// DOM Creation Utilities
-export const createElement = (tag, options = {}) => {
+/**
+ * Create DOM element with properties
+ * @param {string} tag - HTML tag name
+ * @param {Object} props - Element properties
+ * @param {string} props.className - CSS class names
+ * @param {string} props.id - Element ID
+ * @param {string} props.textContent - Text content
+ * @returns {HTMLElement} Created element
+ */
+export const createElement = (tag, props = {}) => {
   const element = document.createElement(tag);
 
-  if (options.id) element.id = options.id;
-  if (options.className) element.className = options.className;
-  if (options.innerHTML) element.innerHTML = options.innerHTML;
+  Object.entries(props).forEach(([key, value]) => {
+    if (key === "className") {
+      element.className = value;
+    } else if (key === "textContent") {
+      element.textContent = value;
+    } else {
+      element[key] = value;
+    }
+  });
 
   return element;
 };
 
-// HTML String to Element Converter
+/**
+ * Convert HTML string to DOM element
+ * @param {string} html - HTML string
+ * @returns {HTMLElement} DOM element
+ */
 export const htmlToElement = (html) => {
-  const container = document.createElement("div");
-  container.innerHTML = html.trim();
-  return container.firstElementChild;
+  const template = document.createElement("template");
+  template.innerHTML = html.trim();
+  return template.content.firstChild;
 };
 
-// Replace Element Utility
-export const replaceElement = (oldElement, newHtml) => {
-  const newElement = htmlToElement(newHtml);
-  oldElement.replaceWith(newElement);
-  return newElement;
+/**
+ * Replace an element with new element
+ * @param {HTMLElement} oldElement - Element to replace
+ * @param {HTMLElement} newElement - New element
+ */
+export const replaceElement = (oldElement, newElement) => {
+  oldElement.parentNode.replaceChild(newElement, oldElement);
 };

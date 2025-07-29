@@ -1,7 +1,4 @@
-import {
-  getCartItemsElement,
-  htmlToElement,
-} from "../../../shared/utils/dom.js";
+import { htmlToElement } from "../../../shared/utils/dom.js";
 
 /**
  * CartItem Component - Pure HTML Template
