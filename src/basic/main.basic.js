@@ -1,6 +1,7 @@
 import { Header } from "./components/Header";
+import { productIds, Store } from "./store";
 
-var prodList;
+var prodList = Store.products.list;
 var bonusPts = 0;
 var stockInfo;
 var itemCnt;
@@ -8,11 +9,7 @@ var lastSel;
 var sel;
 var addBtn;
 var totalAmt = 0;
-var PRODUCT_ONE = "p1";
-var p2 = "p2";
-var product_3 = "p3";
-var p4 = "p4";
-var PRODUCT_5 = `p5`;
+
 var cartDisp;
 function main() {
   var root;
@@ -28,53 +25,7 @@ function main() {
   totalAmt = 0;
   itemCnt = 0;
   lastSel = null;
-  prodList = [
-    {
-      id: PRODUCT_ONE,
-      name: "버그 없애는 키보드",
-      val: 10000,
-      originalVal: 10000,
-      q: 50,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: p2,
-      name: "생산성 폭발 마우스",
-      val: 20000,
-      originalVal: 20000,
-      q: 30,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: product_3,
-      name: "거북목 탈출 모니터암",
-      val: 30000,
-      originalVal: 30000,
-      q: 20,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: p4,
-      name: "에러 방지 노트북 파우치",
-      val: 15000,
-      originalVal: 15000,
-      q: 0,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_5,
-      name: `코딩할 때 듣는 Lo-Fi 스피커`,
-      val: 25000,
-      originalVal: 25000,
-      q: 10,
-      onSale: false,
-      suggestSale: false,
-    },
-  ];
+
   var root = document.getElementById("app");
 
   //FIX : Header 컴포넌트 수정,
@@ -237,6 +188,8 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
   var initStock = 0;
+
+  //TODO : 사용되지 않는 코드처럼 보임..
   for (var i = 0; i < prodList.length; i++) {
     initStock += prodList[i].q;
   }
@@ -288,16 +241,33 @@ function main() {
   }, Math.random() * 20000);
 }
 var sum;
+
+//드롭다운 메뉴를 실시간으로 업데이트 하는 함수
+/*
+1. 재고 상태 반영 : 품절상품은 선택 불가능하게 처리
+2. 할인 정보 표시 : 번개세일, 추천할인 상태를 시각적으로 표시
+3. 가격 정보 업데이트 : 원가 -> 할인가 형태로 표시
+4. 전체 재고 경고 : 재고가 부족하면 드롭다운 테두리 색상 변경
+----
+호출 시점
+1. 상품이 장바구니에서 추가/제거될 때
+2. 할인이 적용될 때
+3. 재고가 변경될 때
+*/
 function onUpdateSelectOptions() {
   var totalStock;
   var opt;
   var discountText;
   sel.innerHTML = "";
   totalStock = 0;
+
+  // 전체 재고를 계산하는 반복문
   for (var idx = 0; idx < prodList.length; idx++) {
     var _p = prodList[idx];
     totalStock = totalStock + _p.q;
   }
+
+  // 드롭다운 옵션 생성 반복문
   for (var i = 0; i < prodList.length; i++) {
     (function () {
       var item = prodList[i];
@@ -416,19 +386,19 @@ function handleCalculateCartStuff() {
         }
       });
       if (q >= 10) {
-        if (curItem.id === PRODUCT_ONE) {
+        if (curItem.id === productIds.p1) {
           disc = 10 / 100;
         } else {
-          if (curItem.id === p2) {
+          if (curItem.id === productIds.p2) {
             disc = 15 / 100;
           } else {
-            if (curItem.id === product_3) {
+            if (curItem.id === productIds.p3) {
               disc = 20 / 100;
             } else {
-              if (curItem.id === p4) {
+              if (curItem.id === productIds.p4) {
                 disc = 5 / 100;
               } else {
-                if (curItem.id === PRODUCT_5) {
+                if (curItem.id === productIds.p5) {
                   disc = 25 / 100;
                 }
               }
@@ -623,11 +593,11 @@ var doRenderBonusPoints = function () {
       }
     }
     if (!product) continue;
-    if (product.id === PRODUCT_ONE) {
+    if (product.id === productIds.p1) {
       hasKeyboard = true;
-    } else if (product.id === p2) {
+    } else if (product.id === productIds.p2) {
       hasMouse = true;
-    } else if (product.id === product_3) {
+    } else if (product.id === productIds.p3) {
       hasMonitorArm = true;
     }
   }
