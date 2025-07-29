@@ -3,6 +3,7 @@
 // 모듈 import
 import { appState, PRODUCT_IDS, CONSTANTS } from './entities/app-state/index.js';
 import { findProductById, findAvailableProductExcept, calculateTotalStock } from './shared/utils/product-utils.js';
+import { initializeApplication, initializeProductData } from './features/initialization/index.js';
 
 // 레거시 호환성을 위한 AppState 참조
 const AppState = appState;
@@ -34,30 +35,25 @@ var sel
 var addBtn
 var totalAmt = 0
 var cartDisp
-function initializeApplication() {
-  // AppState 초기화
-  AppState.totalAmount = 0;
-  AppState.itemCount = 0;
-  AppState.lastSelection = null;
-  
-  // 레거시 변수 동기화
-  totalAmt = 0;
-  itemCnt = 0;
-  lastSel = null;
+// 레거시 변수 객체 (모듈 함수에서 사용)
+const legacyVars = {
+  prodList,
+  bonusPts,
+  stockInfo,
+  itemCnt,
+  lastSel,
+  sel,
+  addBtn,
+  totalAmt,
+  cartDisp
+};
+
+function initializeApplicationLegacy() {
+  initializeApplication(AppState, legacyVars);
 }
 
-function initializeProductData() {
-  // AppState에 상품 데이터 설정
-  AppState.products = [
-    {id: AppState.PRODUCT_IDS.KEYBOARD, name: '버그 없애는 키보드', val: 10000, originalVal: 10000, q: 50, onSale: false, suggestSale: false},
-    {id: AppState.PRODUCT_IDS.MOUSE, name: '생산성 폭발 마우스', val: 20000, originalVal: 20000, q: 30, onSale: false, suggestSale: false},
-    {id: AppState.PRODUCT_IDS.MONITOR_ARM, name: "거북목 탈출 모니터암", val: 30000, originalVal: 30000, q: 20, onSale: false, suggestSale: false},
-    {id: AppState.PRODUCT_IDS.LAPTOP_POUCH, name: "에러 방지 노트북 파우치", val: 15000, originalVal: 15000, q: 0, onSale: false, suggestSale: false},
-    {id: AppState.PRODUCT_IDS.SPEAKER, name: `코딩할 때 듣는 Lo-Fi 스피커`, val: 25000, originalVal: 25000, q: 10, onSale: false, suggestSale: false}
-  ];
-  
-  // 레거시 변수 동기화
-  prodList = AppState.products;
+function initializeProductDataLegacy() {
+  initializeProductData(AppState, legacyVars);
 }
 
 function createDOMElements() {
@@ -270,8 +266,8 @@ function initializeUI() {
 }
 
 function main() {
-  initializeApplication();
-  initializeProductData();
+  initializeApplicationLegacy();
+  initializeProductDataLegacy();
   createDOMElements();
   setupPromotionTimers();
   initializeUI();
