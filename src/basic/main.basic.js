@@ -294,59 +294,55 @@ function handleCalculateCartStuff() {
   bulkDisc = subTot;
   itemDiscounts = [];
 
-
-
   for (let i = 0; i < cartItems.length; i++) {
-    (function () {
-      var curItem;
-      for (var j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
-          break;
-        }
+    var curItem;
+    for (var j = 0; j < prodList.length; j++) {
+      if (prodList[j].id === cartItems[i].id) {
+        curItem = prodList[j];
+        break;
       }
-      var qtyElem = cartItems[i].querySelector(".quantity-number");
-      var q;
-      var itemTot;
-      var disc;
-      q = parseInt(qtyElem.textContent);
-      itemTot = curItem.val * q;
-      disc = 0;
-      itemCnt += q;
-      subTot += itemTot;
-      var itemDiv = cartItems[i];
-      var priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
-      priceElems.forEach(function (elem) {
-        if (elem.classList.contains("text-lg")) {
-          elem.style.fontWeight = q >= 10 ? "bold" : "normal";
-        }
-      });
-      if (q >= 10) {
-        if (curItem.id === productIds.p1) {
-          disc = 10 / 100;
+    }
+    var qtyElem = cartItems[i].querySelector(".quantity-number");
+    var q;
+    var itemTot;
+    var disc;
+    q = parseInt(qtyElem.textContent);
+    itemTot = curItem.val * q;
+    disc = 0;
+    itemCnt += q;
+    subTot += itemTot;
+    var itemDiv = cartItems[i];
+    var priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
+    priceElems.forEach(function (elem) {
+      if (elem.classList.contains("text-lg")) {
+        elem.style.fontWeight = q >= 10 ? "bold" : "normal";
+      }
+    });
+    if (q >= 10) {
+      if (curItem.id === productIds.p1) {
+        disc = 10 / 100;
+      } else {
+        if (curItem.id === productIds.p2) {
+          disc = 15 / 100;
         } else {
-          if (curItem.id === productIds.p2) {
-            disc = 15 / 100;
+          if (curItem.id === productIds.p3) {
+            disc = 20 / 100;
           } else {
-            if (curItem.id === productIds.p3) {
-              disc = 20 / 100;
+            if (curItem.id === productIds.p4) {
+              disc = 5 / 100;
             } else {
-              if (curItem.id === productIds.p4) {
-                disc = 5 / 100;
-              } else {
-                if (curItem.id === productIds.p5) {
-                  disc = 25 / 100;
-                }
+              if (curItem.id === productIds.p5) {
+                disc = 25 / 100;
               }
             }
           }
         }
-        if (disc > 0) {
-          itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
-        }
       }
-      totalAmt += itemTot * (1 - disc);
-    })();
+      if (disc > 0) {
+        itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
+      }
+    }
+    totalAmt += itemTot * (1 - disc);
   }
   let discRate = 0;
   var originalTotal = subTot;
