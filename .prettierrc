@@ -6,6 +6,6 @@
   "bracketSpacing": true,
   "bracketSameLine": false,
   "arrowParens": "always",
-  "printWidth": 100,
+  "printWidth": 80,
   "endOfLine": "auto"
 }
