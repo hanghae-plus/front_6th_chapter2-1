@@ -1,86 +1,27 @@
 
 
-// AppState: 애플리케이션 전체 상태를 관리하는 객체
-const AppState = {
-  // 애플리케이션 상태
-  products: [],
-  bonusPoints: 0,
-  itemCount: 0,
-  lastSelection: null,
-  totalAmount: 0,
-  
-  // DOM 요소 참조
-  elements: {
-    stockInfo: null,
-    productSelect: null,
-    addButton: null,
-    cartDisplay: null,
-    sum: null
-  },
-  
-  // 상품 ID 상수
-  PRODUCT_IDS: {
-    KEYBOARD: 'p1',
-    MOUSE: 'p2', 
-    MONITOR_ARM: 'p3',
-    LAPTOP_POUCH: 'p4',
-    SPEAKER: 'p5'
-  },
-  
-  // 비즈니스 로직 상수
-  CONSTANTS: {
-    // 할인 관련
-    BULK_DISCOUNT_THRESHOLD: 10,
-    BULK_QUANTITY_THRESHOLD: 30,
-    BULK_QUANTITY_DISCOUNT_RATE: 0.25,
-    TUESDAY_DISCOUNT_RATE: 0.10,
-    
-    // 개별 상품 할인율
-    KEYBOARD_DISCOUNT: 0.10,
-    MOUSE_DISCOUNT: 0.15,
-    MONITOR_ARM_DISCOUNT: 0.20,
-    LAPTOP_POUCH_DISCOUNT: 0.05,
-    SPEAKER_DISCOUNT: 0.25,
-    
-    // 재고 관련
-    LOW_STOCK_THRESHOLD: 5,
-    STOCK_WARNING_THRESHOLD: 50,
-    
-    // 포인트 관련
-    POINTS_RATE: 0.001, // 0.1%
-    TUESDAY_POINTS_MULTIPLIER: 2,
-    
-    // UI 관련
-    TUESDAY_DAY_OF_WEEK: 2
-  }
-};
+// 모듈 import
+import { appState, PRODUCT_IDS, CONSTANTS } from './entities/app-state/index.js';
+import { findProductById, findAvailableProductExcept, calculateTotalStock } from './shared/utils/product-utils.js';
 
-// 상품 검색 유틸리티 함수들
-function findProductById(productId) {
-  for (var i = 0; i < AppState.products.length; i++) {
-    if (AppState.products[i].id === productId) {
-      return AppState.products[i];
-    }
-  }
-  return null;
+// 레거시 호환성을 위한 AppState 참조
+const AppState = appState;
+
+// AppState에 상수 추가 (레거시 호환성)
+AppState.PRODUCT_IDS = PRODUCT_IDS;
+AppState.CONSTANTS = CONSTANTS;
+
+// 상품 검색 유틸리티 함수들 (모듈 함수 사용)
+function findProductByIdLegacy(productId) {
+  return findProductById(AppState.products, productId);
 }
 
-function findAvailableProductExcept(excludeId) {
-  for (var i = 0; i < AppState.products.length; i++) {
-    var product = AppState.products[i];
-    if (product.id !== excludeId && product.q > 0 && !product.suggestSale) {
-      return product;
-    }
-  }
-  return null;
+function findAvailableProductExceptLegacy(excludeId) {
+  return findAvailableProductExcept(AppState.products, excludeId);
 }
 
-function calculateTotalStock() {
-  var total = 0;
-  for (var i = 0; i < AppState.products.length; i++) {
-    total += AppState.products[i].q;
-  }
-  return total;
+function calculateTotalStockLegacy() {
+  return calculateTotalStock(AppState.products);
 }
 
 // 레거시 호환성을 위한 전역 변수들 (점진적 제거 예정)
@@ -309,7 +250,7 @@ function setupPromotionTimers() {
       if (cartDisp.children.length === 0) {
       }
       if (lastSel) {
-        var suggest = findAvailableProductExcept(lastSel);
+        var suggest = findAvailableProductExceptLegacy(lastSel);
         if (suggest) {
           alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
           suggest.val = Math.round(suggest.val * (100 - 5) / 100);
@@ -323,7 +264,7 @@ function setupPromotionTimers() {
 }
 
 function initializeUI() {
-  var initStock = calculateTotalStock();
+  var initStock = calculateTotalStockLegacy();
   onUpdateSelectOptions();
   handleCalculateCartStuff();
 }
@@ -343,7 +284,7 @@ function onUpdateSelectOptions() {
   AppState.elements.productSelect.innerHTML = '';
   sel.innerHTML = ''; // 레거시 동기화
   
-  totalStock = calculateTotalStock();
+  totalStock = calculateTotalStockLegacy();
   for (var i = 0; i < AppState.products.length; i++) {
     (function() {
       var item = AppState.products[i];
@@ -397,7 +338,7 @@ function calculateCartSubtotal() {
   
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
-      var curItem = findProductById(cartItems[i].id);
+      var curItem = findProductByIdLegacy(cartItems[i].id);
       
       var qtyElem = cartItems[i].querySelector('.quantity-number');
       var quantity = parseInt(qtyElem.textContent);
@@ -503,7 +444,7 @@ function updateCartUI(subTotal, itemDiscounts, discountInfo) {
   if (subTotal > 0) {
     // 개별 아이템 표시
     for (let i = 0; i < cartItems.length; i++) {
-      var curItem = findProductById(cartItems[i].id);
+      var curItem = findProductByIdLegacy(cartItems[i].id);
       var qtyElem = cartItems[i].querySelector('.quantity-number');
       var q = parseInt(qtyElem.textContent);
       var itemTotal = curItem.val * q;
@@ -677,7 +618,7 @@ var doRenderBonusPoints = function() {
   hasMonitorArm = false;
   nodes = cartDisp.children;
   for (const node of nodes) {
-    var product = findProductById(node.id);
+    var product = findProductByIdLegacy(node.id);
     if (!product) continue;
     if (product.id === AppState.PRODUCT_IDS.KEYBOARD) {
       hasKeyboard = true;
@@ -723,7 +664,7 @@ var doRenderBonusPoints = function() {
   }
 }
 function onGetStockTotal() {
-  return calculateTotalStock();
+  return calculateTotalStockLegacy();
 }
 function doUpdatePricesInCart() {
   var cartItems = cartDisp.children;
@@ -731,7 +672,7 @@ function doUpdatePricesInCart() {
   // 장바구니의 각 아이템에 대해 가격과 이름 업데이트
   for (var i = 0; i < cartItems.length; i++) {
     var itemId = cartItems[i].id;
-    var product = findProductById(itemId);
+    var product = findProductByIdLegacy(itemId);
     
     if (product) {
       var priceDiv = cartItems[i].querySelector('.text-lg');
@@ -766,13 +707,13 @@ main();
 // 장바구니 추가 버튼 이벤트 핸들러
 addBtn.addEventListener("click", function () {
   var selItem = sel.value;
-  var hasItem = findProductById(selItem) !== null;
+  var hasItem = findProductByIdLegacy(selItem) !== null;
   
   if (!selItem || !hasItem) {
     return;
   }
   
-  var itemToAdd = findProductById(selItem);
+  var itemToAdd = findProductByIdLegacy(selItem);
   if (itemToAdd && itemToAdd.q > 0) {
     var item = document.getElementById(itemToAdd.id);
     
@@ -850,7 +791,7 @@ cartDisp.addEventListener("click", function (event) {
   if (target.classList.contains('quantity-change') || target.classList.contains('remove-item')) {
     var productId = target.dataset.productId;
     var itemElement = document.getElementById(productId);
-    var product = findProductById(productId);
+    var product = findProductByIdLegacy(productId);
     
     if (target.classList.contains('quantity-change')) {
       // 수량 변경 처리
