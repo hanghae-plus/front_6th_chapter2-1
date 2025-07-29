@@ -1,3 +1,5 @@
+import { getTotalStock } from './features/product/service';
+
 let itemCount;
 let lastSelector;
 let sum;
@@ -274,15 +276,11 @@ function main() {
 }
 
 function onUpdateSelectOptions() {
-  // 총 재고량
-  let totalStock = 0;
+  const totalStock = getTotalStock(productList);
+
   // 왜 할까
   selector.innerHTML = '';
-  // 총 재고량 계산
-  for (let idx = 0; idx < productList.length; idx++) {
-    const product = productList[idx];
-    totalStock = totalStock + product.quantity;
-  }
+
   // 옵션요소 세팅
   for (let i = 0; i < productList.length; i++) {
     const product = productList[i];
