@@ -27,6 +27,7 @@ import { getOrderSummary } from "./entity/order";
 import { CartTotal } from "./components/CartTotal";
 import { LoyaltyPoints } from "./components/LoyaltyPoints";
 import { DiscountInfo } from "./components/DiscountInfo";
+import { TotalItemCount } from "./components/TotalItemCount";
 
 let lastSel = null;
 let productSelector = ProductSelector();
@@ -84,6 +85,7 @@ const handleCalculateCartStuff = useFunction(
 
       doRenderBonusPoints(summary);
       DiscountInfo(summary);
+      TotalItemCount(summary);
     },
   }
 );
@@ -162,17 +164,6 @@ const handleCalculateCartStuffOriginal = () => {
     totalDiscountedPrice,
     totalDiscountRate,
   } = getOrderSummary({ cartItems });
-
-  let itemCountElement = document.getElementById("item-count");
-  if (itemCountElement) {
-    let previousCount = parseInt(
-      itemCountElement.textContent.match(/\d+/) || 0
-    );
-    itemCountElement.textContent = `🛍️ ${totalItemCount} items in cart`;
-    if (previousCount !== totalItemCount) {
-      itemCountElement.setAttribute("data-changed", "true");
-    }
-  }
 
   let stockMsg = "";
   for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
