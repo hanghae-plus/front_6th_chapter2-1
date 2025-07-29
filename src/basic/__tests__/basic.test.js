@@ -27,6 +27,11 @@ describe('basic 테스트', () => {
     return qtyElement ? parseInt(qtyElement.textContent) : 0;
   };
 
+  // userEvent를 fake timers와 호환되도록 설정
+  const user = userEvent.setup({
+    advanceTimers: vi.advanceTimersByTime,
+  });
+  
   describe.each([
     { type: 'origin', loadFile: () => import('../../main.original.js'), },
     { type: 'basic', loadFile: () => import('../main.basic.js'), },
@@ -34,8 +39,11 @@ describe('basic 테스트', () => {
     let sel, addBtn, cartDisp, sum, stockInfo, itemCount, loyaltyPoints, discountInfo;
 
     beforeEach(async () => {
-      vi.useRealTimers();
       vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+      const monday = new Date('2024-10-14');
+      vi.useFakeTimers();
+      vi.setSystemTime(monday);
 
       // 전체 DOM 재초기화
       document.body.innerHTML = '<div id="app"></div>';
@@ -57,6 +65,7 @@ describe('basic 테스트', () => {
 
     afterEach(() => {
       vi.restoreAllMocks();
+      vi.useRealTimers();
     });
 
     // 2. 상품 정보 테스트
@@ -411,7 +420,7 @@ describe('basic 테스트', () => {
           expect(slidePanel.classList.contains('translate-x-full')).toBe(true);
 
           // 클릭 후: 표시
-          await userEvent.click(helpButton);
+          await user.click(helpButton);
 
           expect(modal.classList.contains('hidden')).toBe(false);
           expect(slidePanel.classList.contains('translate-x-full')).toBe(false);
@@ -422,11 +431,11 @@ describe('basic 테스트', () => {
           const modal = document.querySelector('.fixed.inset-0');
 
           // 모달 열기
-          await userEvent.click(helpButton);
+          await user.click(helpButton);
           expect(modal.classList.contains('hidden')).toBe(false);
 
           // 배경 클릭으로 닫기
-          await userEvent.click(modal);
+          await user.click(modal);
           expect(modal.classList.contains('hidden')).toBe(true);
         });
       });
@@ -439,6 +448,8 @@ describe('basic 테스트', () => {
           sel.value = 'p2';
           addBtn.click();
 
+          vi.advanceTimersToNextTimer()
+
           expect(cartDisp.children.length).toBe(1);
           expect(cartDisp.querySelector('#p2')).toBeTruthy();
         });
@@ -448,6 +459,8 @@ describe('basic 테스트', () => {
           addBtn.click();
           addBtn.click();
 
+          vi.advanceTimersToNextTimer()
+
           expect(cartDisp.children.length).toBe(1);
           const qty = cartDisp.querySelector('.quantity-number').textContent;
           expect(qty).toBe('2');
@@ -456,7 +469,9 @@ describe('basic 테스트', () => {
         it('재고 초과 시 알림 표시', () => {
           // 재고가 10개인 상품5를 11개 추가 시도
           addItemsToCart(sel, addBtn, 'p5', 11);
-          
+
+          vi.advanceTimersToNextTimer()
+
           // 장바구니에는 10개만 있어야 함
           const qty = getCartItemQuantity(cartDisp, 'p5');
           expect(qty).toBeLessThanOrEqual(10);
@@ -465,6 +480,8 @@ describe('basic 테스트', () => {
         it('품절 상품은 선택 불가', () => {
           sel.value = 'p4';
           addBtn.click();
+
+          vi.advanceTimersToNextTimer()
 
           expect(cartDisp.children.length).toBe(0);
         });
@@ -479,11 +496,11 @@ describe('basic 테스트', () => {
           const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
 
           // 증가
-          await userEvent.click(increaseBtn);
+          await user.click(increaseBtn);
           expect(cartDisp.querySelector('.quantity-number').textContent).toBe('2');
 
           // 감소
-          await userEvent.click(decreaseBtn);
+          await user.click(decreaseBtn);
           expect(cartDisp.querySelector('.quantity-number').textContent).toBe('1');
         });
 
@@ -494,7 +511,7 @@ describe('basic 테스트', () => {
           const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
           const qtyBefore = getCartItemQuantity(cartDisp, 'p5');
           
-          await userEvent.click(increaseBtn);
+          await user.click(increaseBtn);
           
           const qtyAfter = getCartItemQuantity(cartDisp, 'p5');
           expect(qtyAfter).toBe(qtyBefore); // 수량이 증가하지 않아야 함
@@ -505,7 +522,7 @@ describe('basic 테스트', () => {
           addBtn.click();
 
           const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
-          await userEvent.click(decreaseBtn);
+          await user.click(decreaseBtn);
 
           expect(cartDisp.children.length).toBe(0);
         });
@@ -517,7 +534,7 @@ describe('basic 테스트', () => {
           addBtn.click();
 
           const removeBtn = cartDisp.querySelector('.remove-item');
-          await userEvent.click(removeBtn);
+          await user.click(removeBtn);
 
           expect(cartDisp.children.length).toBe(0);
         });
@@ -527,7 +544,7 @@ describe('basic 테스트', () => {
           addItemsToCart(sel, addBtn, 'p5', 5);
 
           const removeBtn = cartDisp.querySelector('.remove-item');
-          await userEvent.click(removeBtn);
+          await user.click(removeBtn);
           
           // 재고가 복구되어야 하지만 원본 코드에서는 제대로 업데이트되지 않음
         });
@@ -541,7 +558,7 @@ describe('basic 테스트', () => {
           expect(sum.textContent).toContain('₩10,000');
 
           const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
-          await userEvent.click(increaseBtn);
+          await user.click(increaseBtn);
 
           expect(sum.textContent).toContain('₩20,000');
         });
@@ -560,7 +577,7 @@ describe('basic 테스트', () => {
           expect(loyaltyPoints.textContent).toContain('10p');
 
           const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
-          await userEvent.click(increaseBtn);
+          await user.click(increaseBtn);
 
           expect(loyaltyPoints.textContent).toContain('20p');
         });
@@ -604,7 +621,7 @@ describe('basic 테스트', () => {
           addItemsToCart(sel, addBtn, 'p5', 10);
 
           const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
-          await userEvent.click(increaseBtn);
+          await user.click(increaseBtn);
 
           expect(window.alert).toHaveBeenCalledWith('재고가 부족합니다.');
         });
