@@ -3,19 +3,14 @@ import { createSuggestionSaleTimer } from "./SuggestionSaleTimer.js";
 
 /**
  * 모든 타이머를 통합 관리하는 컴포넌트
- * @param {Function} onUpdateSelectOptions - 상품 옵션 업데이트 콜백
  * @param {Function} doUpdatePricesInCart - 장바구니 가격 업데이트 콜백
  * @param {Object} state - 앱 상태 객체 (lastSelect, cartDisplay 포함)
  * @returns {Object} 모든 타이머 시작/중지 메서드를 포함한 객체
  */
-export function createTimerManager(onUpdateSelectOptions, doUpdatePricesInCart, state) {
+export function createTimerManager(doUpdatePricesInCart, state) {
   // 개별 타이머 인스턴스 생성
-  const lightningSaleTimer = createLightningSaleTimer(onUpdateSelectOptions, doUpdatePricesInCart);
-  const suggestionSaleTimer = createSuggestionSaleTimer(
-    onUpdateSelectOptions,
-    doUpdatePricesInCart,
-    state
-  );
+  const lightningSaleTimer = createLightningSaleTimer(doUpdatePricesInCart);
+  const suggestionSaleTimer = createSuggestionSaleTimer(doUpdatePricesInCart, state);
 
   /**
    * 모든 타이머를 시작합니다

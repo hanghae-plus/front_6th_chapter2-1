@@ -4,12 +4,11 @@ import { SUGGESTION_SALE_INTERVAL, SUGGESTION_SALE_MAX_DELAY } from "../data/tim
 
 /**
  * 추천할인 타이머를 관리하는 컴포넌트
- * @param {Function} onUpdateSelectOptions - 상품 옵션 업데이트 콜백
  * @param {Function} doUpdatePricesInCart - 장바구니 가격 업데이트 콜백
  * @param {Object} state - 앱 상태 객체 (lastSelect, cartDisplay 포함)
  * @returns {Object} 타이머 시작/중지 메서드를 포함한 객체
  */
-export function createSuggestionSaleTimer(onUpdateSelectOptions, doUpdatePricesInCart, state) {
+export function createSuggestionSaleTimer(doUpdatePricesInCart, state) {
   let suggestionIntervalId = null;
   let suggestionTimeoutId = null;
 
@@ -45,7 +44,6 @@ export function createSuggestionSaleTimer(onUpdateSelectOptions, doUpdatePricesI
       suggest.val = Math.round((suggest.val * (100 - DISCOUNT_RATE_SUGGESTION)) / 100);
       suggest.suggestSale = true;
 
-      onUpdateSelectOptions();
       doUpdatePricesInCart();
     }
   }

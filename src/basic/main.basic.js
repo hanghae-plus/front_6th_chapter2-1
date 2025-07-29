@@ -3,13 +3,11 @@ import { createTimerManager } from "./components/TimerManager.js";
 import { TUESDAY_DAY_OF_WEEK } from "./data/date.data.js";
 import {
   DISCOUNT_RATE_BULK,
-  DISCOUNT_RATE_LIGHTNING,
   DISCOUNT_RATE_PRODUCT_1,
   DISCOUNT_RATE_PRODUCT_2,
   DISCOUNT_RATE_PRODUCT_3,
   DISCOUNT_RATE_PRODUCT_4,
   DISCOUNT_RATE_PRODUCT_5,
-  DISCOUNT_RATE_SUGGESTION,
   DISCOUNT_RATE_TUESDAY,
 } from "./data/discount.data.js";
 import {
@@ -36,7 +34,6 @@ import {
   MIN_QUANTITY_FOR_POINT_BONUS_TIER1,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER2,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER3,
-  TOTAL_STOCK_WARNING_THRESHOLD,
 } from "./data/quantity.data.js";
 
 // 상태 변수
@@ -65,95 +62,15 @@ function main() {
   stockInfo = document.querySelector("#stock-status");
   cartDisplay = document.querySelector("#cart-items");
 
-  onUpdateSelectOptions();
   handleCalculateCartStuff();
 
   // 타이머 매니저 생성 및 모든 타이머 시작
-  const timerManager = createTimerManager(onUpdateSelectOptions, doUpdatePricesInCart, {
+  const timerManager = createTimerManager(doUpdatePricesInCart, {
     lastSelect,
     cartDisplay,
   });
 
   timerManager.startAll();
-}
-
-function onUpdateSelectOptions() {
-  select.innerHTML = "";
-
-  // 총 재고 계산
-  let totalStock = 0;
-  for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
-    const _p = PRODUCT_LIST[idx];
-    totalStock = totalStock + _p.q;
-  }
-
-  // 옵션 생성
-  for (let i = 0; i < PRODUCT_LIST.length; i++) {
-    (function () {
-      const item = PRODUCT_LIST[i];
-      const opt = document.createElement("option");
-      opt.value = item.id;
-      let discountText = "";
-      if (item.onSale) {
-        discountText += " ⚡SALE";
-      }
-      if (item.suggestSale) {
-        discountText += " 💝추천";
-      }
-      if (item.q === 0) {
-        opt.textContent = item.name + " - " + item.val + "원 (품절)" + discountText;
-        opt.disabled = true;
-        opt.className = "text-gray-400";
-      } else {
-        if (item.onSale && item.suggestSale) {
-          const superSaleRate = DISCOUNT_RATE_LIGHTNING + DISCOUNT_RATE_SUGGESTION;
-          opt.textContent =
-            "⚡💝" +
-            item.name +
-            " - " +
-            item.originalVal +
-            "원 → " +
-            item.val +
-            "원 (" +
-            superSaleRate +
-            "% SUPER SALE!)";
-          opt.className = "text-purple-600 font-bold";
-        } else if (item.onSale) {
-          opt.textContent =
-            "⚡" +
-            item.name +
-            " - " +
-            item.originalVal +
-            "원 → " +
-            item.val +
-            "원 (" +
-            DISCOUNT_RATE_LIGHTNING +
-            "% SALE!)";
-          opt.className = "text-red-500 font-bold";
-        } else if (item.suggestSale) {
-          opt.textContent =
-            "💝" +
-            item.name +
-            " - " +
-            item.originalVal +
-            "원 → " +
-            item.val +
-            "원 (" +
-            DISCOUNT_RATE_SUGGESTION +
-            "% 추천할인!)";
-          opt.className = "text-blue-500 font-bold";
-        } else {
-          opt.textContent = item.name + " - " + item.val + "원" + discountText;
-        }
-      }
-      select.appendChild(opt);
-    })();
-  }
-  if (totalStock < TOTAL_STOCK_WARNING_THRESHOLD) {
-    select.style.borderColor = "orange";
-  } else {
-    select.style.borderColor = "";
-  }
 }
 
 function handleCalculateCartStuff() {
@@ -570,6 +487,7 @@ main();
 
 addButton.addEventListener("click", () => {
   const selItem = select.value;
+
   let hasItem = false;
   for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
     if (PRODUCT_LIST[idx].id === selItem) {
@@ -665,6 +583,5 @@ cartDisplay.addEventListener("click", event => {
     if (prod && prod.q < 5) {
     }
     handleCalculateCartStuff();
-    onUpdateSelectOptions();
   }
 });

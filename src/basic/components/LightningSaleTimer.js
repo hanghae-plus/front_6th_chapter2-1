@@ -8,7 +8,7 @@ import { LIGHTNING_SALE_MAX_DELAY, LIGHTNING_SALE_INTERVAL } from "../data/time.
  * @param {Function} doUpdatePricesInCart - 장바구니 가격 업데이트 콜백
  * @returns {Object} 타이머 시작/중지 메서드를 포함한 객체
  */
-export function createLightningSaleTimer(onUpdateSelectOptions, doUpdatePricesInCart) {
+export function createLightningSaleTimer(doUpdatePricesInCart) {
   let lightningIntervalId = null;
   let lightningTimeoutId = null;
 
@@ -27,7 +27,6 @@ export function createLightningSaleTimer(onUpdateSelectOptions, doUpdatePricesIn
         "⚡번개세일! " + luckyItem.name + "이(가) " + DISCOUNT_RATE_LIGHTNING + "% 할인 중입니다!"
       );
 
-      onUpdateSelectOptions();
       doUpdatePricesInCart();
     }
   }
