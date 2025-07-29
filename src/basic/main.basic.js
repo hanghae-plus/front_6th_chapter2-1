@@ -52,7 +52,28 @@ const productList = [
   },
 ];
 
-function Option({ item }) {
+function Header() {
+  return /* HTML */ `
+    <div class="mb-8">
+      <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">
+        🛒 Hanghae Online Store
+      </h1>
+      <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
+      <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
+    </div>
+  `;
+}
+
+function ProductSelector() {
+  return /* HTML */ `
+    <select
+      id="product-select"
+      class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
+    ></select>
+  `;
+}
+
+function ProductOption({ item }) {
   /**
    * @todo 배열 방식으로 할 지? 팀원들과 이야기해보기
    */
@@ -100,27 +121,6 @@ function Option({ item }) {
   `;
 }
 
-function Header() {
-  return /* HTML */ `
-    <div class="mb-8">
-      <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">
-        🛒 Hanghae Online Store
-      </h1>
-      <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-      <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
-    </div>
-  `;
-}
-
-function Select() {
-  return /* HTML */ `
-    <select
-      id="product-select"
-      class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
-    ></select>
-  `;
-}
-
 function main() {
   let totalAmt = 0;
   let lastSel = null;
@@ -144,7 +144,7 @@ function main() {
   addBtn.innerHTML = 'Add to Cart';
   addBtn.className =
     'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
-  selectorContainer.innerHTML = Select();
+  selectorContainer.innerHTML = ProductSelector();
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
 
@@ -327,7 +327,7 @@ function main() {
       totalStock = totalStock + _p.q;
     }
 
-    const optionsHTML = productList.map((item) => Option({ item })).join('');
+    const optionsHTML = productList.map((item) => ProductOption({ item })).join('');
     sel.innerHTML = optionsHTML;
 
     if (totalStock < 50) {
