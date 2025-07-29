@@ -25,7 +25,6 @@ import { getCartItemQuantity, setCartItemQuantity, extractNumberFromText } from 
 // 전역 상태 관리 인스턴스
 let productService; // 전역 ProductService 인스턴스
 let cartService; // 전역 CartService 인스턴스
-let stockInfo; // 재고 정보 요소
 
 // 장바구니 수량 변경
 function handleQuantityChange(productId, quantityChange, cartDisplay, selectorContainer) {
@@ -50,7 +49,7 @@ function handleQuantityChange(productId, quantityChange, cartDisplay, selectorCo
     updateCartItemPriceStyle(cartItemElement, newQuantity);
   }
 
-  updateCartSummary(cartDisplay, stockInfo, selectorContainer);
+  updateCartSummary(cartDisplay, selectorContainer);
   onUpdateSelectOptions(selectorContainer);
 }
 
@@ -66,7 +65,7 @@ function handleRemoveItem(productId, cartDisplay, selectorContainer) {
     }
   }
 
-  updateCartSummary(cartDisplay, stockInfo, selectorContainer);
+  updateCartSummary(cartDisplay, selectorContainer);
   onUpdateSelectOptions(selectorContainer);
 }
 
@@ -106,7 +105,7 @@ function handleAddToCart(productList, cartDisplay, selectorContainer) {
     }
   }
 
-  updateCartSummary(cartDisplay, stockInfo, selectorContainer);
+  updateCartSummary(cartDisplay, selectorContainer);
 }
 
 function main() {
@@ -135,7 +134,7 @@ function main() {
   });
 
   // stockInfo 요소 설정
-  stockInfo = selectorContainer.querySelector("#stock-status");
+  const stockInfo = selectorContainer.querySelector("#stock-status");
 
   const cartDisplay = document.createElement("div");
   cartDisplay.id = "cart-items";
@@ -222,7 +221,8 @@ function updateItemCountDisplay(itemCnt) {
   }
 }
 
-function updateStockDisplay(stockInfo) {
+function updateStockDisplay() {
+  const stockInfo = document.querySelector("#stock-status");
   const stockMsg = generateStockWarningMessage(PRODUCT_LIST);
 
   if (stockInfo) {
@@ -245,10 +245,10 @@ function doUpdatePricesInCart(cartDisplay, selectorContainer) {
     }
   }
 
-  updateCartSummary(cartDisplay, stockInfo, selectorContainer);
+  updateCartSummary(cartDisplay, selectorContainer);
 }
 
-function updateCartSummary(cartDisplay, stockInfo, selectorContainer) {
+function updateCartSummary(cartDisplay, selectorContainer) {
   const cartItems = cartDisplay.children;
 
   // 1. 장바구니 총계 계산
@@ -258,13 +258,13 @@ function updateCartSummary(cartDisplay, stockInfo, selectorContainer) {
   const discountResult = applyBulkAndSpecialDiscounts(cartTotals.totalAmt, cartTotals.itemCnt, cartTotals.subtotal);
 
   // 4. UI 업데이트
-  updateCartUI(cartItems, cartTotals, discountResult, stockInfo);
+  updateCartUI(cartItems, cartTotals, discountResult);
   handleStockInfoUpdate(selectorContainer);
 }
 
-function updateCartUI(cartItems, cartTotals, discountResult, header, stockInfo) {
+function updateCartUI(cartItems, cartTotals, discountResult) {
   updateCartItemStyles(cartItems);
-  updateHeaderItemCount(header, cartService.getItemCount());
+  updateHeaderItemCount(cartService.getItemCount());
   updateOrderSummaryUI(
     cartItems,
     cartTotals.subtotal,
@@ -276,6 +276,6 @@ function updateCartUI(cartItems, cartTotals, discountResult, header, stockInfo) 
     discountResult.originalTotal
   );
   updateItemCountDisplay(cartService.getItemCount());
-  updateStockDisplay(stockInfo);
+  updateStockDisplay();
 }
 main();
