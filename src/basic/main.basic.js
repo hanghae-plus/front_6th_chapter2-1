@@ -173,7 +173,7 @@ function onUpdateSelectOptions(selectorContainer) {
 
   // ProductSelector 컴포넌트 업데이트
   updateProductOptions(productService.getProducts());
-  updateStockInfo(selectorContainer, productService.getProducts());
+  updateStockInfo(productService.getProducts());
 }
 
 function updateCartItemStyles(cartItems) {
@@ -228,7 +228,7 @@ function updateStockDisplay() {
 }
 
 const handleStockInfoUpdate = function (selectorContainer) {
-  updateStockInfo(selectorContainer, PRODUCT_LIST);
+  updateStockInfo(PRODUCT_LIST);
 };
 
 function doUpdatePricesInCart(cartDisplay, selectorContainer) {

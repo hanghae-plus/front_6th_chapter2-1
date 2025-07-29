@@ -99,7 +99,7 @@ export function createProductSelector({ products, onProductSelect, onAddToCart }
   container.appendChild(stockInfo);
 
   updateProductOptions(products);
-  updateStockInfo(container, products);
+  updateStockInfo(products);
 
   return container;
 }
@@ -125,8 +125,8 @@ export function updateProductOptions(products) {
 }
 
 // 재고 정보를 갱신합니다.
-export function updateStockInfo(container, products) {
-  const info = container.querySelector("#stock-status");
+export function updateStockInfo(products) {
+  const info = document.querySelector("#stock-status");
   if (!info) return;
 
   const messages = products.filter(item => isLowStock(item)).map(item => (item.quantity > 0 ? `${item.name}: 재고 부족 (${item.quantity}개 남음)` : `${item.name}: 품절`));
