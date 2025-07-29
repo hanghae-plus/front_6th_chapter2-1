@@ -644,8 +644,7 @@ function handleCalculateCartStuff() {
   // 4. 재고 상태 업데이트
   updateStockStatus();
   
-  // 5. 기존 함수들 호출
-  handleStockInfoUpdate();
+  // 5. 포인트 계산
   doRenderBonusPoints();
 }
 var doRenderBonusPoints = function() {
@@ -724,28 +723,7 @@ var doRenderBonusPoints = function() {
   }
 }
 function onGetStockTotal() {
-  var sum;
-  var i;
   return calculateTotalStock();
-}
-var handleStockInfoUpdate = function() {
-  var infoMsg;
-  var totalStock;
-  var messageOptimizer;
-  infoMsg = '';
-  totalStock = onGetStockTotal();
-  if (totalStock < 30) {
-  }
-  prodList.forEach(function (item) {
-    if (item.q < 5) {
-      if (item.q > 0) {
-        infoMsg = infoMsg + item.name + ': 재고 부족 (' + item.q + '개 남음)\n';
-      } else {
-        infoMsg = infoMsg + item.name + ': 품절\n';
-      }
-    }
-  });
-  stockInfo.textContent = infoMsg;
 }
 function doUpdatePricesInCart() {
   var totalCount = 0, j = 0;
