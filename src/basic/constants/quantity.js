@@ -12,6 +12,7 @@ export const QUANTITY_THRESHOLDS = {
   INDIVIDUAL_DISCOUNT: 10, // 개별 상품 할인 기준
   BULK_PURCHASE: 30, // 대량구매 기준
   LOW_STOCK_WARNING: 5, // 재고 부족 경고 기준
+  STOCK_DISPLAY_WARNING: 5, // 재고 표시 경고 기준
   TOTAL_STOCK_WARNING: 50, // 전체 재고 부족 경고
   TOTAL_STOCK_CRITICAL: 30, // 전체 재고 위험 기준
 };
