@@ -1,5 +1,3 @@
-import Header from './components/Header';
-
 var prodList;
 var bonusPts = 0;
 var stockInfo;
@@ -14,12 +12,9 @@ var product_3 = 'p3';
 var p4 = 'p4';
 var PRODUCT_5 = `p5`;
 var cartDisp;
-// var root;
-// var header;
-const root = document.getElementById('app');
-const header = new Header(0, root);
-header.render();
 function main() {
+  var root;
+  var header;
   var gridContainer;
   var leftColumn;
   var selectorContainer;
@@ -78,14 +73,14 @@ function main() {
       suggestSale: false,
     },
   ];
-  // var root = document.getElementById('app');
-  // header = document.createElement('div');
-  // header.className = 'mb-8';
-  // header.innerHTML = `
-  //   <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
-  //   <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-  //   <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
-  // `;
+  var root = document.getElementById('app');
+  header = document.createElement('div');
+  header.className = 'mb-8';
+  header.innerHTML = `
+    <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
+    <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
+    <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
+  `;
   sel = document.createElement('select');
   sel.id = 'product-select';
   gridContainer = document.createElement('div');
@@ -237,7 +232,7 @@ function main() {
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
-  // root.appendChild(header);
+  root.appendChild(header);
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
@@ -471,10 +466,8 @@ function handleCalculateCartStuff() {
   } else {
     tuesdaySpecial.classList.add('hidden');
   }
-  // document.getElementById('item-count').textContent =
-  //   '🛍️ ' + itemCnt + ' items in cart';
-
-  header.updateProductCount(itemCnt);
+  document.getElementById('item-count').textContent =
+    '🛍️ ' + itemCnt + ' items in cart';
   summaryDetails = document.getElementById('summary-details');
   summaryDetails.innerHTML = '';
   if (subTot > 0) {
@@ -569,14 +562,14 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
-  // itemCountElement = document.getElementById('item-count');
-  // if (itemCountElement) {
-  //   previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
-  //   itemCountElement.textContent = '🛍️ ' + itemCnt + ' items in cart';
-  //   if (previousCount !== itemCnt) {
-  //     itemCountElement.setAttribute('data-changed', 'true');
-  //   }
-  // }
+  itemCountElement = document.getElementById('item-count');
+  if (itemCountElement) {
+    previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    itemCountElement.textContent = '🛍️ ' + itemCnt + ' items in cart';
+    if (previousCount !== itemCnt) {
+      itemCountElement.setAttribute('data-changed', 'true');
+    }
+  }
   stockMsg = '';
 
   for (var stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
