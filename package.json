@@ -10,7 +10,7 @@
     "start:basic": "vite serve --open ./index.basic.html",
     "start:advanced": "vite serve --open ./index.advanced.html",
     "test": "vitest",
-    "test:basic": "vitest basic.test.js",
+    "test:basic": "vitest basic.test.ts",
     "test:advanced": "vitest advanced.test.js",
     "test:ui": "vitest --ui"
   },

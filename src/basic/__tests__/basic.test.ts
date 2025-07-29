@@ -34,7 +34,7 @@ describe('basic 테스트', () => {
   
   describe.each([
     { type: 'origin', loadFile: () => import('../../main.original.js'), },
-    { type: 'basic', loadFile: () => import('../main.basic.js'), },
+    { type: 'basic', loadFile: () => import('../main.basic.ts'), },
   ])('$type 장바구니 상세 기능 테스트', ({ loadFile }) => {
     let sel, addBtn, cartDisp, sum, stockInfo, itemCount, loyaltyPoints, discountInfo;
 
