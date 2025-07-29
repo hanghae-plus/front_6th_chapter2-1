@@ -55,44 +55,6 @@ export class CartService {
   }
 
   /**
-   * 장바구니 아이템을 찾습니다.
-   *
-   * @param {string} productId - 상품 ID
-   * @returns {Object|null} 장바구니 아이템 또는 null
-   */
-  findCartItem(productId) {
-    return this.cartStore.findCartItem(productId);
-  }
-
-  /**
-   * 장바구니를 초기화합니다.
-   *
-   * @param {Array} productList - 전체 상품 목록
-   */
-  resetCart(productList) {
-    this.cartStore.resetCart(productList);
-  }
-
-  /**
-   * 재고 부족 상품 목록을 반환합니다.
-   *
-   * @param {Array} productList - 전체 상품 목록
-   * @returns {Array} 재고 부족 상품 목록
-   */
-  getLowStockProducts(productList) {
-    return productList.filter(product => product.quantity < 5 && product.quantity > 0);
-  }
-
-  /**
-   * 장바구니 상태를 반환합니다.
-   *
-   * @returns {Object} 장바구니 상태
-   */
-  getCartState() {
-    return this.cartStore.getCartState();
-  }
-
-  /**
    * 장바구니 아이템 개수를 반환합니다.
    *
    * @returns {number} 장바구니 아이템 개수
@@ -117,31 +79,5 @@ export class CartService {
    */
   getLastSelectedProduct() {
     return this.cartStore.getLastSelectedProduct();
-  }
-
-  /**
-   * 마지막 선택된 상품 ID를 설정합니다.
-   *
-   * @param {string} productId - 상품 ID
-   */
-  setLastSelectedProduct(productId) {
-    this.cartStore.setLastSelectedProduct(productId);
-  }
-
-  /**
-   * 장바구니 변경 구독
-   *
-   * @param {Function} callback - 콜백 함수
-   * @returns {Function} 구독 해제 함수
-   */
-  subscribeToChanges(callback) {
-    return this.cartStore.subscribe(callback);
-  }
-
-  /**
-   * 서비스 정리
-   */
-  destroy() {
-    // EventBus 제거로 인해 정리할 것이 없음
   }
 }

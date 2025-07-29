@@ -33,17 +33,29 @@ function getOptionClass(item, discountInfo) {
   return "";
 }
 
-// 재고 부족 여부를 체크합니다.
-function isLowStock(item, threshold = LOW_STOCK_THRESHOLD) {
-  return item.quantity < threshold;
-}
-
 // 버튼 상태를 토글합니다.
 function toggleButtonState(button, disabled) {
   button.disabled = disabled;
   button.className = disabled
     ? "w-full py-3 bg-gray-400 text-white text-sm font-medium uppercase tracking-wider cursor-not-allowed"
     : "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
+}
+
+// 장바구니 추가버튼을 생성합니다.
+function createAddButton() {
+  const button = document.createElement("button");
+  button.id = "add-to-cart";
+  button.textContent = "Add to Cart";
+  toggleButtonState(button, false); // 초기 상태: 활성화
+  return button;
+}
+
+// 재고 상태를 표시하는 요소를 생성합니다.
+function createStockStatus() {
+  const div = document.createElement("div");
+  div.id = "stock-status";
+  div.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
+  return div;
 }
 
 // 상품 선택을 드롭다운으로 생성하는 컴포넌트입니다.
@@ -68,23 +80,6 @@ function createProductSelect(products, discountInfos) {
   }
 
   return select;
-}
-
-// 장바구니 추가버튼을 생성합니다.
-function createAddButton() {
-  const button = document.createElement("button");
-  button.id = "add-to-cart";
-  button.textContent = "Add to Cart";
-  toggleButtonState(button, false); // 초기 상태: 활성화
-  return button;
-}
-
-// 재고 상태를 표시하는 요소를 생성합니다.
-function createStockStatus() {
-  const div = document.createElement("div");
-  div.id = "stock-status";
-  div.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
-  return div;
 }
 
 // ProductSelector 컴포넌트를 생성합니다.
@@ -130,6 +125,10 @@ export function updateProductOptions(products, discountInfos) {
   productSelect.style.borderColor = totalStock < STOCK_WARNING_THRESHOLD ? "orange" : "";
 }
 
+// 재고 부족 여부를 체크합니다.
+function isLowStock(item, threshold = LOW_STOCK_THRESHOLD) {
+  return item.quantity < threshold;
+}
 // 재고 정보를 갱신합니다.
 export function updateStockInfo(products) {
   const stockStatus = document.querySelector("#stock-status");

@@ -8,7 +8,6 @@ export class CartStore {
     this.discountRate = 0;
     this.savedAmount = 0;
     this.lastSelectedProduct = null;
-    this.subscribers = new Set();
   }
 
   // 장바구니 아이템 추가
@@ -33,7 +32,6 @@ export class CartStore {
 
     product.quantity -= quantity;
     this.updateCartTotals();
-    this.notifySubscribers();
     return true;
   }
 
@@ -61,7 +59,6 @@ export class CartStore {
     product.quantity -= quantityDiff;
 
     this.updateCartTotals();
-    this.notifySubscribers();
     return true;
   }
 
@@ -76,7 +73,6 @@ export class CartStore {
     this.cartItems = this.cartItems.filter(item => item.id !== productId);
 
     this.updateCartTotals();
-    this.notifySubscribers();
     return true;
   }
 
@@ -179,19 +175,6 @@ export class CartStore {
     this.savedAmount = 0;
 
     this.lastSelectedProduct = null;
-    this.notifySubscribers();
-  }
-
-  // 장바구니 상태 조회
-  getCartState() {
-    return {
-      items: this.cartItems,
-      totalAmount: this.totalAmount,
-      itemCount: this.itemCount,
-      discountRate: this.discountRate,
-      savedAmount: this.savedAmount,
-      lastSelectedProduct: this.lastSelectedProduct,
-    };
   }
 
   // 장바구니 아이템 개수 조회
@@ -212,26 +195,6 @@ export class CartStore {
   // 마지막 선택된 상품 설정
   setLastSelectedProduct(productId) {
     this.lastSelectedProduct = productId;
-    this.notifySubscribers();
-  }
-
-  // 보너스 포인트 설정
-
-  // 구독자 등록
-  subscribe(callback) {
-    this.subscribers.add(callback);
-    return () => this.subscribers.delete(callback); // 구독 해제 함수 반환
-  }
-
-  // 구독자들에게 변경 알림
-  notifySubscribers() {
-    this.subscribers.forEach(callback => {
-      try {
-        callback(this.getCartState());
-      } catch (error) {
-        console.error("CartStore subscriber error:", error);
-      }
-    });
   }
 }
 
