@@ -26,22 +26,19 @@ import { setupCartEventHandlers } from './features/cart-management/index.js';
 // AppState 참조
 const AppState = appState;
 
-// 레거시 변수 객체 (모듈 함수에서 사용)
-const legacyVars = {};
-
 function initializeUI() {
   var initStock = calculateTotalStock(AppState.products);
-  onUpdateSelectOptions(AppState, legacyVars);
-  handleCalculateCartStuff(AppState, legacyVars);
+  onUpdateSelectOptions(AppState);
+  handleCalculateCartStuff(AppState);
 }
 
 function main() {
-  initializeApplication(AppState, legacyVars);
-  initializeProductData(AppState, legacyVars);
-  createDOMElements(AppState, legacyVars);
-  setupPromotionTimers(AppState, legacyVars);
+  initializeApplication(AppState);
+  initializeProductData(AppState);
+  createDOMElements(AppState);
+  setupPromotionTimers(AppState);
   initializeUI();
-  setupCartEventHandlers(AppState, legacyVars);
+  setupCartEventHandlers(AppState);
 }
 
 main();

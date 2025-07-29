@@ -7,16 +7,15 @@ import { findAvailableProductExcept } from '../../shared/utils/index.js';
 /**
  * 프로모션 타이머 설정
  * @param {Object} appState - AppState 인스턴스
- * @param {Object} legacyVars - 레거시 변수들
  */
-export function setupPromotionTimers(appState, legacyVars) {
+export function setupPromotionTimers(appState) {
   var lightningDelay = Math.random() * 10000;
   setTimeout(() => {
     setInterval(function () {
-      var luckyIdx = Math.floor(Math.random() * legacyVars.prodList.length);
-      var luckyItem = legacyVars.prodList[luckyIdx];
+      var luckyIdx = Math.floor(Math.random() * appState.prodList.length);
+      var luckyItem = appState.prodList[luckyIdx];
       if (luckyItem.q > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round(luckyItem.originalVal * 80 / 100);
+        luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
         alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
         // UI 업데이트 함수 호출 (레거시 호환성)
@@ -29,17 +28,17 @@ export function setupPromotionTimers(appState, legacyVars) {
       }
     }, 30000);
   }, lightningDelay);
-  
+
   setTimeout(function () {
     setInterval(function () {
-      if (legacyVars.cartDisp.children.length === 0) {
+      if (appState.elements.cartDisplay.children.length === 0) {
         return;
       }
-      if (legacyVars.lastSel) {
-        var suggest = findAvailableProductExcept(appState.products, legacyVars.lastSel);
+      if (appState.lastSel) {
+        var suggest = findAvailableProductExcept(appState.products, appState.lastSel);
         if (suggest) {
           alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
-          suggest.val = Math.round(suggest.val * (100 - 5) / 100);
+          suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
           suggest.suggestSale = true;
           // UI 업데이트 함수 호출 (레거시 호환성)
           if (typeof window.onUpdateSelectOptions === 'function') {

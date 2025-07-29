@@ -12,25 +12,24 @@ import { handleCalculateCartStuff, onUpdateSelectOptions } from '../events/index
 /**
  * 장바구니에 상품 추가
  * @param {Object} appState - AppState 인스턴스
- * @param {Object} legacyVars - 레거시 변수들
  */
-export function addItemToCart(appState, legacyVars) {
-  var selItem = legacyVars.sel.value;
+export function addItemToCart(appState) {
+  var selItem = appState.elements.productSelect.value;
   var hasItem = findProductById(appState.products, selItem) !== null;
-  
+
   if (!selItem || !hasItem) {
     return;
   }
-  
+
   var itemToAdd = findProductById(appState.products, selItem);
   if (itemToAdd && itemToAdd.q > 0) {
     var item = document.getElementById(itemToAdd.id);
-    
+
     if (item) {
       // 기존 아이템 수량 증가
       var qtyElem = item.querySelector('.quantity-number');
       var newQty = parseInt(qtyElem.textContent) + 1;
-      
+
       if (newQty <= itemToAdd.q + parseInt(qtyElem.textContent)) {
         qtyElem.textContent = newQty;
         itemToAdd.q--;
@@ -41,12 +40,13 @@ export function addItemToCart(appState, legacyVars) {
       // 새 아이템 추가
       var newItem = document.createElement('div');
       newItem.id = itemToAdd.id;
-      newItem.className = 'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
-      
+      newItem.className =
+        'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
+
       var saleIcon = '';
       var priceClass = '';
       var priceHTML = '';
-      
+
       if (itemToAdd.onSale && itemToAdd.suggestSale) {
         saleIcon = '⚡💝';
         priceClass = 'text-purple-600';
@@ -57,13 +57,20 @@ export function addItemToCart(appState, legacyVars) {
         saleIcon = '💝';
         priceClass = 'text-blue-500';
       }
-      
+
       if (itemToAdd.onSale || itemToAdd.suggestSale) {
-        priceHTML = '<span class="line-through text-gray-400">₩' + itemToAdd.originalVal.toLocaleString() + '</span> <span class="' + priceClass + '">₩' + itemToAdd.val.toLocaleString() + '</span>';
+        priceHTML =
+          '<span class="line-through text-gray-400">₩' +
+          itemToAdd.originalVal.toLocaleString() +
+          '</span> <span class="' +
+          priceClass +
+          '">₩' +
+          itemToAdd.val.toLocaleString() +
+          '</span>';
       } else {
         priceHTML = '₩' + itemToAdd.val.toLocaleString();
       }
-      
+
       newItem.innerHTML = `
         <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
           <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
@@ -83,37 +90,36 @@ export function addItemToCart(appState, legacyVars) {
           <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemToAdd.id}">Remove</a>
         </div>
       `;
-      
-      legacyVars.cartDisp.appendChild(newItem);
+
+      appState.elements.cartDisplay.appendChild(newItem);
       itemToAdd.q--;
     }
-    
-    handleCalculateCartStuff(appState, legacyVars);
-    legacyVars.lastSel = selItem;
+
+    handleCalculateCartStuff(appState);
+    appState.lastSel = selItem;
   }
 }
 
 /**
  * 장바구니 아이템 수량 변경 및 삭제 처리
  * @param {Object} appState - AppState 인스턴스
- * @param {Object} legacyVars - 레거시 변수들
  * @param {Event} event - 클릭 이벤트
  */
-export function handleCartItemAction(appState, legacyVars, event) {
+export function handleCartItemAction(appState, event) {
   var target = event.target;
-  
+
   if (target.classList.contains('quantity-change') || target.classList.contains('remove-item')) {
     var productId = target.dataset.productId;
     var itemElement = document.getElementById(productId);
     var product = findProductById(appState.products, productId);
-    
+
     if (target.classList.contains('quantity-change')) {
       // 수량 변경 처리
       var quantityChange = parseInt(target.dataset.change);
       var quantityElement = itemElement.querySelector('.quantity-number');
       var currentQuantity = parseInt(quantityElement.textContent);
       var newQuantity = currentQuantity + quantityChange;
-      
+
       if (newQuantity > 0 && newQuantity <= product.q + currentQuantity) {
         quantityElement.textContent = newQuantity;
         product.q -= quantityChange;
@@ -131,26 +137,25 @@ export function handleCartItemAction(appState, legacyVars, event) {
       product.q += removeQuantity;
       itemElement.remove();
     }
-    
+
     // UI 업데이트
-    handleCalculateCartStuff(appState, legacyVars);
-    onUpdateSelectOptions(appState, legacyVars);
+    handleCalculateCartStuff(appState);
+    onUpdateSelectOptions(appState);
   }
 }
 
 /**
  * 장바구니 이벤트 핸들러 설정
  * @param {Object} appState - AppState 인스턴스
- * @param {Object} legacyVars - 레거시 변수들
  */
-export function setupCartEventHandlers(appState, legacyVars) {
+export function setupCartEventHandlers(appState) {
   // 장바구니 추가 버튼 이벤트 핸들러
-  legacyVars.addBtn.addEventListener("click", function () {
-    addItemToCart(appState, legacyVars);
+  appState.elements.addButton.addEventListener('click', function () {
+    addItemToCart(appState);
   });
 
   // 장바구니 아이템 수량 변경 및 삭제 이벤트 핸들러
-  legacyVars.cartDisp.addEventListener("click", function (event) {
-    handleCartItemAction(appState, legacyVars, event);
+  appState.elements.cartDisplay.addEventListener('click', function (event) {
+    handleCartItemAction(appState, event);
   });
 }

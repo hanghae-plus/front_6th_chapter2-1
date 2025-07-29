@@ -5,9 +5,8 @@
 /**
  * DOM 요소들을 생성하고 설정
  * @param {Object} appState - AppState 인스턴스
- * @param {Object} legacyVars - 레거시 변수들
  */
-export function createDOMElements(appState, legacyVars) {
+export function createDOMElements(appState) {
   var root;
   var header;
   var gridContainer;
@@ -18,42 +17,41 @@ export function createDOMElements(appState, legacyVars) {
   var manualOverlay;
   var manualColumn;
 
-  var root = document.getElementById('app')
+  var root = document.getElementById('app');
   header = document.createElement('div');
-  header.className = 'mb-8'
+  header.className = 'mb-8';
   header.innerHTML = `
     <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
     <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
   // DOM 요소 생성 및 AppState에 저장
-  legacyVars.sel = document.createElement('select');
-  appState.elements.productSelect = legacyVars.sel;
-  legacyVars.sel.id = 'product-select';
+  appState.elements.productSelect = document.createElement('select');
+  appState.elements.productSelect.id = 'product-select';
   gridContainer = document.createElement('div');
-  leftColumn = document.createElement("div");
-  leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto'
+  leftColumn = document.createElement('div');
+  leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto';
   selectorContainer = document.createElement('div');
   selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
-  legacyVars.sel.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
-  gridContainer.className = 'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
-  legacyVars.addBtn = document.createElement('button');
-  appState.elements.addButton = legacyVars.addBtn;
-  legacyVars.stockInfo = document.createElement('div');
-  appState.elements.stockInfo = legacyVars.stockInfo;
-  legacyVars.addBtn.id = 'add-to-cart';
-  legacyVars.stockInfo.id = 'stock-status';
-  legacyVars.stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
-  legacyVars.addBtn.innerHTML = 'Add to Cart';
-  legacyVars.addBtn.className = 'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
-  selectorContainer.appendChild(legacyVars.sel);
-  selectorContainer.appendChild(legacyVars.addBtn);
-  selectorContainer.appendChild(legacyVars.stockInfo);
+  appState.elements.productSelect.className =
+    'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
+  gridContainer.className =
+    'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
+  appState.elements.addButton = document.createElement('button');
+  appState.elements.stockInfo = document.createElement('div');
+  appState.elements.addButton.id = 'add-to-cart';
+  appState.elements.stockInfo.id = 'stock-status';
+  appState.elements.stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
+  appState.elements.addButton.innerHTML = 'Add to Cart';
+  appState.elements.addButton.className =
+    'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
+  selectorContainer.appendChild(appState.elements.productSelect);
+  selectorContainer.appendChild(appState.elements.addButton);
+  selectorContainer.appendChild(appState.elements.stockInfo);
   leftColumn.appendChild(selectorContainer);
-  legacyVars.cartDisp = document.createElement('div');
-  appState.elements.cartDisplay = legacyVars.cartDisp;
-  leftColumn.appendChild(legacyVars.cartDisp);
-  legacyVars.cartDisp.id = 'cart-items';
+  appState.elements.cartDisplay = document.createElement('div');
+  leftColumn.appendChild(appState.elements.cartDisplay);
+  appState.elements.cartDisplay.id = 'cart-items';
   rightColumn = document.createElement('div');
   rightColumn.className = 'bg-black text-white p-8 flex flex-col';
   rightColumn.innerHTML = `
@@ -85,14 +83,14 @@ export function createDOMElements(appState, legacyVars) {
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
-  legacyVars.sum = rightColumn.querySelector('#cart-total');
-  appState.elements.sum = legacyVars.sum;
+  appState.elements.sum = rightColumn.querySelector('#cart-total');
   manualToggle = document.createElement('button');
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle('hidden');
     manualColumn.classList.toggle('translate-x-full');
   };
-  manualToggle.className = 'fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50';
+  manualToggle.className =
+    'fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50';
   manualToggle.innerHTML = `
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -107,7 +105,8 @@ export function createDOMElements(appState, legacyVars) {
     }
   };
   manualColumn = document.createElement('div');
-  manualColumn.className = 'fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300';
+  manualColumn.className =
+    'fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300';
   manualColumn.innerHTML = `
     <button class="absolute top-4 right-4 text-gray-500 hover:text-black" onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,4 +174,4 @@ export function createDOMElements(appState, legacyVars) {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
-} 
+}

@@ -56,6 +56,13 @@ export class AppState {
       cartDisplay: null,
       sum: null,
     };
+
+    // 레거시 호환성을 위한 변수들
+    this.totalAmt = 0;
+    this.itemCnt = 0;
+    this.lastSel = null;
+    this.bonusPts = 0;
+    this.prodList = [];
   }
 
   // 상태 초기화
@@ -63,6 +70,10 @@ export class AppState {
     this.totalAmount = 0;
     this.itemCount = 0;
     this.lastSelection = null;
+    this.totalAmt = 0;
+    this.itemCnt = 0;
+    this.lastSel = null;
+    this.bonusPts = 0;
   }
 
   // 상품 데이터 초기화
@@ -114,6 +125,7 @@ export class AppState {
         suggestSale: false,
       },
     ];
+    this.prodList = this.products;
   }
 }
 
