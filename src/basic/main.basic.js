@@ -2,8 +2,8 @@ import { QUANTITY_THRESHOLDS } from "./constants/index.js";
 
 // components
 import { createHeader, updateHeaderItemCount } from "./components/Header.js";
-import { createProductSelector, updateProductOptions, getSelectedProduct, updateStockInfo } from "./components/ProductSelector.js";
-import { createCartItem, updateCartItemPrice, updateCartItemPriceStyle } from "./components/CartItem.js";
+import { createProductSelector } from "./components/ProductSelector.js";
+import { updateCartItemPriceStyle } from "./components/CartItem.js";
 import { createOrderSummary, updateOrderSummary } from "./components/OrderSummary.js";
 import { createManualSystem } from "./components/Manual.js";
 import { createLayoutSystem } from "./components/Layout.js";
@@ -49,88 +49,11 @@ function calculateProductDiscountInfos(products) {
   }));
 }
 
-// 장바구니 수량 변경
-function handleQuantityChange(productId, quantityChange) {
-  // 현재 수량 확인
-  const cartItemElement = document.getElementById(productId);
-  const currentQuantity = cartItemElement ? getCartItemQuantity(cartItemElement) : 0;
-  const newQuantity = currentQuantity + quantityChange;
-
-  // 3단계: cartService의 수량 변경 로직 사용
-  const success = cartService.updateCartItemQuantity(productId, quantityChange, PRODUCT_LIST);
-
-  if (!success) {
-    alert("재고가 부족합니다.");
-    return;
-  }
-
-  // 🚀 핵심: 직접적인 DOM 조작 제거, 이벤트 버스만 사용
-  uiEventBus.emit("cart:quantity:changed", {
-    productId,
-    quantityChange,
-    newQuantity,
-    success,
-  });
-
-  // UI 업데이트도 Event Bus를 통해 처리
-  uiEventBus.emit("cart:summary:updated");
-  uiEventBus.emit("product:options:updated", {
-    products: productService.getProducts(),
-    discountInfos: calculateProductDiscountInfos(productService.getProducts()),
-    success: true,
-  });
-}
-
-// 장바구니 아이템 제거
-function handleRemoveItem(productId) {
-  // 4단계: cartService의 아이템 제거 로직 사용
-  const success = cartService.removeProductFromCart(productId, PRODUCT_LIST);
-
-  uiEventBus.emit("cart:item:removed", {
-    productId,
-    success,
-  });
-
-  // UI 업데이트도 Event Bus를 통해 처리
-  uiEventBus.emit("cart:summary:updated");
-  uiEventBus.emit("product:options:updated", {
-    products: productService.getProducts(),
-    discountInfos: calculateProductDiscountInfos(productService.getProducts()),
-    success: true,
-  });
-}
-
-// 🎯 개선된 상품을 장바구니에 추가 (완전한 관심사 분리)
-function handleAddToCart(productList) {
-  const selectedProductId = getSelectedProduct();
-
-  // 1단계: 검증 로직
-  const targetProduct = cartService.validateSelectedProduct(selectedProductId, productList);
-  if (!targetProduct) return;
-
-  // 2단계: 상태 변경 (DOM 조작 없음)
-  const success = cartService.addProductToCart(targetProduct, 1);
-
-  if (!success) {
-    alert("재고가 부족합니다.");
-    return;
-  }
-
-  // 3단계: 단일 이벤트로 모든 UI 업데이트 트리거
-  uiEventBus.emit("cart:item:added", {
-    product: targetProduct,
-    success: true,
-  });
-
-  // 4단계: 요약 업데이트
-  uiEventBus.emit("cart:summary:updated");
-}
-
 // Event Bus 이벤트 리스너 초기화
 function initEventBusListeners() {
   // 각 컴포넌트별 이벤트 리스너 초기화
-  new CartEventListeners(uiEventBus, cartService);
-  new ProductEventListeners(uiEventBus);
+  new CartEventListeners(uiEventBus, cartService, productService, PRODUCT_LIST, discountService);
+  new ProductEventListeners(uiEventBus, productService);
 }
 
 function main() {
@@ -151,7 +74,8 @@ function main() {
     products: productService.getProducts(),
     discountInfos: calculateProductDiscountInfos(productService.getProducts()),
     onAddToCart: () => {
-      handleAddToCart(productService.getProducts());
+      // Event Bus를 통해 장바구니 추가 요청
+      uiEventBus.emit("cart:add:requested");
     },
   });
 
@@ -179,9 +103,6 @@ function main() {
 
   // Event Bus 이벤트 리스너 등록
   initEventBusListeners();
-
-  window.handleQuantityChange = handleQuantityChange;
-  window.handleRemoveItem = handleRemoveItem;
 
   handleProductOptionsUpdate();
   updateCartSummary(cartDisplay, selectorContainer);
