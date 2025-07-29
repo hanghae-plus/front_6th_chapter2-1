@@ -88,7 +88,7 @@ function createStockStatus() {
 }
 
 // ProductSelector 컴포넌트를 생성합니다.
-export function createProductSelector({ products, onProductSelect, onAddToCart }) {
+export function createProductSelector({ products, onAddToCart }) {
   const container = document.createElement("div");
   container.id = "product-selector";
   container.className = "mb-6 pb-6 border-b border-gray-200";
@@ -97,7 +97,6 @@ export function createProductSelector({ products, onProductSelect, onAddToCart }
   const button = createAddButton();
   const stockInfo = createStockStatus();
 
-  if (onProductSelect) select.addEventListener("change", onProductSelect);
   if (onAddToCart) button.addEventListener("click", onAddToCart);
 
   container.appendChild(select);
