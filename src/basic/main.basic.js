@@ -10,6 +10,10 @@ import {
   // BONUS_RULES,
 } from './constant';
 import { Header, updateHeader } from './components/Header.js';
+import { updateOrderSummaryUI } from './components/OrderSummary.js';
+import { updateTotalAndDiscountUI } from './components/TotalAndDiscount.js';
+import { updateCartPricesUI } from './components/CartPrices.js';
+import { updateProductSelectUI } from './components/ProductSelect.js';
 
 import {
   hasKeyboardMouseSet,
@@ -43,6 +47,9 @@ const appState = {
   },
   lastSelected: null, // lastSel 대체
 };
+
+// 전역으로 노출 (컴포넌트에서 접근하기 위해)
+window.appState = appState;
 
 /**
  * UI 요소 레퍼런스 (React useRef 패턴 준비)
@@ -118,7 +125,7 @@ const getCartItemQuantity = cartItemElement => {
  * @param {Object} product - 상품 객체
  * @returns {string} 할인 아이콘이 포함된 상품명
  */
-const getDiscountedProductName = product => {
+export const getDiscountedProductName = product => {
   // 🎯 데이터 기반 할인 아이콘 생성 (중복 조건 개선)
   const icons = [];
   if (product.onSale) {
@@ -143,7 +150,7 @@ const getDiscountedProductName = product => {
  * @param {Object} product - 상품 객체
  * @returns {string} 할인 가격이 표시된 HTML
  */
-const getDiscountedPriceHTML = product => {
+export const getDiscountedPriceHTML = product => {
   // 🧠 복잡한 조건 → 의미있는 함수로 개선
   const getDiscountColor = () => {
     if (hasBothDiscounts(product)) {
@@ -204,8 +211,6 @@ const isValidQuantityChange = (newQty, product, currentQty) =>
  * @param {number} finalAmount - 최종 금액
  * @returns {boolean} 할인 정보 표시 가능하면 true
  */
-const shouldShowDiscount = (discountRate, finalAmount) =>
-  discountRate > 0 && finalAmount > 0;
 
 /**
  * 🤖 [AI-REFACTORED] 화요일 할인 적용 가능 여부 확인
@@ -219,7 +224,8 @@ const shouldShowDiscount = (discountRate, finalAmount) =>
  * @param {Object} product - 상품 객체
  * @returns {boolean} 해당 할인 상태면 true
  */
-const hasBothDiscounts = product => product.onSale && product.suggestSale;
+export const hasBothDiscounts = product =>
+  product.onSale && product.suggestSale;
 const hasOnSaleOnly = product => product.onSale && !product.suggestSale;
 const hasSuggestSaleOnly = product => !product.onSale && product.suggestSale;
 
@@ -590,168 +596,6 @@ function main() {
  * - productSelect 요소의 innerHTML 수정
  * - productSelect 요소의 style.borderColor 수정
  */
-const updateProductSelectUI = () => {
-  uiElements.productSelect.innerHTML = '';
-
-  // 🎯 for문 → reduce() 메서드로 현대화 (의미없는 변수명도 개선)
-  const totalStock = appState.products.reduce(
-    (stockSum, product) => stockSum + product.quantity,
-    0,
-  );
-  // 🎯 for문 + IIFE → forEach() 메서드로 현대화
-  appState.products.forEach(product => {
-    const option = document.createElement('option');
-    option.value = product.id;
-
-    let discountText = '';
-    if (product.onSale) {
-      discountText += ' ⚡SALE';
-    }
-    if (product.suggestSale) {
-      discountText += ' 💝추천';
-    }
-
-    if (product.quantity === 0) {
-      option.textContent = `${product.name} - ${product.val}원 (품절)${discountText}`;
-      option.disabled = true;
-      option.className = 'text-gray-400';
-    } else {
-      // 🧠 복잡한 조건 → 의미있는 함수로 개선
-      if (hasBothDiscounts(product)) {
-        option.textContent = `⚡💝${product.name} - ${product.originalVal}원 → ${
-          product.val
-        }원 (25% SUPER SALE!)`;
-        option.className = 'text-purple-600 font-bold';
-      } else if (product.onSale) {
-        option.textContent = `⚡${product.name} - ${product.originalVal}원 → ${
-          product.val
-        }원 (20% SALE!)`;
-        option.className = 'text-red-500 font-bold';
-      } else if (product.suggestSale) {
-        option.textContent = `💝${product.name} - ${product.originalVal}원 → ${
-          product.val
-        }원 (5% 추천할인!)`;
-        option.className = 'text-blue-500 font-bold';
-      } else {
-        option.textContent = `${product.name} - ${product.val}원${discountText}`;
-      }
-    }
-
-    uiElements.productSelect.appendChild(option);
-  });
-  if (totalStock < THRESHOLDS.STOCK_ALERT_THRESHOLD) {
-    uiElements.productSelect.style.borderColor = 'orange';
-  } else {
-    uiElements.productSelect.style.borderColor = '';
-  }
-};
-
-/**
- * 🤖 [AI-REFACTORED] 주문 요약 UI 업데이트 (SRP 적용)
- *
- * @description 장바구니 아이템별 상세 내역을 UI에 표시
- *
- * 🎯 SRP 적용:
- * - 단일 책임: 주문 요약 UI 업데이트만 담당
- * - DOM 조작만 처리
- * - 비즈니스 로직 배제
- *
- * @param {HTMLCollection} cartItems - 장바구니 DOM 요소들
- * @param {Array} products - 상품 목록
- * @param {number} subTotal - 소계
- * @param {Array} itemDiscounts - 개별 상품 할인 정보
- * @param {number} itemCount - 총 아이템 수
- * @param {boolean} isTuesdayApplied - 화요일 할인 적용 여부
- */
-function updateOrderSummaryUI(
-  cartItems,
-  products,
-  subTotal,
-  itemDiscounts,
-  itemCount,
-  isTuesdayApplied,
-) {
-  // 🎯 캐시된 DOM 요소 사용 (중복 제거로 성능 향상)
-  const { summaryDetails } = domElements;
-
-  // 🚀 주문 요약 초기화 (기존 내용 삭제)
-  summaryDetails.innerHTML = '';
-
-  if (subTotal <= 0) {
-    return;
-  }
-
-  // 🎯 성능 개선: Map으로 O(1) 검색
-  const productMap = new Map();
-  for (const product of products) {
-    productMap.set(product.id, product);
-  }
-
-  // 📋 아이템별 상세 내역 (Array.from() + forEach()로 현대화)
-  Array.from(cartItems).forEach(cartItem => {
-    const product = productMap.get(cartItem.id);
-    if (!product) {
-      return; // 🛡️ Guard Clause: 유효하지 않은 상품은 건너뛰기
-    }
-
-    // 🎯 DRY 적용: 중복 제거된 유틸리티 사용
-    const quantity = getCartItemQuantity(cartItem);
-    const itemTotal = product.val * quantity;
-
-    summaryDetails.innerHTML += `
-      <div class="flex justify-between text-xs tracking-wide text-gray-400">
-        <span>${product.name} x ${quantity}</span>
-        <span>₩${itemTotal.toLocaleString()}</span>
-      </div>
-    `;
-  });
-
-  // 💰 소계 표시 (할인 적용 전 원래 금액)
-  summaryDetails.innerHTML += `
-    <div class="border-t border-white/10 my-3"></div>
-    <div class="flex justify-between text-sm tracking-wide">
-      <span>Subtotal</span>
-      <span>₩${subTotal.toLocaleString()}</span>
-    </div>
-  `;
-
-  // 🎯 할인 정보 표시 (개별 + 대량 + 화요일 할인)
-  if (itemCount >= THRESHOLDS.BULK_DISCOUNT_MIN) {
-    summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">🎉 대량구매 할인 (${THRESHOLDS.BULK_DISCOUNT_MIN}개 이상)</span>
-          <span class="text-xs">-25%</span>
-        </div>
-      `;
-  } else if (itemDiscounts.length > 0) {
-    itemDiscounts.forEach(item => {
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-                      <span class="text-xs">${item.name} (${THRESHOLDS.ITEM_DISCOUNT_MIN}개↑)</span>
-          <span class="text-xs">-${item.discount}%</span>
-        </div>
-      `;
-    });
-  }
-
-  // 🌟 화요일 특가 할인 표시 (10% 추가 할인)
-  if (isTuesdayApplied) {
-    summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-purple-400">
-            <span class="text-xs">🌟 화요일 추가 할인</span>
-            <span class="text-xs">-${DISCOUNT_RATES.TUESDAY_DISCOUNT * 100}%</span>
-          </div>
-        `;
-  }
-
-  // 🚚 배송비 표시 (무료 배송 기준)
-  summaryDetails.innerHTML += `
-    <div class="flex justify-between text-sm tracking-wide text-gray-400">
-      <span>Shipping</span>
-      <span>Free</span>
-    </div>
-  `;
-}
 
 /**
  * 🤖 [AI-REFACTORED] 총액 및 할인 정보 UI 업데이트 (SRP 적용)
@@ -766,54 +610,6 @@ function updateOrderSummaryUI(
  * @param {number} originalTotal - 원래 총액
  * @param {boolean} isTuesdayApplied - 화요일 할인 적용 여부
  */
-function updateTotalAndDiscountUI(
-  finalAmount,
-  discountRate,
-  originalTotal,
-  isTuesdayApplied,
-) {
-  // 💰 총액 업데이트 (최종 결제 금액)
-  const totalDiv = uiElements.orderSummary.querySelector('.text-2xl');
-  if (totalDiv) {
-    totalDiv.textContent = `₩${finalAmount.toLocaleString()}`;
-  }
-
-  // 🎁 포인트 표시 업데이트 (캐시된 DOM 사용으로 성능 향상)
-  // 🛡️ Guard Clause: DOM 요소가 있을 때만 포인트 업데이트 (원래 중첩 제거)
-  const loyaltyPointsDiv = domElements.loyaltyPoints;
-  if (loyaltyPointsDiv) {
-    // ⚡ 성능 최적화: Math 함수 캐싱
-    const points = Math.floor(finalAmount / THRESHOLDS.POINTS_PER_WON);
-    loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
-    loyaltyPointsDiv.style.display = 'block';
-  }
-
-  // 🎯 할인 정보 업데이트 (캐시된 DOM 사용으로 성능 향상)
-  const discountInfoDiv = domElements.discountInfo;
-  discountInfoDiv.innerHTML = '';
-
-  // 🧠 복잡한 조건 → 의미있는 함수로 개선
-  if (shouldShowDiscount(discountRate, finalAmount)) {
-    const savedAmount = originalTotal - finalAmount;
-    discountInfoDiv.innerHTML = `
-      <div class="bg-green-500/20 rounded-lg p-3">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(discountRate * 100).toFixed(1)}%</span>
-        </div>
-        <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
-      </div>
-    `;
-  }
-
-  // 🌟 화요일 특가 표시 업데이트 (캐시된 DOM 사용으로 성능 향상)
-  const { tuesdaySpecial } = domElements;
-  if (isTuesdayApplied) {
-    tuesdaySpecial.classList.remove('hidden');
-  } else {
-    tuesdaySpecial.classList.add('hidden');
-  }
-}
 
 /**
  * 🤖 [AI-REFACTORED] 재고 부족 알림 생성 (SRP 적용)
@@ -935,36 +731,7 @@ const getTotalStock = () => {
  * - 상품명 텍스트 수정
  * - handleCalculateCartStuff() 함수 호출로 전체 계산 재실행
  */
-const updateCartPricesUI = () => {
-  const cartItems = uiElements.cartDisplay.children;
-  // 🎯 for문 → Array.from() + forEach() 메서드로 현대화
-  Array.from(cartItems).forEach(cartItem => {
-    const product = findProductById(cartItem.id);
-    if (product) {
-      const priceDiv = cartItem.querySelector('.text-lg');
-      const nameDiv = cartItem.querySelector('h3');
 
-      // 🎯 DRY 적용: 중복 제거된 유틸리티 사용
-      priceDiv.innerHTML = getDiscountedPriceHTML(product);
-      nameDiv.textContent = getDiscountedProductName(product);
-    }
-  });
-  handleCalculateCartStuff(
-    appState,
-    uiElements,
-    domElements,
-    getCartItemQuantity,
-    getTotalStock,
-    calculateFinalDiscounts,
-    updateOrderSummaryUI,
-    updateTotalAndDiscountUI,
-    updateHeader,
-    findProductById,
-    hasKeyboardMouseSet,
-    hasFullProductSet,
-    shouldApplyTuesdayBonus,
-  );
-};
 main();
 uiElements.addButton.addEventListener('click', () => {
   const selItem = uiElements.productSelect.value;
