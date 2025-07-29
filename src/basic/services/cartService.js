@@ -129,24 +129,6 @@ export class CartService {
   }
 
   /**
-   * 보너스 포인트를 설정합니다.
-   *
-   * @param {number} points - 포인트
-   */
-  setBonusPoints(points) {
-    this.cartStore.setBonusPoints(points);
-  }
-
-  /**
-   * 보너스 포인트를 반환합니다.
-   *
-   * @returns {number} 보너스 포인트
-   */
-  getBonusPoints() {
-    return this.cartStore.getBonusPoints();
-  }
-
-  /**
    * 장바구니 변경 구독
    *
    * @param {Function} callback - 콜백 함수

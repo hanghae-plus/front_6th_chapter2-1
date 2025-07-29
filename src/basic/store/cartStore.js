@@ -8,7 +8,6 @@ export class CartStore {
     this.discountRate = 0;
     this.savedAmount = 0;
     this.lastSelectedProduct = null;
-    this.bonusPoints = 0;
     this.subscribers = new Set();
   }
 
@@ -178,7 +177,7 @@ export class CartStore {
     this.itemCount = 0;
     this.discountRate = 0;
     this.savedAmount = 0;
-    this.bonusPoints = 0;
+
     this.lastSelectedProduct = null;
     this.notifySubscribers();
   }
@@ -191,7 +190,6 @@ export class CartStore {
       itemCount: this.itemCount,
       discountRate: this.discountRate,
       savedAmount: this.savedAmount,
-      bonusPoints: this.bonusPoints,
       lastSelectedProduct: this.lastSelectedProduct,
     };
   }
@@ -218,15 +216,6 @@ export class CartStore {
   }
 
   // 보너스 포인트 설정
-  setBonusPoints(points) {
-    this.bonusPoints = points;
-    this.notifySubscribers();
-  }
-
-  // 보너스 포인트 조회
-  getBonusPoints() {
-    return this.bonusPoints;
-  }
 
   // 구독자 등록
   subscribe(callback) {
