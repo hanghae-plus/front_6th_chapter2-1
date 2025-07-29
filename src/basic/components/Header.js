@@ -13,8 +13,8 @@ export function createHeader({ itemCount = 0, title = "🛒 Hanghae Online Store
 }
 
 // Header 컴포넌트 아이템 수 업데이트 함수
-export function updateHeaderItemCount(headerElement, itemCount) {
-  const itemCountElement = headerElement.querySelector("#item-count");
+export function updateHeaderItemCount(itemCount) {
+  const itemCountElement = document.querySelector("#item-count");
   if (itemCountElement) {
     itemCountElement.textContent = `🛍️ ${itemCount} items in cart`;
   }

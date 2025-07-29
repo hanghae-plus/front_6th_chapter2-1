@@ -25,7 +25,6 @@ import { getCartItemQuantity, setCartItemQuantity, extractNumberFromText } from 
 // 전역 상태 관리 인스턴스
 let productService; // 전역 ProductService 인스턴스
 let cartService; // 전역 CartService 인스턴스
-let header; // 헤더 요소
 let stockInfo; // 재고 정보 요소
 
 // 장바구니 수량 변경
@@ -51,7 +50,7 @@ function handleQuantityChange(productId, quantityChange, cartDisplay, selectorCo
     updateCartItemPriceStyle(cartItemElement, newQuantity);
   }
 
-  updateCartSummary(cartDisplay, header, stockInfo, selectorContainer);
+  updateCartSummary(cartDisplay, stockInfo, selectorContainer);
   onUpdateSelectOptions(selectorContainer);
 }
 
@@ -67,7 +66,7 @@ function handleRemoveItem(productId, cartDisplay, selectorContainer) {
     }
   }
 
-  updateCartSummary(cartDisplay, header, stockInfo, selectorContainer);
+  updateCartSummary(cartDisplay, stockInfo, selectorContainer);
   onUpdateSelectOptions(selectorContainer);
 }
 
@@ -107,7 +106,7 @@ function handleAddToCart(productList, cartDisplay, selectorContainer) {
     }
   }
 
-  updateCartSummary(cartDisplay, header, stockInfo, selectorContainer);
+  updateCartSummary(cartDisplay, stockInfo, selectorContainer);
 }
 
 function main() {
@@ -117,7 +116,7 @@ function main() {
   productService = new ProductService();
   cartService = new CartService();
 
-  header = createHeader({ itemCount: 0 });
+  const header = createHeader({ itemCount: 0 });
 
   // Layout 시스템 생성
   const layout = createLayoutSystem();
@@ -246,10 +245,10 @@ function doUpdatePricesInCart(cartDisplay, selectorContainer) {
     }
   }
 
-  updateCartSummary(cartDisplay, header, stockInfo, selectorContainer);
+  updateCartSummary(cartDisplay, stockInfo, selectorContainer);
 }
 
-function updateCartSummary(cartDisplay, header, stockInfo, selectorContainer) {
+function updateCartSummary(cartDisplay, stockInfo, selectorContainer) {
   const cartItems = cartDisplay.children;
 
   // 1. 장바구니 총계 계산
@@ -259,8 +258,7 @@ function updateCartSummary(cartDisplay, header, stockInfo, selectorContainer) {
   const discountResult = applyBulkAndSpecialDiscounts(cartTotals.totalAmt, cartTotals.itemCnt, cartTotals.subtotal);
 
   // 4. UI 업데이트
-  updateCartUI(cartItems, cartTotals, discountResult, header, stockInfo);
-
+  updateCartUI(cartItems, cartTotals, discountResult, stockInfo);
   handleStockInfoUpdate(selectorContainer);
 }
 
