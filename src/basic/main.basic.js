@@ -281,21 +281,13 @@ function onUpdateSelectOptions() {
   selector.innerHTML = '';
 
   const totalStock = getTotalStock(productList);
-
-  if (totalStock < 50) {
-    selector.style.borderColor = 'orange';
-  } else {
-    selector.style.borderColor = '';
-  }
+  selector.style.borderColor = totalStock < 50 ? 'orange' : '';
 
   productList.forEach((product) => {
-    const salesInfoText = getSalesInfoText(product);
-    const optionStyle = getProductOptionStyle(product);
-
     const option = document.createElement('option');
     option.value = product.id;
-    option.textContent = salesInfoText;
-    option.className = optionStyle;
+    option.textContent = getSalesInfoText(product);
+    option.className = getProductOptionStyle(product);
     option.disabled = isOutOfStock(product);
 
     selector.appendChild(option);
