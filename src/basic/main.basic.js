@@ -30,9 +30,9 @@ const DISCOUNT_RULES = {
   BULK_DISCOUNT_THRESHOLD: 30,
   BULK_DISCOUNT_RATE: 0.25, // 25%
 
-  // 화요일 할인
-  TUESDAY_DAY_CODE: 2,
-  TUESDAY_DISCOUNT_RATE: 0.1, // 10%
+  // ✅ 특별 할인 요일 설정
+  SPECIAL_DISCOUNT_DAYS: [2],
+  SPECIAL_DISCOUNT_RATE: 0.1, // 10%
 
   // 특별 세일
   LIGHTNING_SALE_RATE: 0.2, // 20%
@@ -49,7 +49,10 @@ const STOCK_THRESHOLDS = {
 // 포인트 적립 상수
 const POINTS_RULES = {
   BASE_CALCULATION_UNIT: 1000, // 1000원당 1포인트
-  TUESDAY_MULTIPLIER: 2, // 화요일 2배
+
+  // 특별 포인트 요일 설정
+  SPECIAL_POINTS_DAYS: [2],
+  SPECIAL_POINTS_MULTIPLIER: 2, // 2배
 
   // 세트 구매 보너스
   COMBO_BONUS: {
@@ -63,6 +66,40 @@ const POINTS_RULES = {
     TIER_2: { threshold: 20, bonus: 50 },
     TIER_3: { threshold: 30, bonus: 100 },
   },
+};
+
+/**
+ * 특별 할인 요일 체크
+ * @param {Date} date
+ * @returns {boolean}
+ */
+const isSpecialDiscountDay = (date = new Date()) => {
+  return DISCOUNT_RULES.SPECIAL_DISCOUNT_DAYS.includes(date.getDay());
+};
+
+/**
+ * 특별 포인트 요일 체크
+ * @param {Date} date
+ * @returns {boolean}
+ */
+const isSpecialPointsDay = (date = new Date()) => {
+  return POINTS_RULES.SPECIAL_POINTS_DAYS.includes(date.getDay());
+};
+
+/**
+ * 요일 이름 추출
+ * @param {number} dayIndex
+ * @returns {string} 요일 이름
+ */
+const getKoreanDayName = (dayIndex) => {
+  if (dayIndex === 0) return "일요일";
+  if (dayIndex === 1) return "월요일";
+  if (dayIndex === 2) return "화요일";
+  if (dayIndex === 3) return "수요일";
+  if (dayIndex === 4) return "목요일";
+  if (dayIndex === 5) return "금요일";
+  if (dayIndex === 6) return "토요일";
+  return "";
 };
 
 // ✅ 특별 세일 타이머 상수
@@ -453,13 +490,12 @@ function handleCalculateCartStuff() {
   }
 
   const today = new Date();
-  // ✅ 상수 적용: 화요일 체크
-  const isTuesday = today.getDay() === DISCOUNT_RULES.TUESDAY_DAY_CODE;
+  const isSpecialDiscount = isSpecialDiscountDay(today);
   const tuesdaySpecial = document.getElementById("tuesday-special");
-  if (isTuesday) {
+
+  if (isSpecialDiscount) {
     if (totalAmt > 0) {
-      // ✅ 상수 적용: 화요일 할인율
-      totalAmt *= 1 - DISCOUNT_RULES.TUESDAY_DISCOUNT_RATE;
+      totalAmt *= 1 - DISCOUNT_RULES.SPECIAL_DISCOUNT_RATE;
       discRate = 1 - totalAmt / originalTotal;
       tuesdaySpecial.classList.remove("hidden");
     } else {
@@ -515,12 +551,12 @@ function handleCalculateCartStuff() {
         `;
       });
     }
-    if (isTuesday) {
+    if (isSpecialDiscount) {
       if (totalAmt > 0) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-purple-400">
-            <span class="text-xs">🌟 화요일 추가 할인</span>
-            <span class="text-xs">-${DISCOUNT_RULES.TUESDAY_DISCOUNT_RATE * 100}%</span>
+            <span class="text-xs">🌟 ${DISCOUNT_RULES.SPECIAL_DISCOUNT_DAYS.map(getKoreanDayName).join(", ")} 추가 할인</span>
+            <span class="text-xs">-${DISCOUNT_RULES.SPECIAL_DISCOUNT_RATE * 100}%</span>
           </div>
         `;
       }
@@ -604,11 +640,13 @@ var doRenderBonusPoints = function () {
     pointsDetail.push(`기본: ${basePoints}p`);
   }
 
-  // ✅ 상수 적용: 화요일 보너스
-  if (new Date().getDay() === DISCOUNT_RULES.TUESDAY_DAY_CODE) {
+  // ✅ 유연한 특별 포인트 날짜 체크
+  if (isSpecialPointsDay()) {
     if (basePoints > 0) {
-      finalPoints = basePoints * POINTS_RULES.TUESDAY_MULTIPLIER;
-      pointsDetail.push("화요일 2배");
+      finalPoints = basePoints * POINTS_RULES.SPECIAL_POINTS_MULTIPLIER;
+      pointsDetail.push(
+        `${POINTS_RULES.SPECIAL_POINTS_DAYS.map(getKoreanDayName).join(", ")} ${POINTS_RULES.SPECIAL_POINTS_MULTIPLIER}배`,
+      );
     }
   }
 
