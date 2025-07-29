@@ -9,7 +9,7 @@ import {
   createRightColumn,
 } from '../components/Layout.js';
 import { createCartDisplay } from '../components/CartDisplay/index.js';
-import { getQuantityFromElement } from '../utils/productUtils.js';
+import { getQuantityFromElement } from '../utils/global/index.js';
 import { calculateDiscounts } from '../utils/discountUtils.js';
 import {
   calculateCartTotals,

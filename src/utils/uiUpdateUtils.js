@@ -1,15 +1,11 @@
-import { formatPrice } from './format.js';
 import { createDiscountInfo } from '../components/DiscountInfo.js';
 import { createOrderSummary } from '../components/OrderSummary/index.js';
 import { findProductById } from '../data/products.js';
-import { getQuantityFromElement, getBulkBonus } from './productUtils.js';
+import { getBulkBonus } from './productUtils.js';
 import { createPointsDisplay } from '../components/PointsDisplay.js';
 import { POINT_RATES } from '../constants/shopPolicy.js';
 import { KEYBOARD_ID, MOUSE_ID, MONITOR_ID } from '../constants/productId.js';
-
-function isTuesday() {
-  return new Date().getDay() === 2;
-}
+import { isTuesday, formatPrice, getQuantityFromElement } from './global/index.js';
 
 function updateTuesdaySpecial(isTuesdayFlag, finalTotal) {
   const tuesdaySpecial = document.getElementById('tuesday-special');

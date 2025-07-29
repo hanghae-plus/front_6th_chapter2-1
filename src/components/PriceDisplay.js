@@ -1,4 +1,4 @@
-import { formatPrice } from '../utils/format.js';
+import { formatPrice } from '../utils/global/index.js';
 
 export function createPriceDisplay(targetElement, product) {
   if (!targetElement) return;
