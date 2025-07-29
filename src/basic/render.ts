@@ -1,9 +1,15 @@
 // render.js - 모든 HTML 렌더링 함수들 (순수 함수)
 
+import { useProducts, useCart, useGlobalState } from './main.basic.js';
+import { isTuesday } from './entities.js';
+
 // App Component - 전체 애플리케이션 렌더링
-export function App({ itemCount = 0 }) {
+export function App() {
+  const { cartData } = useCart();
+  const itemCount = cartData.itemCount;
+  
   return `
-    ${Header({ itemCount })}
+    ${Header()}
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
       <div class="bg-white border border-gray-200 p-8 overflow-y-auto">
         ${ProductSelector()}
@@ -37,7 +43,10 @@ export function App({ itemCount = 0 }) {
 }
 
 // Header Component
-export function Header({ itemCount }) {
+export function Header() {
+  const { cartData } = useCart();
+  const itemCount = cartData.itemCount;
+  
   return `
     <div class="mb-8">
       <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
@@ -48,8 +57,9 @@ export function Header({ itemCount }) {
 }
 
 // ProductOptions Component - 전체 select 요소 생성
-export function ProductOptions({ products, totalStock }) {
-  const borderColor = totalStock < 50 ? 'orange' : '';
+export function ProductOptions() {
+  const { products, totalStock, hasLowStock } = useProducts();
+  const borderColor = hasLowStock() ? 'orange' : '';
 
   const options = products.map(item => {
     const optionData = ProductOption({item: item});
@@ -263,16 +273,12 @@ export function SummaryShipping() {
 }
 
 // StockStatus Component
-export function StockStatus({ products }) {
-  return products
-    .filter(item => item.q < 5)
-    .map(item => {
-      if (item.q > 0) {
-        return `${item.name}: 재고 부족 (${item.q}개 남음)`;
-      } else {
-        return `${item.name}: 품절`;
-      }
-    })
+export function StockStatus() {
+  const { getStockInfo } = useProducts();
+  const { lowStockItems } = getStockInfo();
+  
+  return lowStockItems
+    .map(item => item.message)
     .join('\n');
 }
 
@@ -489,4 +495,176 @@ export function HelpTips() {
       </p>
     </div>
   `;
+}
+
+// ===== RERENDER FUNCTIONS =====
+// 각 함수는 필요한 데이터를 hooks로 가져와서 해당 DOM 요소를 재렌더링
+
+// 상품 선택 드롭다운 재렌더링
+export function rerenderProductSelect() {
+  const sel = document.getElementById('product-select');
+  if (sel) {
+    sel.outerHTML = ProductOptions();
+  }
+}
+
+// 장바구니 아이템 목록 재렌더링
+export function rerenderCartItems() {
+  const { cart } = useCart();
+  const { products } = useProducts();
+  const cartDisp = document.getElementById('cart-items');
+  
+  if (!cartDisp) return;
+  
+  // 현재 DOM의 상태와 cart 객체 비교하여 업데이트
+  const existingItems = {};
+  Array.from(cartDisp.children).forEach(child => {
+    existingItems[child.id] = child;
+  });
+  
+  // cart 객체를 기반으로 DOM 업데이트
+  Object.keys(cart).forEach(productId => {
+    const quantity = cart[productId];
+    if (quantity <= 0) return;
+    
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    
+    const existingItem = existingItems[productId];
+    
+    if (existingItem) {
+      // 기존 아이템이 있으면 업데이트
+      const quantityElement = existingItem.querySelector('.quantity-number');
+      if (quantityElement) {
+        quantityElement.textContent = quantity;
+      }
+      
+      // 가격 업데이트 (할인 상태가 변경될 수 있음)
+      const priceData = ProductPrice({product: product});
+      const nameElement = existingItem.querySelector('h3');
+      if (nameElement) {
+        nameElement.innerHTML = priceData.namePrefix + product.name;
+      }
+      
+      const priceElements = existingItem.querySelectorAll('.text-xs.text-black, .text-lg');
+      priceElements.forEach(elem => {
+        if (elem.classList.contains('text-black')) {
+          elem.innerHTML = priceData.priceHTML;
+        } else if (elem.classList.contains('text-lg')) {
+          elem.innerHTML = priceData.priceHTML;
+        }
+      });
+      
+      delete existingItems[productId];
+    } else {
+      // 새 아이템 추가
+      const cartItemHTML = CartItem({ item: product, quantity: quantity });
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = cartItemHTML;
+      cartDisp.appendChild(tempDiv.firstElementChild);
+    }
+  });
+  
+  // cart에 없는 아이템은 제거
+  Object.keys(existingItems).forEach(productId => {
+    existingItems[productId].remove();
+  });
+}
+
+// 화요일 배너 재렌더링
+export function rerenderTuesdayBanner() {
+  const { cartData } = useCart();
+  const tuesdaySpecial = document.getElementById('tuesday-special');
+  
+  if (!tuesdaySpecial) return;
+  
+  if (isTuesday(new Date()) && cartData.totalAmount > 0) {
+    tuesdaySpecial.classList.remove('hidden');
+  } else {
+    tuesdaySpecial.classList.add('hidden');
+  }
+}
+
+// 아이템 개수 재렌더링
+export function rerenderItemCount() {
+  const { cartData } = useCart();
+  const itemCountElement = document.getElementById('item-count');
+  
+  if (itemCountElement) {
+    const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    itemCountElement.textContent = `🛍️ ${cartData.itemCount} items in cart`;
+    if (previousCount !== cartData.itemCount) {
+      itemCountElement.setAttribute('data-changed', 'true');
+    }
+  }
+}
+
+// 주문 요약 재렌더링
+export function rerenderSummaryDetails() {
+  const { cartData } = useCart();
+  const summaryDetails = document.getElementById('summary-details');
+  
+  if (summaryDetails) {
+    summaryDetails.innerHTML = SummaryDetails({
+      subtotal: cartData.subtotal,
+      items: cartData.summaryItems,
+      itemCount: cartData.itemCount,
+      discounts: cartData.itemDiscounts,
+      isTuesday: cartData.isTuesday
+    });
+  }
+}
+
+// 총액 재렌더링
+export function rerenderCartTotal() {
+  const { cartData } = useCart();
+  const sum = document.getElementById('cart-total');
+  
+  if (sum) {
+    const totalDiv = sum.querySelector('.text-2xl');
+    if (totalDiv) {
+      totalDiv.textContent = `₩${Math.round(cartData.totalAmount).toLocaleString()}`;
+    }
+  }
+}
+
+// 포인트 재렌더링
+export function rerenderLoyaltyPoints() {
+  const { cartData, pointsData } = useCart();
+  const loyaltyPointsDiv = document.getElementById('loyalty-points');
+  
+  if (loyaltyPointsDiv && pointsData) {
+    loyaltyPointsDiv.innerHTML = LoyaltyPoints({points: pointsData.finalPoints, details: pointsData.details});
+    loyaltyPointsDiv.style.display = pointsData.finalPoints > 0 || cartData.itemCount > 0 ? 'block' : 'none';
+  }
+}
+
+// 할인 정보 재렌더링
+export function rerenderDiscountInfo() {
+  const { cartData } = useCart();
+  const discountInfoDiv = document.getElementById('discount-info');
+  
+  if (discountInfoDiv) {
+    discountInfoDiv.innerHTML = DiscountInfo({discountRate: cartData.discountRate, savedAmount: cartData.savedAmount});
+  }
+}
+
+// 재고 상태 재렌더링
+export function rerenderStockStatus() {
+  const stockInfo = document.getElementById('stock-status');
+  
+  if (stockInfo) {
+    stockInfo.textContent = StockStatus();
+  }
+}
+
+// 전체 UI 재렌더링 (모든 부분을 재렌더링)
+export function rerenderUI() {
+  rerenderTuesdayBanner();
+  rerenderItemCount();
+  rerenderSummaryDetails();
+  rerenderCartTotal();
+  rerenderLoyaltyPoints();
+  rerenderDiscountInfo();
+  rerenderStockStatus();
 }
