@@ -5,6 +5,7 @@ import { orderService } from "../../services/orderService.js";
 import { generateStockWarningMessage } from "../../utils/stockUtils.js";
 import { PRODUCT_LIST } from "../../data/product.js";
 import { getSelectedProduct } from "../../components/ProductSelector.js";
+import { extractNumberFromText } from "../../utils/domUtils.js";
 
 /**
  * Cart 관련 이벤트 리스너
@@ -145,6 +146,41 @@ export class CartEventListeners {
       // updateCartSummary 함수 호출
       this.updateCartSummary();
     });
+
+    // 장바구니 요약 계산 완료 이벤트 처리
+    this.uiEventBus.on("cart:summary:calculated", data => {
+      if (data.success) {
+        this.updateCartUI(data.cartItems, data.discountResult, data.itemCount);
+      }
+    });
+
+    // 장바구니 아이템 스타일 업데이트 이벤트
+    this.uiEventBus.on("cart:item:styles:updated", data => {
+      if (data.success) {
+        this.updateCartItemStyles(data.cartItems);
+      }
+    });
+
+    // 헤더 아이템 카운트 업데이트 이벤트
+    this.uiEventBus.on("header:item:count:updated", data => {
+      if (data.success) {
+        this.updateHeaderItemCount(data.itemCount);
+      }
+    });
+
+    // 아이템 카운트 디스플레이 업데이트 이벤트
+    this.uiEventBus.on("item:count:display:updated", data => {
+      if (data.success) {
+        this.updateItemCountDisplay(data.itemCount);
+      }
+    });
+
+    // 주문 요약 업데이트 이벤트
+    this.uiEventBus.on("order:summary:updated", data => {
+      if (data.success) {
+        this.updateOrderSummaryUI(data.cartItems, data.totalAmount, data.isTuesday, data.itemCount);
+      }
+    });
   }
 
   updateCartSummary() {
@@ -156,21 +192,50 @@ export class CartEventListeners {
     // DiscountService를 사용하여 할인 계산
     const discountResult = this.discountService.applyAllDiscounts(Array.from(cartItems), PRODUCT_LIST);
 
+    // 아이템 수 계산
+    const itemCount = this.cartService.getItemCount();
+
     // UI 업데이트
-    this.updateCartUI(cartItems, discountResult);
+    this.updateCartUI(cartItems, discountResult, itemCount);
+
+    // 재고 상태 업데이트
+    this.uiEventBus.emit("product:stock:updated", {
+      products: PRODUCT_LIST,
+      stockMessage: generateStockWarningMessage(PRODUCT_LIST),
+      success: true,
+    });
   }
 
-  updateCartUI(cartItems, discountResult) {
-    // 기존 updateCartUI 로직
-    this.updateCartItemStyles(cartItems);
-    this.updateHeaderItemCount();
-    this.updateOrderSummaryUI(cartItems, discountResult.finalAmount, discountResult.tuesdayDiscount.applied);
-    this.updateItemCountDisplay();
-    this.updateStockDisplay();
+  updateCartUI(cartItems, discountResult, itemCount) {
+    // 장바구니 아이템 스타일 업데이트
+    this.uiEventBus.emit("cart:item:styles:updated", {
+      cartItems,
+      success: true,
+    });
+
+    // 헤더 아이템 카운트 업데이트
+    this.uiEventBus.emit("header:item:count:updated", {
+      itemCount,
+      success: true,
+    });
+
+    // 주문 요약 업데이트
+    this.uiEventBus.emit("order:summary:updated", {
+      cartItems,
+      totalAmount: discountResult.finalAmount,
+      isTuesday: discountResult.tuesdayDiscount.applied,
+      itemCount,
+      success: true,
+    });
+
+    // 아이템 카운트 디스플레이 업데이트
+    this.uiEventBus.emit("item:count:display:updated", {
+      itemCount,
+      success: true,
+    });
   }
 
   updateCartItemStyles(cartItems) {
-    // 기존 updateCartItemStyles 로직
     for (let i = 0; i < cartItems.length; i++) {
       const q = this.getCartItemQuantity(cartItems[i]);
       const itemDiv = cartItems[i];
@@ -178,9 +243,12 @@ export class CartEventListeners {
       const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
       priceElems.forEach(elem => {
         if (elem.classList.contains("text-lg")) {
-          elem.style.fontWeight = q >= 10 ? "bold" : "normal";
+          elem.style.fontWeight = q >= 5 ? "bold" : "normal"; // QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT
         }
       });
+
+      // CartItem 컴포넌트의 updateCartItemPriceStyle 사용
+      updateCartItemPriceStyle(itemDiv, q);
     }
   }
 
@@ -190,53 +258,11 @@ export class CartEventListeners {
     return quantityElement ? parseInt(quantityElement.textContent) : 0;
   }
 
-  updateHeaderItemCount() {
-    // Header 컴포넌트의 updateHeaderItemCount 호출
-    updateHeaderItemCount(this.cartService.getItemCount());
-  }
-
-  updateOrderSummaryUI(cartItems, totalAmount, isTuesday) {
-    // OrderService 호출
-    orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
-
-    // 실제 아이템 수량 계산
-    const actualItemCount = Array.from(cartItems).reduce((sum, item) => {
-      const quantityElement = item.querySelector(".quantity-number");
-      const quantity = quantityElement ? parseInt(quantityElement.textContent) : 0;
-      return sum + quantity;
-    }, 0);
-
-    orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, actualItemCount);
-  }
-
-  updateItemCountDisplay() {
-    const itemCountElement = document.getElementById("item-count");
-    if (itemCountElement) {
-      const itemCnt = this.cartService.getItemCount();
-      itemCountElement.textContent = "🛍️ " + itemCnt + " items in cart";
-    }
-  }
-
-  updateStockDisplay() {
-    const stockInfo = document.querySelector("#stock-status");
-    const stockMsg = generateStockWarningMessage(PRODUCT_LIST);
-
-    if (stockInfo) {
-      stockInfo.textContent = stockMsg;
-    }
-  }
-
-  // 🎯 개선: DOM 생성 관련 함수들
   calculateProductDiscountInfo(product) {
     return {
       rate: this.discountService.calculateProductDiscountRate(product),
       status: this.discountService.getProductDiscountStatus(product),
     };
-  }
-
-  createCartItemElement({ product, discountInfo, onQuantityChange, onRemove }) {
-    // import된 createCartItem 함수 사용
-    return createCartItem({ product, discountInfo, onQuantityChange, onRemove });
   }
 
   calculateProductDiscountInfos(products) {
@@ -245,6 +271,30 @@ export class CartEventListeners {
       rate: this.discountService.calculateProductDiscountRate(product),
       status: this.discountService.getProductDiscountStatus(product),
     }));
+  }
+
+  createCartItemElement({ product, discountInfo, onQuantityChange, onRemove }) {
+    return createCartItem({ product, discountInfo, onQuantityChange, onRemove });
+  }
+
+  updateHeaderItemCount(itemCount) {
+    updateHeaderItemCount(itemCount);
+  }
+
+  updateItemCountDisplay(itemCount) {
+    const itemCountElement = document.getElementById("item-count");
+    if (itemCountElement) {
+      const previousCount = extractNumberFromText(itemCountElement.textContent);
+      itemCountElement.textContent = "🛍️ " + itemCount + " items in cart";
+      if (previousCount !== itemCount) {
+        itemCountElement.setAttribute("data-changed", "true");
+      }
+    }
+  }
+
+  updateOrderSummaryUI(cartItems, totalAmount, isTuesday, itemCount) {
+    orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
+    orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
   }
 
   // 장바구니 추가 처리

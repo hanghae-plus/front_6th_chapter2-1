@@ -1,9 +1,8 @@
 import { QUANTITY_THRESHOLDS } from "./constants/index.js";
 
 // components
-import { createHeader, updateHeaderItemCount } from "./components/Header.js";
+import { createHeader } from "./components/Header.js";
 import { createProductSelector } from "./components/ProductSelector.js";
-import { updateCartItemPriceStyle } from "./components/CartItem.js";
 import { createOrderSummary, updateOrderSummary } from "./components/OrderSummary.js";
 import { createManualSystem } from "./components/Manual.js";
 import { createLayoutSystem } from "./components/Layout.js";
@@ -22,7 +21,6 @@ import { discountService } from "./services/discountService.js";
 // utils
 import { findProductById } from "./utils/productUtils.js";
 import { generateStockWarningMessage } from "./utils/stockUtils.js";
-import { getCartItemQuantity, extractNumberFromText } from "./utils/domUtils.js";
 
 // events
 import { uiEventBus } from "./core/eventBus.js";
@@ -105,7 +103,7 @@ function main() {
   initEventBusListeners();
 
   handleProductOptionsUpdate();
-  updateCartSummary(cartDisplay, selectorContainer);
+  handleCartSummaryUpdate();
 
   // 타이머 서비스 초기화 및 시작
   const timerService = new TimerService(productService, handleProductOptionsUpdate, handlePricesUpdate, cartDisplay);
@@ -125,46 +123,6 @@ function handleProductOptionsUpdate() {
     discountInfos,
     success: true,
   });
-}
-
-function updateCartItemStyles(cartItems) {
-  for (let i = 0; i < cartItems.length; i++) {
-    const q = getCartItemQuantity(cartItems[i]);
-    const itemDiv = cartItems[i];
-
-    const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
-    priceElems.forEach(elem => {
-      if (elem.classList.contains("text-lg")) {
-        elem.style.fontWeight = q >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT ? "bold" : "normal";
-      }
-    });
-    updateCartItemPriceStyle(itemDiv, q);
-  }
-}
-
-function updateOrderSummaryUI(cartItems, totalAmount, isTuesday, itemCount) {
-  orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
-  orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
-}
-
-function updateItemCountDisplay(itemCnt) {
-  const itemCountElement = document.getElementById("item-count");
-  if (itemCountElement) {
-    const previousCount = extractNumberFromText(itemCountElement.textContent);
-    itemCountElement.textContent = "🛍️ " + itemCnt + " items in cart";
-    if (previousCount !== itemCnt) {
-      itemCountElement.setAttribute("data-changed", "true");
-    }
-  }
-}
-
-function updateStockDisplay() {
-  const stockInfo = document.querySelector("#stock-status");
-  const stockMsg = generateStockWarningMessage(PRODUCT_LIST);
-
-  if (stockInfo) {
-    stockInfo.textContent = stockMsg;
-  }
 }
 
 // 재고 정보 업데이트 핸들러
@@ -208,24 +166,32 @@ function handlePricesUpdate() {
   uiEventBus.emit("cart:summary:updated");
 }
 
-function updateCartSummary() {
+// 장바구니 요약 업데이트 핸들러 (Event Bus 기반)
+function handleCartSummaryUpdate() {
   const cartDisplay = document.querySelector("#cart-items");
   const cartItems = cartDisplay.children;
 
   // DiscountService를 사용하여 할인 계산
   const discountResult = discountService.applyAllDiscounts(Array.from(cartItems), PRODUCT_LIST);
 
-  // UI 업데이트
-  updateCartUI(cartItems, discountResult);
+  // 이벤트 발송 (DOM 조작 없음)
+  uiEventBus.emit("cart:summary:calculated", {
+    cartItems: Array.from(cartItems),
+    discountResult,
+    itemCount: cartService.getItemCount(),
+    success: true,
+  });
+
+  // 재고 정보도 함께 업데이트
   handleStockUpdate();
 }
 
-function updateCartUI(cartItems, discountResult) {
-  updateCartItemStyles(cartItems);
-  updateHeaderItemCount(cartService.getItemCount());
-  updateOrderSummaryUI(cartItems, discountResult.finalAmount, discountResult.tuesdayDiscount.applied, cartService.getItemCount());
-  updateItemCountDisplay(cartService.getItemCount());
-  updateStockDisplay();
-}
+// 기존 함수들을 Event Bus 기반으로 변경
+// function updateCartItemStyles(cartItems) { ... } // Event Bus로 대체됨
+// function updateOrderSummaryUI(cartItems, totalAmount, isTuesday, itemCount) { ... } // Event Bus로 대체됨
+// function updateItemCountDisplay(itemCnt) { ... } // Event Bus로 대체됨
+// function updateStockDisplay() { ... } // Event Bus로 대체됨
+// function updateCartSummary() { ... } // Event Bus로 대체됨
+// function updateCartUI(cartItems, discountResult) { ... } // Event Bus로 대체됨
 
 main();

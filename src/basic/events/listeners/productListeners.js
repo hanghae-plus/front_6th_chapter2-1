@@ -1,6 +1,7 @@
 import { updateProductOptions, updateStockInfo } from "../../components/ProductSelector.js";
 import { updateCartItemPrice } from "../../components/CartItem.js";
 import { discountService } from "../../services/discountService.js";
+import { generateStockWarningMessage } from "../../utils/stockUtils.js";
 
 /**
  * Product 관련 이벤트 리스너
@@ -22,9 +23,8 @@ export class ProductEventListeners {
       }
     });
 
-    // 재고 정보 업데이트 이벤트
+    // 상품 재고 업데이트 이벤트
     this.uiEventBus.on("product:stock:updated", data => {
-      console.log("Product stock updated:", data);
       if (data.success) {
         this.updateStockInfo(data.products, data.stockMessage);
       }
@@ -63,8 +63,8 @@ export class ProductEventListeners {
 
     // 재고 메시지 표시
     const stockInfo = document.querySelector("#stock-status");
-    if (stockInfo && stockMessage) {
-      stockInfo.textContent = stockMessage;
+    if (stockInfo) {
+      stockInfo.textContent = stockMessage || generateStockWarningMessage(products);
     }
   }
 
