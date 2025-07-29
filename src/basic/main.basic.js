@@ -73,6 +73,7 @@ const main = () => {
     setInterval(() => {
       const luckyIdx = Math.floor(Math.random() * prodList.length);
       const luckyItem = prodList[luckyIdx];
+
       if (luckyItem.quantity > 0 && !luckyItem.onSale) {
         luckyItem.price = Math.round((luckyItem.originalPrice * 80) / 100);
         luckyItem.onSale = true;
@@ -85,22 +86,15 @@ const main = () => {
   setTimeout(() => {
     setInterval(() => {
       if (lastSel) {
-        let suggest = null;
-        for (let k = 0; k < prodList.length; k++) {
-          if (prodList[k].id !== lastSel) {
-            if (prodList[k].quantity > 0) {
-              if (!prodList[k].suggestSale) {
-                suggest = prodList[k];
-                break;
-              }
-            }
-          }
-        }
+        let suggest = prodList.find(
+          (item) =>
+            item.id !== lastSel && item.quantity > 0 && !item.suggestSale
+        );
         if (suggest) {
           alert(
             `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`
           );
-          suggest.price = Math.round((suggest.price * (100 - 5)) / 100);
+          suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
           suggest.suggestSale = true;
           onUpdateSelectOptions();
           doUpdatePricesInCart();
