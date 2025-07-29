@@ -1,5 +1,18 @@
 import { App } from "./shared/components/App.js";
 import { initialProducts } from "./features/product/constants/productConstants.js";
+
+// useState-like state imports
+import {
+  setProducts,
+  setAmount,
+  setItemCount,
+  setLastSelectedProduct,
+  useProductState,
+} from "./features/product/store/ProductStore.js";
+
+import { useCartState } from "./features/cart/store/CartStore.js";
+
+// Import stores for backward compatibility
 import ProductStore from "./features/product/store/ProductStore.js";
 import CartStore from "./features/cart/store/CartStore.js";
 
@@ -29,13 +42,25 @@ import { registerCartEvents } from "./features/cart/events/cartEventHandler.js";
 const main = (callbackFn) => {
   const root = document.getElementById("app");
 
+  // Initialize states (React useState-like pattern)
+  const [productState, setProductState] = useProductState();
+  const [cartState, setCartState] = useCartState();
+
+  // Set initial product data (like React useEffect)
+  setProducts(initialProducts);
+  setAmount(0);
+  setItemCount(0);
+  setLastSelectedProduct(null);
+
+  // Make states globally accessible (for services compatibility)
+  window.productState = productState;
+  window.setProductState = setProductState;
+  window.cartState = cartState;
+  window.setCartState = setCartState;
+
+  // Backward compatibility - create store instances for existing code
   window.productStore = ProductStore.createInstance();
   window.cartStore = CartStore.createInstance();
-
-  window.productStore.setProducts(initialProducts);
-  window.productStore.setAmount(0);
-  window.productStore.setItemCount(0);
-  window.productStore.setLastSelectedProduct(null);
 
   initializeCartService();
   initializePointService();
