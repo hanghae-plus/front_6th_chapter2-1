@@ -42,79 +42,7 @@ const UI_CONSTANTS = {
   SUGGEST_SALE_DELAY: 20000,
 };
 
-// ShoppingCartApp 클래스 - 전역 변수 캡슐화
-class ShoppingCartApp {
-  constructor() {
-    this.productList = [];
-    this.bonusPoints = 0;
-    this.itemCount = 0;
-    this.lastSelectedProductId = null;
-    this.totalAmount = 0;
-
-    // DOM 요소들
-    this.stockInfoElement = null;
-    this.productSelector = null;
-    this.addToCartButton = null;
-    this.cartDisplayElement = null;
-    this.orderSummaryElement = null;
-  }
-
-  // 상품 정보 초기화
-  initializeProducts() {
-    this.productList = [
-      {
-        id: PRODUCT_IDS.KEYBOARD,
-        name: '버그 없애는 키보드',
-        val: 10000,
-        originalVal: 10000,
-        q: 50,
-        onSale: false,
-        suggestSale: false,
-      },
-      {
-        id: PRODUCT_IDS.MOUSE,
-        name: '생산성 폭발 마우스',
-        val: 20000,
-        originalVal: 20000,
-        q: 30,
-        onSale: false,
-        suggestSale: false,
-      },
-      {
-        id: PRODUCT_IDS.MONITOR_ARM,
-        name: '거북목 탈출 모니터암',
-        val: 30000,
-        originalVal: 30000,
-        q: 20,
-        onSale: false,
-        suggestSale: false,
-      },
-      {
-        id: PRODUCT_IDS.LAPTOP_CASE,
-        name: '에러 방지 노트북 파우치',
-        val: 15000,
-        originalVal: 15000,
-        q: 0,
-        onSale: false,
-        suggestSale: false,
-      },
-      {
-        id: PRODUCT_IDS.SPEAKER,
-        name: `코딩할 때 듣는 Lo-Fi 스피커`,
-        val: 25000,
-        originalVal: 25000,
-        q: 10,
-        onSale: false,
-        suggestSale: false,
-      },
-    ];
-  }
-}
-
-// 전역 앱 인스턴스
-let app;
-
-// 점진적 리팩토링을 위한 임시 전역 변수들 (추후 제거 예정)
+// 전역 변수들 (명명 규칙 적용)
 let productList;
 let bonusPoints = 0;
 let stockInfoElement;
@@ -127,22 +55,58 @@ let cartDisplayElement;
 let orderSummaryElement;
 
 function main() {
-  // 앱 인스턴스 생성 및 초기화
-  app = new ShoppingCartApp();
-  app.totalAmount = 0;
-  app.itemCount = 0;
-  app.lastSelectedProductId = null;
+  totalAmount = 0;
+  itemCount = 0;
+  lastSelectedProductId = null;
 
   // 상품 정보 초기화
-  app.initializeProducts();
-
-  // 기존 전역 변수들을 앱 속성으로 임시 매핑 (점진적 리팩토링)
-  ({ totalAmount, itemCount, lastSelectedProductId, productList } = {
-    totalAmount: app.totalAmount,
-    itemCount: app.itemCount,
-    lastSelectedProductId: app.lastSelectedProductId,
-    productList: app.productList,
-  });
+  productList = [
+    {
+      id: PRODUCT_IDS.KEYBOARD,
+      name: '버그 없애는 키보드',
+      val: 10000,
+      originalVal: 10000,
+      q: 50,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: PRODUCT_IDS.MOUSE,
+      name: '생산성 폭발 마우스',
+      val: 20000,
+      originalVal: 20000,
+      q: 30,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: PRODUCT_IDS.MONITOR_ARM,
+      name: '거북목 탈출 모니터암',
+      val: 30000,
+      originalVal: 30000,
+      q: 20,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: PRODUCT_IDS.LAPTOP_CASE,
+      name: '에러 방지 노트북 파우치',
+      val: 15000,
+      originalVal: 15000,
+      q: 0,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: PRODUCT_IDS.SPEAKER,
+      name: `코딩할 때 듣는 Lo-Fi 스피커`,
+      val: 25000,
+      originalVal: 25000,
+      q: 10,
+      onSale: false,
+      suggestSale: false,
+    },
+  ];
 
   const root = document.getElementById('app');
 
@@ -154,10 +118,9 @@ function main() {
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
 
-  app.productSelector = document.createElement('select');
-  app.productSelector.id = 'product-select';
-  app.productSelector.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
-  productSelector = app.productSelector;
+  productSelector = document.createElement('select');
+  productSelector.id = 'product-select';
+  productSelector.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
 
   const leftColumn = document.createElement('div');
   leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto';
@@ -166,17 +129,15 @@ function main() {
   gridContainer.className =
     'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
 
-  app.stockInfoElement = document.createElement('div');
-  app.stockInfoElement.id = 'stock-status';
-  app.stockInfoElement.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
-  stockInfoElement = app.stockInfoElement;
+  stockInfoElement = document.createElement('div');
+  stockInfoElement.id = 'stock-status';
+  stockInfoElement.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
 
-  app.addToCartButton = document.createElement('button');
-  app.addToCartButton.id = 'add-to-cart';
-  app.addToCartButton.innerHTML = 'Add to Cart';
-  app.addToCartButton.className =
+  addToCartButton = document.createElement('button');
+  addToCartButton.id = 'add-to-cart';
+  addToCartButton.innerHTML = 'Add to Cart';
+  addToCartButton.className =
     'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
-  addToCartButton = app.addToCartButton;
 
   // 상품 선택/추가/재고 표시 컨테이너
   const selectorContainer = document.createElement('div');
