@@ -422,13 +422,10 @@ const doRenderBonusPoints = () => {
   const ptsTag = document.getElementById("loyalty-points");
   if (ptsTag) {
     if (bonusPts > 0) {
-      ptsTag.innerHTML =
-        '<div>적립 포인트: <span class="font-bold">' +
-        bonusPts +
-        "p</span></div>" +
-        '<div class="text-2xs opacity-70 mt-1">' +
-        pointsDetail.join(", ") +
-        "</div>";
+      ptsTag.innerHTML = `
+        <div>적립 포인트: <span class="font-bold">${bonusPts}p</span></div>
+        <div class="text-2xs opacity-70 mt-1">${pointsDetail.join(", ")}</div>
+      `;
       ptsTag.style.display = "block";
     } else {
       ptsTag.textContent = "적립 포인트: 0p";
