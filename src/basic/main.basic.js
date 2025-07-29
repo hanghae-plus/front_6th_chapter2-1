@@ -17,6 +17,10 @@ import PointsCalculator from "./features/point/service/PointsCalculator.js";
 import StockManager from "./features/product/service/StockManager.js";
 import PriceUpdater from "./features/cart/service/PriceUpdater.js";
 
+// Store Classes for State Management
+import ProductStore from "./features/product/store/ProductStore.js";
+import CartStore from "./features/cart/store/CartStore.js";
+
 const PRODUCTS = {
   KEYBOARD: "p1",
   MOUSE: "p2",
@@ -61,16 +65,19 @@ const BUSINESS_CONSTANTS = {
   },
 };
 
-// TODO: Convert to local state pattern
-// Each component will manage its own state with useState-like pattern
-let productList = [];
-let bonusPoints = 0;
-let stockInfoElement = null;
+// Local State Stores - Replace global variables
+let productStore;
+let cartStore;
+
+// Legacy variables for compatibility (TODO: Remove after full Store migration)
+let totalAmount = 0;
 let totalItemCount = 0;
-let lastSelectedProductId = null;
+let bonusPoints = 0;
+
+// DOM Element References (not state)
+let stockInfoElement = null;
 let productSelector = null;
 let addToCartButton = null;
-let totalAmount = 0;
 let cartDisplayElement = null;
 let summaryElement;
 
@@ -128,108 +135,21 @@ const stateActions = {
       suggestSale: false,
     },
   ],
-
-  updateState: (newState) => {
-    productList = newState.productList;
-    totalAmount = newState.totalAmount;
-    totalItemCount = newState.totalItemCount;
-    bonusPoints = newState.bonusPoints;
-    lastSelectedProductId = newState.lastSelectedProductId;
-  },
-};
-
-const businessLogic = {
-  calculateItemDiscount: (productId, quantity) => {
-    if (quantity < BUSINESS_CONSTANTS.DISCOUNT.ITEM_DISCOUNT_MIN_QUANTITY)
-      return 0;
-
-    const discountRates = {
-      [PRODUCTS.KEYBOARD]: 0.1,
-      [PRODUCTS.MOUSE]: 0.15,
-      [PRODUCTS.MONITOR_ARM]: 0.2,
-      [PRODUCTS.LAPTOP_POUCH]: 0.05,
-      [PRODUCTS.SPEAKER]: 0.25,
-    };
-
-    return discountRates[productId] || 0;
-  },
-
-  calculateTotalDiscount: (subtotal, totalItemCount, isTuesday) => {
-    let discountRate = 0;
-
-    if (totalItemCount >= BUSINESS_CONSTANTS.DISCOUNT.BULK_DISCOUNT_THRESHOLD) {
-      discountRate = BUSINESS_CONSTANTS.DISCOUNT.BULK_DISCOUNT_RATE;
-    }
-
-    if (isTuesday) {
-      const tuesdayRate = BUSINESS_CONSTANTS.DISCOUNT.TUESDAY_DISCOUNT_RATE;
-      discountRate =
-        discountRate > 0
-          ? 1 - (1 - discountRate) * (1 - tuesdayRate)
-          : tuesdayRate;
-    }
-
-    return discountRate;
-  },
-
-  calculatePoints: (finalAmount, isTuesday, cartItems, totalItemCount) => {
-    let basePoints = Math.floor(
-      finalAmount / BUSINESS_CONSTANTS.POINTS.BASE_POINT_RATE
-    );
-    let totalPoints = basePoints;
-    const details = [];
-
-    if (basePoints > 0) {
-      details.push(`기본: ${basePoints}p`);
-
-      if (isTuesday) {
-        totalPoints = basePoints * BUSINESS_CONSTANTS.POINTS.TUESDAY_MULTIPLIER;
-        details.push("화요일 2배");
-      }
-    }
-
-    const hasKeyboard = cartItems.some((item) => item.id === PRODUCTS.KEYBOARD);
-    const hasMouse = cartItems.some((item) => item.id === PRODUCTS.MOUSE);
-    const hasMonitorArm = cartItems.some(
-      (item) => item.id === PRODUCTS.MONITOR_ARM
-    );
-
-    if (hasKeyboard && hasMouse) {
-      totalPoints += BUSINESS_CONSTANTS.POINTS.KEYBOARD_MOUSE_BONUS;
-      details.push(
-        `키보드+마우스 세트 +${BUSINESS_CONSTANTS.POINTS.KEYBOARD_MOUSE_BONUS}p`
-      );
-    }
-
-    if (hasKeyboard && hasMouse && hasMonitorArm) {
-      totalPoints += BUSINESS_CONSTANTS.POINTS.FULL_SET_BONUS;
-      details.push(`풀세트 구매 +${BUSINESS_CONSTANTS.POINTS.FULL_SET_BONUS}p`);
-    }
-
-    const { TIER_1, TIER_2, TIER_3 } =
-      BUSINESS_CONSTANTS.POINTS.BULK_PURCHASE_BONUSES;
-    if (totalItemCount >= TIER_3.threshold) {
-      totalPoints += TIER_3.bonus;
-      details.push(`대량구매(${TIER_3.threshold}개+) +${TIER_3.bonus}p`);
-    } else if (totalItemCount >= TIER_2.threshold) {
-      totalPoints += TIER_2.bonus;
-      details.push(`대량구매(${TIER_2.threshold}개+) +${TIER_2.bonus}p`);
-    } else if (totalItemCount >= TIER_1.threshold) {
-      totalPoints += TIER_1.bonus;
-      details.push(`대량구매(${TIER_1.threshold}개+) +${TIER_1.bonus}p`);
-    }
-
-    return { points: totalPoints, details };
-  },
 };
 
 function initializeProductData() {
-  stateActions.updateState({
-    totalAmount: 0,
-    totalItemCount: 0,
-    lastSelectedProductId: null,
-    productList: stateActions.initializeProducts(),
-  });
+  // Initialize Store instances
+  productStore = ProductStore.createInstance();
+  cartStore = CartStore.createInstance();
+
+  // Set initial product data
+  const initialProducts = stateActions.initializeProducts();
+  productStore.setProducts(initialProducts);
+
+  // Set initial state
+  productStore.setAmount(0);
+  productStore.setItemCount(0);
+  productStore.setLastSelectedProduct(null);
 }
 
 // TODO: createHeader function moved to HeaderComponent
@@ -242,10 +162,10 @@ function createLeftColumn() {
   selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
 
   const productSelectorElement = ProductSelector({
-    products: productList,
-    selectedProductId: lastSelectedProductId,
+    products: productStore.getProducts(),
+    selectedProductId: productStore.getLastSelectedProduct(),
     onSelectionChange: (productId) => {
-      lastSelectedProductId = productId;
+      productStore.setLastSelectedProduct(productId);
     },
   });
 
@@ -348,13 +268,13 @@ function main() {
   cartCalculator = new CartCalculator(BUSINESS_CONSTANTS, PRODUCTS);
   pointsCalculator = new PointsCalculator(BUSINESS_CONSTANTS, PRODUCTS);
   stockManager = new StockManager(BUSINESS_CONSTANTS);
-  priceUpdater = new PriceUpdater();
+  priceUpdater = new PriceUpdater(BUSINESS_CONSTANTS, PRODUCTS);
 
   let gridContainer;
   let lightningDelay;
 
   const root = document.getElementById("app");
-  const header = Header({ itemCount: totalItemCount });
+  const header = Header({ itemCount: productStore.getItemCount() });
   const leftColumn = createLeftColumn();
   const rightColumn = createRightColumn();
   const helpModal = HelpModal();
@@ -369,8 +289,9 @@ function main() {
   root.appendChild(helpModal.toggleButton);
   root.appendChild(helpModal.overlay);
   let initStock = 0;
-  for (let i = 0; i < productList.length; i++) {
-    initStock += productList[i].q;
+  const products = productStore.getProducts();
+  for (let i = 0; i < products.length; i++) {
+    initStock += products[i].q;
   }
   onUpdateSelectOptions();
   handleCalculateCartStuff();
@@ -400,8 +321,9 @@ function main() {
   lightningDelay = Math.random() * BUSINESS_CONSTANTS.TIMERS.RANDOM_DELAY;
   setTimeout(() => {
     setInterval(function () {
-      const luckyIdx = Math.floor(Math.random() * productList.length);
-      const luckyItem = productList[luckyIdx];
+      const products = productStore.getProducts();
+      const luckyIdx = Math.floor(Math.random() * products.length);
+      const luckyItem = products[luckyIdx];
 
       // Use PriceUpdater for clean flash sale logic
       const saleApplied = priceUpdater.applyFlashSale(
@@ -424,13 +346,15 @@ function main() {
     setInterval(function () {
       if (cartDisplayElement.children.length === 0) {
       }
+      const lastSelectedProductId = productStore.getLastSelectedProduct();
       if (lastSelectedProductId) {
         let suggest = null;
-        for (let k = 0; k < productList.length; k++) {
-          if (productList[k].id !== lastSelectedProductId) {
-            if (productList[k].q > 0) {
-              if (!productList[k].suggestSale) {
-                suggest = productList[k];
+        const products = productStore.getProducts();
+        for (let k = 0; k < products.length; k++) {
+          if (products[k].id !== lastSelectedProductId) {
+            if (products[k].q > 0) {
+              if (!products[k].suggestSale) {
+                suggest = products[k];
                 break;
               }
             }
@@ -462,10 +386,15 @@ function main() {
 function onUpdateSelectOptions() {
   // Update ProductSelector with new products data
   if (productSelector && productSelector.updateProducts) {
-    productSelector.updateProducts(productList, lastSelectedProductId);
+    productSelector.updateProducts(
+      productStore.getProducts(),
+      productStore.getLastSelectedProduct()
+    );
   }
 
-  const totalStock = productList.reduce((sum, p) => sum + p.q, 0);
+  const totalStock = productStore
+    .getProducts()
+    .reduce((sum, p) => sum + p.q, 0);
 
   // Original logic: border color change based on stock
   if (totalStock < BUSINESS_CONSTANTS.STOCK.STOCK_WARNING_THRESHOLD) {
@@ -489,9 +418,16 @@ function handleCalculateCartStuff() {
   const cartElements = cartDisplayElement.children;
 
   // 1. Calculate cart totals using CartCalculator
-  const cartResults = cartCalculator.calculateCart(cartElements, productList);
+  const cartResults = cartCalculator.calculateCart(
+    cartElements,
+    productStore.getProducts()
+  );
 
-  // Update global variables for legacy compatibility
+  // Update Store and legacy variables for compatibility
+  productStore.setAmount(cartResults.totalAmount);
+  productStore.setItemCount(cartResults.totalItemCount);
+
+  // Legacy variables for compatibility (TODO: Remove after full Store migration)
   totalAmount = cartResults.totalAmount;
   totalItemCount = cartResults.totalItemCount;
 
@@ -503,10 +439,13 @@ function handleCalculateCartStuff() {
     cartResults.totalAmount,
     cartResults.totalItemCount,
     cartElements,
-    productList
+    productStore.getProducts()
   );
 
-  // Update global bonusPoints for legacy compatibility
+  // Update Store and legacy variables for compatibility
+  productStore.setPoint(pointsResults.points);
+
+  // Legacy variables for compatibility (TODO: Remove after full Store migration)
   bonusPoints = pointsResults.points;
 
   // 4. Render final cart total with points
@@ -555,9 +494,10 @@ function updateUIWithCalculation(cartResults) {
   const cartItemsData = Array.from(cartDisplayElement.children)
     .map((cartItemElement) => {
       let product = null;
-      for (let j = 0; j < productList.length; j++) {
-        if (productList[j].id === cartItemElement.id) {
-          product = productList[j];
+      const products = productStore.getProducts();
+      for (let j = 0; j < products.length; j++) {
+        if (products[j].id === cartItemElement.id) {
+          product = products[j];
           break;
         }
       }
@@ -608,8 +548,9 @@ function onGetStockTotal() {
   var stockSum = 0;
   var i;
   var currentProduct;
-  for (i = 0; i < productList.length; i++) {
-    currentProduct = productList[i];
+  const products = productStore.getProducts();
+  for (i = 0; i < products.length; i++) {
+    currentProduct = products[i];
     stockSum += currentProduct.q;
   }
   return stockSum;
@@ -622,7 +563,7 @@ const handleStockInfoUpdate = () => {
   totalStock = onGetStockTotal();
   if (totalStock < 30) {
   }
-  productList.forEach(function (item) {
+  productStore.getProducts().forEach(function (item) {
     if (item.q < 5) {
       if (item.q > 0) {
         infoMsg = infoMsg + item.name + ": 재고 부족 (" + item.q + "개 남음)\n";
@@ -637,17 +578,17 @@ function doUpdatePricesInCart() {
   // Use PriceUpdater for clean price management
   priceUpdater.updatePricesInCart(
     cartDisplayElement,
-    productList,
+    productStore.getProducts(),
     handleCalculateCartStuff
   );
 }
 
 const productUtils = {
-  findById: (productId, products = productList) => {
+  findById: (productId, products = productStore.getProducts()) => {
     return products.find((product) => product.id === productId) || null;
   },
 
-  isValid: (productId, products = productList) => {
+  isValid: (productId, products = productStore.getProducts()) => {
     if (!productId) return false;
     return products.some((product) => product.id === productId);
   },
@@ -726,6 +667,6 @@ const handleAddToCart = () => {
     }
 
     handleCalculateCartStuff();
-    lastSelectedProductId = selectedProductId;
+    productStore.setLastSelectedProduct(selectedProductId);
   }
 };
