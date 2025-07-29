@@ -164,10 +164,8 @@ const handleCalculateCartStuffOriginal = () => {
     let points = Math.floor(totalDiscountedPrice / 1000);
     if (points > 0) {
       loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
-      loyaltyPointsDiv.style.display = "block";
     } else {
       loyaltyPointsDiv.textContent = "적립 포인트: 0p";
-      loyaltyPointsDiv.style.display = "block";
     }
   }
 
