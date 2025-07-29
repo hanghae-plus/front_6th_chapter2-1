@@ -1,4 +1,46 @@
-// entities.js - 비즈니스 로직과 순수 함수들
+// entities.ts - 비즈니스 로직과 순수 함수들
+
+// Types
+export interface Product {
+  id: string;
+  name: string;
+  val: number;
+  originalVal: number;
+  q: number;
+  onSale: boolean;
+  suggestSale: boolean;
+}
+
+export interface Cart {
+  [productId: string]: number;
+}
+
+export interface CartData {
+  totalAmount: number;
+  itemCount: number;
+  subtotal: number;
+  itemDiscounts: Array<{ name: string; discount: number }>;
+  discountRate: number;
+  savedAmount: number;
+  isTuesday: boolean;
+  summaryItems: Array<{ name: string; quantity: number; total: number }>;
+}
+
+export interface PointsData {
+  basePoints: number;
+  finalPoints: number;
+  details: string[];
+}
+
+export interface StockInfo {
+  totalStock: number;
+  lowStockItems: Array<{ product: Product; message: string }>;
+}
+
+export interface BulkDiscountResult {
+  amount: number;
+  discountRate: number;
+}
 
 // Constants
 export const PRODUCT_IDS = {
@@ -39,7 +81,7 @@ export const POINTS_BONUSES = {
 // Pure Functions
 
 // Product Management
-export function createInitialProducts() {
+export function createInitialProducts(): Product[] {
   return [
     {
       id: PRODUCT_IDS.KEYBOARD,
@@ -89,19 +131,19 @@ export function createInitialProducts() {
   ];
 }
 
-export function calculateTotalStock(products) {
-  return products.reduce(function(total, product) {
+export function calculateTotalStock(products: Product[]): number {
+  return products.reduce(function(total: number, product: Product) {
     return total + product.q;
   }, 0);
 }
 
-export function getStockInfo(products) {
+export function getStockInfo(products: Product[]): StockInfo {
   const totalStock = calculateTotalStock(products);
   const lowStockItems = products
-    .filter(function(item) {
+    .filter(function(item: Product) {
       return item.q < DISCOUNT_THRESHOLDS.LOW_STOCK;
     })
-    .map(function(item) {
+    .map(function(item: Product) {
       return {
         product: item,
         message: item.q > 0 
@@ -114,7 +156,7 @@ export function getStockInfo(products) {
 }
 
 // Discount Calculations
-export function calculateItemDiscount(productId, quantity) {
+export function calculateItemDiscount(productId: string, quantity: number): number {
   if (quantity < DISCOUNT_THRESHOLDS.ITEM_DISCOUNT) return 0;
   
   switch(productId) {
@@ -127,23 +169,23 @@ export function calculateItemDiscount(productId, quantity) {
   }
 }
 
-export function isTuesday(date) {
+export function isTuesday(date: Date): boolean {
   return date.getDay() === 2;
 }
 
-export function applyTuesdayDiscount(amount, isToday) {
+export function applyTuesdayDiscount(amount: number, isToday: boolean): number {
   if (isToday && amount > 0) {
     return amount * (1 - DISCOUNT_RATES.TUESDAY);
   }
   return amount;
 }
 
-export function calculateDiscountRate(originalTotal, finalTotal) {
+export function calculateDiscountRate(originalTotal: number, finalTotal: number): number {
   if (originalTotal === 0) return 0;
   return 1 - (finalTotal / originalTotal);
 }
 
-export function applyBulkDiscount(subtotal, itemCount) {
+export function applyBulkDiscount(subtotal: number, itemCount: number): BulkDiscountResult {
   if (itemCount >= DISCOUNT_THRESHOLDS.BULK_DISCOUNT) {
     return {
       amount: subtotal * (1 - DISCOUNT_RATES.BULK),
@@ -157,8 +199,8 @@ export function applyBulkDiscount(subtotal, itemCount) {
 }
 
 // Cart Calculations
-export function calculateCartData(cart, products, currentDate = new Date()) {
-  const result = {
+export function calculateCartData(cart: Cart, products: Product[], currentDate: Date = new Date()): CartData {
+  const result: CartData = {
     totalAmount: 0,
     itemCount: 0,
     subtotal: 0,
@@ -176,9 +218,9 @@ export function calculateCartData(cart, products, currentDate = new Date()) {
   }
   
   // 아이템별 계산
-  cartItems.forEach(function(productId) {
+  cartItems.forEach(function(productId: string) {
     const quantity = cart[productId];
-    const product = products.find(function(p) {
+    const product = products.find(function(p: Product) {
       return p.id === productId;
     });
     
@@ -232,8 +274,8 @@ export function calculateCartData(cart, products, currentDate = new Date()) {
 }
 
 // Points Calculations
-export function calculatePoints(cartData, cart, currentDate = new Date()) {
-  const result = {
+export function calculatePoints(cartData: CartData, cart: Cart, currentDate: Date = new Date()): PointsData {
+  const result: PointsData = {
     basePoints: 0,
     finalPoints: 0,
     details: []
@@ -289,8 +331,8 @@ export function calculatePoints(cartData, cart, currentDate = new Date()) {
 }
 
 // Sale Management (setState를 통해 상태 업데이트)
-export function applyLightningSale(products, productId) {
-  return products.map(function(product) {
+export function applyLightningSale(products: Product[], productId: string): Product[] {
+  return products.map(function(product: Product) {
     if (product.id === productId && product.q > 0 && !product.onSale) {
       return {
         ...product,
@@ -302,8 +344,8 @@ export function applyLightningSale(products, productId) {
   });
 }
 
-export function applySuggestionSale(products, productId, excludeId) {
-  return products.map(function(product) {
+export function applySuggestionSale(products: Product[], productId: string, excludeId: string): Product[] {
+  return products.map(function(product: Product) {
     if (product.id === productId && product.id !== excludeId && product.q > 0 && !product.suggestSale) {
       return {
         ...product,
@@ -316,8 +358,8 @@ export function applySuggestionSale(products, productId, excludeId) {
 }
 
 // Stock Management
-export function updateProductStock(products, productId, quantityChange) {
-  return products.map(function(product) {
+export function updateProductStock(products: Product[], productId: string, quantityChange: number): Product[] {
+  return products.map(function(product: Product) {
     if (product.id === productId) {
       return {
         ...product,
@@ -329,14 +371,14 @@ export function updateProductStock(products, productId, quantityChange) {
 }
 
 // Cart Operations
-export function addToCart(cart, productId, quantity = 1) {
+export function addToCart(cart: Cart, productId: string, quantity: number = 1): Cart {
   return {
     ...cart,
     [productId]: (cart[productId] || 0) + quantity
   };
 }
 
-export function updateCartQuantity(cart, productId, newQuantity) {
+export function updateCartQuantity(cart: Cart, productId: string, newQuantity: number): Cart {
   if (newQuantity <= 0) {
     const newCart = { ...cart };
     delete newCart[productId];
@@ -348,18 +390,18 @@ export function updateCartQuantity(cart, productId, newQuantity) {
   };
 }
 
-export function removeFromCart(cart, productId) {
+export function removeFromCart(cart: Cart, productId: string): Cart {
   const newCart = { ...cart };
   delete newCart[productId];
   return newCart;
 }
 
 // Validation
-export function canAddToCart(product, currentCartQuantity, requestedQuantity) {
+export function canAddToCart(product: Product, currentCartQuantity: number, requestedQuantity: number): boolean {
   const totalRequestedQuantity = currentCartQuantity + requestedQuantity;
   return product.q >= requestedQuantity && totalRequestedQuantity <= product.q + currentCartQuantity;
 }
 
-export function getAvailableStock(product, currentCartQuantity) {
+export function getAvailableStock(product: Product, currentCartQuantity: number): number {
   return product.q + currentCartQuantity;
 }

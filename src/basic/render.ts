@@ -1,7 +1,8 @@
 // render.js - 모든 HTML 렌더링 함수들 (순수 함수)
 
-import { useProducts, useCart, useGlobalState } from './main.basic.js';
+import { useProducts, useCart } from './main.basic.js';
 import { isTuesday } from './entities.js';
+import { $$ } from './utils.js';
 
 // App Component - 전체 애플리케이션 렌더링
 export function App() {
@@ -198,14 +199,12 @@ export function SummaryDetails({ subtotal, items = [], discounts = [], itemCount
 
 // SummaryItems Component
 export function SummaryItems({ items }) {
-  return items.map(function(item) {
-    return `
+  return items.map(item => `
       <div class="flex justify-between text-xs tracking-wide text-gray-400">
         <span>${item.name} x ${item.quantity}</span>
         <span>₩${item.total.toLocaleString()}</span>
       </div>
-    `;
-  }).join('');
+    `).join('');
 }
 
 // Divider Component
@@ -225,31 +224,30 @@ export function SummarySubtotal({ amount }) {
 
 // SummaryDiscounts Component
 export function SummaryDiscounts({ itemCount, discounts, isTuesday }) {
-  let html = '';
+  const discountItems = [];
 
   if (itemCount >= 30) {
-    html += DiscountItem({ 
+    discountItems.push(DiscountItem({ 
       label: '🎉 대량구매 할인 (30개 이상)', 
       percent: 25 
-    });
+    }));
   } else if (discounts.length > 0) {
-    discounts.forEach(function(discount) {
-      html += DiscountItem({ 
-        label: `${discount.name} (10개↑)`, 
-        percent: discount.discount 
-      });
-    });
+    const itemDiscounts = discounts.map(discount => DiscountItem({
+      label: `${discount.name} (10개↑)`,
+      percent: discount.discount
+    }));
+    discountItems.push(...itemDiscounts);
   }
   
   if (isTuesday) {
-    html += DiscountItem({ 
+    discountItems.push(DiscountItem({ 
       label: '🌟 화요일 추가 할인', 
       percent: 10,
       color: 'text-purple-400'
-    });
+    }));
   }
   
-  return html;
+  return discountItems.join('');
 }
 
 // DiscountItem Component
@@ -321,21 +319,6 @@ export function PriceWithDiscount({ original, current, color }) {
   return `
     <span class="line-through text-gray-400">₩${original.toLocaleString()}</span> 
     <span class="${color}">₩${current.toLocaleString()}</span>
-  `;
-}
-
-// MainGrid Component
-export function MainGrid() {
-  return '<div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden"></div>';
-}
-
-// LeftColumn Component
-export function LeftColumn() {
-  return `
-    <div class="bg-white border border-gray-200 p-8 overflow-y-auto">
-      ${ProductSelector()}
-      <div id="cart-items"></div>
-    </div>
   `;
 }
 
@@ -419,31 +402,35 @@ export function HelpCloseButton() {
 
 // HelpDiscountSection Component
 export function HelpDiscountSection() {
+  const cards = [
+    HelpCard({
+      title: '개별 상품',
+      content: `
+        • 키보드 10개↑: 10%<br>
+        • 마우스 10개↑: 15%<br>
+        • 모니터암 10개↑: 20%<br>
+        • 스피커 10개↑: 25%
+      `
+    }),
+    HelpCard({
+      title: '전체 수량',
+      content: '• 30개 이상: 25%'
+    }),
+    HelpCard({
+      title: '특별 할인',
+      content: `
+        • 화요일: +10%<br>
+        • ⚡번개세일: 20%<br>
+        • 💝추천할인: 5%
+      `
+    })
+  ];
+
   return `
     <div class="mb-6">
       <h3 class="text-base font-bold mb-3">💰 할인 정책</h3>
       <div class="space-y-3">
-        ${HelpCard({
-          title: '개별 상품',
-          content: `
-            • 키보드 10개↑: 10%<br>
-            • 마우스 10개↑: 15%<br>
-            • 모니터암 10개↑: 20%<br>
-            • 스피커 10개↑: 25%
-          `
-        })}
-        ${HelpCard({
-          title: '전체 수량',
-          content: '• 30개 이상: 25%'
-        })}
-        ${HelpCard({
-          title: '특별 할인',
-          content: `
-            • 화요일: +10%<br>
-            • ⚡번개세일: 20%<br>
-            • 💝추천할인: 5%
-          `
-        })}
+        ${cards.join('\n        ')}
       </div>
     </div>
   `;
@@ -451,23 +438,27 @@ export function HelpDiscountSection() {
 
 // HelpPointsSection Component
 export function HelpPointsSection() {
+  const cards = [
+    HelpCard({
+      title: '기본',
+      content: '• 구매액의 0.1%'
+    }),
+    HelpCard({
+      title: '추가',
+      content: `
+        • 화요일: 2배<br>
+        • 키보드+마우스: +50p<br>
+        • 풀세트: +100p<br>
+        • 10개↑: +20p / 20개↑: +50p / 30개↑: +100p
+      `
+    })
+  ];
+
   return `
     <div class="mb-6">
       <h3 class="text-base font-bold mb-3">🎁 포인트 적립</h3>
       <div class="space-y-3">
-        ${HelpCard({
-          title: '기본',
-          content: '• 구매액의 0.1%'
-        })}
-        ${HelpCard({
-          title: '추가',
-          content: `
-            • 화요일: 2배<br>
-            • 키보드+마우스: +50p<br>
-            • 풀세트: +100p<br>
-            • 10개↑: +20p / 20개↑: +50p / 30개↑: +100p
-          `
-        })}
+        ${cards.join('\n        ')}
       </div>
     </div>
   `;
@@ -504,7 +495,7 @@ export function HelpTips() {
 export function rerenderProductSelect() {
   const sel = document.getElementById('product-select');
   if (sel) {
-    sel.outerHTML = ProductOptions();
+    $$(sel, ProductOptions());
   }
 }
 
@@ -638,6 +629,7 @@ export function rerenderLoyaltyPoints() {
     loyaltyPointsDiv.style.display = pointsData.finalPoints > 0 || cartData.itemCount > 0 ? 'block' : 'none';
   }
 }
+
 
 // 할인 정보 재렌더링
 export function rerenderDiscountInfo() {

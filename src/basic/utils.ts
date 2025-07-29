@@ -13,10 +13,11 @@ export function createElement(html) {
 }
 
 /**
- * 요소의 outerHTML을 업데이트하고 새로운 요소를 반환하는 함수
+ * 요소의 속성과 내용을 업데이트하는 함수
+ * 새로운 요소를 생성하지 않고 기존 요소를 수정하여 DOM 참조를 유지
  * @param {Element|string} elementOrSelector - DOM 요소 또는 선택자
  * @param {string} newHTML - 새로운 HTML 문자열
- * @returns {Element} - 업데이트된 DOM 요소
+ * @returns {Element} - 업데이트된 DOM 요소 (동일한 요소 반환)
  */
 export function $$(elementOrSelector, newHTML) {
   // 요소 찾기
@@ -29,22 +30,24 @@ export function $$(elementOrSelector, newHTML) {
     return null;
   }
   
-  // 부모 요소와 위치 저장
-  var parent = element.parentNode;
-  var nextSibling = element.nextSibling;
+  // 임시 요소를 생성하여 새 HTML 파싱
+  var tempElement = createElement(newHTML);
   
-  // 새 요소 생성
-  var newElement = createElement(newHTML);
-  
-  // 기존 요소를 새 요소로 교체
-  if (nextSibling) {
-    parent.insertBefore(newElement, nextSibling);
-  } else {
-    parent.appendChild(newElement);
+  // 속성 업데이트
+  // 기존 속성 모두 제거
+  var attrs = element.attributes;
+  for (var i = attrs.length - 1; i >= 0; i--) {
+    element.removeAttribute(attrs[i].name);
   }
   
-  // 기존 요소 제거
-  element.remove();
+  // 새 속성 추가
+  var newAttrs = tempElement.attributes;
+  for (var i = 0; i < newAttrs.length; i++) {
+    element.setAttribute(newAttrs[i].name, newAttrs[i].value);
+  }
   
-  return newElement;
+  // innerHTML 업데이트
+  element.innerHTML = tempElement.innerHTML;
+  
+  return element;
 }

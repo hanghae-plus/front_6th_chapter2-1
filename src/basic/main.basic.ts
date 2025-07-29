@@ -1,47 +1,30 @@
 // 유틸리티 함수 import
-import { createElement, $$ } from './utils.js';
-
 // 렌더 함수 import
-import {
-  App,
-  rerenderProductSelect,
-  rerenderCartItems,
-  rerenderUI,
-  rerenderStockStatus
-} from './render.js';
+import {App, rerenderCartItems, rerenderProductSelect, rerenderStockStatus, rerenderUI} from './render.js'
 
 // 비즈니스 로직 import
 import {
-  PRODUCT_IDS,
-  createInitialProducts,
-  calculateTotalStock,
-  calculateItemDiscount,
-  isTuesday,
-  applyTuesdayDiscount,
-  calculateDiscountRate,
-  applyBulkDiscount,
-  calculateCartData,
-  calculatePoints,
+  addToCart,
   applyLightningSale,
   applySuggestionSale,
-  updateProductStock,
-  addToCart,
-  updateCartQuantity,
-  removeFromCart,
+  calculateCartData,
+  calculatePoints,
+  calculateTotalStock,
   canAddToCart,
+  createInitialProducts,
   getAvailableStock,
-  getStockInfo
-} from './entities.js';
+  getStockInfo,
+  removeFromCart,
+  updateCartQuantity,
+  updateProductStock
+} from './entities.js'
 
 
 // 전역 변수 선언
 // 상태 관리 변수
 var prodList
-var bonusPts = 0
 var stockInfo
-var itemCnt
 var lastSel
-var totalAmt = 0
 var cart = {} // 장바구니 모델 { productId: quantity }
 
 
@@ -49,7 +32,6 @@ var cart = {} // 장바구니 모델 { productId: quantity }
 var sel
 var addBtn
 var cartDisp
-var sum
 
 
 export function useProducts() {
@@ -81,12 +63,12 @@ export function useCart() {
   };
 }
 
-export function useGlobalState() {
+export function useLastSelected() {
   return {
-    totalAmt: totalAmt,
-    itemCnt: itemCnt,
-    bonusPts: bonusPts,
-    lastSel: lastSel
+    lastSel: lastSel,
+    setLastSel: (value) => {
+      lastSel = value;
+    }
   };
 }
 
@@ -96,9 +78,8 @@ export function useGlobalState() {
 // 앱 초기화 함수 (useEffect - 마운트 시 1회)
 function initializeApp() {
   // 전역 상태 초기화
-  totalAmt = 0;
-  itemCnt = 0;
-  lastSel = null;
+  const { setLastSel } = useLastSelected();
+  setLastSel(null);
   cart = {}; // cart 객체 초기화
   
   // 상품 목록 초기화
@@ -113,10 +94,9 @@ function initializeApp() {
   addBtn = document.getElementById('add-to-cart');
   cartDisp = document.getElementById('cart-items');
   stockInfo = document.getElementById('stock-status');
-  sum = document.getElementById('cart-total');
   
   // 초기 UI 업데이트
-  onUpdateSelectOptions();
+  rerenderProductSelect();
   rerenderCart();
 }
 
@@ -133,9 +113,10 @@ export function setupLightningSaleTimer() {
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         // setState 패턴으로 상태 업데이트
         updateProducts(applyLightningSale(products, luckyItem.id));
-        alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
-        onUpdateSelectOptions();
+        rerenderProductSelect();
         doUpdatePricesInCart();
+
+        alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
       }
     }, 30000);
     }, lightningDelay);
@@ -157,17 +138,19 @@ export function setupSuggestSaleTimer() {
       if (cartDisp.children.length === 0) {
         return;
       }
+      const { lastSel } = useLastSelected();
       if (lastSel) {
         const { products, updateProducts } = useProducts();
         const suggest = products.find(product => product.id !== lastSel &&
           product.q > 0 &&
           !product.suggestSale);
         if (suggest) {
-          alert(`💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
           // setState 패턴으로 상태 업데이트
           updateProducts(applySuggestionSale(products, suggest.id, lastSel));
-          onUpdateSelectOptions();
+          rerenderProductSelect();
           doUpdatePricesInCart();
+
+          alert(`💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
         }
       }
     }, 60000);
@@ -202,57 +185,19 @@ function main() {
   setupSuggestSaleTimer();
 }
 
-// 상품 선택 옵션 업데이트 함수
-function onUpdateSelectOptions() {
-  rerenderProductSelect();
-  // DOM 참조 재설정
-  sel = document.getElementById('product-select');
-}
-
-// UI 업데이트 함수
-function updateCartUI(cartData, pointsData) {
-  // render.ts의 rerender 함수들을 사용
-  rerenderUI();
-}
-
-// cart 객체를 DOM으로 렌더링하는 함수
-function updateCartDOM() {
-  rerenderCartItems();
-}
-
 // 장바구니 계산 및 UI 업데이트 메인 함수
 function rerenderCart() {
-  // 장바구니 데이터 계산 (cart 객체 전달)
-  const { products } = useProducts();
-  const cartData = calculateCartData(cart, products, new Date());
-
-  // 포인트 계산
-  const pointsData = calculatePoints(cartData, cart, new Date());
-
-  // 전역 변수 업데이트
-  totalAmt = cartData.totalAmount;
-  itemCnt = cartData.itemCount;
-  bonusPts = pointsData.finalPoints;
-  
   // UI 업데이트
-  updateCartUI(cartData, pointsData);
+  rerenderUI()
   
   // 추가 업데이트 함수 호출
-  handleStockInfoUpdate();
-}
-
-
-
-// 재고 정보 업데이트 함수
-function handleStockInfoUpdate() {
   rerenderStockStatus();
 }
-
 
 // 장바구니 내 가격 업데이트 함수
 function doUpdatePricesInCart() {
   // cart 객체 기반으로 DOM 재렌더링
-  updateCartDOM();
+  rerenderCartItems();
   
   // 전체 재계산
   rerenderCart();
@@ -267,7 +212,7 @@ main();
 function handleAddToCart() {
   var selItem = sel.value;
 
-  const { products } = useProducts();
+  const { products, updateProducts } = useProducts();
   var hasItem = products.some(product => product.id === selItem);
   if (!selItem || !hasItem) {
     return;
@@ -277,22 +222,23 @@ function handleAddToCart() {
   
   if (itemToAdd && itemToAdd.q > 0) {
     var currentQty = cart[selItem] || 0;
-    
-    if (canAddToCart(itemToAdd, currentQty, 1)) {
-      // cart 업데이트 (순수 함수 사용)
-      cart = addToCart(cart, selItem, 1);
-      
-      // 재고 업데이트 (setState 패턴)
-      const { products, updateProducts } = useProducts();
-      updateProducts(updateProductStock(products, selItem, -1));
-      
-      // DOM 업데이트
-      updateCartDOM();
-      rerenderCart();
-      lastSel = selItem;
-    } else {
-      alert('재고가 부족합니다.');
+
+    // cart 업데이트 (순수 함수 사용)
+    if (!canAddToCart(itemToAdd, currentQty, 1)) {
+      alert('재고가 부족합니다.')
+      return
     }
+
+    cart = addToCart(cart, selItem, 1)
+    updateProducts(updateProductStock(products, selItem, -1))
+
+    // DOM 업데이트
+    rerenderCartItems()
+    rerenderCart()
+    
+    // 마지막 선택 상품 업데이트
+    const { setLastSel } = useLastSelected()
+    setLastSel(selItem)
   }
 }
 
@@ -337,8 +283,8 @@ function handleCartItemClick(event) {
     }
     
     // DOM 업데이트
-    updateCartDOM();
+    rerenderCartItems();
     rerenderCart();
-    onUpdateSelectOptions();
+    rerenderProductSelect();
   }
 }
