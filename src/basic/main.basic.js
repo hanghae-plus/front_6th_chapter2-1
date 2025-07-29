@@ -7,9 +7,21 @@ import {
   PRODUCT_PRICES,
   INITIAL_STOCK,
   UI_CONSTANTS,
-  BONUS_RULES,
+  // BONUS_RULES,
 } from './constant';
 import { Header, updateHeader } from './components/Header.js';
+
+import {
+  hasKeyboardMouseSet,
+  hasFullProductSet,
+} from './utils/validationUtils.js';
+// import { generateStockWarningMessage } from './utils/stockUtils.js';
+// import { updateStockInfoUI } from './components/StockInfo.js';
+// import { calculateCartSubtotal } from './services/calculationService.js';
+import { handleCalculateCartStuff } from './services/cartService.js';
+import { calculateFinalDiscounts } from './services/calculationService.js';
+// import { renderBonusPoints } from './services/pointService.js';
+// import { shouldApplyTuesdayDiscount } from './utils/conditionUtils.js';
 
 // ==========================================
 // 🚀 Phase 2: 전역변수 → 상태 관리 패턴 (React 준비)
@@ -177,24 +189,6 @@ const shouldApplyTuesdayBonus = basePoints => {
 };
 
 /**
- * 🤖 [AI-REFACTORED] 키보드+마우스 세트 보유 여부 확인
- * @param {boolean} hasKeyboard - 키보드 보유 여부
- * @param {boolean} hasMouse - 마우스 보유 여부
- * @returns {boolean} 키보드+마우스 세트 보유하면 true
- */
-const hasKeyboardMouseSet = (hasKeyboard, hasMouse) => hasKeyboard && hasMouse;
-
-/**
- * 🤖 [AI-REFACTORED] 풀세트 보유 여부 확인
- * @param {boolean} hasKeyboard - 키보드 보유 여부
- * @param {boolean} hasMouse - 마우스 보유 여부
- * @param {boolean} hasMonitorArm - 모니터암 보유 여부
- * @returns {boolean} 풀세트 보유하면 true
- */
-const hasFullProductSet = (hasKeyboard, hasMouse, hasMonitorArm) =>
-  hasKeyboard && hasMouse && hasMonitorArm;
-
-/**
  * 🤖 [AI-REFACTORED] 유효한 수량 변경인지 확인
  * @param {number} newQty - 새로운 수량
  * @param {Object} product - 상품 객체
@@ -219,8 +213,6 @@ const shouldShowDiscount = (discountRate, finalAmount) =>
  * @param {number} finalAmount - 최종 금액
  * @returns {boolean} 화요일 할인 적용 가능하면 true
  */
-const shouldApplyTuesdayDiscount = (isTuesday, finalAmount) =>
-  isTuesday && finalAmount > 0;
 
 /**
  * 🤖 [AI-REFACTORED] 할인 상태 체크 함수들
@@ -517,7 +509,21 @@ function main() {
 
   // 4️⃣ 초기 계산 및 UI 업데이트
   updateProductSelectUI();
-  handleCalculateCartStuff();
+  handleCalculateCartStuff(
+    appState,
+    uiElements,
+    domElements,
+    getCartItemQuantity,
+    getTotalStock,
+    calculateFinalDiscounts,
+    updateOrderSummaryUI,
+    updateTotalAndDiscountUI,
+    updateHeader,
+    findProductById,
+    hasKeyboardMouseSet,
+    hasFullProductSet,
+    shouldApplyTuesdayBonus,
+  );
 
   // 4️⃣ 타이머 설정
   setTimeout(() => {
@@ -639,157 +645,6 @@ const updateProductSelectUI = () => {
     uiElements.productSelect.style.borderColor = '';
   }
 };
-
-/**
- * 🤖 [AI-REFACTORED] 장바구니 소계 및 개별 할인 계산 (순수 함수)
- *
- * @description 장바구니 아이템들의 소계와 개별 상품 할인을 계산하는 순수 함수
- *
- * 🎯 AI 리팩토링 포인트:
- * - 중첩 반복문 제거 (O(n²) → O(n))
- * - 순수 함수로 테스트 가능
- * - 단일 책임: 계산만 담당
- *
- * @param {HTMLCollection} cartItems - 장바구니 DOM 요소들
- * @param {Array} productList - 상품 목록
- * @returns {Object} { subTotal, itemCount, totalAmount, itemDiscounts }
- */
-function calculateCartSubtotal(cartItems, productList) {
-  // ==========================================
-  // 🚀 성능 개선: Map으로 O(1) 검색
-  // ==========================================
-  const productMap = new Map();
-  for (const product of productList) {
-    productMap.set(product.id, product);
-  }
-
-  // ==========================================
-  // 🧮 계산 변수 초기화
-  // ==========================================
-  let subTotal = 0;
-  let itemCount = 0;
-  let totalAmount = 0;
-  const itemDiscounts = [];
-
-  // ==========================================
-  // 📊 장바구니 아이템 순회 - Array.from() + forEach()로 현대화
-  // ==========================================
-  Array.from(cartItems).forEach(cartItem => {
-    // ⚡ 성능 최적화: Map으로 O(1) 상품 검색
-    const product = productMap.get(cartItem.id);
-
-    if (!product) {
-      return; // 🛡️ Guard Clause: 유효하지 않은 상품은 건너뛰기
-    }
-
-    // 🎯 DRY 적용: 중복 제거된 유틸리티 사용
-    const quantity = getCartItemQuantity(cartItem);
-    const itemTotal = product.val * quantity;
-
-    subTotal += itemTotal;
-    itemCount += quantity;
-
-    // ==========================================
-    // 🎯 개별 상품 할인 계산
-    // ==========================================
-    let discountRate = 0;
-
-    if (quantity >= THRESHOLDS.ITEM_DISCOUNT_MIN) {
-      // 🔧 하드코딩 제거를 위한 임시 방안 (추후 개선 예정)
-      const discountMap = {
-        [PRODUCT_ONE]: DISCOUNT_RATES.KEYBOARD,
-        [PRODUCT_TWO]: DISCOUNT_RATES.MOUSE,
-        [PRODUCT_THREE]: DISCOUNT_RATES.MONITOR_ARM,
-        [PRODUCT_FOUR]: DISCOUNT_RATES.POUCH,
-        [PRODUCT_FIVE]: DISCOUNT_RATES.SPEAKER,
-      };
-
-      discountRate = discountMap[product.id] || 0;
-
-      if (discountRate > 0) {
-        itemDiscounts.push({
-          name: product.name,
-          discount: discountRate * 100,
-        });
-      }
-    }
-
-    // 💰 개별 상품 할인 적용 후 총액 계산
-    totalAmount += itemTotal * (1 - discountRate);
-
-    // ==========================================
-    // 🎨 UI 상태 업데이트 (임시 - 추후 분리 예정)
-    // ==========================================
-    const priceElems = cartItem.querySelectorAll('.text-lg, .text-xs');
-    priceElems.forEach(elem => {
-      if (elem.classList.contains('text-lg')) {
-        elem.style.fontWeight =
-          quantity >= THRESHOLDS.ITEM_DISCOUNT_MIN ? 'bold' : 'normal';
-      }
-    });
-  });
-
-  return {
-    subTotal,
-    itemCount,
-    totalAmount,
-    itemDiscounts,
-  };
-}
-
-/**
- * 🤖 [AI-REFACTORED] 할인 계산 (순수 함수)
- *
- * @description 대량구매 할인과 화요일 할인을 계산하는 순수 함수
- *
- * 🎯 SRP 적용:
- * - 단일 책임: 할인 계산만 담당
- * - 순수 함수: 부작용 없음
- * - 테스트 가능: 입력/출력 명확
- *
- * @param {number} subTotal - 소계 금액
- * @param {number} itemCount - 총 아이템 수량
- * @param {number} totalAmountAfterItemDiscount - 개별 할인 적용 후 금액
- * @returns {Object} { finalAmount, discountRate, isTuesdayApplied }
- */
-function calculateFinalDiscounts(
-  subTotal,
-  itemCount,
-  totalAmountAfterItemDiscount,
-) {
-  let finalAmount = totalAmountAfterItemDiscount;
-  let discountRate = 0;
-
-  // 🎯 대량구매 할인 적용 (30개 이상시 25% 할인)
-  if (itemCount >= THRESHOLDS.BULK_DISCOUNT_MIN) {
-    finalAmount = subTotal * (1 - DISCOUNT_RATES.BULK_DISCOUNT);
-    discountRate = DISCOUNT_RATES.BULK_DISCOUNT;
-  } else {
-    // 🧮 개별 할인만 적용된 경우의 전체 할인율 계산
-    if (subTotal > 0) {
-      discountRate = (subTotal - totalAmountAfterItemDiscount) / subTotal;
-    }
-  }
-
-  // 🎯 화요일 추가 할인 적용
-  const today = new Date();
-  const isTuesday = today.getDay() === DAYS.TUESDAY;
-  let isTuesdayApplied = false;
-
-  // 🧠 복잡한 조건 → 의미있는 함수로 개선
-  if (shouldApplyTuesdayDiscount(isTuesday, finalAmount)) {
-    finalAmount = finalAmount * (1 - DISCOUNT_RATES.TUESDAY_DISCOUNT);
-    discountRate = 1 - finalAmount / subTotal;
-    isTuesdayApplied = true;
-  }
-
-  return {
-    finalAmount: Math.round(finalAmount),
-    discountRate,
-    isTuesdayApplied,
-    originalTotal: subTotal,
-  };
-}
 
 /**
  * 🤖 [AI-REFACTORED] 주문 요약 UI 업데이트 (SRP 적용)
@@ -972,19 +827,6 @@ function updateTotalAndDiscountUI(
  * @param {Array} products - 상품 목록
  * @returns {string} 재고 알림 메시지
  */
-function generateStockWarningMessage(products) {
-  // 🎯 for문 → filter() + map() + join() 메서드 체인으로 현대화
-  return products
-    .filter(product => product.quantity < THRESHOLDS.LOW_STOCK_WARNING)
-    .map(product => {
-      if (product.quantity > 0) {
-        return `${product.name}: 재고 부족 (${product.quantity}개 남음)`;
-      } else {
-        return `${product.name}: 품절`;
-      }
-    })
-    .join('\n');
-}
 
 /**
  * 장바구니 총 계산 및 UI 업데이트 (리팩토링된 함수)
@@ -1010,70 +852,6 @@ function generateStockWarningMessage(products) {
  * - DOM 요소들 대량 수정 (summary-details, cart-total, loyalty-points 등)
  * - 다른 함수 호출 (updateStockInfoUI, renderBonusPoints)
  */
-function handleCalculateCartStuff() {
-  // ==========================================
-  // 🏷️ 1단계: 변수 선언부 (관심사별 분류)
-  // ==========================================
-
-  // 📊 데이터 관련 변수들 (캐시된 DOM 사용)
-  const cartItems = uiElements.cartDisplay.children;
-
-  // ==========================================
-  // 🚀 AI 리팩토링: 새 함수 사용
-  // ==========================================
-
-  // 💰 소계 및 개별 할인 계산 (성능 개선된 순수 함수 사용)
-  const { subTotal, itemCount, totalAmount, itemDiscounts } =
-    calculateCartSubtotal(cartItems, appState.products);
-
-  // ==========================================
-  // 🧮 4단계: 할인 계산 로직
-  // ==========================================
-
-  // 🎯 할인 계산 (대량구매, 화요일 할인 포함)
-  const { finalAmount, discountRate, isTuesdayApplied } =
-    calculateFinalDiscounts(subTotal, itemCount, totalAmount);
-
-  // ==========================================
-  // 🎨 5단계: UI 업데이트
-  // ==========================================
-
-  // 📋 주문 요약 UI 업데이트 (상품별 내역 + 할인 정보)
-  updateOrderSummaryUI(
-    cartItems,
-    appState.products,
-    subTotal,
-    itemDiscounts,
-    itemCount,
-    isTuesdayApplied,
-  );
-
-  // 💰 총액 및 할인 정보 UI 업데이트 (최종 금액 + 포인트)
-  updateTotalAndDiscountUI(
-    finalAmount,
-    discountRate,
-    subTotal,
-    isTuesdayApplied,
-  );
-
-  // 🛒 장바구니 아이템 개수 업데이트 (헤더 컴포넌트 사용)
-  updateHeader(itemCount);
-
-  // ⚠️ 재고 부족 알림 메시지 생성 (사용자 안내)
-  const stockMsg = generateStockWarningMessage(appState.products);
-  uiElements.stockInfo.textContent = stockMsg;
-
-  // ==========================================
-  // 📞 6단계: 상태 업데이트 및 관련 함수 호출
-  // ==========================================
-
-  // 🔄 계산 완료 후 전역 상태 업데이트 (다음 계산을 위해)
-  appState.cart.totalAmount = finalAmount;
-  appState.cart.itemCount = itemCount;
-
-  updateStockInfoUI(); // ⚠️ 재고 정보 추가 업데이트
-  renderBonusPoints(); // 🎁 포인트 계산 및 렌더링
-}
 
 /**
  * 보너스 포인트 렌더링 (React 패턴 네이밍)
@@ -1095,83 +873,6 @@ function handleCalculateCartStuff() {
  * - 전역 상태 수정 (appState.cart.bonusPoints)
  * - DOM 수정 (loyalty-points 요소의 innerHTML, style.display)
  */
-const renderBonusPoints = () => {
-  const basePoints = Math.floor(
-    appState.cart.totalAmount / THRESHOLDS.POINTS_PER_WON,
-  );
-  let finalPoints;
-  const pointsDetail = [];
-  let hasKeyboard;
-  let hasMouse;
-  let hasMonitorArm;
-  const nodes = uiElements.cartDisplay.children;
-  if (uiElements.cartDisplay.children.length === 0) {
-    domElements.loyaltyPoints.style.display = 'none';
-    return;
-  }
-  finalPoints = 0;
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push(`기본: ${basePoints}p`);
-  }
-  // 🧠 복잡한 조건 → 의미있는 함수로 개선
-  if (shouldApplyTuesdayBonus(basePoints)) {
-    finalPoints = basePoints * POINT_BONUSES.TUESDAY_MULTIPLIER;
-    pointsDetail.push('화요일 2배');
-  }
-  hasKeyboard = false;
-  hasMouse = false;
-  hasMonitorArm = false;
-  for (const node of nodes) {
-    // 🎯 DRY 적용: 중복 제거된 유틸리티 사용
-    const product = findProductById(node.id);
-    if (!product) {
-      continue;
-    }
-    if (product.id === PRODUCT_ONE) {
-      hasKeyboard = true;
-    } else if (product.id === PRODUCT_TWO) {
-      hasMouse = true;
-    } else if (product.id === PRODUCT_THREE) {
-      hasMonitorArm = true;
-    }
-  }
-  // 🧠 복잡한 조건 → 의미있는 함수로 개선
-  if (hasKeyboardMouseSet(hasKeyboard, hasMouse)) {
-    finalPoints = finalPoints + POINT_BONUSES.KEYBOARD_MOUSE_SET;
-    pointsDetail.push(
-      `키보드+마우스 세트 +${POINT_BONUSES.KEYBOARD_MOUSE_SET}p`,
-    );
-  }
-  // 🧠 복잡한 조건 → 의미있는 함수로 개선
-  if (hasFullProductSet(hasKeyboard, hasMouse, hasMonitorArm)) {
-    finalPoints = finalPoints + POINT_BONUSES.FULL_SET;
-    pointsDetail.push(`풀세트 구매 +${POINT_BONUSES.FULL_SET}p`);
-  }
-  // 🎁 데이터 기반 보너스 계산 (긴 if-else 체인 → 깔끔한 로직)
-  const bonusRule = BONUS_RULES.find(
-    rule => appState.cart.itemCount >= rule.threshold,
-  );
-  if (bonusRule) {
-    finalPoints += bonusRule.bonus;
-    pointsDetail.push(`대량구매(${bonusRule.name}) +${bonusRule.bonus}p`);
-  }
-  appState.cart.bonusPoints = finalPoints;
-  const ptsTag = domElements.loyaltyPoints;
-  if (ptsTag) {
-    if (appState.cart.bonusPoints > 0) {
-      ptsTag.innerHTML =
-        `<div>적립 포인트: <span class="font-bold">${appState.cart.bonusPoints}p</span></div>` +
-        `<div class="text-2xs opacity-70 mt-1">${pointsDetail.join(
-          ', ',
-        )}</div>`;
-      ptsTag.style.display = 'block';
-    } else {
-      ptsTag.textContent = '적립 포인트: 0p';
-      ptsTag.style.display = 'block';
-    }
-  }
-};
 
 /**
  * 전체 재고 수량 계산 (React 패턴 네이밍)
@@ -1214,23 +915,6 @@ const getTotalStock = () => {
  * @sideEffects
  * - stockInfo 요소의 textContent 수정
  */
-const updateStockInfoUI = () => {
-  let infoMsg = '';
-  const totalStock = getTotalStock();
-  if (totalStock < THRESHOLDS.STOCK_MANAGEMENT_THRESHOLD) {
-    return;
-  }
-  appState.products.forEach(item => {
-    if (item.quantity < THRESHOLDS.LOW_STOCK_WARNING) {
-      if (item.quantity > 0) {
-        infoMsg = `${infoMsg + item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
-      } else {
-        infoMsg = `${infoMsg + item.name}: 품절\n`;
-      }
-    }
-  });
-  uiElements.stockInfo.textContent = infoMsg;
-};
 
 /**
  * 장바구니 가격 UI 업데이트 (React 패턴 네이밍)
@@ -1265,7 +949,21 @@ const updateCartPricesUI = () => {
       nameDiv.textContent = getDiscountedProductName(product);
     }
   });
-  handleCalculateCartStuff();
+  handleCalculateCartStuff(
+    appState,
+    uiElements,
+    domElements,
+    getCartItemQuantity,
+    getTotalStock,
+    calculateFinalDiscounts,
+    updateOrderSummaryUI,
+    updateTotalAndDiscountUI,
+    updateHeader,
+    findProductById,
+    hasKeyboardMouseSet,
+    hasFullProductSet,
+    shouldApplyTuesdayBonus,
+  );
 };
 main();
 uiElements.addButton.addEventListener('click', () => {
@@ -1319,7 +1017,21 @@ uiElements.addButton.addEventListener('click', () => {
       uiElements.cartDisplay.appendChild(newItem);
       itemToAdd.quantity--;
     }
-    handleCalculateCartStuff();
+    handleCalculateCartStuff(
+      appState,
+      uiElements,
+      domElements,
+      getCartItemQuantity,
+      getTotalStock,
+      calculateFinalDiscounts,
+      updateOrderSummaryUI,
+      updateTotalAndDiscountUI,
+      updateHeader,
+      findProductById,
+      hasKeyboardMouseSet,
+      hasFullProductSet,
+      shouldApplyTuesdayBonus,
+    );
     appState.lastSelected = selItem;
   }
 });
@@ -1356,7 +1068,21 @@ uiElements.cartDisplay.addEventListener('click', event => {
       itemElem.remove();
     }
     // 🔍 재고 상태 확인 (필요시 추가 로직 구현 가능)
-    handleCalculateCartStuff();
+    handleCalculateCartStuff(
+      appState,
+      uiElements,
+      domElements,
+      getCartItemQuantity,
+      getTotalStock,
+      calculateFinalDiscounts,
+      updateOrderSummaryUI,
+      updateTotalAndDiscountUI,
+      updateHeader,
+      findProductById,
+      hasKeyboardMouseSet,
+      hasFullProductSet,
+      shouldApplyTuesdayBonus,
+    );
     updateProductSelectUI();
   }
 });
