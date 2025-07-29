@@ -671,8 +671,8 @@ function doUpdatePricesInCart() {
   handleCalculateCartStuff();
 }
 main();
-addBtn.addEventListener("click", function () {
-  var selItem = sel.value;
+addBtn.addEventListener("click", () => {
+  const selItem = sel.value;
   var hasItem = false;
   for (var idx = 0; idx < prodList.length; idx++) {
     if (prodList[idx].id === selItem) {

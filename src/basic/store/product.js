@@ -53,3 +53,66 @@ export const products = [
     suggestSale: false,
   },
 ];
+
+//TODO: 여기도 아래 주석 풀고 스토어방식으로 해야하는데, 지금당장은 여길 수정중이 아니니 잠시 보류!
+// export const productState = {
+//   products,
+//   productIds,
+// };
+
+// const productActions = {
+//   // 상품 재고 업데이트
+//   updateStock: (state, productId, newQuantity) => ({
+//     ...state,
+//     products: state.products.map((product) =>
+//       product.id === productId ? { ...product, q: newQuantity } : product
+//     ),
+//   }),
+
+//   // 할인 적용
+//   applySale: (state, productId, discountRate) => ({
+//     ...state,
+//     products: state.products.map((product) =>
+//       product.id === productId
+//         ? {
+//             ...product,
+//             val: Math.round(product.originalVal * (1 - discountRate)),
+//             onSale: true,
+//           }
+//         : product
+//     ),
+//   }),
+
+//   // 추천 할인 적용
+//   applySuggestSale: (state, productId, discountRate) => ({
+//     ...state,
+//     products: state.products.map((product) =>
+//       product.id === productId
+//         ? {
+//             ...product,
+//             val: Math.round(product.originalVal * (1 - discountRate)),
+//             suggestSale: true,
+//           }
+//         : product
+//     ),
+//   }),
+
+//   // 할인 해제
+//   removeSale: (state, productId) => ({
+//     ...state,
+//     products: state.products.map((product) =>
+//       product.id === productId
+//         ? {
+//             ...product,
+//             val: product.originalVal,
+//             onSale: false,
+//             suggestSale: false,
+//           }
+//         : product
+//     ),
+//   }),
+// };
+
+// const productStore = createStore(productState, productActions);
+
+// export default productStore;
