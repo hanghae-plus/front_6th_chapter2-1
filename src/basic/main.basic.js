@@ -17,6 +17,13 @@ const PRODUCT_THREE = 'p3';
 const PRODUCT_FOUR = 'p4';
 const PRODUCT_FIVE = 'p5';
 
+/**
+ * 페이지 초기화. DOM 요소 생성 및 초기 렌더링, 버튼 및 이벤트 등록, 세일/추천 세일 주기적 발생 설정.
+ * 전체 UI 구성
+ * productList 초기화
+ * onUpdateSelectOptions, handleCalculateCartStuff 호출
+ * 번개세일/추천세일 setInterval 등록
+ *  */
 function main() {
   /**  ==================== elements 시작 ================================ */
   const root = document.getElementById('app');
@@ -241,10 +248,7 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
-  let initStock = 0;
-  for (let i = 0; i < productList.length; i++) {
-    initStock += productList[i].q;
-  }
+
   onUpdateSelectOptions();
   handleCalculateCartStuff();
 
@@ -263,8 +267,6 @@ function main() {
   }, lightningDelay);
   setTimeout(function () {
     setInterval(function () {
-      if (cartDisplay.children.length === 0) {
-      }
       if (lastSelectedItem) {
         let suggest = null;
         for (let k = 0; k < productList.length; k++) {
@@ -291,6 +293,12 @@ function main() {
 
 let sum;
 
+/**
+ *
+ * 역할: 상품 셀렉트 박스(selectedItem)의 옵션을 현재 상품 상태에 맞게 갱신
+ * 상품 할인 여부(onSale, suggestSale) 및 품절 여부(q === 0)를 반영
+ * UI에 시각적으로 구분(색상/텍스트 등)
+ */
 function onUpdateSelectOptions() {
   let totalStock;
   let opt;
@@ -301,7 +309,7 @@ function onUpdateSelectOptions() {
     const _p = productList[idx];
     totalStock = totalStock + _p.q;
   }
-  for (var i = 0; i < productList.length; i++) {
+  for (let i = 0; i < productList.length; i++) {
     (function () {
       const item = productList[i];
       opt = document.createElement('option');
@@ -336,6 +344,15 @@ function onUpdateSelectOptions() {
     selectedItem.style.borderColor = '';
   }
 }
+
+/**
+ * 총 상품 수량 및 가격 계산
+ * 개별 할인 (10개 이상 구매), 대량 구매 할인(30개↑), 화요일 할인 적용
+ * 총 할인율 및 적립 포인트 계산
+ * 할인 정보 및 재고 경고 표시
+ *
+ * doRenderBonusPoints, handleStockInfoUpdate 호출 중
+ */
 function handleCalculateCartStuff() {
   let cartItems;
   let subTot;
@@ -561,6 +578,14 @@ function handleCalculateCartStuff() {
   doRenderBonusPoints();
 }
 
+/**
+ * 역할: 적립 포인트 계산 및 렌더링
+ * - 기본: 구매액의 0.1%
+ * - 화요일이면 2배
+ * - 키보드+마우스 → +50p
+ * - 키보드+마우스+모니터암 → +100p
+ * - 대량구매 보너스 (10/20/30개 기준)
+ */
 const doRenderBonusPoints = function () {
   let basePoints;
   let finalPoints;
@@ -648,6 +673,7 @@ const doRenderBonusPoints = function () {
   }
 };
 
+/** 상품 전체 재고 수량 합계 반환 */
 function onGetStockTotal() {
   let sum;
   let i;
@@ -660,6 +686,7 @@ function onGetStockTotal() {
   return sum;
 }
 
+/**  재고 부족/품절 상품의 메시지를 stockInfo에 표시 */
 const handleStockInfoUpdate = function () {
   let infoMsg;
   let totalStock;
@@ -680,6 +707,7 @@ const handleStockInfoUpdate = function () {
   stockInfo.textContent = infoMsg;
 };
 
+/** 장바구니 내 각 상품의 UI 가격 정보 업데이트 */
 function doUpdatePricesInCart() {
   let totalCount = 0,
     j = 0;
@@ -741,6 +769,7 @@ function doUpdatePricesInCart() {
 
 main();
 
+/** 장바구니 담기 버튼 클릭 이벤트 핸들러 */
 addCartButton.addEventListener('click', function () {
   const selItem = selectedItem.value;
   let hasItem = false;
@@ -803,6 +832,7 @@ addCartButton.addEventListener('click', function () {
   }
 });
 
+/** 장바구니에서 수량 조절(±), 제거 이벤트 처리 */
 cartDisplay.addEventListener('click', function (event) {
   const tgt = event.target;
   if (tgt.classList.contains('quantity-change') || tgt.classList.contains('remove-item')) {
