@@ -285,50 +285,48 @@ function onUpdateSelectOptions() {
   }
   // 옵션요소 세팅
   for (let i = 0; i < productList.length; i++) {
-    (function () {
-      const product = productList[i];
+    const product = productList[i];
 
-      const option = document.createElement('option');
-      option.value = product.id;
+    const option = document.createElement('option');
+    option.value = product.id;
 
-      let discountText = '';
+    let discountText = '';
 
-      if (product.onSale) {
-        discountText += ' ⚡SALE';
-      }
+    if (product.onSale) {
+      discountText += ' ⚡SALE';
+    }
 
-      if (product.suggestSale) {
-        discountText += ' 💝추천';
-      }
-      // 품절일 경우
-      if (product.quantity === 0) {
-        option.textContent = product.name + ' - ' + product.value + '원 (품절)' + discountText;
-        option.disabled = true;
-        option.className = 'text-gray-400';
+    if (product.suggestSale) {
+      discountText += ' 💝추천';
+    }
+    // 품절일 경우
+    if (product.quantity === 0) {
+      option.textContent = product.name + ' - ' + product.value + '원 (품절)' + discountText;
+      option.disabled = true;
+      option.className = 'text-gray-400';
+    } else {
+      // 품절 아닌 경우 && 번개세일 && 추천할인
+      if (product.onSale && product.suggestSale) {
+        option.textContent =
+          '⚡💝' + product.name + ' - ' + product.originalValue + '원 → ' + product.value + '원 (25% SUPER SALE!)';
+        option.className = 'text-purple-600 font-bold';
+        // 품절 아닌 경우 && 번개세일
+      } else if (product.onSale) {
+        option.textContent =
+          '⚡' + product.name + ' - ' + product.originalValue + '원 → ' + product.value + '원 (20% SALE!)';
+        option.className = 'text-red-500 font-bold';
+        // 품절 아닌 경우 && 추천할인
+      } else if (product.suggestSale) {
+        option.textContent =
+          '💝' + product.name + ' - ' + product.originalValue + '원 → ' + product.value + '원 (5% 추천할인!)';
+        option.className = 'text-blue-500 font-bold';
       } else {
-        // 품절 아닌 경우 && 번개세일 && 추천할인
-        if (product.onSale && product.suggestSale) {
-          option.textContent =
-            '⚡💝' + product.name + ' - ' + product.originalValue + '원 → ' + product.value + '원 (25% SUPER SALE!)';
-          option.className = 'text-purple-600 font-bold';
-          // 품절 아닌 경우 && 번개세일
-        } else if (product.onSale) {
-          option.textContent =
-            '⚡' + product.name + ' - ' + product.originalValue + '원 → ' + product.value + '원 (20% SALE!)';
-          option.className = 'text-red-500 font-bold';
-          // 품절 아닌 경우 && 추천할인
-        } else if (product.suggestSale) {
-          option.textContent =
-            '💝' + product.name + ' - ' + product.originalValue + '원 → ' + product.value + '원 (5% 추천할인!)';
-          option.className = 'text-blue-500 font-bold';
-        } else {
-          // 그 외
-          option.textContent = product.name + ' - ' + product.value + '원' + discountText;
-        }
+        // 그 외
+        option.textContent = product.name + ' - ' + product.value + '원' + discountText;
       }
+    }
 
-      selector.appendChild(option);
-    })();
+    selector.appendChild(option);
   }
 
   // 총 재고량에 따라 UI 변경
