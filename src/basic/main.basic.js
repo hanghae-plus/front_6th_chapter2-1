@@ -133,9 +133,6 @@ function main() {
     },
   });
 
-  // stockInfo 요소 설정
-  const stockInfo = selectorContainer.querySelector("#stock-status");
-
   const cartDisplay = document.createElement("div");
   cartDisplay.id = "cart-items";
 
@@ -164,7 +161,7 @@ function main() {
   root.appendChild(manualSystem.overlay);
 
   onUpdateSelectOptions(selectorContainer);
-  updateCartSummary(cartDisplay, header, stockInfo, selectorContainer);
+  updateCartSummary(cartDisplay, header, selectorContainer);
 
   // 타이머 서비스 초기화 및 시작
   const timerService = new TimerService(productService, onUpdateSelectOptions, doUpdatePricesInCart, cartDisplay);
