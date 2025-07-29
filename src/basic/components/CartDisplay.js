@@ -17,12 +17,12 @@ export function updateCartDisplay(cartDisplay, cartItems) {
   cartDisplay.innerHTML = "";
 
   cartItems.forEach(item => {
-    const cartItem = createCartItem(item);
+    const cartItem = createSimpleCartItem(item);
     cartDisplay.appendChild(cartItem);
   });
 }
 
-function createCartItem(item) {
+function createSimpleCartItem(item) {
   const cartItem = document.createElement("div");
   cartItem.className = "cart-item";
   cartItem.dataset.productId = item.id;

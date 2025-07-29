@@ -233,13 +233,12 @@ function doUpdatePricesInCart() {
   const cartDisplay = document.querySelector("#cart-items");
   const cartItems = cartDisplay.children;
 
-  // 장바구니 아이템들의 가격 업데이트
-  for (let i = 0; i < cartItems.length; i++) {
-    const product = findProductById(cartItems[i].id, PRODUCT_LIST);
+  cartItems.forEach(el => {
+    const product = findProductById(el.id, PRODUCT_LIST);
     if (product) {
-      updateCartItemPrice(cartItems[i], product);
+      updateCartItemPrice(el, product);
     }
-  }
+  });
 
   updateCartSummary();
 }
