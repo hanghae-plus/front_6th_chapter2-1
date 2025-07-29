@@ -166,6 +166,14 @@ const useProductData = {
   getProducts() {
     return [...this.products];
   },
+
+  /**
+   * 총 재고 계산
+   * @returns {number} 총 재고 수량
+   */
+  getTotalStock() {
+    return this.products.reduce((total, product) => total + product.q);
+  },
 };
 
 let cartDisp;
@@ -739,22 +747,12 @@ var doRenderBonusPoints = function () {
     }
   }
 };
-function onGetStockTotal() {
-  let sum;
-  let i;
-  let currentProduct;
-  sum = 0;
-  for (i = 0; i < useProductData.products.length; i++) {
-    currentProduct = useProductData.products[i];
-    sum += currentProduct.q;
-  }
-  return sum;
-}
+
 var handleStockInfoUpdate = function () {
   let infoMsg;
   let totalStock;
   infoMsg = "";
-  totalStock = onGetStockTotal();
+  totalStock = useProductData.getTotalStock();
   if (totalStock < STOCK_THRESHOLDS.TOTAL_STOCK_CRITICAL) {
   }
 
