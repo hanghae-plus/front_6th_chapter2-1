@@ -99,6 +99,14 @@ const appState = {
   lastSelectedProductId: null, // 제일 최근에 장바구니에 담은 상품의 id
 };
 
+// const cartList = [];
+
+// // 이거로 최종 상태 관리
+// const currentState = {
+//   productState: productList,
+//   cartState: cartList,
+// };
+
 // 상품 선택 셀렉터
 let sel;
 // ADD TO CART 버튼
