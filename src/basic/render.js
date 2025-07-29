@@ -47,7 +47,7 @@ export function Header({ itemCount }) {
   `;
 }
 
-// ProductOptions Component - 모든 상품 옵션 생성
+// ProductOptions Component - 전체 select 요소 생성
 export function ProductOptions({ products, totalStock }) {
   const borderColor = totalStock < 50 ? 'orange' : '';
 
@@ -56,10 +56,7 @@ export function ProductOptions({ products, totalStock }) {
     return `<option value="${item.id}" class="${optionData.className || ''}" ${optionData.disabled ? 'disabled' : ''}>${optionData.html}</option>`;
   }).join('');
 
-  return {
-    html: options,
-    borderColor: borderColor
-  };
+  return `<select id="product-select" class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3" style="border-color: ${borderColor}">${options}</select>`;
 }
 
 // ProductOption Component
@@ -346,6 +343,7 @@ export function ProductSelector() {
     </div>
   `;
 }
+
 
 // CartTotal Component
 export function CartTotal() {

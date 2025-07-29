@@ -13,56 +13,38 @@ export function createElement(html) {
 }
 
 /**
- * HTML 문자열로부터 여러 DOM 요소를 생성하는 함수
- * @param {string} html - HTML 문자열
- * @returns {DocumentFragment} - 생성된 DOM Fragment
+ * 요소의 outerHTML을 업데이트하고 새로운 요소를 반환하는 함수
+ * @param {Element|string} elementOrSelector - DOM 요소 또는 선택자
+ * @param {string} newHTML - 새로운 HTML 문자열
+ * @returns {Element} - 업데이트된 DOM 요소
  */
-export function createElements(html) {
-  const template = document.createElement('template');
-  template.innerHTML = html.trim();
-  return template.content;
-}
-
-/**
- * 요소에 이벤트 리스너를 추가하는 함수
- * @param {Element} element - DOM 요소
- * @param {Object} events - 이벤트 맵 { eventName: handler }
- */
-export function addEventListeners(element, events) {
-  Object.entries(events).forEach(([event, handler]) => {
-    element.addEventListener(event, handler);
-  });
-}
-
-/**
- * 요소를 쿼리하고 이벤트를 바인딩하는 함수
- * @param {Element} container - 컨테이너 요소
- * @param {Object} bindings - 쿼리 셀렉터와 이벤트 맵
- */
-export function bindEvents(container, bindings) {
-  Object.entries(bindings).forEach(([selector, events]) => {
-    const element = container.querySelector(selector);
-    if (element && events) {
-      addEventListeners(element, events);
-    }
-  });
-}
-
-/**
- * 컴포넌트 렌더링 함수 (JSX 스타일로 변환 용이)
- * @param {Function} component - HTML을 반환하는 컴포넌트 함수
- * @param {Element} container - 렌더링할 컨테이너
- * @param {Object} eventBindings - 이벤트 바인딩 맵
- */
-export function render(component, container, eventBindings = {}) {
-  const html = typeof component === 'function' ? component() : component;
-  const element = createElement(html);
-  
-  // 이벤트 바인딩
-  if (eventBindings) {
-    bindEvents(element, eventBindings);
+export function $$(elementOrSelector, newHTML) {
+  // 요소 찾기
+  var element = typeof elementOrSelector === 'string' 
+    ? document.querySelector(elementOrSelector)
+    : elementOrSelector;
+    
+  if (!element) {
+    console.error('Element not found:', elementOrSelector);
+    return null;
   }
   
-  container.appendChild(element);
-  return element;
+  // 부모 요소와 위치 저장
+  var parent = element.parentNode;
+  var nextSibling = element.nextSibling;
+  
+  // 새 요소 생성
+  var newElement = createElement(newHTML);
+  
+  // 기존 요소를 새 요소로 교체
+  if (nextSibling) {
+    parent.insertBefore(newElement, nextSibling);
+  } else {
+    parent.appendChild(newElement);
+  }
+  
+  // 기존 요소 제거
+  element.remove();
+  
+  return newElement;
 }
