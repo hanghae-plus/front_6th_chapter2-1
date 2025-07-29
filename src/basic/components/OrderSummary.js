@@ -1,7 +1,7 @@
-import { POINTS, POINTS_QUANTITY_THRESHOLDS, QUANTITY_BONUS_POINTS } from "../constants/index.js";
+import { orderService } from "../services/orderService.js";
 
 // OrderSummary 컴포넌트
-export function createOrderSummary({ cartItems, subtotal, totalAmount, itemDiscounts, isTuesday, onCheckout }) {
+export function createOrderSummary({ onCheckout }) {
   const orderSummaryContainer = document.createElement("div");
   orderSummaryContainer.className = "flex-1 flex flex-col";
 
@@ -15,11 +15,11 @@ export function createOrderSummary({ cartItems, subtotal, totalAmount, itemDisco
         <div id="cart-total" class="pt-5 border-t border-white/10">
           <div class="flex justify-between items-baseline">
             <span class="text-sm uppercase tracking-wider">Total</span>
-            <div class="text-2xl tracking-tight">₩${totalAmount ? totalAmount.toLocaleString() : "0"}</div>
+            <div class="text-2xl tracking-tight">₩0</div>
           </div>
           <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
         </div>
-        <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg ${isTuesday && totalAmount > 0 ? "" : "hidden"}">
+        <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
           <div class="flex items-center gap-2">
             <span class="text-2xs">🎉</span>
             <span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
@@ -42,24 +42,10 @@ export function createOrderSummary({ cartItems, subtotal, totalAmount, itemDisco
     checkoutButton.addEventListener("click", onCheckout);
   }
 
-  // 초기 데이터로 컴포넌트 업데이트
-  if (cartItems && cartItems.length > 0) {
-    const itemCount = cartItems.reduce((total, item) => {
-      const quantity = parseInt(item.querySelector(".quantity-number")?.textContent || "0");
-      return total + quantity;
-    }, 0);
-
-    updateOrderSummary(orderSummaryContainer, {
-      cartItems,
-      subtotal: subtotal || 0,
-      totalAmount: totalAmount || 0,
-      itemDiscounts: itemDiscounts || [],
-      isTuesday: isTuesday || false,
-      itemCount,
-      discountRate: 0,
-      savedAmount: 0,
-    });
-  }
+  // OrderService 구독
+  orderService.subscribeToChanges(orderState => {
+    updateOrderSummaryUI(orderSummaryContainer, orderState);
+  });
 
   return orderSummaryContainer;
 }
@@ -192,24 +178,20 @@ export function updateTotalAmount(orderSummaryElement, totalAmount) {
 }
 
 /**
- * 포인트 정보를 계산하고 업데이트합니다.
+ * 포인트를 표시합니다.
  *
  * @param {HTMLElement} orderSummaryElement - OrderSummary DOM 요소
- * @param {Array} cartItems - 장바구니 아이템들
- * @param {number} totalAmount - 총액
- * @param {boolean} isTuesday - 화요일 여부
- * @param {number} itemCount - 총 아이템 수량
+ * @param {number} totalPoints - 총 포인트
+ * @param {Array} pointsDetails - 포인트 상세 내역
  */
-export function updateLoyaltyPoints(orderSummaryElement, cartItems, totalAmount, isTuesday, itemCount) {
+export function updateLoyaltyPoints(orderSummaryElement, totalPoints, pointsDetails) {
   const loyaltyPointsDiv = orderSummaryElement.querySelector("#loyalty-points");
   if (!loyaltyPointsDiv) return;
 
-  const points = calculateLoyaltyPoints(cartItems, totalAmount, isTuesday, itemCount);
-
-  if (points.totalPoints > 0) {
+  if (totalPoints > 0) {
     loyaltyPointsDiv.innerHTML = /* HTML */ `
-      <div>적립 포인트: <span class="font-bold">${points.totalPoints}p</span></div>
-      <div class="text-2xs opacity-70 mt-1">${points.details.join(", ")}</div>
+      <div>적립 포인트: <span class="font-bold">${totalPoints}p</span></div>
+      <div class="text-2xs opacity-70 mt-1">${pointsDetails.join(", ")}</div>
     `;
     loyaltyPointsDiv.style.display = "block";
   } else {
@@ -219,62 +201,16 @@ export function updateLoyaltyPoints(orderSummaryElement, cartItems, totalAmount,
 }
 
 /**
- * 포인트를 계산합니다.
- *
- * @param {Array} cartItems - 장바구니 아이템들
- * @param {number} totalAmount - 총액
- * @param {boolean} isTuesday - 화요일 여부
- * @param {number} itemCount - 총 아이템 수량
- * @returns {Object} 포인트 정보 { totalPoints, details }
+ * OrderSummary UI를 업데이트합니다.
  */
-function calculateLoyaltyPoints(cartItems, totalAmount, isTuesday, itemCount) {
-  if (cartItems.length === 0) {
-    return { totalPoints: 0, details: [] };
-  }
+function updateOrderSummaryUI(orderSummaryElement, orderState) {
+  const { totalAmount, discountRate, savedAmount, totalPoints, pointsDetails, isTuesday } = orderState;
 
-  const basePoints = Math.floor(totalAmount / POINTS.BASE_RATE);
-  let finalPoints = 0;
-  const pointsDetail = [];
-
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push(`기본: ${basePoints}p`);
-  }
-
-  // 화요일 2배
-  if (isTuesday && basePoints > 0) {
-    finalPoints = basePoints * POINTS.TUESDAY_MULTIPLIER;
-    pointsDetail.push("화요일 2배");
-  }
-
-  // 세트 구매 보너스
-  const hasKeyboard = cartItems.some(item => item.id === "p1");
-  const hasMouse = cartItems.some(item => item.id === "p2");
-  const hasMonitorArm = cartItems.some(item => item.id === "p3");
-
-  if (hasKeyboard && hasMouse) {
-    finalPoints += POINTS.KEYBOARD_MOUSE_SET;
-    pointsDetail.push("키보드+마우스 세트 +50p");
-  }
-
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints += POINTS.FULL_SET;
-    pointsDetail.push("풀세트 구매 +100p");
-  }
-
-  // 수량 보너스
-  if (itemCount >= POINTS_QUANTITY_THRESHOLDS.LARGE_BULK) {
-    finalPoints += QUANTITY_BONUS_POINTS.LARGE_BULK;
-    pointsDetail.push("대량구매(30개+) +100p");
-  } else if (itemCount >= POINTS_QUANTITY_THRESHOLDS.MEDIUM_BULK) {
-    finalPoints += QUANTITY_BONUS_POINTS.MEDIUM_BULK;
-    pointsDetail.push("대량구매(20개+) +50p");
-  } else if (itemCount >= POINTS_QUANTITY_THRESHOLDS.SMALL_BULK) {
-    finalPoints += QUANTITY_BONUS_POINTS.SMALL_BULK;
-    pointsDetail.push("대량구매(10개+) +20p");
-  }
-
-  return { totalPoints: finalPoints, details: pointsDetail };
+  // 기존 update 함수들을 호출하되, orderState에서 데이터를 가져옴
+  updateDiscountInfo(orderSummaryElement, discountRate, savedAmount);
+  updateTotalAmount(orderSummaryElement, totalAmount);
+  updateLoyaltyPoints(orderSummaryElement, totalPoints, pointsDetails);
+  updateTuesdaySpecial(orderSummaryElement, isTuesday, totalAmount);
 }
 
 /**

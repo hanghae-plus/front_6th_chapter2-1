@@ -16,6 +16,7 @@ import { PRODUCT_LIST } from "./data/product.js";
 import { CartService } from "./services/cartService.js";
 import { TimerService } from "./services/timerService.js";
 import { ProductService } from "./services/productService.js";
+import { orderService } from "./services/orderService.js";
 
 // utils
 import { findProductById } from "./utils/productUtils.js";
@@ -125,11 +126,7 @@ function main() {
   // ProductSelector 컴포넌트 생성
   const selectorContainer = createProductSelector({
     products: productService.getProducts(),
-    onProductSelect: () => {
-      console.log("select");
-    },
     onAddToCart: () => {
-      console.log("add");
       handleAddToCart(productService.getProducts());
     },
   });
@@ -141,11 +138,6 @@ function main() {
 
   // OrderSummary 컴포넌트 생성
   const orderSummary = createOrderSummary({
-    cartItems: [],
-    subtotal: 0,
-    totalAmount: 0,
-    itemDiscounts: [],
-    isTuesday: new Date().getDay() === 2,
     onCheckout: () => {
       console.log("Proceed to checkout");
     },
@@ -168,6 +160,7 @@ function main() {
   timerService.startLightningSaleTimer();
   timerService.startSuggestSaleTimer();
 }
+
 function onUpdateSelectOptions() {
   // ProductSelector 컴포넌트 업데이트
   updateProductOptions(productService.getProducts());
@@ -189,20 +182,9 @@ function updateCartItemStyles(cartItems) {
   }
 }
 
-function updateOrderSummaryUI(cartItems, subtotal, totalAmount, itemDiscounts, isTuesday, itemCount, discountRate, originalTotal) {
-  const orderSummary = document.querySelector(".bg-black.text-white.p-8.flex.flex-col > div");
-  if (orderSummary) {
-    updateOrderSummary(orderSummary, {
-      cartItems: Array.from(cartItems),
-      subtotal,
-      totalAmount,
-      itemDiscounts,
-      isTuesday,
-      itemCount,
-      discountRate,
-      savedAmount: originalTotal - totalAmount,
-    });
-  }
+function updateOrderSummaryUI(cartItems, totalAmount, isTuesday, itemCount) {
+  orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
+  orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
 }
 
 function updateItemCountDisplay(itemCnt) {
@@ -254,23 +236,14 @@ function updateCartSummary() {
   const discountResult = applyBulkAndSpecialDiscounts(cartTotals.totalAmt, cartTotals.itemCnt, cartTotals.subtotal);
 
   // 4. UI 업데이트
-  updateCartUI(cartItems, cartTotals, discountResult);
+  updateCartUI(cartItems, discountResult);
   handleStockInfoUpdate();
 }
 
-function updateCartUI(cartItems, cartTotals, discountResult) {
+function updateCartUI(cartItems, discountResult) {
   updateCartItemStyles(cartItems);
   updateHeaderItemCount(cartService.getItemCount());
-  updateOrderSummaryUI(
-    cartItems,
-    cartTotals.subtotal,
-    discountResult.totalAmt,
-    cartTotals.itemDiscounts,
-    discountResult.isTuesday,
-    cartService.getItemCount(),
-    discountResult.discRate,
-    discountResult.originalTotal
-  );
+  updateOrderSummaryUI(cartItems, discountResult.totalAmt, discountResult.isTuesday, cartService.getItemCount());
   updateItemCountDisplay(cartService.getItemCount());
   updateStockDisplay();
 }
