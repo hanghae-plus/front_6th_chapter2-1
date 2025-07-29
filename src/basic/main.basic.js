@@ -92,11 +92,6 @@ var lastSel
 var sel
 var addBtn
 var totalAmt = 0
-var PRODUCT_ONE = 'p1'
-var p2 = 'p2'
-var product_3 = 'p3'
-var p4 = "p4"
-var PRODUCT_5 = `p5`
 var cartDisp
 function initializeApplication() {
   // AppState 초기화
@@ -685,11 +680,11 @@ var doRenderBonusPoints = function() {
   for (const node of nodes) {
     var product = findProductById(node.id);
     if (!product) continue;
-    if (product.id === PRODUCT_ONE) {
+    if (product.id === AppState.PRODUCT_IDS.KEYBOARD) {
       hasKeyboard = true;
-    } else if (product.id === p2) {
+    } else if (product.id === AppState.PRODUCT_IDS.MOUSE) {
       hasMouse = true;
-    } else if (product.id === product_3) {
+    } else if (product.id === AppState.PRODUCT_IDS.MONITOR_ARM) {
       hasMonitorArm = true;
     }
   }
