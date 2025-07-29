@@ -1,90 +1,116 @@
+import { htmlToElement } from "../../../shared/utils/dom.js";
+
 /**
- * Pure render function for Product Selector with local state
- * @param {Object} props - Component properties
+ * Pure ProductSelector Component - JSX-like Template
+ * @param {Object} props - Component props
  * @param {Array} props.products - Product list
  * @param {string} props.selectedProductId - Currently selected product ID
  * @param {Function} props.onSelectionChange - Callback when selection changes
  * @returns {HTMLElement} Product selector element
  */
-function ProductSelector(props = {}) {
-  const { products = [], selectedProductId = "", onSelectionChange } = props;
-
-  // Local state (useState-like pattern)
-  let internalSelectedId = selectedProductId;
-
-  const selector = document.createElement("select");
-  selector.id = "product-select"; // Changed to match test expectations
-  selector.className =
-    "w-full p-3 border border-gray-300 rounded-lg text-base mb-3"; // Simplified for test compatibility
-
-  // Render options
+const ProductSelector = ({
+  products = [],
+  selectedProductId = "",
+  onSelectionChange,
+}) => {
   const renderOptions = () => {
-    // Clear existing options (no default option for test compatibility)
-    selector.innerHTML = "";
+    return products
+      .map((product) => {
+        let optionText = `${product.name} - ${product.val}원`;
+        let optionClass = "";
 
-    // Product options
-    products.forEach((product) => {
-      const option = document.createElement("option");
-      option.value = product.id;
+        if (product.q === 0) {
+          optionText = `${product.name} - ${product.val}원 (품절)`;
+          optionClass = 'class="text-gray-400"';
+        } else {
+          if (product.onSale && product.suggestSale) {
+            optionText = `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`;
+            optionClass = 'class="text-purple-600 font-bold"';
+          } else if (product.onSale) {
+            optionText = `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`;
+            optionClass = 'class="text-red-500 font-bold"';
+          } else if (product.suggestSale) {
+            optionText = `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`;
+            optionClass = 'class="text-blue-500 font-bold"';
+          }
+        }
 
-      let optionText = `${product.name} - ${product.val}원`;
+        const disabled = product.q === 0 ? "disabled" : "";
 
-      // Add status indicators
-      if (product.q === 0) {
-        optionText += " (품절)";
-        option.disabled = true;
-      } else if (product.q < 5) {
-        optionText += ` (재고부족: ${product.q}개)`;
-      }
-
-      // Add sale indicators
-      if (product.onSale) {
-        optionText = `⚡ ${optionText}`;
-      }
-      if (product.suggestSale) {
-        optionText = `💝 ${optionText}`;
-      }
-
-      option.textContent = optionText;
-      selector.appendChild(option);
-    });
-
-    // Set current selection
-    selector.value = internalSelectedId;
+        return /* html */ `
+        <option value="${product.id}" ${optionClass} ${disabled}>
+          ${optionText}
+        </option>
+      `;
+      })
+      .join("");
   };
 
-  // Local state updater
-  const updateSelection = (newProductId) => {
-    internalSelectedId = newProductId;
-    selector.value = newProductId;
+  const selectorHTML = /* html */ `
+    <select 
+      id="product-select" 
+      class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
+    >
+      ${renderOptions()}
+    </select>
+  `;
 
-    // Notify parent component
+  const selector = htmlToElement(selectorHTML);
+
+  // Set initial selection
+  if (selectedProductId) {
+    selector.value = selectedProductId;
+  }
+
+  // Add event listener
+  selector.addEventListener("change", (e) => {
     if (onSelectionChange) {
-      onSelectionChange(newProductId);
+      onSelectionChange(e.target.value);
+    }
+  });
+
+  // Add update method for compatibility
+  selector.updateProducts = (newProducts, newSelectedId) => {
+    // Re-render options
+    const newOptionsHTML = newProducts
+      .map((product) => {
+        let optionText = `${product.name} - ${product.val}원`;
+        let optionClass = "";
+
+        if (product.q === 0) {
+          optionText = `${product.name} - ${product.val}원 (품절)`;
+          optionClass = 'class="text-gray-400"';
+        } else {
+          if (product.onSale && product.suggestSale) {
+            optionText = `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`;
+            optionClass = 'class="text-purple-600 font-bold"';
+          } else if (product.onSale) {
+            optionText = `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`;
+            optionClass = 'class="text-red-500 font-bold"';
+          } else if (product.suggestSale) {
+            optionText = `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`;
+            optionClass = 'class="text-blue-500 font-bold"';
+          }
+        }
+
+        const disabled = product.q === 0 ? "disabled" : "";
+
+        return /* html */ `
+        <option value="${product.id}" ${optionClass} ${disabled}>
+          ${optionText}
+        </option>
+      `;
+      })
+      .join("");
+
+    selector.innerHTML = newOptionsHTML;
+
+    if (newSelectedId) {
+      selector.value = newSelectedId;
     }
   };
 
-  // Event handler with local state management
-  selector.addEventListener("change", (event) => {
-    updateSelection(event.target.value);
-  });
-
-  // Initial render
-  renderOptions();
-
-  // Expose update method for external updates
-  selector.updateProducts = (newProducts, newSelectedId) => {
-    // Update local state
-    const updatedProps = {
-      products: newProducts,
-      selectedProductId: newSelectedId || internalSelectedId,
-    };
-
-    // Re-render with new data
-    renderOptions();
-  };
-
   return selector;
-}
+};
 
 export { ProductSelector };
