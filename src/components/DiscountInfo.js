@@ -1,8 +1,9 @@
+import { formatPrice } from '../utils/global/index.js';
+
 export function createDiscountInfo({
   discRate = 0,
   totalAmt = 0,
   originalTotal = 0,
-  formatPrice,
 }) {
   const container = document.createElement('div');
   if (!(discRate > 0 && totalAmt > 0)) return container;

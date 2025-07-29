@@ -1,4 +1,4 @@
-import { formatPrice } from '../../utils/format.js';
+import { formatPrice } from '../../utils/global/index.js';
 import { POINT_RATES } from '../../constants/shopPolicy.js';
 
 export function createCartTotal({ totalAmt = 0 }) {
