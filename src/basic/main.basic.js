@@ -1,12 +1,12 @@
 import { Header } from "./components/Header";
-import { productIds, Store } from "./store";
+import { products, productIds } from "./store/product";
 import {
   startLightningSaleTimer,
   startRecommendationTimer,
 } from "./utils/discountTimer";
 import { updateSelectOptions } from "./utils/select/selectUtils";
 
-const prodList = Store.products.list;
+const prodList = products;
 
 var bonusPts = 0;
 var itemCnt;
@@ -242,7 +242,7 @@ const onUpdateSelectOptions = () => {
 /**
  * 장바구니 계산을 담당하는 함수
  * 1. 장바구니 아이템 계산
- * 
+ *
  * 2. 할인 정책 적용
  *  - 개별 아이템 할인 적용 : 10개 이상 구매시
  *    - p1 : 10% 할인
@@ -252,7 +252,7 @@ const onUpdateSelectOptions = () => {
  *    - p5 : 25% 할인
  *  - 30개 이상 구매시 : 25% 할인
  *  - 화요일 구매시 특별 할인 : 10% 할인
- * 
+ *
  * 3. UI 업데이트
  *  - 장바구니 아이템 수 표시
  *  - 상세 내역(summary-details) 업데이트
@@ -260,7 +260,7 @@ const onUpdateSelectOptions = () => {
  *  - 적립 포인트 계산 (1000원당 1포인트)
  *  - 할인 정보 표시
  *  - 재고 부족 알림
- * 
+ *
  * 4. 재고 관리
  *  - 재고가 5개 미만인 상품을 찾아서 리스트에 저장하는 함수
  */
