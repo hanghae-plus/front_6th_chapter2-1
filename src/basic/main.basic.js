@@ -1,16 +1,23 @@
 import { Header } from "./components/Header";
 import { productIds, Store } from "./store";
+import {
+  startLightningSaleTimer,
+  startRecommendationTimer,
+} from "./utils/discountTimer";
 
-var prodList = Store.products.list;
+const prodList = Store.products.list;
+
 var bonusPts = 0;
-var stockInfo;
 var itemCnt;
 var lastSel;
-var sel;
-var addBtn;
 var totalAmt = 0;
 
+//DOM 관련 변수
+var stockInfo;
+var sel;
+var addBtn;
 var cartDisp;
+
 function main() {
   var root;
   // var header;
@@ -21,7 +28,7 @@ function main() {
   var manualToggle;
   var manualOverlay;
   var manualColumn;
-  var lightningDelay;
+  // var lightningDelay;
   totalAmt = 0;
   itemCnt = 0;
   lastSel = null;
@@ -187,58 +194,31 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
-  var initStock = 0;
 
-  //TODO : 사용되지 않는 코드처럼 보임..
-  for (var i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
-  }
+  //TODO : 사용되지 않는 코드처럼 보임.. 일단 주석처리
+  // var initStock = 0;
+  // for (var i = 0; i < prodList.length; i++) {
+  //   initStock += prodList[i].q;
+  // }
+
   onUpdateSelectOptions();
   handleCalculateCartStuff();
-  lightningDelay = Math.random() * 10000;
-  setTimeout(() => {
-    setInterval(function () {
-      var luckyIdx = Math.floor(Math.random() * prodList.length);
-      var luckyItem = prodList[luckyIdx];
-      if (luckyItem.q > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
-        luckyItem.onSale = true;
-        alert("⚡번개세일! " + luckyItem.name + "이(가) 20% 할인 중입니다!");
-        onUpdateSelectOptions();
-        doUpdatePricesInCart();
-      }
-    }, 30000);
-  }, lightningDelay);
-  setTimeout(function () {
-    setInterval(function () {
-      if (cartDisp.children.length === 0) {
-      }
-      if (lastSel) {
-        var suggest = null;
-        for (var k = 0; k < prodList.length; k++) {
-          if (prodList[k].id !== lastSel) {
-            if (prodList[k].q > 0) {
-              if (!prodList[k].suggestSale) {
-                suggest = prodList[k];
-                break;
-              }
-            }
-          }
-        }
-        if (suggest) {
-          alert(
-            "💝 " +
-              suggest.name +
-              "은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!"
-          );
-          suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
-          suggest.suggestSale = true;
-          onUpdateSelectOptions();
-          doUpdatePricesInCart();
-        }
-      }
-    }, 60000);
-  }, Math.random() * 20000);
+  // lightningDelay = Math.random() * 10000;
+
+  // 번개할인 타이머 시작
+  startLightningSaleTimer({
+    prodList,
+    onUpdateSelectOptions,
+    doUpdatePricesInCart,
+  });
+
+  // 추천할인 타이머 시작
+  startRecommendationTimer({
+    prodList,
+    lastSel,
+    onUpdateSelectOptions,
+    doUpdatePricesInCart,
+  });
 }
 var sum;
 
