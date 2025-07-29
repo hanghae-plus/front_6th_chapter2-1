@@ -293,12 +293,9 @@ function handleCalculateCartStuff() {
   subTot = 0;
   bulkDisc = subTot;
   itemDiscounts = [];
-  lowStockItems = [];
-  for (idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].q < 5 && prodList[idx].q > 0) {
-      lowStockItems.push(prodList[idx].name);
-    }
-  }
+
+
+
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       var curItem;
