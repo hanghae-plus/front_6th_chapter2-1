@@ -12,6 +12,7 @@ import {
   AddButton,
   StockInfoText,
   CartItemBox,
+  ProductOption,
 } from "./components";
 import { prodList } from "./data";
 import {
@@ -105,41 +106,10 @@ const main = () => {
 };
 
 const onUpdateSelectOptions = () => {
-  let totalStock = 0;
-  let opt = null;
-  let discountText = "";
   productSelector.innerHTML = "";
+  prodList.forEach((item) => productSelector.appendChild(ProductOption(item)));
 
-  for (let idx = 0; idx < prodList.length; idx++) {
-    const _p = prodList[idx];
-    totalStock = totalStock + _p.quantity;
-  }
-  for (let i = 0; i < prodList.length; i++) {
-    const item = prodList[i];
-    opt = document.createElement("option");
-    opt.value = item.id;
-    if (item.onSale) discountText += " ⚡SALE";
-    if (item.suggestSale) discountText += " 💝추천";
-    if (item.quantity === 0) {
-      opt.textContent = `${item.name} - ${item.price}원 (품절) ${discountText}`;
-      opt.disabled = true;
-      opt.className = "text-gray-400";
-    } else {
-      if (item.onSale && item.suggestSale) {
-        opt.textContent = `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (25% SUPER SALE!)`;
-        opt.className = "text-purple-600 font-bold";
-      } else if (item.onSale) {
-        opt.textContent = `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (20% SALE!)`;
-        opt.className = "text-red-500 font-bold";
-      } else if (item.suggestSale) {
-        opt.textContent = `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (5% 추천할인!)`;
-        opt.className = "text-blue-500 font-bold";
-      } else {
-        opt.textContent = item.name + " - " + item.price + "원" + discountText;
-      }
-    }
-    productSelector.appendChild(opt);
-  }
+  let totalStock = prodList.reduce((acc, item) => acc + item.quantity, 0);
   if (totalStock < 50) {
     productSelector.style.borderColor = "orange";
   } else {

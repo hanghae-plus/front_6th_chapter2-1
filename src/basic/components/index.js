@@ -1,8 +1,11 @@
 export { GridContainer } from "./GridContainer";
 export { LeftColumn } from "./LeftColumn";
+
 export { SelectorContainer } from "./selector/SelectorContainer";
 export { ProductSelector } from "./selector/ProductSelector";
 export { AddButton } from "./selector/AddButton";
+export { ProductOption } from "./selector/ProductOption";
+
 export { StockInfoText } from "./selector/StockInfoText";
 export { RightColumn } from "./RightColumn";
 export { ManualToggle } from "./ManualToggle";
