@@ -1,16 +1,16 @@
 // 리액트처럼 간단한 state import
+import { BUSINESS_CONSTANTS } from "../../../shared/constants/business.js";
+import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
 import {
   productState,
   setProductState,
 } from "../../product/store/ProductStore.js";
-import PointsCalculator from "./PointsCalculator.js";
-import { BUSINESS_CONSTANTS } from "../../../shared/constants/business.js";
+import { calculateAndRenderPoints as calculatePointsFunction } from "./PointsCalculator.js";
 import { PRODUCTS } from "../../product/constants/productConstants.js";
 
-let pointsCalculator;
-
+// PointsCalculator 클래스 제거하고 순수 함수 사용
 export const initializePointService = () => {
-  pointsCalculator = new PointsCalculator(BUSINESS_CONSTANTS, PRODUCTS);
+  // 더 이상 인스턴스 생성 필요 없음
 };
 
 export const calculateAndRenderPoints = (cartResults) => {
@@ -18,17 +18,17 @@ export const calculateAndRenderPoints = (cartResults) => {
   const cartDisplayElement = document.getElementById("cart-items");
   const cartElements = cartDisplayElement.children;
 
-  const pointsResults = pointsCalculator.calculateAndRender(
-    cartResults.totalAmount,
-    cartResults.totalItemCount,
-    cartElements,
-    productState.products
-  );
+  const { totalAmount, totalItemCount } = cartResults;
 
-  // 리액트처럼 간단하게 state 업데이트
-  setProductState({
-    point: pointsResults.points,
-  });
+  // 순수 함수로 포인트 계산 및 렌더링
+  const pointsResults = calculatePointsFunction(
+    totalAmount,
+    totalItemCount,
+    cartElements,
+    productState.products,
+    BUSINESS_CONSTANTS,
+    PRODUCTS
+  );
 
   return pointsResults;
 };

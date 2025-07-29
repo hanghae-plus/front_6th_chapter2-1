@@ -1,12 +1,7 @@
 import { App } from "./shared/components/App.js";
 import { initialProducts } from "./features/product/constants/productConstants.js";
 
-// 리액트처럼 간단한 state import
-import {
-  productState,
-  setProductState,
-} from "./features/product/store/ProductStore.js";
-import { cartState, setCartState } from "./features/cart/store/CartStore.js";
+import { setProductState } from "./features/product/store/ProductStore.js";
 
 import {
   initializeCartService,

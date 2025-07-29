@@ -3,15 +3,15 @@ import {
   productState,
   setProductState,
 } from "../../product/store/ProductStore.js";
-import CartCalculator from "./CartCalculator.js";
-import { renderCartTotal } from "../components/CartTotal.js";
 import { BUSINESS_CONSTANTS } from "../../../shared/constants/business.js";
+import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
+import { renderCartTotal } from "../components/CartTotal.js";
 import { PRODUCTS } from "../../product/constants/productConstants.js";
+import { calculateCart } from "./CartCalculator.js";
 
-let cartCalculator;
-
+// CartCalculator 클래스 제거하고 순수 함수 사용
 export const initializeCartService = () => {
-  cartCalculator = new CartCalculator(BUSINESS_CONSTANTS, PRODUCTS);
+  // 더 이상 인스턴스 생성 필요 없음
 };
 
 // 간단한 카트 계산
@@ -20,9 +20,12 @@ export const calculateCartTotals = () => {
   const cartDisplayElement = document.getElementById("cart-items");
   const cartElements = cartDisplayElement.children;
 
-  const cartResults = cartCalculator.calculateCart(
+  // 순수 함수로 계산
+  const cartResults = calculateCart(
     cartElements,
-    productState.products
+    productState.products,
+    BUSINESS_CONSTANTS,
+    PRODUCTS
   );
 
   // 리액트처럼 간단하게 state 업데이트
@@ -86,9 +89,11 @@ export const renderCartTotalComponent = (pointsResults) => {
   const cartElements = cartDisplayElement.children;
 
   // 최신 할인율 계산
-  const cartResults = cartCalculator.calculateCart(
+  const cartResults = calculateCart(
     cartElements,
-    productState.products
+    productState.products,
+    BUSINESS_CONSTANTS,
+    PRODUCTS
   );
   const discountRate = cartResults.discountRate;
 

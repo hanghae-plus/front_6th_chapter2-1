@@ -1,14 +1,12 @@
 // 리액트처럼 간단한 state import
 import { productState } from "../../product/store/ProductStore.js";
 import { BUSINESS_CONSTANTS } from "../../../shared/constants/business.js";
-import PriceUpdater from "./PriceUpdater.js";
+import { applyFlashSale, applySuggestSale } from "./PriceUpdater.js";
 import { updateProductSelector } from "../../product/services/productService.js";
 
-// Service instance
-let priceUpdater;
-
+// PriceUpdater 클래스 제거하고 순수 함수 사용
 export const initializeCartPromotion = () => {
-  priceUpdater = new PriceUpdater(BUSINESS_CONSTANTS);
+  // 더 이상 인스턴스 생성 필요 없음
 };
 
 export const setupFlashSaleTimer = () => {
@@ -20,10 +18,11 @@ export const setupFlashSaleTimer = () => {
       const luckyIdx = Math.floor(Math.random() * products.length);
       const luckyItem = products[luckyIdx];
 
-      // Use PriceUpdater for clean flash sale logic
-      const saleApplied = priceUpdater.applyFlashSale(
+      // 순수 함수로 번개세일 로직
+      const saleApplied = applyFlashSale(
         luckyItem.id,
-        BUSINESS_CONSTANTS.DISCOUNT.FLASH_SALE_DISCOUNT_RATE
+        BUSINESS_CONSTANTS.DISCOUNT.FLASH_SALE_DISCOUNT_RATE,
+        products
       );
 
       if (saleApplied) {
@@ -64,10 +63,11 @@ export const setupRecommendationTimer = () => {
         }
 
         if (suggest) {
-          // Use PriceUpdater for clean suggest sale logic
-          const saleApplied = priceUpdater.applySuggestSale(
+          // 순수 함수로 추천세일 로직
+          const saleApplied = applySuggestSale(
             suggest.id,
-            BUSINESS_CONSTANTS.DISCOUNT.SUGGEST_DISCOUNT_RATE
+            BUSINESS_CONSTANTS.DISCOUNT.SUGGEST_DISCOUNT_RATE,
+            products
           );
 
           if (saleApplied) {
