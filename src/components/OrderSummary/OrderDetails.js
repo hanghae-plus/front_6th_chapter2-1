@@ -1,4 +1,4 @@
-import { getProduct } from '../../managers/ProductManager.js';
+import { getProduct } from '../../managers/productManager.js';
 
 export function createOrderDetails({
   subTot,

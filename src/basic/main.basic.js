@@ -23,7 +23,7 @@ import { createOrderSummary } from '../components/OrderSummary/index.js';
 import { startLightningSale } from '../services/lightningSale.js';
 import { startSuggestSale } from '../services/suggestSale.js';
 import { products } from '../data/products.js';
-import { getProduct } from '../managers/ProductManager.js';
+import { getProduct } from '../managers/productManager.js';
 import { updateUIAfterCartChange } from '../utils/uiUpdateUtils.js';
 
 // 마지막 선택 상품 상태 관리

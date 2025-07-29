@@ -1,6 +1,6 @@
 import { createDiscountInfo } from '../components/DiscountInfo.js';
 import { createOrderSummary } from '../components/OrderSummary/index.js';
-import { getProduct } from '../managers/ProductManager.js';
+import { getProduct } from '../managers/productManager.js';
 import { getBulkBonus } from './productUtils.js';
 import { createPointsDisplay } from '../components/PointsDisplay.js';
 import { POINT_RATES } from '../constants/shopPolicy.js';

@@ -1,6 +1,6 @@
 import { QUANTITY_THRESHOLDS } from '../constants/shopPolicy.js';
 import { getQuantityFromElement, getProductDiscount } from './productUtils.js';
-import { getProduct } from '../managers/ProductManager.js';
+import { getProduct } from '../managers/productManager.js';
 
 export function calculateCartTotals(cartItems) {
   const result = { subTot: 0, itemDiscounts: [], totalAmt: 0, itemCnt: 0 };
