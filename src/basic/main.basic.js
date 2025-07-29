@@ -107,7 +107,6 @@ function handleAddToCart(productList, cartDisplay, selectorContainer) {
   }
 
   updateCartSummary(cartDisplay, header, stockInfo, selectorContainer);
-  cartService.setLastSelectedProduct(selectedProductId);
 }
 
 function main() {
@@ -233,6 +232,7 @@ function updateStockDisplay(stockInfo) {
 const handleStockInfoUpdate = function (selectorContainer) {
   updateStockInfo(selectorContainer, PRODUCT_LIST, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
 };
+
 function doUpdatePricesInCart(cartDisplay, selectorContainer) {
   const cartItems = cartDisplay.children;
 

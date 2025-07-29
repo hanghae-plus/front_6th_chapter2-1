@@ -1,22 +1,11 @@
 import { cartStore } from "../store/cartStore.js";
-import { eventBus, EVENT_TYPES } from "../utils/EventBus.js";
 
 /**
  * 장바구니 서비스 - 비즈니스 로직 담당
  * 클린코드 원칙: 단일 책임, 의미있는 이름, 중복 제거
  */
 export class CartService {
-  constructor() {
-    // cartStore 구독
-    this.unsubscribe = cartStore.subscribe(this.handleCartChange.bind(this));
-  }
-
-  /**
-   * 장바구니 변경 이벤트 처리
-   */
-  handleCartChange(cartState) {
-    eventBus.emit(EVENT_TYPES.CART_UPDATED, cartState);
-  }
+  constructor() {}
 
   /**
    * 선택된 상품의 유효성을 검증합니다.
@@ -40,13 +29,7 @@ export class CartService {
    * @returns {boolean} 성공 여부
    */
   addProductToCart(product, quantity = 1) {
-    const success = cartStore.addToCart(product, quantity);
-
-    if (success) {
-      eventBus.emit(EVENT_TYPES.ITEM_ADDED, { product, quantity });
-    }
-
-    return success;
+    return cartStore.addToCart(product, quantity);
   }
 
   /**
@@ -58,13 +41,7 @@ export class CartService {
    * @returns {boolean} 성공 여부
    */
   updateCartItemQuantity(productId, quantityChange, productList) {
-    const success = cartStore.updateCartItemQuantity(productId, quantityChange, productList);
-
-    if (success) {
-      eventBus.emit(EVENT_TYPES.QUANTITY_CHANGED, { productId, quantityChange });
-    }
-
-    return success;
+    return cartStore.updateCartItemQuantity(productId, quantityChange, productList);
   }
 
   /**
@@ -75,13 +52,7 @@ export class CartService {
    * @returns {boolean} 성공 여부
    */
   removeProductFromCart(productId, productList) {
-    const success = cartStore.removeFromCart(productId, productList);
-
-    if (success) {
-      eventBus.emit(EVENT_TYPES.ITEM_REMOVED, { productId });
-    }
-
-    return success;
+    return cartStore.removeFromCart(productId, productList);
   }
 
   /**
@@ -156,7 +127,6 @@ export class CartService {
    */
   setLastSelectedProduct(productId) {
     cartStore.setLastSelectedProduct(productId);
-    eventBus.emit(EVENT_TYPES.PRODUCT_SELECTED, { productId });
   }
 
   /**
@@ -191,9 +161,7 @@ export class CartService {
    * 서비스 정리
    */
   destroy() {
-    if (this.unsubscribe) {
-      this.unsubscribe();
-    }
+    // EventBus 제거로 인해 정리할 것이 없음
   }
 }
 
