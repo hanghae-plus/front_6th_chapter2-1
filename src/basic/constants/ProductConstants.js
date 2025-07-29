@@ -1,0 +1,35 @@
+// 상품 ID 상수
+export const PRODUCT_IDS = {
+  KEYBOARD: 'p1',
+  MOUSE: 'p2',
+  MONITOR_ARM: 'p3',
+  LAPTOP_CASE: 'p4',
+  SPEAKER: 'p5',
+};
+
+// 상품 가격 상수
+export const PRODUCT_PRICES = {
+  [PRODUCT_IDS.KEYBOARD]: 10000,
+  [PRODUCT_IDS.MOUSE]: 20000,
+  [PRODUCT_IDS.MONITOR_ARM]: 30000,
+  [PRODUCT_IDS.LAPTOP_CASE]: 15000,
+  [PRODUCT_IDS.SPEAKER]: 25000,
+};
+
+// 상품명 상수
+export const PRODUCT_NAMES = {
+  [PRODUCT_IDS.KEYBOARD]: '버그 없애는 키보드',
+  [PRODUCT_IDS.MOUSE]: '생산성 폭발 마우스',
+  [PRODUCT_IDS.MONITOR_ARM]: '거북목 탈출 모니터암',
+  [PRODUCT_IDS.LAPTOP_CASE]: '에러 방지 노트북 파우치',
+  [PRODUCT_IDS.SPEAKER]: '코딩할 때 듣는 Lo-Fi 스피커',
+};
+
+// 초기 재고 상수
+export const INITIAL_STOCK = {
+  [PRODUCT_IDS.KEYBOARD]: 50,
+  [PRODUCT_IDS.MOUSE]: 30,
+  [PRODUCT_IDS.MONITOR_ARM]: 20,
+  [PRODUCT_IDS.LAPTOP_CASE]: 0,
+  [PRODUCT_IDS.SPEAKER]: 10,
+};
