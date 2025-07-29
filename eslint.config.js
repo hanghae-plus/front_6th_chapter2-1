@@ -13,7 +13,10 @@ export default defineConfig([
   },
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    languageOptions: { globals: globals.browser },
+    languageOptions: {
+      globals: globals.browser,
+      sourceType: 'module',
+    },
     plugins: {
       js,
       prettier,
