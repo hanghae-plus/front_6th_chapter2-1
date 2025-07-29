@@ -329,6 +329,27 @@ function main() {
   }, Math.random() * UI_CONSTANTS.SUGGEST_SALE_DELAY);
 }
 
+// 개별 상품 할인율 계산
+function calculateItemDiscount(productId, quantity) {
+  if (quantity < DISCOUNT_THRESHOLDS.INDIVIDUAL_ITEM) {
+    return 0;
+  }
+
+  if (productId === PRODUCT_IDS.KEYBOARD) {
+    return DISCOUNT_RATES.KEYBOARD;
+  } else if (productId === PRODUCT_IDS.MOUSE) {
+    return DISCOUNT_RATES.MOUSE;
+  } else if (productId === PRODUCT_IDS.MONITOR_ARM) {
+    return DISCOUNT_RATES.MONITOR_ARM;
+  } else if (productId === PRODUCT_IDS.LAPTOP_CASE) {
+    return DISCOUNT_RATES.LAPTOP_CASE;
+  } else if (productId === PRODUCT_IDS.SPEAKER) {
+    return DISCOUNT_RATES.SPEAKER;
+  }
+
+  return 0;
+}
+
 // 상품 선택 옵션 렌더링 및 재고 상태 표시
 function updateProductOptions() {
   let totalStock;
@@ -434,29 +455,9 @@ function calculateCartSummary() {
       });
 
       // 10개 이상 구매시 개별 할인 적용
-      if (q >= DISCOUNT_THRESHOLDS.INDIVIDUAL_ITEM) {
-        if (curItem.id === PRODUCT_IDS.KEYBOARD) {
-          disc = DISCOUNT_RATES.KEYBOARD;
-        } else {
-          if (curItem.id === PRODUCT_IDS.MOUSE) {
-            disc = DISCOUNT_RATES.MOUSE;
-          } else {
-            if (curItem.id === PRODUCT_IDS.MONITOR_ARM) {
-              disc = DISCOUNT_RATES.MONITOR_ARM;
-            } else {
-              if (curItem.id === PRODUCT_IDS.LAPTOP_CASE) {
-                disc = DISCOUNT_RATES.LAPTOP_CASE;
-              } else {
-                if (curItem.id === PRODUCT_IDS.SPEAKER) {
-                  disc = DISCOUNT_RATES.SPEAKER;
-                }
-              }
-            }
-          }
-        }
-        if (disc > 0) {
-          itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
-        }
+      disc = calculateItemDiscount(curItem.id, q);
+      if (disc > 0) {
+        itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
       }
 
       totalAmount += itemTot * (1 - disc);
