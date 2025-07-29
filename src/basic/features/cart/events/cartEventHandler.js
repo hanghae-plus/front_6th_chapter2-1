@@ -1,10 +1,11 @@
 import { renderCartItem } from "../components/CartItem.js";
-import { productUtils } from "../../product/services/productService.js";
+import { findProductById } from "../../product/utils/productUtils.js";
+import { productState } from "../../product/store/ProductStore.js";
 
 // Cart click handlers (moved from clickDelegates.js)
 const handleCartClick = (
   event,
-  { cartUtils, productUtils, onCalculate, onUpdateOptions }
+  { cartUtils, onCalculate, onUpdateOptions }
 ) => {
   const target = event.target;
 
@@ -19,7 +20,7 @@ const handleCartClick = (
   if (!productId) return;
 
   const itemElement = document.getElementById(productId);
-  const product = productUtils.findById(productId);
+  const product = findProductById(productId, productState.products);
 
   if (!product || !itemElement) return;
 
@@ -113,7 +114,7 @@ const cartUtils = {
 const handleAddToCart = () => {
   const productSelector = document.getElementById("product-select");
   const selectedProductId = productSelector.value;
-  const product = productUtils.findById(selectedProductId);
+  const product = findProductById(selectedProductId, productState.products);
 
   if (!product) return;
 
@@ -147,7 +148,6 @@ export const registerCartEvents = (onCalculate, onUpdateOptions) => {
     cartContainer.addEventListener("click", (event) => {
       handleCartClick(event, {
         cartUtils,
-        productUtils,
         onCalculate,
         onUpdateOptions,
       });
@@ -155,4 +155,4 @@ export const registerCartEvents = (onCalculate, onUpdateOptions) => {
   }
 };
 
-export { cartUtils, productUtils, handleAddToCart };
+export { cartUtils, handleAddToCart };

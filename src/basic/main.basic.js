@@ -34,7 +34,6 @@ import { registerCartEvents } from "./features/cart/events/cartEventHandler.js";
 const main = (callbackFn) => {
   const root = document.getElementById("app");
 
-  // 리액트처럼 간단한 초기화
   setProductState({
     products: initialProducts,
     amount: 0,
@@ -90,7 +89,7 @@ const calculateCart = (callback) => {
   }
 };
 
-main((helpModal) => {
+main(() => {
   updateProductSelector();
   calculateCart();
 

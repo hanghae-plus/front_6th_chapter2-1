@@ -4,6 +4,11 @@
  */
 
 import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
+import {
+  calculateBasePoints,
+  isTuesday,
+  getProductIdsFromCart,
+} from "../utils/pointsUtils.js";
 
 export class PointsCalculator {
   constructor(constants = {}, products = {}) {
@@ -67,7 +72,7 @@ export class PointsCalculator {
   }
 
   calculateBasePoints() {
-    const basePoints = Math.floor(this.totalAmount / 1000);
+    const basePoints = calculateBasePoints(this.totalAmount);
 
     if (basePoints > 0) {
       this.finalPoints = basePoints;
@@ -76,10 +81,10 @@ export class PointsCalculator {
   }
 
   applyTuesdayMultiplier() {
-    const isTuesday = new Date().getDay() === 2;
+    const todayIsTuesday = isTuesday();
 
-    if (isTuesday && this.finalPoints > 0) {
-      const basePoints = Math.floor(this.totalAmount / 1000);
+    if (todayIsTuesday && this.finalPoints > 0) {
+      const basePoints = calculateBasePoints(this.totalAmount);
       this.finalPoints = basePoints * 2;
       this.pointsDetail.push("화요일 2배");
     }
@@ -133,16 +138,7 @@ export class PointsCalculator {
   }
 
   getProductIdsInCart() {
-    const productIds = [];
-
-    for (const cartElement of this.cartElements) {
-      const product = this.findProductById(cartElement.id);
-      if (product) {
-        productIds.push(product.id);
-      }
-    }
-
-    return productIds;
+    return getProductIdsFromCart(this.cartElements, this.productList);
   }
 
   findProductById(productId) {

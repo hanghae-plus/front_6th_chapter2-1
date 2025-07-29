@@ -3,6 +3,8 @@
  * Handles cart calculations, discounts, and totals
  */
 
+import { calculateItemDiscountRate } from "../utils/discountUtils.js";
+
 export class CartCalculator {
   constructor(constants = {}, products = {}) {
     this.cartItems = [];
@@ -116,19 +118,12 @@ export class CartCalculator {
   }
 
   calculateItemDiscount(productId, quantity) {
-    if (quantity < this.constants.DISCOUNT.ITEM_DISCOUNT_MIN_QUANTITY) {
-      return 0;
-    }
-
-    const discountRates = {
-      [this.products.KEYBOARD]: 0.1,
-      [this.products.MOUSE]: 0.15,
-      [this.products.MONITOR_ARM]: 0.2,
-      [this.products.LAPTOP_POUCH]: 0.05,
-      [this.products.SPEAKER]: 0.25,
-    };
-
-    return discountRates[productId] || 0;
+    return calculateItemDiscountRate(
+      productId,
+      quantity,
+      this.constants,
+      this.products
+    );
   }
 
   highlightDiscountableItems(cartItem, quantity) {
