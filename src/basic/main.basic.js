@@ -11,7 +11,6 @@ import {
   POINT_RATES,
   STOCK_THRESHOLDS,
 } from '../constants/shopPolicy.js';
-
 import { createManual } from '../components/Manual/index.js';
 import { createManualToggle } from '../components/ManualToggle.js';
 import { createHeader } from '../components/Header.js';
@@ -85,12 +84,11 @@ let lastSel = null;
 let sel;
 let totalAmt = 0;
 let cartDisp;
+let sum;
 
-// 유틸리티 함수: 상품 ID로 상품 찾기
 const findProductById = (productId) =>
   prodList.find((product) => product.id === productId);
 
-// 유틸리티 함수: 상품별 할인율 가져오기
 const getProductDiscount = (productId) => {
   const discountMap = {
     [KEYBOARD_ID]: DISCOUNT_RATES.PRODUCT.KEYBOARD,
@@ -102,7 +100,6 @@ const getProductDiscount = (productId) => {
   return discountMap[productId] || 0;
 };
 
-// 유틸리티 함수: 대량구매 보너스 포인트 계산
 const getBulkBonus = (itemCount) => {
   if (itemCount >= QUANTITY_THRESHOLDS.BONUS_LARGE) {
     return {
@@ -123,7 +120,6 @@ const getBulkBonus = (itemCount) => {
   return null;
 };
 
-// 유틸리티 함수: 수량 요소에서 숫자 추출
 const getQuantityFromElement = (element) => parseInt(element.textContent) || 0;
 
 function main() {
@@ -134,22 +130,13 @@ function main() {
   let selectorContainer;
   let rightColumn;
 
-  // 상품 데이터 초기화
-  // prodList는 이미 전역으로 사용 가능
   root = document.getElementById('app');
-
-  // 헤더 컴포넌트 생성
   header = createHeader({ itemCount: 0 });
-
-  // 레이아웃 컴포넌트 생성
   gridContainer = createGridContainer();
   leftColumn = createLeftColumn();
-
-  // 상품 선택기 컴포넌트 생성
   selectorContainer = createProductSelector();
   sel = selectorContainer.querySelector('#product-select');
   stockInfo = selectorContainer.querySelector('#stock-status');
-
   leftColumn.appendChild(selectorContainer);
   cartDisp = createCartDisplay();
   leftColumn.appendChild(cartDisp);
@@ -162,15 +149,8 @@ function main() {
     itemDiscounts: [],
     isTuesday: false,
     totalAmt: 0,
-    constants: { QUANTITY_THRESHOLDS, DISCOUNT_RATES },
     findProductById,
     getQuantityFromElement,
-    formatPrice,
-    discRate: 0,
-    originalTotal: 0,
-    loyaltyPoints: 0,
-    tuesdayMessage: 'Tuesday Special 10% Applied',
-    pointsNotice: 'Earn loyalty points with purchase.',
   });
 
   rightColumn.appendChild(orderSummaryElement);
@@ -212,7 +192,6 @@ function main() {
   startLightningSale(prodList, onUpdateSelectOptions, handlePriceUpdate);
   startSuggestSale(prodList, lastSel, onUpdateSelectOptions, handlePriceUpdate);
 }
-let sum;
 function onUpdateSelectOptions() {
   createProductOptions(sel, prodList, STOCK_THRESHOLDS);
 }
