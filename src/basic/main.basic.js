@@ -87,9 +87,28 @@ function main() {
   // OrderSummary 컴포넌트 생성
   const orderSummary = createOrderSummary();
 
-  // OrderService 구독하여 OrderSummary 업데이트
-  orderService.subscribeToChanges(orderState => {
-    updateOrderSummary(orderSummary, orderState);
+  uiEventBus.on("order:summary:calculated", data => {
+    if (data.success) {
+      updateOrderSummary(orderSummary, data.orderSummary);
+    }
+  });
+
+  uiEventBus.on("order:ui:updated", data => {
+    if (data.success) {
+      updateOrderSummary(orderSummary, data.orderSummary);
+    }
+  });
+
+  // 포인트 계산 결과 처리
+  uiEventBus.on("order:calculation:completed", data => {
+    if (data.success) {
+      const orderState = {
+        ...data.orderSummary,
+        totalPoints: data.pointsResult.totalPoints,
+        pointsDetails: data.pointsResult.details,
+      };
+      updateOrderSummary(orderSummary, orderState);
+    }
   });
 
   rightColumn.appendChild(orderSummary);
