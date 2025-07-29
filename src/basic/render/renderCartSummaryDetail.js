@@ -48,7 +48,7 @@ export const renderCartSummaryDetail = ({ cartItems, productList, appState }) =>
         </div>
       `;
     } else if (discountedProductList.length > 0) {
-      discountedProductList.forEach(function (item) {
+      discountedProductList.forEach((item) => {
         summaryDetails.innerHTML += /* HTML */ `
           <div class="flex justify-between text-sm tracking-wide text-green-400">
             <span class="text-xs">${item.name} (10개↑)</span>
@@ -57,6 +57,7 @@ export const renderCartSummaryDetail = ({ cartItems, productList, appState }) =>
         `;
       });
     }
+
     // 화요일 할인
     if (isTodayTuesday()) {
       if (totalAfterDiscount > 0) {

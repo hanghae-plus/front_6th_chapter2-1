@@ -19,6 +19,7 @@ import { findSuggestedProduct } from './utils/findSuggestedProduct';
 import { getTotalStock } from './utils/getTotalStock';
 
 import { calculateCartSummary } from './services/calculateCartSummary';
+import { calculateBonusPoint } from './services/calculateBonusPoint';
 
 import { renderBonusPoints } from './render/renderBonusPoint';
 import { renderCartSummaryDetail } from './render/renderCartSummaryDetail';
@@ -84,9 +85,10 @@ const productList = [
 ];
 
 const appState = {
-  totalPoint: 0, // 최종 적립 포인트
-  totalProductCount: 0, // 장바구니 내 총 상품 수 (헤더)
+  totalPoints: 0, // 최종 적립 포인트
+  pointsDetail: [], // 포인트 상세 문자열
 
+  totalProductCount: 0, // 장바구니 내 총 상품 수 (헤더)
   totalBeforeDiscount: 0, // 할인 전 장바구니 내 총 상품 가격
   totalAfterDiscount: 0, // 장바구니 내 총 상품 가격
 
@@ -177,7 +179,7 @@ function main() {
   // 장바구니 계산
   handleCalculateCartStuff();
   // 셀렉터 옵션 업데이트
-  onUpdateSelectOptions();
+  updateSelectOptions();
 
   // 세일 추천 alert 함수
   // 첫번째 - 번개 세일
@@ -196,8 +198,8 @@ function main() {
         alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
 
         // 셀렉트 옵션 및 장바구니 상태 업데이트
-        onUpdateSelectOptions();
-        doUpdatePricesInCart();
+        updateSelectOptions();
+        updatePricesInCart();
       }
       // 30초마다 시도
     }, 30000);
@@ -220,8 +222,8 @@ function main() {
           suggestedProduct.suggestSale = true;
 
           // 셀렉트 옵션 및 장바구니 상태 업데이트
-          onUpdateSelectOptions();
-          doUpdatePricesInCart();
+          updateSelectOptions();
+          updatePricesInCart();
         }
       }
       // 60초마다 시도
@@ -229,8 +231,10 @@ function main() {
   }, getRandomNumber(20000)); // 초기 지연 1 ~ 20초
 }
 
+// ----------------------------------------------
+
 // 셀렉트 내의 옵션 텍스트 업데이트
-function onUpdateSelectOptions() {
+function updateSelectOptions() {
   // 셀렉터 내의 옵션들 초기화
   sel.innerHTML = '';
 
@@ -253,8 +257,6 @@ function onUpdateSelectOptions() {
   }
 }
 
-// ----------------------------------------------
-
 // 장바구니 가격 계산 + 출력 함수
 function handleCalculateCartStuff() {
   // 장바구니 내 상품 목록
@@ -273,6 +275,11 @@ function handleCalculateCartStuff() {
   appState.totalDiscountedRate = totalDiscountedRate;
   appState.discountedProductList = discountedProductList;
 
+  const { totalPoints, pointsDetail } = calculateBonusPoint({ cartItems, productList, appState });
+
+  appState.totalPoints = totalPoints;
+  appState.pointsDetail = pointsDetail;
+
   // UI 장바구니 관련 출력 ----------------------------
 
   renderTuesdaySpecial(appState);
@@ -280,13 +287,13 @@ function handleCalculateCartStuff() {
   renderCartTotalPrice(appState, cartTotal);
   renderDiscountRate(appState);
   renderTotalProductCount(appState);
-  renderBonusPoints({ cartItems, productList, appState });
+  renderBonusPoints(appState);
 }
 
 // -------------------------------------
 
 // 재고 품절 텍스트를 stockInfo에 출력
-function handleStockInfoUpdate() {
+function updateStockInfo() {
   let infoMsg = '';
 
   productList.forEach(function (item) {
@@ -302,7 +309,7 @@ function handleStockInfoUpdate() {
 }
 
 // 장바구니 상품 정보 업데이트
-function doUpdatePricesInCart() {
+function updatePricesInCart() {
   let totalCount = 0;
   const cartItems = cartDisp.children;
 
@@ -359,7 +366,7 @@ function doUpdatePricesInCart() {
   // 장바구니 계산 처리
   handleCalculateCartStuff();
   // 재고 처리 업데이트
-  handleStockInfoUpdate();
+  updateStockInfo();
 }
 
 // 페이지 렌더링
@@ -415,7 +422,7 @@ addBtn.addEventListener('click', function () {
     // 장바구니 관련 계산
     handleCalculateCartStuff();
     // 재고 처리 업데이트
-    handleStockInfoUpdate();
+    updateStockInfo();
     appState.lastSelectedProductId = selItem;
   }
 });
@@ -471,8 +478,8 @@ cartDisp.addEventListener('click', function (event) {
     // 장바구니 관련 계산
     handleCalculateCartStuff();
     // 재고 처리 업데이트
-    handleStockInfoUpdate();
+    updateStockInfo();
     // 셀렉터 옵션 업데이트
-    onUpdateSelectOptions();
+    updateSelectOptions();
   }
 });
