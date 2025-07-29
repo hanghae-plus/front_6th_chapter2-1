@@ -1,3 +1,7 @@
+// 유틸리티 함수 import
+import { createElement, createElements, addEventListeners, bindEvents, render } from './utils.js';
+
+
 // 전역 변수 선언
 // 상태 관리 변수
 var prodList
@@ -12,6 +16,7 @@ var totalAmt = 0
 var sel
 var addBtn
 var cartDisp
+var sum
 
 
 // 상품 ID 상수
@@ -61,109 +66,100 @@ function main() {
   
   
   // DOM 요소 생성 시작
-  var root = document.getElementById('app')
+  root = document.getElementById('app')
   
   
-  // 헤더 섹션 생성
-  header = document.createElement('div');
-  header.className = 'mb-8'
-  header.innerHTML = `
-    <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
-    <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-    <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
-  `;
+  // 헤더 생성
+  header = createElement(`
+    <div class="mb-8">
+      <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
+      <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
+      <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
+    </div>
+  `);
   
   
-  // 상품 선택 드롭다운 생성
-  sel = document.createElement('select');
-  sel.id = 'product-select';
+  // 메인 그리드 컨테이너 생성
+  gridContainer = createElement(`
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden"></div>
+  `);
   
   
-  // 메인 레이아웃 컨테이너 생성
-  gridContainer = document.createElement('div');
-  leftColumn = document.createElement("div");
-  leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto'
-  selectorContainer = document.createElement('div');
-  selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
-  sel.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
-  gridContainer.className = 'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
+  // 왼쪽 컬럼 생성
+  leftColumn = createElement(`
+    <div class="bg-white border border-gray-200 p-8 overflow-y-auto">
+      <!-- 상품 선택 영역 -->
+      <div class="mb-6 pb-6 border-b border-gray-200">
+        <select id="product-select" class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"></select>
+        <button id="add-to-cart" class="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all">Add to Cart</button>
+        <div id="stock-status" class="text-xs text-red-500 mt-3 whitespace-pre-line"></div>
+      </div>
+      <!-- 장바구니 아이템 -->
+      <div id="cart-items"></div>
+    </div>
+  `);
   
   
-  // 장바구니 추가 버튼 및 재고 정보 생성
-  addBtn = document.createElement('button');
-  stockInfo = document.createElement('div');
-  addBtn.id = 'add-to-cart';
-  stockInfo.id = 'stock-status';
-  stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
-  addBtn.innerHTML = 'Add to Cart';
-  addBtn.className = 'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
-  
-  
-  // 선택 영역 DOM 조립
-  selectorContainer.appendChild(sel);
-  selectorContainer.appendChild(addBtn);
-  selectorContainer.appendChild(stockInfo);
-  leftColumn.appendChild(selectorContainer);
-  
-  
-  // 장바구니 아이템 컨테이너 생성
-  cartDisp = document.createElement('div');
-  leftColumn.appendChild(cartDisp);
-  cartDisp.id = 'cart-items';
-  
-  
-  // 오른쪽 주문 요약 섹션 생성
-  rightColumn = document.createElement('div');
-  rightColumn.className = 'bg-black text-white p-8 flex flex-col';
-  rightColumn.innerHTML = `
-    <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
-    <div class="flex-1 flex flex-col">
-      <div id="summary-details" class="space-y-3"></div>
-      <div class="mt-auto">
-        <div id="discount-info" class="mb-4"></div>
-        <div id="cart-total" class="pt-5 border-t border-white/10">
-          <div class="flex justify-between items-baseline">
-            <span class="text-sm uppercase tracking-wider">Total</span>
-            <div class="text-2xl tracking-tight">₩0</div>
+  // 오른쪽 컬럼 생성
+  rightColumn = createElement(`
+    <div class="bg-black text-white p-8 flex flex-col">
+      <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
+      <div class="flex-1 flex flex-col">
+        <div id="summary-details" class="space-y-3"></div>
+        <div class="mt-auto">
+          <div id="discount-info" class="mb-4"></div>
+          <div id="cart-total" class="pt-5 border-t border-white/10">
+            <div class="flex justify-between items-baseline">
+              <span class="text-sm uppercase tracking-wider">Total</span>
+              <div class="text-2xl tracking-tight">₩0</div>
+            </div>
+            <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
           </div>
-          <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
-        </div>
-        <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
-          <div class="flex items-center gap-2">
-            <span class="text-2xs">🎉</span>
-            <span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
+          <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
+            <div class="flex items-center gap-2">
+              <span class="text-2xs">🎉</span>
+              <span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
+            </div>
           </div>
         </div>
       </div>
+      <button class="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">
+        Proceed to Checkout
+      </button>
+      <p class="mt-4 text-2xs text-white/60 text-center leading-relaxed">
+        Free shipping on all orders.<br>
+        <span id="points-notice">Earn loyalty points with purchase.</span>
+      </p>
     </div>
-    <button class="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">
-      Proceed to Checkout
-    </button>
-    <p class="mt-4 text-2xs text-white/60 text-center leading-relaxed">
-      Free shipping on all orders.<br>
-      <span id="points-notice">Earn loyalty points with purchase.</span>
-    </p>
-  `;
+  `);
+  
+  
+  // DOM 요소 참조 설정
+  sel = leftColumn.querySelector('#product-select');
+  addBtn = leftColumn.querySelector('#add-to-cart');
+  cartDisp = leftColumn.querySelector('#cart-items');
+  stockInfo = leftColumn.querySelector('#stock-status');
   sum = rightColumn.querySelector('#cart-total');
   
   
   // 도움말 버튼 생성
-  manualToggle = document.createElement('button');
+  manualToggle = createElement(`
+    <button class="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </button>
+  `);
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle('hidden');
     manualColumn.classList.toggle('translate-x-full');
   };
-  manualToggle.className = 'fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50';
-  manualToggle.innerHTML = `
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-  `;
   
   
   // 도움말 모달 오버레이 생성
-  manualOverlay = document.createElement('div');
-  manualOverlay.className = 'fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300';
+  manualOverlay = createElement(`
+    <div class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
+  `);
   manualOverlay.onclick = function (e) {
     if (e.target === manualOverlay) {
       manualOverlay.classList.add('hidden');
@@ -173,9 +169,8 @@ function main() {
   
   
   // 도움말 사이드바 생성
-  manualColumn = document.createElement('div');
-  manualColumn.className = 'fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300';
-  manualColumn.innerHTML = `
+  manualColumn = createElement(`
+    <div class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300">
     <button class="absolute top-4 right-4 text-gray-500 hover:text-black" onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -240,7 +235,8 @@ function main() {
         • 상품4 = 품절
       </p>
     </div>
-  `;
+    </div>
+  `);
   
   
   // DOM 트리 최종 조립
@@ -342,7 +338,7 @@ function onUpdateSelectOptions() {
   for (var i = 0; i < prodList.length; i++) {
     (function() {
       var item = prodList[i];
-      opt = document.createElement("option")
+      opt = createElement(`<option></option>`)
       opt.value = item.id;
       discountText = '';
       if (item.onSale) discountText += ' ⚡SALE';
@@ -903,10 +899,8 @@ addBtn.addEventListener("click", function () {
         alert('재고가 부족합니다.');
       }
     } else {
-      var newItem = document.createElement('div');
-      newItem.id = itemToAdd.id;
-      newItem.className = 'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
-      newItem.innerHTML = `
+      var newItem = createElement(`
+        <div id="${itemToAdd.id}" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
         <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
           <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
         </div>
@@ -924,7 +918,8 @@ addBtn.addEventListener("click", function () {
           <div class="text-lg mb-2 tracking-tight tabular-nums">${itemToAdd.onSale || itemToAdd.suggestSale ? `<span class="line-through text-gray-400">₩${itemToAdd.originalVal.toLocaleString()}</span> <span class="${itemToAdd.onSale && itemToAdd.suggestSale ? 'text-purple-600' : itemToAdd.onSale ? 'text-red-500' : 'text-blue-500'}">₩${itemToAdd.val.toLocaleString()}</span>` : `₩${itemToAdd.val.toLocaleString()}`}</div>
           <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemToAdd.id}">Remove</a>
         </div>
-      `;
+        </div>
+      `);
       cartDisp.appendChild(newItem);
       itemToAdd.q--;
     }
