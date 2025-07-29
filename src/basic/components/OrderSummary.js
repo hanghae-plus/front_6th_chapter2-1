@@ -1,5 +1,5 @@
 // OrderSummary 컴포넌트
-export function createOrderSummary({ onCheckout }) {
+export function createOrderSummary() {
   const orderSummaryContainer = document.createElement("div");
   orderSummaryContainer.className = "flex-1 flex flex-col";
 
@@ -33,12 +33,6 @@ export function createOrderSummary({ onCheckout }) {
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
-
-  // 체크아웃 버튼 이벤트 리스너 등록
-  const checkoutButton = orderSummaryContainer.querySelector("button");
-  if (onCheckout) {
-    checkoutButton.addEventListener("click", onCheckout);
-  }
 
   return orderSummaryContainer;
 }

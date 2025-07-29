@@ -24,6 +24,11 @@ import { findProductById } from "./utils/productUtils.js";
 import { generateStockWarningMessage } from "./utils/stockUtils.js";
 import { getCartItemQuantity, setCartItemQuantity, extractNumberFromText } from "./utils/domUtils.js";
 
+// patterns
+import { uiEventBus } from "./patterns/uiEventBus.js";
+import { CartEventListeners } from "./patterns/cartEventListeners.js";
+import { ProductEventListeners } from "./patterns/productEventListeners.js";
+
 // 전역 상태 관리 인스턴스
 let productService; // 전역 ProductService 인스턴스
 let cartService; // 전역 CartService 인스턴스
@@ -60,15 +65,17 @@ function handleQuantityChange(productId, quantityChange) {
   const currentQuantity = getCartItemQuantity(cartItemElement);
   const newQuantity = currentQuantity + quantityChange;
 
-  if (newQuantity <= 0) {
-    cartItemElement.remove();
-  } else {
-    updateCartItemQuantity(cartItemElement, newQuantity);
-    updateCartItemPriceStyle(cartItemElement, newQuantity);
-  }
+  // Event Bus를 통해 이벤트 발송 (직접적인 UI 업데이트 제거)
+  uiEventBus.emit("cart:quantity:changed", {
+    productId,
+    quantityChange,
+    newQuantity,
+    success,
+  });
 
-  updateCartSummary();
-  onUpdateSelectOptions();
+  // UI 업데이트도 Event Bus를 통해 처리
+  uiEventBus.emit("cart:summary:updated");
+  uiEventBus.emit("product:options:updated");
 }
 
 // 장바구니 아이템 제거
@@ -76,15 +83,15 @@ function handleRemoveItem(productId) {
   // 4단계: cartService의 아이템 제거 로직 사용
   const success = cartService.removeProductFromCart(productId, PRODUCT_LIST);
 
-  if (success) {
-    const cartItemElement = document.getElementById(productId);
-    if (cartItemElement) {
-      cartItemElement.remove();
-    }
-  }
+  // Event Bus를 통해 이벤트 발송 (직접적인 UI 업데이트 제거)
+  uiEventBus.emit("cart:item:removed", {
+    productId,
+    success,
+  });
 
-  updateCartSummary();
-  onUpdateSelectOptions();
+  // UI 업데이트도 Event Bus를 통해 처리
+  uiEventBus.emit("cart:summary:updated");
+  uiEventBus.emit("product:options:updated");
 }
 
 // 상품을 장바구니에 추가
@@ -125,7 +132,21 @@ function handleAddToCart(productList) {
     }
   }
 
-  updateCartSummary();
+  // Event Bus를 통해 이벤트 발송
+  uiEventBus.emit("cart:item:added", {
+    product: targetProduct,
+    success: true,
+  });
+
+  // UI 업데이트도 Event Bus를 통해 처리
+  uiEventBus.emit("cart:summary:updated");
+}
+
+// Event Bus 이벤트 리스너 초기화
+function initEventBusListeners() {
+  // 각 컴포넌트별 이벤트 리스너 초기화
+  new CartEventListeners(uiEventBus, cartService);
+  new ProductEventListeners(uiEventBus);
 }
 
 function main() {
@@ -156,11 +177,7 @@ function main() {
   leftColumn.appendChild(cartDisplay);
 
   // OrderSummary 컴포넌트 생성
-  const orderSummary = createOrderSummary({
-    onCheckout: () => {
-      console.log("Proceed to checkout");
-    },
-  });
+  const orderSummary = createOrderSummary();
 
   // OrderService 구독하여 OrderSummary 업데이트
   orderService.subscribeToChanges(orderState => {
@@ -175,6 +192,9 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualSystem.toggle);
   root.appendChild(manualSystem.overlay);
+
+  // Event Bus 이벤트 리스너 등록
+  initEventBusListeners();
 
   onUpdateSelectOptions();
   updateCartSummary(cartDisplay, selectorContainer);
@@ -269,4 +289,5 @@ function updateCartUI(cartItems, discountResult) {
   updateItemCountDisplay(cartService.getItemCount());
   updateStockDisplay();
 }
+
 main();

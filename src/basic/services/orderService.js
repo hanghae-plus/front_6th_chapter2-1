@@ -51,19 +51,6 @@ export class OrderService {
   }
 
   /**
-   * 체크아웃을 처리합니다.
-   */
-  processCheckout() {
-    const state = this.orderStore.getState();
-    if (state.totalAmount > 0) {
-      // 체크아웃 로직
-      this.orderStore.updateOrderSummary({ isCheckoutReady: true });
-      return { success: true, orderData: state };
-    }
-    return { success: false, message: "장바구니가 비어있습니다." };
-  }
-
-  /**
    * 주문 상태를 구독합니다.
    */
   subscribeToChanges(callback) {
