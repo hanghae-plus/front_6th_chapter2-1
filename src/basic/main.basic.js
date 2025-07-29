@@ -278,8 +278,11 @@ function main() {
 function onUpdateSelectOptions() {
   const totalStock = getTotalStock(productList);
 
-  // 왜 할까
-  selector.innerHTML = '';
+  if (totalStock < 50) {
+    selector.style.borderColor = 'orange';
+  } else {
+    selector.style.borderColor = '';
+  }
 
   // 옵션요소 세팅
   for (let i = 0; i < productList.length; i++) {
@@ -298,13 +301,6 @@ function onUpdateSelectOptions() {
     }
 
     selector.appendChild(option);
-  }
-
-  // 총 재고량에 따라 UI 변경
-  if (totalStock < 50) {
-    selector.style.borderColor = 'orange';
-  } else {
-    selector.style.borderColor = '';
   }
 }
 
