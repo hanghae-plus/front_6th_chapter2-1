@@ -10,7 +10,7 @@ const prodList = [
   {
     id: PRODUCT_ONE,
     name: "버그 없애는 키보드",
-    val: 10000,
+    price: 10000,
     originalVal: 10000,
     quantity: 50,
     onSale: false,
@@ -19,7 +19,7 @@ const prodList = [
   {
     id: PRODUCT_TWO,
     name: "생산성 폭발 마우스",
-    val: 20000,
+    price: 20000,
     originalVal: 20000,
     quantity: 30,
     onSale: false,
@@ -28,7 +28,7 @@ const prodList = [
   {
     id: PRODUCT_THREE,
     name: "거북목 탈출 모니터암",
-    val: 30000,
+    price: 30000,
     originalVal: 30000,
     quantity: 20,
     onSale: false,
@@ -37,7 +37,7 @@ const prodList = [
   {
     id: PRODUCT_FOUR,
     name: "에러 방지 노트북 파우치",
-    val: 15000,
+    price: 15000,
     originalVal: 15000,
     quantity: 0,
     onSale: false,
@@ -46,7 +46,7 @@ const prodList = [
   {
     id: PRODUCT_FIVE,
     name: `코딩할 때 듣는 Lo-Fi 스피커`,
-    val: 25000,
+    price: 25000,
     originalVal: 25000,
     quantity: 10,
     onSale: false,

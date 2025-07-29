@@ -74,7 +74,7 @@ const main = () => {
       const luckyIdx = Math.floor(Math.random() * prodList.length);
       const luckyItem = prodList[luckyIdx];
       if (luckyItem.quantity > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
+        luckyItem.price = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
         alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
         onUpdateSelectOptions();
@@ -88,7 +88,7 @@ const main = () => {
         let suggest = null;
         for (let k = 0; k < prodList.length; k++) {
           if (prodList[k].id !== lastSel) {
-            if (prodList[k].q > 0) {
+            if (prodList[k].quantity > 0) {
               if (!prodList[k].suggestSale) {
                 suggest = prodList[k];
                 break;
@@ -100,7 +100,7 @@ const main = () => {
           alert(
             `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`
           );
-          suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
+          suggest.price = Math.round((suggest.price * (100 - 5)) / 100);
           suggest.suggestSale = true;
           onUpdateSelectOptions();
           doUpdatePricesInCart();
@@ -127,21 +127,21 @@ const onUpdateSelectOptions = () => {
     if (item.onSale) discountText += " ⚡SALE";
     if (item.suggestSale) discountText += " 💝추천";
     if (item.quantity === 0) {
-      opt.textContent = `${item.name} - ${item.val}원 (품절) ${discountText}`;
+      opt.textContent = `${item.name} - ${item.price}원 (품절) ${discountText}`;
       opt.disabled = true;
       opt.className = "text-gray-400";
     } else {
       if (item.onSale && item.suggestSale) {
-        opt.textContent = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)`;
+        opt.textContent = `⚡💝${item.name} - ${item.originalVal}원 → ${item.price}원 (25% SUPER SALE!)`;
         opt.className = "text-purple-600 font-bold";
       } else if (item.onSale) {
-        opt.textContent = `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)`;
+        opt.textContent = `⚡${item.name} - ${item.originalVal}원 → ${item.price}원 (20% SALE!)`;
         opt.className = "text-red-500 font-bold";
       } else if (item.suggestSale) {
-        opt.textContent = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)`;
+        opt.textContent = `💝${item.name} - ${item.originalVal}원 → ${item.price}원 (5% 추천할인!)`;
         opt.className = "text-blue-500 font-bold";
       } else {
-        opt.textContent = item.name + " - " + item.val + "원" + discountText;
+        opt.textContent = item.name + " - " + item.price + "원" + discountText;
       }
     }
     productSelector.appendChild(opt);
@@ -178,7 +178,7 @@ const handleCalculateCartStuff = () => {
     }
     const qtyElem = cartItems[i].querySelector(".quantity-number");
     let q = parseInt(qtyElem.textContent);
-    let itemTot = curItem.val * q;
+    let itemTot = curItem.price * q;
     let disc = 0;
 
     itemCnt += q;
@@ -253,7 +253,7 @@ const handleCalculateCartStuff = () => {
       }
       const qtyElem = cartItems[i].querySelector(".quantity-number");
       const q = parseInt(qtyElem.textContent);
-      const itemTotal = curItem.val * q;
+      const itemTotal = curItem.price * q;
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
           <span>${curItem.name} x ${q}</span>
@@ -466,16 +466,16 @@ const doUpdatePricesInCart = () => {
       const priceDiv = cartItems[i].querySelector(".text-lg");
       const nameDiv = cartItems[i].querySelector("h3");
       if (product.onSale && product.suggestSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
+        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.price.toLocaleString()}</span>`;
         nameDiv.textContent = `⚡💝${product.name}`;
       } else if (product.onSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.val.toLocaleString()}</span>`;
+        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.price.toLocaleString()}</span>`;
         nameDiv.textContent = "⚡" + product.name;
       } else if (product.suggestSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.val.toLocaleString()}</span>`;
+        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.price.toLocaleString()}</span>`;
         nameDiv.textContent = "💝" + product.name;
       } else {
-        priceDiv.textContent = "₩" + product.val.toLocaleString();
+        priceDiv.textContent = "₩" + product.price.toLocaleString();
         nameDiv.textContent = product.name;
       }
     }
