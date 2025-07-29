@@ -1,5 +1,6 @@
 import { Header } from "./components/Header";
 import { products, productIds } from "./store/product";
+import { calculateItemDiscount } from "./utils/calculateCart/calculateItemDiscount";
 import {
   startLightningSaleTimer,
   startRecommendationTimer,
@@ -305,10 +306,9 @@ function handleCalculateCartStuff() {
     var qtyElem = cartItems[i].querySelector(".quantity-number");
     var q;
     var itemTot;
-    var disc;
+
     q = parseInt(qtyElem.textContent);
     itemTot = curItem.val * q;
-    disc = 0;
     itemCnt += q;
     subTot += itemTot;
     var itemDiv = cartItems[i];
@@ -318,29 +318,10 @@ function handleCalculateCartStuff() {
         elem.style.fontWeight = q >= 10 ? "bold" : "normal";
       }
     });
-    if (q >= 10) {
-      if (curItem.id === productIds.p1) {
-        disc = 10 / 100;
-      } else {
-        if (curItem.id === productIds.p2) {
-          disc = 15 / 100;
-        } else {
-          if (curItem.id === productIds.p3) {
-            disc = 20 / 100;
-          } else {
-            if (curItem.id === productIds.p4) {
-              disc = 5 / 100;
-            } else {
-              if (curItem.id === productIds.p5) {
-                disc = 25 / 100;
-              }
-            }
-          }
-        }
-      }
-      if (disc > 0) {
-        itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
-      }
+
+    const disc = calculateItemDiscount(curItem.id, q);
+    if (disc > 0) {
+      itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
     }
     totalAmt += itemTot * (1 - disc);
   }
