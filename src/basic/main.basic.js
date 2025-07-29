@@ -39,7 +39,7 @@ function handleQuantityChange(productId, quantityChange) {
     updateCartItemPriceStyle(cartItemElement, newQuantity);
   }
 
-  handleCalculateCartStuff();
+  updateCartSummary();
   onUpdateSelectOptions();
 }
 
@@ -55,7 +55,7 @@ function handleRemoveItem(productId) {
     }
   }
 
-  handleCalculateCartStuff();
+  updateCartSummary();
   onUpdateSelectOptions();
 }
 
@@ -95,7 +95,7 @@ function handleAddToCart(productList, cartDisplay) {
     }
   }
 
-  handleCalculateCartStuff();
+  updateCartSummary();
   appState.setLastSelectedProduct(selectedProductId);
 }
 
@@ -127,13 +127,12 @@ function main() {
   const stockInfo = selectorContainer.querySelector("#stock-status");
   appState.setStockInfo(stockInfo);
 
-  const cartDisp = document.createElement("div");
-  cartDisp.id = "cart-items";
-  appState.setCartDisplay(cartDisp);
+  const cartDisplay = document.createElement("div");
+  cartDisplay.id = "cart-items";
+  appState.setCartDisplay(cartDisplay);
 
   leftColumn.appendChild(selectorContainer);
-  leftColumn.appendChild(cartDisp);
-
+  leftColumn.appendChild(cartDisplay);
 
   // OrderSummary 컴포넌트 생성
   const orderSummary = createOrderSummary({
@@ -157,7 +156,7 @@ function main() {
   root.appendChild(manualSystem.overlay);
 
   onUpdateSelectOptions();
-  handleCalculateCartStuff();
+  updateCartSummary();
   const lightningDelay = Math.random() * TIMERS.LIGHTNING_SALE_DELAY;
   setTimeout(() => {
     setInterval(() => {
@@ -211,28 +210,6 @@ function onUpdateSelectOptions() {
   updateProductOptions(appState.getSelectorContainer(), PRODUCT_LIST, totalStock, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
   updateStockInfo(appState.getSelectorContainer(), PRODUCT_LIST, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
 }
-function handleCalculateCartStuff() {
-  const cartItems = appState.getCartDisplay().children;
-
-  // 1. 장바구니 총계 계산
-  const { totalAmt: calculatedTotal, itemCnt: calculatedItemCnt, subTot, itemDiscounts } = calculateCartTotals(cartItems, PRODUCT_LIST);
-
-  // 2. 할인 적용
-  const { totalAmt: finalTotal, discRate, originalTotal, isTuesday } = applyBulkAndSpecialDiscounts(calculatedTotal, calculatedItemCnt, subTot);
-
-  // State 업데이트
-  appState.setTotalAmount(finalTotal);
-  appState.setItemCount(calculatedItemCnt);
-
-  // 3. UI 업데이트
-  updateCartItemStyles(cartItems);
-  updateHeaderItemCount(appState.getHeader(), appState.getItemCount());
-  updateOrderSummaryUI(cartItems, subTot, finalTotal, itemDiscounts, isTuesday, appState.getItemCount(), discRate, originalTotal);
-  updateItemCountDisplay(appState.getItemCount());
-  updateStockDisplay();
-
-  handleStockInfoUpdate();
-}
 
 function updateCartItemStyles(cartItems) {
   for (let i = 0; i < cartItems.length; i++) {
@@ -249,18 +226,18 @@ function updateCartItemStyles(cartItems) {
   }
 }
 
-function updateOrderSummaryUI(cartItems, subTot, totalAmt, itemDiscounts, isTuesday, itemCnt, discRate, originalTotal) {
+function updateOrderSummaryUI(cartItems, subtotal, totalAmount, itemDiscounts, isTuesday, itemCount, discountRate, originalTotal) {
   const orderSummary = document.querySelector(".bg-black.text-white.p-8.flex.flex-col > div");
   if (orderSummary) {
     updateOrderSummary(orderSummary, {
       cartItems: Array.from(cartItems),
-      subtotal: subTot,
-      totalAmount: totalAmt,
+      subtotal,
+      totalAmount,
       itemDiscounts,
       isTuesday,
-      itemCount: itemCnt,
-      discountRate: discRate,
-      savedAmount: originalTotal - totalAmt,
+      itemCount,
+      discountRate,
+      savedAmount: originalTotal - totalAmount,
     });
   }
 }
@@ -300,6 +277,46 @@ function doUpdatePricesInCart() {
     }
   }
 
-  handleCalculateCartStuff();
+  updateCartSummary();
+}
+
+function updateCartSummary() {
+  const cartItems = appState.getCartDisplay().children;
+
+  // 1. 장바구니 총계 계산
+  const cartTotals = calculateCartTotals(cartItems, PRODUCT_LIST);
+
+  // 2. 할인 적용
+  const discountResult = applyBulkAndSpecialDiscounts(cartTotals.totalAmt, cartTotals.itemCnt, cartTotals.subtotal);
+
+  // 3. 상태 업데이트
+  updateAppState(discountResult, cartTotals.itemCnt);
+
+  // 4. UI 업데이트
+  updateCartUI(cartItems, cartTotals, discountResult);
+
+  handleStockInfoUpdate();
+}
+
+function updateAppState(discountResult, itemCount) {
+  appState.setTotalAmount(discountResult.totalAmt);
+  appState.setItemCount(itemCount);
+}
+
+function updateCartUI(cartItems, cartTotals, discountResult) {
+  updateCartItemStyles(cartItems);
+  updateHeaderItemCount(appState.getHeader(), appState.getItemCount());
+  updateOrderSummaryUI(
+    cartItems,
+    cartTotals.subtotal,
+    discountResult.totalAmt,
+    cartTotals.itemDiscounts,
+    discountResult.isTuesday,
+    appState.getItemCount(),
+    discountResult.discRate,
+    discountResult.originalTotal
+  );
+  updateItemCountDisplay(appState.getItemCount());
+  updateStockDisplay();
 }
 main();
