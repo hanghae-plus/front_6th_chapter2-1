@@ -1,4 +1,4 @@
-import { getSalesInfoText, getTotalStock } from './features/product/service';
+import { getProductOptionStyle, getSalesInfoText, getTotalStock } from './features/product/service';
 
 let itemCount;
 let lastSelector;
@@ -285,28 +285,16 @@ function onUpdateSelectOptions() {
   for (let i = 0; i < productList.length; i++) {
     const product = productList[i];
     const salesInfoText = getSalesInfoText(product);
+    const optionStyle = getProductOptionStyle(product);
 
     const option = document.createElement('option');
     option.value = product.id;
     option.textContent = salesInfoText;
+    option.className = optionStyle;
 
     // 품절일 경우
     if (product.quantity === 0) {
       option.disabled = true;
-      option.className = 'text-gray-400';
-    } else {
-      // 품절 아닌 경우 && 번개세일 && 추천할인
-      if (product.onSale && product.suggestSale) {
-        option.className = 'text-purple-600 font-bold';
-        // 품절 아닌 경우 && 번개세일
-      } else if (product.onSale) {
-        option.className = 'text-red-500 font-bold';
-        // 품절 아닌 경우 && 추천할인
-      } else if (product.suggestSale) {
-        option.className = 'text-blue-500 font-bold';
-      } else {
-        // 그 외
-      }
     }
 
     selector.appendChild(option);
