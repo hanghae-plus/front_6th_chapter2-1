@@ -350,6 +350,56 @@ function calculateItemDiscount(productId, quantity) {
   return 0;
 }
 
+// 장바구니 내 각 상품별 합계/할인 계산
+function processCartItems(cartItems) {
+  let totalAmount = 0;
+  let itemCount = 0;
+  let subTot = 0;
+  const itemDiscounts = [];
+
+  for (let i = 0; i < cartItems.length; i++) {
+    // 상품 찾기
+    let curItem;
+    for (let j = 0; j < productList.length; j++) {
+      if (productList[j].id === cartItems[i].id) {
+        curItem = productList[j];
+        break;
+      }
+    }
+
+    const qtyElem = cartItems[i].querySelector('.quantity-number');
+    const q = parseInt(qtyElem.textContent);
+    const itemTot = curItem.val * q;
+
+    itemCount += q;
+    subTot += itemTot;
+
+    // UI 스타일 조정 (10개 이상시 볼드 처리)
+    const itemDiv = cartItems[i];
+    const priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
+    priceElems.forEach(function (elem) {
+      if (elem.classList.contains('text-lg')) {
+        elem.style.fontWeight = q >= DISCOUNT_THRESHOLDS.INDIVIDUAL_ITEM ? 'bold' : 'normal';
+      }
+    });
+
+    // 개별 할인 계산
+    const disc = calculateItemDiscount(curItem.id, q);
+    if (disc > 0) {
+      itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
+    }
+
+    totalAmount += itemTot * (1 - disc);
+  }
+
+  return {
+    totalAmount,
+    itemCount,
+    subTot,
+    itemDiscounts,
+  };
+}
+
 // 할인 총합 계산 (대량구매 할인 + 화요일 할인)
 function calculateTotalDiscount(subTot, itemCount, currentAmount) {
   let finalAmount = currentAmount;
@@ -510,56 +560,24 @@ function updateProductOptions() {
 
 // 장바구니, 할인, 포인트 등 계산 및 화면 갱신
 function calculateCartSummary() {
-  let subTot;
-  let originalTotal;
   let savedAmount;
   let points;
   let previousCount;
 
-  totalAmount = 0;
-  itemCount = 0;
-  originalTotal = totalAmount;
   const cartItems = cartDisplayElement.children;
-  subTot = 0;
-  const itemDiscounts = [];
 
   // 장바구니 내 각 상품별 합계/할인 계산
-  for (let i = 0; i < cartItems.length; i++) {
-    (function () {
-      let curItem;
-      for (let j = 0; j < productList.length; j++) {
-        if (productList[j].id === cartItems[i].id) {
-          curItem = productList[j];
-          break;
-        }
-      }
+  const {
+    totalAmount: calcTotalAmount,
+    itemCount: calcItemCount,
+    subTot,
+    itemDiscounts,
+  } = processCartItems(cartItems);
 
-      const qtyElem = cartItems[i].querySelector('.quantity-number');
-      const q = parseInt(qtyElem.textContent);
-      const itemTot = curItem.val * q;
-      let disc = 0;
-      itemCount += q;
-      subTot += itemTot;
+  totalAmount = calcTotalAmount;
+  itemCount = calcItemCount;
 
-      const itemDiv = cartItems[i];
-      const priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
-      priceElems.forEach(function (elem) {
-        if (elem.classList.contains('text-lg')) {
-          elem.style.fontWeight = q >= 10 ? 'bold' : 'normal';
-        }
-      });
-
-      // 10개 이상 구매시 개별 할인 적용
-      disc = calculateItemDiscount(curItem.id, q);
-      if (disc > 0) {
-        itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
-      }
-
-      totalAmount += itemTot * (1 - disc);
-    })();
-  }
-
-  originalTotal = subTot;
+  const originalTotal = subTot;
 
   // 할인 총합 계산 적용
   const { finalAmount, discountRate, isTuesday } = calculateTotalDiscount(
