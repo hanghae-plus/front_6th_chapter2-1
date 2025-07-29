@@ -1,14 +1,20 @@
-export const ProductOption = (item) => {
-  const { id, name, price, originalPrice, quantity, onSale, suggestSale } =
-    item;
-  let discountText = `${onSale ? "⚡SALE" : ""}${suggestSale ? "💝추천" : ""}`;
+export const ProductOption = ({
+  id,
+  name,
+  price,
+  originalPrice,
+  quantity,
+  onSale,
+  suggestSale,
+}) => {
+  const isSoldout = quantity === 0;
 
   const option = document.createElement("option");
   option.value = id;
-  option.textContent = `${name} - ${price}원 ${discountText}`;
-  option.disabled = quantity === 0;
+  option.disabled = isSoldout;
 
-  if (quantity === 0) {
+  if (isSoldout) {
+    const discountText = `${onSale ? "⚡SALE" : ""}${suggestSale ? "💝추천" : ""}`;
     option.textContent = `${name} - ${price}원 (품절) ${discountText}`;
     option.className = "text-gray-400";
     return option;
@@ -32,5 +38,6 @@ export const ProductOption = (item) => {
     return option;
   }
 
+  option.textContent = `${name} - ${price}원`;
   return option;
 };
