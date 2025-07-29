@@ -350,6 +350,35 @@ function calculateItemDiscount(productId, quantity) {
   return 0;
 }
 
+// 할인 총합 계산 (대량구매 할인 + 화요일 할인)
+function calculateTotalDiscount(subTot, itemCount, currentAmount) {
+  let finalAmount = currentAmount;
+  let discountRate = 0;
+
+  // 대량구매 할인 적용
+  if (itemCount >= DISCOUNT_THRESHOLDS.BULK_PURCHASE) {
+    finalAmount = subTot * (1 - DISCOUNT_RATES.BULK_PURCHASE);
+    discountRate = DISCOUNT_RATES.BULK_PURCHASE;
+  } else {
+    discountRate = (subTot - finalAmount) / subTot;
+  }
+
+  // 화요일 할인 적용
+  const today = new Date();
+  const isTuesday = today.getDay() === UI_CONSTANTS.TUESDAY;
+
+  if (isTuesday && finalAmount > 0) {
+    finalAmount = finalAmount * (1 - DISCOUNT_RATES.TUESDAY);
+    discountRate = 1 - finalAmount / subTot;
+  }
+
+  return {
+    finalAmount,
+    discountRate,
+    isTuesday,
+  };
+}
+
 // 주문 요약 상세 내역 갱신
 function updateOrderSummary(cartItems, subTot, itemCount, itemDiscounts, isTuesday, totalAmount) {
   const summaryDetails = document.getElementById('summary-details');
@@ -540,28 +569,21 @@ function calculateCartSummary() {
     })();
   }
 
-  let discRate = 0;
   originalTotal = subTot;
 
-  if (itemCount >= DISCOUNT_THRESHOLDS.BULK_PURCHASE) {
-    totalAmount = subTot * (1 - DISCOUNT_RATES.BULK_PURCHASE);
-    discRate = DISCOUNT_RATES.BULK_PURCHASE;
-  } else {
-    discRate = (subTot - totalAmount) / subTot;
-  }
+  // 할인 총합 계산 적용
+  const { finalAmount, discountRate, isTuesday } = calculateTotalDiscount(
+    subTot,
+    itemCount,
+    totalAmount,
+  );
+  totalAmount = finalAmount;
+  const discRate = discountRate;
 
-  const today = new Date();
-  const isTuesday = today.getDay() === UI_CONSTANTS.TUESDAY;
+  // 화요일 특별 할인 UI 표시
   const tuesdaySpecial = document.getElementById('tuesday-special');
-
-  if (isTuesday) {
-    if (totalAmount > 0) {
-      totalAmount = totalAmount * (1 - DISCOUNT_RATES.TUESDAY);
-      discRate = 1 - totalAmount / originalTotal;
-      tuesdaySpecial.classList.remove('hidden');
-    } else {
-      tuesdaySpecial.classList.add('hidden');
-    }
+  if (isTuesday && totalAmount > 0) {
+    tuesdaySpecial.classList.remove('hidden');
   } else {
     tuesdaySpecial.classList.add('hidden');
   }
@@ -960,6 +982,7 @@ cartDisplayElement.addEventListener('click', function (event) {
     }
 
     if (prod && prod.q < UI_CONSTANTS.LOW_STOCK_THRESHOLD) {
+      // 재고 부족 알림 (필요시 추가 구현)
     }
 
     calculateCartSummary();
