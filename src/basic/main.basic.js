@@ -240,11 +240,6 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
-  let initStock = 0;
-  for (let i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
-  }
-
   // 상품 옵션, 장바구니, 가격 등 초기 렌더링
   onUpdateSelectOptions();
   handleCalculateCartStuff();
