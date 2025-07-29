@@ -10,7 +10,20 @@ import { THRESHOLDS, DISCOUNT_RATES } from '../constant/index.js';
 export function OrderSummaryHTML() {
   const orderSummary = document.createElement('div');
   orderSummary.className = 'bg-black text-white p-8 flex flex-col';
-  orderSummary.innerHTML = `
+  orderSummary.innerHTML = renderOrderSummary();
+
+  return orderSummary;
+}
+
+/**
+ * OrderSummary 렌더링 함수
+ *
+ * @description 주문 요약 HTML 문자열을 생성
+ *
+ * @returns {string} 주문 요약 HTML 문자열
+ */
+export const renderOrderSummary = () => {
+  return `
     <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
     <div class="flex-1 flex flex-col">
       <div id="summary-details" class="space-y-3"></div>
@@ -39,9 +52,7 @@ export function OrderSummaryHTML() {
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
-
-  return orderSummary;
-}
+};
 
 /**
  * 주문 요약 UI 업데이트

@@ -26,3 +26,21 @@ export function ProductSelector() {
     stockInfo,
   };
 }
+
+/**
+ * ProductSelector 렌더링 함수
+ *
+ * @description 상품 선택 영역 HTML 문자열을 생성
+ *
+ * @returns {string} 상품 선택 영역 HTML 문자열
+ */
+export const renderProductSelector = () => {
+  return `
+    <select id="product-select" class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3">
+    </select>
+    <button id="add-to-cart" class="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all">
+      Add to Cart
+    </button>
+    <div id="stock-status" class="text-xs text-red-500 mt-3 whitespace-pre-line"></div>
+  `;
+};

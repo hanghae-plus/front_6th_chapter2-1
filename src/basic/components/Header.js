@@ -14,13 +14,25 @@ export const Header = (itemCount = 0) => {
   const header = document.createElement('div');
   header.className = 'mb-8';
 
-  header.innerHTML = `
+  header.innerHTML = renderHeader(itemCount);
+
+  return header;
+};
+
+/**
+ * Header 렌더링 함수
+ *
+ * @description 헤더 HTML 문자열을 생성
+ *
+ * @param {number} itemCount - 장바구니 아이템 수
+ * @returns {string} 헤더 HTML 문자열
+ */
+export const renderHeader = (itemCount = 0) => {
+  return `
     <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
     <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ ${itemCount} items in cart</p>
   `;
-
-  return header;
 };
 
 /**
