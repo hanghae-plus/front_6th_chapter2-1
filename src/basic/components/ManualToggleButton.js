@@ -1,4 +1,4 @@
-export const ManualToggleButton = () => {
+const ManualToggleButton = () => {
   const manualToggleButton = document.createElement("button");
   manualToggleButton.className =
     "fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";

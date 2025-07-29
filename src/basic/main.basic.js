@@ -75,13 +75,18 @@ function main() {
     },
   ];
   var root = document.getElementById("app");
-  header = Header();
-  gridContainer = GridContainer();
+
+  const header = Header();
+  const gridContainer = GridContainer();
+  const rightColumn = RightColumn();
+  const leftColumn = LeftColumn();
+  const selectorContainer = SelectorContainer();
+  const manualToggleButton = ManualToggleButton();
+  const manualColumn = ManualColumn();
+  const manualOverlay = ManualOverlay();
 
   sel = document.createElement("select");
   sel.id = "product-select";
-  leftColumn = LeftColumn();
-  selectorContainer = SelectorContainer();
 
   sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
   addBtn = document.createElement("button");
@@ -99,28 +104,25 @@ function main() {
   cartDisp = document.createElement("div");
   leftColumn.appendChild(cartDisp);
   cartDisp.id = "cart-items";
-  rightColumn = RightColumn();
 
   sum = rightColumn.querySelector("#cart-total");
-  manualToggle = ManualToggleButton();
-  manualToggle.onclick = function () {
+  manualToggleButton.onclick = function () {
     manualOverlay.classList.toggle("hidden");
     manualColumn.classList.toggle("translate-x-full");
   };
-  manualOverlay = ManualOverlay();
+
   manualOverlay.onclick = function (e) {
     if (e.target === manualOverlay) {
       manualOverlay.classList.add("hidden");
       manualColumn.classList.add("translate-x-full");
     }
   };
-  manualColumn = ManualColumn();
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
   root.appendChild(header);
   root.appendChild(gridContainer);
-  root.appendChild(manualToggle);
+  root.appendChild(manualToggleButton);
   root.appendChild(manualOverlay);
   let initStock = 0;
   for (let i = 0; i < prodList.length; i++) {

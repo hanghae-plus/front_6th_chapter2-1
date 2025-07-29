@@ -1,4 +1,4 @@
-export const Header = () => {
+const Header = () => {
   const header = document.createElement("div");
   header.className = "mb-8";
   header.innerHTML = `
