@@ -1,5 +1,7 @@
 import Header from "./components/Header.js";
 import MainLayout from "./components/MainLayout.js";
+import ManualOverlay from "./components/ManualOverlay.js";
+import ManualToggle from "./components/ManualToggle.js";
 import Component from "./lib/Component.js";
 
 export default class App extends Component {
@@ -13,6 +15,32 @@ export default class App extends Component {
         selector: "#main-layout",
         Component: MainLayout,
       },
+      manualToggle: {
+        selector: "#manual-toggle",
+        Component: ManualToggle,
+      },
+      manualOverlay: {
+        selector: "#manual-overlay",
+        Component: ManualOverlay,
+      },
+    });
+  }
+
+  setEvent() {
+    const $manualToggle = document.querySelector("#manualToggle");
+    const $manualOverlay = document.querySelector("#manualOverlay");
+    const $manualColumn = document.querySelector("#manualColumn");
+
+    $manualToggle.addEventListener("click", () => {
+      $manualOverlay.classList.toggle("hidden");
+      $manualColumn.classList.toggle("translate-x-full");
+    });
+
+    $manualOverlay.addEventListener("click", e => {
+      if (e.target === $manualOverlay) {
+        $manualOverlay.classList.add("hidden");
+        $manualColumn.classList.add("translate-x-full");
+      }
     });
   }
 

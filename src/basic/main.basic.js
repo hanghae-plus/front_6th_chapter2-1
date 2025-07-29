@@ -1,5 +1,4 @@
 import App from "./App.js";
-import { createManualToggle } from "./components/ManualToggle.js";
 import { createTimerManager } from "./components/TimerManager.js";
 import { TUESDAY_DAY_OF_WEEK } from "./data/date.data.js";
 import {
@@ -60,17 +59,11 @@ function main() {
   const root = document.getElementById("app");
   new App(root);
 
-  // 매뉴얼 토글 컴포넌트 생성
-  const { manualToggle, manualOverlay } = createManualToggle();
-
   // 메인 레이아웃 컴포넌트 생성
   select = document.querySelector("#product-select");
   addButton = document.querySelector("#add-to-cart");
   stockInfo = document.querySelector("#stock-status");
   cartDisplay = document.querySelector("#cart-items");
-
-  root.appendChild(manualToggle);
-  root.appendChild(manualOverlay);
 
   onUpdateSelectOptions();
   handleCalculateCartStuff();
