@@ -22,22 +22,23 @@
   "dependencies": {
     "@clean-code/eslint": "workspace:*",
     "@clean-code/prettier": "workspace:*",
+    "clsx": "^2.1.1",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "vite": "catalog:vite",
     "vitest": "catalog:test"
   },
   "devDependencies": {
+    "@testing-library/dom": "catalog:test",
+    "@testing-library/jest-dom": "catalog:test",
+    "@testing-library/react": "catalog:test",
+    "@testing-library/user-event": "catalog:test",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.0",
     "eslint": "^9.32.0",
-    "prettier": "^3.6.2",
-    "typescript": "^5.8.3",
     "jsdom": "catalog:test",
-    "@testing-library/user-event": "catalog:test",
-    "@testing-library/dom": "catalog:test",
-    "@testing-library/jest-dom": "catalog:test",
-    "@testing-library/react": "catalog:test"
+    "prettier": "^3.6.2",
+    "typescript": "^5.8.3"
   }
 }
