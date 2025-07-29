@@ -10,7 +10,6 @@ import {
   DISCOUNT_RATES,
   POINT_RATES,
   STOCK_THRESHOLDS,
-  TIMER_DELAYS,
 } from '../constants/shopPolicy.js';
 
 import { createManual } from '../components/Manual/index.js';
@@ -29,6 +28,8 @@ import { createPriceDisplay } from '../components/PriceDisplay.js';
 import { createProductOptions } from '../components/ProductOptions.js';
 import { createPointsDisplay } from '../components/PointsDisplay.js';
 import { createOrderSummary } from '../components/OrderSummary/index.js';
+import { startLightningSale } from '../services/lightningSale.js';
+import { startSuggestSale } from '../services/suggestSale.js';
 
 let prodList = [
   {
@@ -132,7 +133,6 @@ function main() {
   let leftColumn;
   let selectorContainer;
   let rightColumn;
-  let lightningDelay;
 
   // 상품 데이터 초기화
   // prodList는 이미 전역으로 사용 가능
@@ -207,54 +207,10 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manual);
   onUpdateSelectOptions();
-  lightningDelay = Math.random() * TIMER_DELAYS.LIGHTNING.DELAY_MAX;
-  setTimeout(() => {
-    setInterval(function () {
-      const luckyIdx = Math.floor(Math.random() * prodList.length);
-      const luckyItem = prodList[luckyIdx];
-      if (luckyItem.q > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round(
-          luckyItem.originalVal * (1 - DISCOUNT_RATES.LIGHTNING)
-        );
-        luckyItem.onSale = true;
-        alert(
-          `⚡번개세일! ${luckyItem.name}이(가) ${DISCOUNT_RATES.LIGHTNING * 100}% 할인 중입니다!`
-        );
-        onUpdateSelectOptions();
-        handlePriceUpdate();
-      }
-    }, TIMER_DELAYS.LIGHTNING.INTERVAL);
-  }, lightningDelay);
-  setTimeout(function () {
-    setInterval(function () {
-      if (lastSel) {
-        let suggest = null;
 
-        for (let k = 0; k < prodList.length; k++) {
-          if (prodList[k].id !== lastSel) {
-            if (prodList[k].q > 0) {
-              if (!prodList[k].suggestSale) {
-                suggest = prodList[k];
-                break;
-              }
-            }
-          }
-        }
-        if (suggest) {
-          alert(
-            '💝 ' +
-              suggest.name +
-              '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!'
-          );
-
-          suggest.val = Math.round(suggest.val * (1 - DISCOUNT_RATES.SUGGEST));
-          suggest.suggestSale = true;
-          onUpdateSelectOptions();
-          handlePriceUpdate();
-        }
-      }
-    }, TIMER_DELAYS.SUGGEST.INTERVAL);
-  }, Math.random() * TIMER_DELAYS.SUGGEST.DELAY_MAX);
+  // 서비스 시작
+  startLightningSale(prodList, onUpdateSelectOptions, handlePriceUpdate);
+  startSuggestSale(prodList, lastSel, onUpdateSelectOptions, handlePriceUpdate);
 }
 let sum;
 function onUpdateSelectOptions() {
