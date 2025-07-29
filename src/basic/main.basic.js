@@ -26,6 +26,7 @@ import { generateStockWarningMessage } from "./utils/stockUtils.js";
 import { uiEventBus } from "./core/eventBus.js";
 import { CartEventListeners } from "./events/listeners/cartListeners.js";
 import { ProductEventListeners } from "./events/listeners/productListeners.js";
+import { OrderEventListeners } from "./events/listeners/orderListeners.js";
 
 // 전역 상태 관리 인스턴스
 let productService; // 전역 ProductService 인스턴스
@@ -52,6 +53,7 @@ function initEventBusListeners() {
   // 각 컴포넌트별 이벤트 리스너 초기화
   new CartEventListeners(uiEventBus, cartService, discountService);
   new ProductEventListeners(uiEventBus, productService);
+  new OrderEventListeners(uiEventBus);
 }
 
 function main() {
@@ -185,13 +187,5 @@ function handleCartSummaryUpdate() {
   // 재고 정보도 함께 업데이트
   handleStockUpdate();
 }
-
-// 기존 함수들을 Event Bus 기반으로 변경
-// function updateCartItemStyles(cartItems) { ... } // Event Bus로 대체됨
-// function updateOrderSummaryUI(cartItems, totalAmount, isTuesday, itemCount) { ... } // Event Bus로 대체됨
-// function updateItemCountDisplay(itemCnt) { ... } // Event Bus로 대체됨
-// function updateStockDisplay() { ... } // Event Bus로 대체됨
-// function updateCartSummary() { ... } // Event Bus로 대체됨
-// function updateCartUI(cartItems, discountResult) { ... } // Event Bus로 대체됨
 
 main();

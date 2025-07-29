@@ -1,7 +1,6 @@
 import { updateCartItemQuantity, updateCartItemPriceStyle } from "../../components/CartItem.js";
 import { updateHeaderItemCount } from "../../components/Header.js";
 import { createCartItem } from "../../components/CartItem.js";
-import { orderService } from "../../services/orderService.js";
 import { generateStockWarningMessage } from "../../utils/stockUtils.js";
 import { PRODUCT_LIST } from "../../data/product.js";
 import { getSelectedProduct } from "../../components/ProductSelector.js";
@@ -174,13 +173,6 @@ export class CartEventListeners {
         this.updateItemCountDisplay(data.itemCount);
       }
     });
-
-    // 주문 요약 업데이트 이벤트
-    this.uiEventBus.on("order:summary:updated", data => {
-      if (data.success) {
-        this.updateOrderSummaryUI(data.cartItems, data.totalAmount, data.isTuesday, data.itemCount);
-      }
-    });
   }
 
   updateCartSummary() {
@@ -290,11 +282,6 @@ export class CartEventListeners {
         itemCountElement.setAttribute("data-changed", "true");
       }
     }
-  }
-
-  updateOrderSummaryUI(cartItems, totalAmount, isTuesday, itemCount) {
-    orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
-    orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
   }
 
   // 장바구니 추가 처리
