@@ -124,15 +124,117 @@ function onUpdateSelectOptions() {
   }
 }
 
+function handleStockInfoUpdate() {
+  const infoMsg = prodList.reduce((msg, prod) => {
+    if (prod.quantity < 5) {
+      if (prod.quantity > 0) {
+        return msg + prod.name + ': 재고 부족 (' + prod.quantity + '개 남음)\n';
+      } else {
+        return msg + prod.name + ': 품절\n';
+      }
+    }
+
+    return msg;
+  }, '');
+
+  stockInfo.textContent = infoMsg;
+}
+
+function doRenderBonusPoints() {
+  if (cartDisp.children.length === 0) {
+    document.getElementById('loyalty-points').style.display = 'none';
+    return;
+  }
+
+  const basePoints = Math.floor(totalAmount / 1000);
+  let finalPoints = 0;
+  const pointsDetail = [];
+
+  if (basePoints > 0) {
+    finalPoints = basePoints;
+    pointsDetail.push('기본: ' + basePoints + 'p');
+  }
+
+  const isTuesday = new Date().getDay() === 2; // TODO 화요일
+
+  if (isTuesday) {
+    if (basePoints > 0) {
+      finalPoints = basePoints * 2;
+      pointsDetail.push('화요일 2배');
+    }
+  }
+
+  let hasKeyboard = false;
+  let hasMouse = false;
+  let hasMonitorArm = false;
+
+  const nodes = Array.from(cartDisp.children);
+
+  nodes.forEach((node) => {
+    const product = prodList.find((prod) => prod.id === node.id);
+
+    if (!product) return;
+
+    if (product.id === PRODUCT_ONE) {
+      hasKeyboard = true;
+    } else if (product.id === PRODUCT_TWO) {
+      hasMouse = true;
+    } else if (product.id === PRODUCT_THREE) {
+      hasMonitorArm = true;
+    }
+  });
+
+  if (hasKeyboard && hasMouse) {
+    finalPoints = finalPoints + 50;
+    pointsDetail.push('키보드+마우스 세트 +50p');
+  }
+
+  if (hasKeyboard && hasMouse && hasMonitorArm) {
+    finalPoints = finalPoints + 100;
+    pointsDetail.push('풀세트 구매 +100p');
+  }
+
+  if (itemCnt >= 30) {
+    finalPoints = finalPoints + 100;
+    pointsDetail.push('대량구매(30개+) +100p');
+  } else {
+    if (itemCnt >= 20) {
+      finalPoints = finalPoints + 50;
+      pointsDetail.push('대량구매(20개+) +50p');
+    } else {
+      if (itemCnt >= 10) {
+        finalPoints = finalPoints + 20;
+        pointsDetail.push('대량구매(10개+) +20p');
+      }
+    }
+  }
+
+  bonusPts = finalPoints;
+
+  const ptsTag = document.getElementById('loyalty-points');
+
+  if (ptsTag) {
+    if (bonusPts > 0) {
+      ptsTag.innerHTML =
+        '<div>적립 포인트: <span class="font-bold">' +
+        bonusPts +
+        'p</span></div>' +
+        '<div class="text-2xs opacity-70 mt-1">' +
+        pointsDetail.join(', ') +
+        '</div>';
+      ptsTag.style.display = 'block';
+    } else {
+      ptsTag.textContent = '적립 포인트: 0p';
+      ptsTag.style.display = 'block';
+    }
+  }
+}
+
 function handleCalculateCartStuff() {
   totalAmount = 0;
   itemCnt = 0;
 
   const cartItems = Array.from(cartDisp.children);
-
-  if (cartItems.length === 0) {
-    return;
-  }
 
   let subTot = 0;
 
@@ -190,7 +292,7 @@ function handleCalculateCartStuff() {
   }
 
   const today = new Date();
-  const isTuesday = today.getDay() === 2;
+  const isTuesday = today.getDay() === 2; // TODO 화요일
   const tuesdaySpecial = document.getElementById('tuesday-special');
 
   if (isTuesday) {
@@ -270,7 +372,7 @@ function handleCalculateCartStuff() {
     `;
   }
 
-  const totalDiv = sum.querySelector('.text-2xl');
+  const totalDiv = document.querySelector('#cart-total .text-2xl');
 
   if (totalDiv) {
     totalDiv.textContent = '₩' + Math.round(totalAmount).toLocaleString();
@@ -334,111 +436,8 @@ function handleCalculateCartStuff() {
   doRenderBonusPoints();
 }
 
-function doRenderBonusPoints() {
-  if (cartDisp.children.length === 0) {
-    document.getElementById('loyalty-points').style.display = 'none';
-    return;
-  }
-
-  const basePoints = Math.floor(totalAmount / 1000);
-  let finalPoints = 0;
-  const pointsDetail = [];
-
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push('기본: ' + basePoints + 'p');
-  }
-  if (new Date().getDay() === 2) {
-    if (basePoints > 0) {
-      finalPoints = basePoints * 2;
-      pointsDetail.push('화요일 2배');
-    }
-  }
-
-  let hasKeyboard = false;
-  let hasMouse = false;
-  let hasMonitorArm = false;
-
-  const nodes = cartDisp.children;
-
-  nodes.forEach((node) => {
-    const product = prodList.find((prod) => prod.id === node.id);
-
-    if (!product) return;
-
-    if (product.id === PRODUCT_ONE) {
-      hasKeyboard = true;
-    } else if (product.id === PRODUCT_TWO) {
-      hasMouse = true;
-    } else if (product.id === PRODUCT_THREE) {
-      hasMonitorArm = true;
-    }
-  });
-
-  if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push('키보드+마우스 세트 +50p');
-  }
-
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('풀세트 구매 +100p');
-  }
-
-  if (itemCnt >= 30) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('대량구매(30개+) +100p');
-  } else {
-    if (itemCnt >= 20) {
-      finalPoints = finalPoints + 50;
-      pointsDetail.push('대량구매(20개+) +50p');
-    } else {
-      if (itemCnt >= 10) {
-        finalPoints = finalPoints + 20;
-        pointsDetail.push('대량구매(10개+) +20p');
-      }
-    }
-  }
-
-  bonusPts = finalPoints;
-
-  const ptsTag = document.getElementById('loyalty-points');
-
-  if (ptsTag) {
-    if (bonusPts > 0) {
-      ptsTag.innerHTML =
-        '<div>적립 포인트: <span class="font-bold">' +
-        bonusPts +
-        'p</span></div>' +
-        '<div class="text-2xs opacity-70 mt-1">' +
-        pointsDetail.join(', ') +
-        '</div>';
-      ptsTag.style.display = 'block';
-    } else {
-      ptsTag.textContent = '적립 포인트: 0p';
-      ptsTag.style.display = 'block';
-    }
-  }
-}
-
 function onGetStockTotal() {
   return prodList.reduce((acc, item) => acc + item.quantity, 0);
-}
-
-function handleStockInfoUpdate() {
-  const infoMsg = prodList.reduce((msg, prod) => {
-    if (prod.quantity < 5) {
-      if (prod.quantity > 0) {
-        return msg + prod.name + ': 재고 부족 (' + prod.quantity + '개 남음)\n';
-      } else {
-        return msg + prod.name + ': 품절\n';
-      }
-    }
-
-    return msg;
-  }, '');
-
-  stockInfo.textContent = infoMsg;
 }
 
 function doUpdatePricesInCart() {
@@ -447,7 +446,7 @@ function doUpdatePricesInCart() {
     return count + (qty ? parseInt(qty.textContent) : 0);
   }, 0);
 
-  cartDisp.children.forEach((cartItem) => {
+  Array.from(cartDisp.children).forEach((cartItem) => {
     const itemId = cartItem.id;
     const product = prodList.find((prod) => prod.id === itemId);
 
