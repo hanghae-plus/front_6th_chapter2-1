@@ -1,11 +1,12 @@
 import { TIMERS } from "../constants/index.js";
-import { ProductService } from "./productService.js";
+import { cartService } from "./cartService.js";
 
 export class TimerService {
-  constructor(productService, onUpdateSelectOptions, doUpdatePricesInCart) {
+  constructor(productService, onUpdateSelectOptions, doUpdatePricesInCart, cartDisplay) {
     this.productService = productService;
     this.onUpdateSelectOptions = onUpdateSelectOptions;
     this.doUpdatePricesInCart = doUpdatePricesInCart;
+    this.cartDisplay = cartDisplay;
     this.timers = new Map();
   }
 
@@ -21,11 +22,11 @@ export class TimerService {
     this.timers.set("lightningSaleDelay", timerId);
   }
 
-  startSuggestSaleTimer(appState) {
+  startSuggestSaleTimer() {
     const delay = this.getRandomDelay(TIMERS.SUGGEST_SALE_DELAY);
     const timerId = setTimeout(() => {
       const intervalId = setInterval(() => {
-        this.executeSuggestSale(appState);
+        this.executeSuggestSale();
       }, TIMERS.SUGGEST_SALE_INTERVAL);
       this.timers.set("suggestSale", intervalId);
     }, delay);
@@ -42,14 +43,13 @@ export class TimerService {
     }
   }
 
-  executeSuggestSale(appState) {
-    const cartDisplay = appState.getCartDisplay();
-    if (cartDisplay.children.length === 0) {
+  executeSuggestSale() {
+    if (this.cartDisplay.children.length === 0) {
       console.log("cartDisplay 길이가 0입니다.");
       return;
     }
 
-    const lastSelectedProduct = appState.getLastSelectedProduct();
+    const lastSelectedProduct = cartService.getLastSelectedProduct();
     if (!lastSelectedProduct) return;
 
     const result = this.productService.applySuggestSale(lastSelectedProduct);

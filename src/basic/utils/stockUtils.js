@@ -16,7 +16,7 @@ export function calculateTotalStock(productList) {
  */
 export function generateStockWarningMessage(productList) {
   let stockMsg = "";
-  
+
   for (let stockIdx = 0; stockIdx < productList.length; stockIdx++) {
     const item = productList[stockIdx];
     if (item.quantity < QUANTITY_THRESHOLDS.STOCK_DISPLAY_WARNING) {
@@ -27,7 +27,7 @@ export function generateStockWarningMessage(productList) {
       }
     }
   }
-  
+
   return stockMsg;
 }
 
@@ -38,7 +38,5 @@ export function generateStockWarningMessage(productList) {
  * @returns {Array} 재고 부족 상품 목록
  */
 export function getLowStockProducts(productList, threshold = QUANTITY_THRESHOLDS.LOW_STOCK_WARNING) {
-  return productList.filter(product => 
-    product.quantity < threshold && product.quantity > 0
-  );
+  return productList.filter(product => product.quantity < threshold && product.quantity > 0);
 }
