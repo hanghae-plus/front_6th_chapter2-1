@@ -1,4 +1,4 @@
-import { getProductOptionStyle, getSalesInfoText, getTotalStock } from './features/product/service';
+import { getProductOptionStyle, getSalesInfoText, getTotalStock, isOutOfStock } from './features/product/service';
 
 let itemCount;
 let lastSelector;
@@ -296,11 +296,7 @@ function onUpdateSelectOptions() {
     option.value = product.id;
     option.textContent = salesInfoText;
     option.className = optionStyle;
-
-    // 품절일 경우
-    if (product.quantity === 0) {
-      option.disabled = true;
-    }
+    option.disabled = isOutOfStock(product);
 
     selector.appendChild(option);
   });
