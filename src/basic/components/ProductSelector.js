@@ -1,15 +1,14 @@
 import { STOCK_WARNING_THRESHOLD, LOW_STOCK_THRESHOLD } from "../constants/index.js";
-import { calculateDiscountRate, getDiscountStatus } from "../utils/productDisplay.js";
 
 // 옵션 텍스트를 생성합니다.
-function getOptionText(item) {
+function getOptionText(item, discountInfo) {
   if (item.quantity === 0) {
     return `${item.name} - ${item.price}원 (품절)`;
   }
 
-  const discountRate = calculateDiscountRate(item);
+  const discountRate = discountInfo?.rate || 0;
   const discountPercent = discountRate > 0 ? (discountRate * 100).toFixed(0) : 0;
-  const discountStatus = getDiscountStatus(item);
+  const discountStatus = discountInfo?.status || "";
 
   if (discountStatus === "SUPER SALE") {
     return `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (-${discountPercent}% ${discountStatus}!)`;
@@ -24,10 +23,10 @@ function getOptionText(item) {
 }
 
 // 옵션의 CSS 클래스를 생성합니다.
-function getOptionClass(item) {
+function getOptionClass(item, discountInfo) {
   if (item.quantity === 0) return "text-gray-400";
 
-  const discountStatus = getDiscountStatus(item);
+  const discountStatus = discountInfo?.status || "";
   if (discountStatus === "SUPER SALE") return "text-purple-600 font-bold";
   if (discountStatus === "SALE") return "text-red-500 font-bold";
   if (discountStatus === "추천할인") return "text-blue-500 font-bold";
@@ -48,7 +47,7 @@ function toggleButtonState(button, disabled) {
 }
 
 // 상품 선택을 드롭다운으로 생성하는 컴포넌트입니다.
-function createProductSelect(products) {
+function createProductSelect(products, discountInfos) {
   const select = document.createElement("select");
   select.id = "product-select";
   select.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
@@ -56,8 +55,9 @@ function createProductSelect(products) {
   products.forEach(item => {
     const option = document.createElement("option");
     option.value = item.id;
-    option.textContent = getOptionText(item);
-    option.className = getOptionClass(item);
+    const discountInfo = discountInfos?.find(d => d.productId === item.id);
+    option.textContent = getOptionText(item, discountInfo);
+    option.className = getOptionClass(item, discountInfo);
     if (item.quantity === 0) option.disabled = true;
     select.appendChild(option);
   });
@@ -88,12 +88,12 @@ function createStockStatus() {
 }
 
 // ProductSelector 컴포넌트를 생성합니다.
-export function createProductSelector({ products, onAddToCart }) {
+export function createProductSelector({ products, discountInfos, onAddToCart }) {
   const container = document.createElement("div");
   container.id = "product-selector";
   container.className = "mb-6 pb-6 border-b border-gray-200";
 
-  const select = createProductSelect(products);
+  const select = createProductSelect(products, discountInfos);
   const button = createAddButton();
   const stockInfo = createStockStatus();
 
@@ -103,14 +103,14 @@ export function createProductSelector({ products, onAddToCart }) {
   container.appendChild(button);
   container.appendChild(stockInfo);
 
-  updateProductOptions(products);
+  updateProductOptions(products, discountInfos);
   updateStockInfo(products);
 
   return container;
 }
 
 // 상품 옵션을 갱신합니다.
-export function updateProductOptions(products) {
+export function updateProductOptions(products, discountInfos) {
   const productSelect = document.querySelector("#product-select");
   if (!productSelect) return;
 
@@ -119,8 +119,9 @@ export function updateProductOptions(products) {
   products.forEach(item => {
     const option = document.createElement("option");
     option.value = item.id;
-    option.textContent = getOptionText(item);
-    option.className = getOptionClass(item);
+    const discountInfo = discountInfos?.find(d => d.productId === item.id);
+    option.textContent = getOptionText(item, discountInfo);
+    option.className = getOptionClass(item, discountInfo);
     if (item.quantity === 0) option.disabled = true;
     productSelect.appendChild(option);
   });

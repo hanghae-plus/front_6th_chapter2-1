@@ -4,7 +4,7 @@ import { QUANTITY_THRESHOLDS } from "./constants/index.js";
 import { createHeader, updateHeaderItemCount } from "./components/Header.js";
 import { createProductSelector, updateProductOptions, getSelectedProduct, updateStockInfo } from "./components/ProductSelector.js";
 import { createCartItem, updateCartItemQuantity, updateCartItemPrice, updateCartItemPriceStyle } from "./components/CartItem.js";
-import { createOrderSummary, updateOrderSummary } from "./components/OrderSummary.js";
+import { createOrderSummary } from "./components/OrderSummary.js";
 import { createManualSystem } from "./components/Manual.js";
 import { createLayoutSystem } from "./components/Layout.js";
 import { createCartDisplay } from "./components/CartDisplay.js";
@@ -17,16 +17,32 @@ import { CartService } from "./services/cartService.js";
 import { TimerService } from "./services/timerService.js";
 import { ProductService } from "./services/productService.js";
 import { orderService } from "./services/orderService.js";
+import { discountService } from "./services/discountService.js";
 
 // utils
 import { findProductById } from "./utils/productUtils.js";
-import { calculateCartTotals, applyBulkAndSpecialDiscounts } from "./utils/cartCalculations.js";
 import { generateStockWarningMessage } from "./utils/stockUtils.js";
 import { getCartItemQuantity, setCartItemQuantity, extractNumberFromText } from "./utils/domUtils.js";
 
 // 전역 상태 관리 인스턴스
 let productService; // 전역 ProductService 인스턴스
 let cartService; // 전역 CartService 인스턴스
+
+// 할인 정보 계산 함수들
+function calculateProductDiscountInfo(product) {
+  return {
+    rate: discountService.calculateProductDiscountRate(product),
+    status: discountService.getProductDiscountStatus(product),
+  };
+}
+
+function calculateProductDiscountInfos(products) {
+  return products.map(product => ({
+    productId: product.id,
+    rate: discountService.calculateProductDiscountRate(product),
+    status: discountService.getProductDiscountStatus(product),
+  }));
+}
 
 // 장바구니 수량 변경
 function handleQuantityChange(productId, quantityChange) {
@@ -98,8 +114,10 @@ function handleAddToCart(productList) {
     // 2단계: cartService의 새 아이템 추가 로직 사용
     const success = cartService.addProductToCart(targetProduct, 1);
     if (success) {
+      const discountInfo = calculateProductDiscountInfo(targetProduct);
       const newCartItem = createCartItem({
         product: targetProduct,
+        discountInfo,
         onQuantityChange: handleQuantityChange,
         onRemove: handleRemoveItem,
       });
@@ -126,6 +144,7 @@ function main() {
   // ProductSelector 컴포넌트 생성
   const selectorContainer = createProductSelector({
     products: productService.getProducts(),
+    discountInfos: calculateProductDiscountInfos(productService.getProducts()),
     onAddToCart: () => {
       handleAddToCart(productService.getProducts());
     },
@@ -163,7 +182,7 @@ function main() {
 
 function onUpdateSelectOptions() {
   // ProductSelector 컴포넌트 업데이트
-  updateProductOptions(productService.getProducts());
+  updateProductOptions(productService.getProducts(), calculateProductDiscountInfos(productService.getProducts()));
   updateStockInfo(productService.getProducts());
 }
 
@@ -218,7 +237,8 @@ function doUpdatePricesInCart() {
   cartItems.forEach(el => {
     const product = findProductById(el.id, PRODUCT_LIST);
     if (product) {
-      updateCartItemPrice(el, product);
+      const discountInfo = calculateProductDiscountInfo(product);
+      updateCartItemPrice(el, product, discountInfo);
     }
   });
 
@@ -229,13 +249,10 @@ function updateCartSummary() {
   const cartDisplay = document.querySelector("#cart-items");
   const cartItems = cartDisplay.children;
 
-  // 1. 장바구니 총계 계산
-  const cartTotals = calculateCartTotals(cartItems, PRODUCT_LIST);
+  // DiscountService를 사용하여 할인 계산
+  const discountResult = discountService.applyAllDiscounts(Array.from(cartItems), PRODUCT_LIST);
 
-  // 2. 할인 적용
-  const discountResult = applyBulkAndSpecialDiscounts(cartTotals.totalAmt, cartTotals.itemCnt, cartTotals.subtotal);
-
-  // 4. UI 업데이트
+  // UI 업데이트
   updateCartUI(cartItems, discountResult);
   handleStockInfoUpdate();
 }
@@ -243,7 +260,7 @@ function updateCartSummary() {
 function updateCartUI(cartItems, discountResult) {
   updateCartItemStyles(cartItems);
   updateHeaderItemCount(cartService.getItemCount());
-  updateOrderSummaryUI(cartItems, discountResult.totalAmt, discountResult.isTuesday, cartService.getItemCount());
+  updateOrderSummaryUI(cartItems, discountResult.finalAmount, discountResult.tuesdayDiscount.applied, cartService.getItemCount());
   updateItemCountDisplay(cartService.getItemCount());
   updateStockDisplay();
 }

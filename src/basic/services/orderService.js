@@ -1,6 +1,6 @@
 import { orderStore } from "../store/orderStore.js";
 import { POINTS, POINTS_QUANTITY_THRESHOLDS, QUANTITY_BONUS_POINTS } from "../constants/index.js";
-import { calculateCartTotals, applyBulkAndSpecialDiscounts } from "../utils/cartCalculations.js";
+import { discountService } from "./discountService.js";
 
 export class OrderService {
   constructor() {
@@ -29,16 +29,23 @@ export class OrderService {
    * 주문 데이터를 계산합니다.
    */
   calculateOrderData(cartItems, productList) {
-    const { totalAmt, itemCnt, subtotal, itemDiscounts } = calculateCartTotals(cartItems, productList);
-    const { totalAmt: finalTotal, discRate, originalTotal, isTuesday } = applyBulkAndSpecialDiscounts(totalAmt, itemCnt, subtotal);
+    // DiscountService를 사용하여 할인 계산
+    const discountResult = discountService.applyAllDiscounts(cartItems, productList);
+
+    const today = new Date().getDay();
+    const isTuesday = today === 2;
+    const itemCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
     return {
-      subtotal,
-      totalAmount: finalTotal,
-      discountRate: discRate,
-      savedAmount: originalTotal - finalTotal,
-      itemCount: itemCnt,
-      itemDiscounts,
+      subtotal: discountResult.originalAmount,
+      totalAmount: discountResult.finalAmount,
+      discountRate: discountResult.originalAmount > 0 ? (discountResult.originalAmount - discountResult.finalAmount) / discountResult.originalAmount : 0,
+      savedAmount: discountResult.savedAmount,
+      itemCount,
+      itemDiscounts: discountResult.individualDiscounts.map(discount => ({
+        name: discount.productName,
+        discount: discount.rate * 100,
+      })),
       isTuesday,
     };
   }
