@@ -24,15 +24,15 @@ import {
 } from "./constants";
 import { SummaryDetails } from "./components/SummaryDetails";
 import { getOrderSummary } from "./entity/order";
+import { CartTotal } from "./components/CartTotal";
 
 let lastSel = null;
-let sum;
 let productSelector = ProductSelector();
 let addBtn = AddButton();
 let stockInfo = StockInfoText();
 let cartItemBox = CartItemBox();
 
-const main = () => {
+const initRender = () => {
   let root = document.getElementById("app");
   let header = Header();
   let gridContainer = GridContainer();
@@ -42,7 +42,6 @@ const main = () => {
   let manualToggle = ManualToggle();
   let manualOverlay = ManualOverlay();
   let manualColumn = ManualColumn();
-  let randomBaseDelay = Math.random() * 10000;
 
   selectorContainer.appendChild(productSelector);
   selectorContainer.appendChild(addBtn);
@@ -57,7 +56,39 @@ const main = () => {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
-  sum = rightColumn.querySelector("#cart-total");
+  return {
+    rightColumn,
+    manualToggle,
+    manualOverlay,
+    manualColumn,
+  };
+};
+
+const useFunction = (fn, { onSuccess }) => {
+  return () => {
+    const result = fn();
+    onSuccess(result);
+  };
+};
+
+const onSuccess = (summary) => {
+  SummaryDetails(summary);
+  CartTotal(summary);
+};
+
+const handleCalculateCartStuff = useFunction(
+  // TODO: 호출하지 말고 본체를 넘기도록 고치기
+  () => handleCalculateCartStuffOriginal(),
+  {
+    onSuccess,
+  }
+);
+
+const main = () => {
+  const { manualToggle, manualOverlay, manualColumn } = initRender();
+
+  let randomBaseDelay = Math.random() * 10000;
+
   manualToggle.onclick = () => {
     manualOverlay.classList.toggle("hidden");
     manualColumn.classList.toggle("translate-x-full");
@@ -68,8 +99,10 @@ const main = () => {
       manualColumn.classList.add("translate-x-full");
     }
   };
+
   onUpdateSelectOptions();
   handleCalculateCartStuff();
+
   setTimeout(() => {
     setInterval(() => {
       const luckyIdx = Math.floor(Math.random() * prodList.length);
@@ -113,7 +146,7 @@ const onUpdateSelectOptions = () => {
   productSelector.style.borderColor = totalStock < 50 ? "orange" : "";
 };
 
-const handleCalculateCartStuff = () => {
+const handleCalculateCartStuffOriginal = () => {
   const cartItems = [...cartItemBox.children];
 
   const {
@@ -125,22 +158,6 @@ const handleCalculateCartStuff = () => {
     totalDiscountedPrice,
     totalDiscountRate,
   } = getOrderSummary({ cartItems });
-
-  SummaryDetails({
-    totalOriginalPrice,
-    cartItems,
-    prodList,
-    totalItemCount,
-    itemDiscounts,
-    isTuesday,
-    totalDiscountedPrice,
-  });
-
-  let totalDiv = sum.querySelector(".text-2xl");
-  if (totalDiv) {
-    totalDiv.textContent =
-      "₩" + Math.round(totalDiscountedPrice).toLocaleString();
-  }
 
   let loyaltyPointsDiv = document.getElementById("loyalty-points");
   if (loyaltyPointsDiv) {
@@ -193,17 +210,32 @@ const handleCalculateCartStuff = () => {
   }
   stockInfo.textContent = stockMsg;
   handleStockInfoUpdate();
-  doRenderBonusPoints({ totalItemCount, totalDiscountedPrice });
+  doRenderBonusPoints({ totalItemCount, totalDiscountedPrice, cartItems });
+
+  return {
+    cartItems,
+    totalOriginalPrice,
+    prodList,
+    totalItemCount,
+    itemDiscounts,
+    isTuesday,
+    totalDiscountedPrice,
+    totalDiscountRate,
+  };
 };
 
-const doRenderBonusPoints = ({ totalItemCount, totalDiscountedPrice }) => {
+const doRenderBonusPoints = ({
+  totalItemCount,
+  totalDiscountedPrice,
+  cartItems,
+}) => {
   let basePoints = Math.floor(totalDiscountedPrice / 1000);
   let finalPoints = 0;
   let pointsDetail = [];
   let hasKeyboard = false;
   let hasMouse = false;
   let hasMonitorArm = false;
-  let nodes = cartItemBox.children;
+  let nodes = cartItems;
   if (nodes.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
