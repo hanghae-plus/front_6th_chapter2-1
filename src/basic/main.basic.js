@@ -284,9 +284,7 @@ function onUpdateSelectOptions() {
     selector.style.borderColor = '';
   }
 
-  // 옵션요소 세팅
-  for (let i = 0; i < productList.length; i++) {
-    const product = productList[i];
+  productList.forEach((product) => {
     const salesInfoText = getSalesInfoText(product);
     const optionStyle = getProductOptionStyle(product);
 
@@ -301,7 +299,7 @@ function onUpdateSelectOptions() {
     }
 
     selector.appendChild(option);
-  }
+  });
 }
 
 function handleCalculateCartStuff() {
