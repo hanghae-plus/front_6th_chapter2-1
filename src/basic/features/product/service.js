@@ -80,3 +80,29 @@ export const getProductOptionStyle = (product) => {
 export const isOutOfStock = (product) => {
   return product.quantity === 0;
 };
+
+/**
+ * @description 상품 판매 상태 반환
+ * @param {Product} product - 상품
+ * @returns {'OUT_OF_STOCK' | 'SUPER' | 'SALE' | 'SUGGEST' | 'NORMAL'} 상품판매 상태
+ */
+export const getProductSaleStatus = (product) => {
+  // 품절
+  if (product.quantity === 0) {
+    return 'OUT_OF_STOCK';
+  }
+  // 번개세일 && 추천할인
+  if (product.onSale && product.suggestSale) {
+    return 'SUPER';
+  }
+  // 번개세일
+  if (product.onSale) {
+    return 'SALE';
+  }
+  // 추천할인
+  if (product.suggestSale) {
+    return 'SUGGEST';
+  }
+
+  return 'NORMAL';
+};
