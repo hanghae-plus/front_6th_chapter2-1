@@ -15,9 +15,24 @@ function Header() {
   `;
 }
 
+function GridContainer() {
+  const leftColumn = document.createElement('div');
+  leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto';
+
+  leftColumn.appendChild(selectorContainer);
+  const cartDisplay = document.createElement('div');
+  leftColumn.appendChild(cartDisplay);
+  cartDisplay.id = 'cart-items';
+  gridContainer.appendChild(leftColumn);
+  gridContainer.appendChild(rightColumn);
+  manualOverlay.appendChild(manualColumn);
+  return `
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
+    </div>
+  `;
+}
+
 function selectorContainer() {
-  const selectorContainer = document.createElement('div');
-  selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
   const addButton = document.createElement('button');
   const stockInfo = document.createElement('div');
   addButton.id = 'add-to-cart';
@@ -103,22 +118,7 @@ function main() {
       suggestSale: false,
     },
   ];
-  const header = new Header();
 
-  // 변수 선언을 사용 지점으로 이동
-  const root = document.getElementById('app');
-
-  const gridContainer = document.createElement('div');
-  const leftColumn = document.createElement('div');
-  leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto';
-
-  gridContainer.className =
-    'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
-
-  leftColumn.appendChild(selectorContainer);
-  const cartDisplay = document.createElement('div');
-  leftColumn.appendChild(cartDisplay);
-  cartDisplay.id = 'cart-items';
   const rightColumn = document.createElement('div');
   rightColumn.className = 'bg-black text-white p-8 flex flex-col';
   rightColumn.innerHTML = `
@@ -234,11 +234,6 @@ function main() {
       </p>
     </div>
   `;
-  gridContainer.appendChild(leftColumn);
-  gridContainer.appendChild(rightColumn);
-  manualOverlay.appendChild(manualColumn);
-  root.appendChild(header);
-  root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
   let initStock = 0;
@@ -778,6 +773,17 @@ function main() {
       updateProductSelector();
     }
   });
+
+  // 랜더
+  const htmlContent = `
+  <div id="app">
+    ${Header()}
+    ${GridContainer()}
+  </div>
+`;
+  // 실제로 DOM에 추가
+  const appElement = document.getElementById('app');
+  appElement.innerHTML = htmlContent;
 }
 
 main();
