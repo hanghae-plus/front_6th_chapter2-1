@@ -1,11 +1,10 @@
-import { cartStore } from "../store/cartStore.js";
+import CartStore from "../store/cartStore.js";
 
-/**
- * 장바구니 서비스 - 비즈니스 로직 담당
- * 클린코드 원칙: 단일 책임, 의미있는 이름, 중복 제거
- */
+// 장바구니 서비스
 export class CartService {
-  constructor() {}
+  constructor() {
+    this.cartStore = new CartStore();
+  }
 
   /**
    * 선택된 상품의 유효성을 검증합니다.
@@ -29,7 +28,7 @@ export class CartService {
    * @returns {boolean} 성공 여부
    */
   addProductToCart(product, quantity = 1) {
-    return cartStore.addToCart(product, quantity);
+    return this.cartStore.addToCart(product, quantity);
   }
 
   /**
@@ -41,7 +40,7 @@ export class CartService {
    * @returns {boolean} 성공 여부
    */
   updateCartItemQuantity(productId, quantityChange, productList) {
-    return cartStore.updateCartItemQuantity(productId, quantityChange, productList);
+    return this.cartStore.updateCartItemQuantity(productId, quantityChange, productList);
   }
 
   /**
@@ -52,7 +51,7 @@ export class CartService {
    * @returns {boolean} 성공 여부
    */
   removeProductFromCart(productId, productList) {
-    return cartStore.removeFromCart(productId, productList);
+    return this.cartStore.removeFromCart(productId, productList);
   }
 
   /**
@@ -62,7 +61,7 @@ export class CartService {
    * @returns {Object|null} 장바구니 아이템 또는 null
    */
   findCartItem(productId) {
-    return cartStore.findCartItem(productId);
+    return this.cartStore.findCartItem(productId);
   }
 
   /**
@@ -71,7 +70,7 @@ export class CartService {
    * @param {Array} productList - 전체 상품 목록
    */
   resetCart(productList) {
-    cartStore.resetCart(productList);
+    this.cartStore.resetCart(productList);
   }
 
   /**
@@ -90,7 +89,7 @@ export class CartService {
    * @returns {Object} 장바구니 상태
    */
   getCartState() {
-    return cartStore.getCartState();
+    return this.cartStore.getCartState();
   }
 
   /**
@@ -99,7 +98,7 @@ export class CartService {
    * @returns {number} 장바구니 아이템 개수
    */
   getItemCount() {
-    return cartStore.getItemCount();
+    return this.cartStore.getItemCount();
   }
 
   /**
@@ -108,7 +107,7 @@ export class CartService {
    * @returns {number} 장바구니 총액
    */
   getTotalAmount() {
-    return cartStore.getTotalAmount();
+    return this.cartStore.getTotalAmount();
   }
 
   /**
@@ -117,7 +116,7 @@ export class CartService {
    * @returns {string|null} 마지막 선택된 상품 ID
    */
   getLastSelectedProduct() {
-    return cartStore.getLastSelectedProduct();
+    return this.cartStore.getLastSelectedProduct();
   }
 
   /**
@@ -126,7 +125,7 @@ export class CartService {
    * @param {string} productId - 상품 ID
    */
   setLastSelectedProduct(productId) {
-    cartStore.setLastSelectedProduct(productId);
+    this.cartStore.setLastSelectedProduct(productId);
   }
 
   /**
@@ -135,7 +134,7 @@ export class CartService {
    * @param {number} points - 포인트
    */
   setBonusPoints(points) {
-    cartStore.setBonusPoints(points);
+    this.cartStore.setBonusPoints(points);
   }
 
   /**
@@ -144,7 +143,7 @@ export class CartService {
    * @returns {number} 보너스 포인트
    */
   getBonusPoints() {
-    return cartStore.getBonusPoints();
+    return this.cartStore.getBonusPoints();
   }
 
   /**
@@ -154,7 +153,7 @@ export class CartService {
    * @returns {Function} 구독 해제 함수
    */
   subscribeToChanges(callback) {
-    return cartStore.subscribe(callback);
+    return this.cartStore.subscribe(callback);
   }
 
   /**
@@ -164,6 +163,3 @@ export class CartService {
     // EventBus 제거로 인해 정리할 것이 없음
   }
 }
-
-// 싱글톤 인스턴스 생성
-export const cartService = new CartService();

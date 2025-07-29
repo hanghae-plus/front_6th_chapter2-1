@@ -1,6 +1,7 @@
 import { ProductStore } from "../store/productStore.js";
 import { QUANTITY_THRESHOLDS } from "../constants/index.js";
 
+// 상품 관련된 서비스
 export class ProductService {
   constructor() {
     this.productStore = new ProductStore();

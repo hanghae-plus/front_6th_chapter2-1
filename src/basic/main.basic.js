@@ -12,7 +12,7 @@ import { createLayoutSystem } from "./components/Layout.js";
 import { PRODUCT_LIST } from "./data/product.js";
 
 // services
-import { cartService } from "./services/cartService.js";
+import { CartService } from "./services/cartService.js";
 import { TimerService } from "./services/timerService.js";
 import { ProductService } from "./services/productService.js";
 
@@ -24,6 +24,7 @@ import { getCartItemQuantity, setCartItemQuantity, extractNumberFromText } from 
 
 // 전역 상태 관리 인스턴스
 let productService; // 전역 ProductService 인스턴스
+let cartService; // 전역 CartService 인스턴스
 let header; // 헤더 요소
 let stockInfo; // 재고 정보 요소
 
@@ -114,6 +115,7 @@ function main() {
 
   // ProductService 초기화
   productService = new ProductService();
+  cartService = new CartService();
 
   header = createHeader({ itemCount: 0 });
 
