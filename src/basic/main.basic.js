@@ -14,11 +14,12 @@ import { PRODUCT_LIST } from "./data/product.js";
 // services
 import { cartService } from "./services/cartService.js";
 import { TimerService } from "./services/timerService.js";
+import { ProductService } from "./services/productService.js";
 
 // utils
 import { findProductById } from "./utils/productUtils.js";
 import { calculateCartTotals, applyBulkAndSpecialDiscounts } from "./utils/cartCalculations.js";
-import { calculateTotalStock, generateStockWarningMessage } from "./utils/stockUtils.js";
+import { generateStockWarningMessage } from "./utils/stockUtils.js";
 import { getCartItemQuantity, setCartItemQuantity, extractNumberFromText } from "./utils/domUtils.js";
 
 // store
@@ -26,6 +27,7 @@ import { AppState } from "./store/AppState.js";
 
 // 전역 상태 관리 인스턴스
 const appState = new AppState();
+let productService; // 전역 ProductService 인스턴스
 
 // 장바구니 수량 변경
 function handleQuantityChange(productId, quantityChange) {
@@ -114,6 +116,9 @@ function main() {
   const root = document.getElementById("app");
   appState.reset();
 
+  // ProductService 초기화
+  productService = new ProductService();
+
   const header = createHeader({ itemCount: 0 });
   appState.setHeader(header);
 
@@ -123,13 +128,13 @@ function main() {
 
   // ProductSelector 컴포넌트 생성
   const selectorContainer = createProductSelector({
-    products: PRODUCT_LIST,
+    products: productService.getProducts(),
     onProductSelect: () => {
       console.log("select");
     },
     onAddToCart: () => {
       console.log("add");
-      handleAddToCart(PRODUCT_LIST, appState.getCartDisplay());
+      handleAddToCart(productService.getProducts(), appState.getCartDisplay());
     },
   });
   appState.setSelectorContainer(selectorContainer);
@@ -170,16 +175,16 @@ function main() {
   updateCartSummary();
 
   // 타이머 서비스 초기화 및 시작
-  const timerService = new TimerService(PRODUCT_LIST, onUpdateSelectOptions, doUpdatePricesInCart);
+  const timerService = new TimerService(productService, onUpdateSelectOptions, doUpdatePricesInCart);
   timerService.startLightningSaleTimer();
   timerService.startSuggestSaleTimer(appState);
 }
 function onUpdateSelectOptions() {
-  const totalStock = calculateTotalStock(PRODUCT_LIST);
+  const totalStock = productService.calculateTotalStock();
 
   // ProductSelector 컴포넌트 업데이트
-  updateProductOptions(appState.getSelectorContainer(), PRODUCT_LIST, totalStock, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
-  updateStockInfo(appState.getSelectorContainer(), PRODUCT_LIST, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
+  updateProductOptions(appState.getSelectorContainer(), productService.getProducts(), totalStock, QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
+  updateStockInfo(appState.getSelectorContainer(), productService.getProducts(), QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
 }
 
 function updateCartItemStyles(cartItems) {

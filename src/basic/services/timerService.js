@@ -1,8 +1,9 @@
-import { DISCOUNT_RATES, TIMERS } from "../constants/index.js";
+import { TIMERS } from "../constants/index.js";
+import { ProductService } from "./productService.js";
 
 export class TimerService {
-  constructor(productList, onUpdateSelectOptions, doUpdatePricesInCart) {
-    this.productList = productList;
+  constructor(productService, onUpdateSelectOptions, doUpdatePricesInCart) {
+    this.productService = productService;
     this.onUpdateSelectOptions = onUpdateSelectOptions;
     this.doUpdatePricesInCart = doUpdatePricesInCart;
     this.timers = new Map();
@@ -33,11 +34,10 @@ export class TimerService {
   }
 
   executeLightningSale() {
-    const luckyProduct = this.selectRandomAvailableProduct();
+    const result = this.productService.applyLightningSale();
 
-    if (luckyProduct && !luckyProduct.onSale) {
-      this.applyLightningSaleDiscount(luckyProduct);
-      this.notifyLightningSale(luckyProduct);
+    if (result.success) {
+      alert(result.message);
       this.updateUI();
     }
   }
@@ -52,44 +52,12 @@ export class TimerService {
     const lastSelectedProduct = appState.getLastSelectedProduct();
     if (!lastSelectedProduct) return;
 
-    const suggestedProduct = this.findSuggestionProduct(lastSelectedProduct);
+    const result = this.productService.applySuggestSale(lastSelectedProduct);
 
-    if (suggestedProduct) {
-      this.applySuggestSaleDiscount(suggestedProduct);
-      this.notifySuggestSale(suggestedProduct);
+    if (result.success) {
+      alert(result.message);
       this.updateUI();
     }
-  }
-
-  selectRandomAvailableProduct() {
-    const availableProducts = this.productList.filter(product => product.quantity > 0 && !product.onSale);
-
-    if (availableProducts.length === 0) return null;
-
-    const randomIndex = Math.floor(Math.random() * availableProducts.length);
-    return availableProducts[randomIndex];
-  }
-
-  findSuggestionProduct(lastSelectedProductId) {
-    return this.productList.find(product => product.id !== lastSelectedProductId && product.quantity > 0 && !product.suggestSale);
-  }
-
-  applyLightningSaleDiscount(product) {
-    product.price = Math.round(product.originalPrice * DISCOUNT_RATES.LIGHTNING_SALE);
-    product.onSale = true;
-  }
-
-  applySuggestSaleDiscount(product) {
-    product.price = Math.round(product.price * DISCOUNT_RATES.SUGGEST_SALE);
-    product.suggestSale = true;
-  }
-
-  notifyLightningSale(product) {
-    alert(`⚡번개세일! ${product.name}이(가) 20% 할인 중입니다!`);
-  }
-
-  notifySuggestSale(product) {
-    alert(`💝 ${product.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
   }
 
   updateUI() {
