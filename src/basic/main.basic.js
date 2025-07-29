@@ -107,14 +107,10 @@ const main = () => {
 
 const onUpdateSelectOptions = () => {
   productSelector.innerHTML = "";
-  prodList.forEach((item) => productSelector.appendChild(ProductOption(item)));
+  productSelector.append(...prodList.map(ProductOption));
 
-  let totalStock = prodList.reduce((acc, item) => acc + item.quantity, 0);
-  if (totalStock < 50) {
-    productSelector.style.borderColor = "orange";
-  } else {
-    productSelector.style.borderColor = "";
-  }
+  const totalStock = prodList.reduce((acc, item) => acc + item.quantity, 0);
+  productSelector.style.borderColor = totalStock < 50 ? "orange" : "";
 };
 
 const handleCalculateCartStuff = () => {
