@@ -283,6 +283,34 @@ function renderProductSelectOptions() {
   select.innerHTML = state.products.map(ProductSelectItem).join('');
 }
 
+function renderCartItems() {
+  const cartItemsEl = document.getElementById('cart-items');
+
+  state.cartList.forEach((cartItem) => {
+    const product = state.products.find((p) => p.id === cartItem.productId);
+    if (!product) return;
+
+    const itemElement = document.getElementById(product.id);
+
+    if (itemElement) {
+      const qtyElement = itemElement.querySelector('.quantity-number');
+      if (qtyElement.textContent !== String(cartItem.quantity)) {
+        qtyElement.textContent = cartItem.quantity;
+      }
+    } else {
+      const newItemHTML = CartProductItem({ product, quantity: cartItem.quantity });
+      cartItemsEl.insertAdjacentHTML('beforeend', newItemHTML);
+    }
+  });
+
+  const currentItemIdsInState = state.cartList.map((item) => item.productId);
+  Array.from(cartItemsEl.children).forEach((element) => {
+    if (!currentItemIdsInState.includes(element.id)) {
+      element.remove();
+    }
+  });
+}
+
 function renderInitialLayout() {
   const root = document.getElementById('app');
 
@@ -329,7 +357,6 @@ function render() {
   const itemCountEl = document.getElementById('item-count');
   const productSelectEl = document.getElementById('product-select');
   const stockStatusEl = document.getElementById('stock-status');
-  const cartItemsEl = document.getElementById('cart-items');
   const summaryDetailsEl = document.getElementById('summary-details');
   const discountInfoEl = document.getElementById('discount-info');
   const totalAmountEl = document.querySelector('#cart-total .text-2xl');
@@ -355,12 +382,7 @@ function render() {
 
   stockStatusEl.innerHTML = StockInfo();
 
-  cartItemsEl.innerHTML = state.cartList
-    .map((cartItem) => {
-      const product = state.products.find((p) => p.id === cartItem.productId);
-      return CartProductItem({ product, quantity: cartItem.quantity });
-    })
-    .join('');
+  renderCartItems();
 
   summaryDetailsEl.innerHTML = OrderItemSummary(summary);
   discountInfoEl.innerHTML = DiscountInfo(summary);
