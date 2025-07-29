@@ -64,6 +64,21 @@ function Header() {
   `;
 }
 
+/**
+ * Selector Container
+ * - ProductSelector
+ *   - ProductOption
+ * - AddToCartButton
+ * - StockInfo
+ */
+function SelectorContainer() {
+  return /* HTML */ `
+    <div class="mb-6 pb-6 border-b border-gray-200">
+      ${ProductSelector()} ${AddToCartButton()} ${StockInfo()}
+    </div>
+  `;
+}
+
 function ProductSelector() {
   return /* HTML */ `
     <select
@@ -132,6 +147,12 @@ function AddToCartButton() {
   `;
 }
 
+function StockInfo() {
+  return /* HTML */ `
+    <div id="stock-status" class="text-xs text-red-500 mt-3 whitespace-pre-line"></div>
+  `;
+}
+
 function main() {
   let totalAmt = 0;
   let lastSel = null;
@@ -142,22 +163,15 @@ function main() {
   const gridContainer = document.createElement('div');
   const leftColumn = document.createElement('div');
   leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto';
-  const selectorContainer = document.createElement('div');
-  selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
   gridContainer.className =
     'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
 
-  const stockInfo = document.createElement('div');
-  stockInfo.id = 'stock-status';
-  stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
-  selectorContainer.innerHTML = ProductSelector();
-  selectorContainer.innerHTML += AddToCartButton();
-  selectorContainer.appendChild(stockInfo);
+  leftColumn.innerHTML = SelectorContainer();
 
-  const sel = selectorContainer.querySelector('#product-select');
-  const addBtn = selectorContainer.querySelector('#add-to-cart');
+  const sel = leftColumn.querySelector('#product-select');
+  const addBtn = leftColumn.querySelector('#add-to-cart');
+  const stockInfo = leftColumn.querySelector('#stock-status');
 
-  leftColumn.appendChild(selectorContainer);
   const cartDisp = document.createElement('div');
   leftColumn.appendChild(cartDisp);
   cartDisp.id = 'cart-items';
