@@ -74,7 +74,11 @@ function handleQuantityChange(productId, quantityChange) {
 
   // UI 업데이트도 Event Bus를 통해 처리
   uiEventBus.emit("cart:summary:updated");
-  uiEventBus.emit("product:options:updated");
+  uiEventBus.emit("product:options:updated", {
+    products: productService.getProducts(),
+    discountInfos: calculateProductDiscountInfos(productService.getProducts()),
+    success: true,
+  });
 }
 
 // 장바구니 아이템 제거
@@ -89,7 +93,11 @@ function handleRemoveItem(productId) {
 
   // UI 업데이트도 Event Bus를 통해 처리
   uiEventBus.emit("cart:summary:updated");
-  uiEventBus.emit("product:options:updated");
+  uiEventBus.emit("product:options:updated", {
+    products: productService.getProducts(),
+    discountInfos: calculateProductDiscountInfos(productService.getProducts()),
+    success: true,
+  });
 }
 
 // 🎯 개선된 상품을 장바구니에 추가 (완전한 관심사 분리)
@@ -172,23 +180,30 @@ function main() {
   // Event Bus 이벤트 리스너 등록
   initEventBusListeners();
 
-  // 🎯 전역 함수 등록 (리스너에서 호출)
   window.handleQuantityChange = handleQuantityChange;
   window.handleRemoveItem = handleRemoveItem;
 
-  onUpdateSelectOptions();
+  handleProductOptionsUpdate();
   updateCartSummary(cartDisplay, selectorContainer);
 
   // 타이머 서비스 초기화 및 시작
-  const timerService = new TimerService(productService, onUpdateSelectOptions, doUpdatePricesInCart, cartDisplay);
+  const timerService = new TimerService(productService, handleProductOptionsUpdate, handlePricesUpdate, cartDisplay);
   timerService.startLightningSaleTimer();
   timerService.startSuggestSaleTimer();
 }
 
-function onUpdateSelectOptions() {
-  // ProductSelector 컴포넌트 업데이트
-  updateProductOptions(productService.getProducts(), calculateProductDiscountInfos(productService.getProducts()));
-  updateStockInfo(productService.getProducts());
+// Product 옵션 업데이트 핸들러
+function handleProductOptionsUpdate() {
+  // 비즈니스 로직: 상품 데이터 가져오기
+  const products = productService.getProducts();
+  const discountInfos = calculateProductDiscountInfos(products);
+
+  // 이벤트 발송 (DOM 조작 없음)
+  uiEventBus.emit("product:options:updated", {
+    products,
+    discountInfos,
+    success: true,
+  });
 }
 
 function updateCartItemStyles(cartItems) {
@@ -231,23 +246,45 @@ function updateStockDisplay() {
   }
 }
 
-function handleStockInfoUpdate() {
-  updateStockInfo(PRODUCT_LIST);
+// 재고 정보 업데이트 핸들러
+function handleStockUpdate() {
+  // 비즈니스 로직: 재고 정보 계산
+  const products = productService.getProducts();
+  const stockMessage = generateStockWarningMessage(products);
+
+  // 이벤트 발송 (DOM 조작 없음)
+  uiEventBus.emit("product:stock:updated", {
+    products,
+    stockMessage,
+    success: true,
+  });
 }
 
-function doUpdatePricesInCart() {
+// 장바구니 내 가격 업데이트 핸들러
+function handlePricesUpdate() {
+  // 비즈니스 로직: 장바구니 아이템 정보 수집
   const cartDisplay = document.querySelector("#cart-items");
-  const cartItems = cartDisplay.children;
+  const cartItems = Array.from(cartDisplay.children);
 
-  cartItems.forEach(el => {
-    const product = findProductById(el.id, PRODUCT_LIST);
-    if (product) {
-      const discountInfo = calculateProductDiscountInfo(product);
-      updateCartItemPrice(el, product, discountInfo);
-    }
+  const itemsToUpdate = cartItems
+    .map(el => {
+      const product = findProductById(el.id, PRODUCT_LIST);
+      if (product) {
+        const discountInfo = calculateProductDiscountInfo(product);
+        return { element: el, product, discountInfo };
+      }
+      return null;
+    })
+    .filter(item => item !== null);
+
+  // 이벤트 발송 (DOM 조작 없음)
+  uiEventBus.emit("product:prices:updated", {
+    itemsToUpdate,
+    success: true,
   });
 
-  updateCartSummary();
+  // 요약 업데이트도 함께
+  uiEventBus.emit("cart:summary:updated");
 }
 
 function updateCartSummary() {
@@ -259,7 +296,7 @@ function updateCartSummary() {
 
   // UI 업데이트
   updateCartUI(cartItems, discountResult);
-  handleStockInfoUpdate();
+  handleStockUpdate();
 }
 
 function updateCartUI(cartItems, discountResult) {
