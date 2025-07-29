@@ -5,6 +5,7 @@ import { appState, PRODUCT_IDS, CONSTANTS } from './entities/app-state/index.js'
 import { findProductById, findAvailableProductExcept, calculateTotalStock } from './shared/utils/product-utils.js';
 import { initializeApplication, initializeProductData } from './features/initialization/index.js';
 import { createDOMElements } from './widgets/dom-creator/index.js';
+import { setupPromotionTimers } from './features/promotion/index.js';
 
 // 레거시 호환성을 위한 AppState 참조
 const AppState = appState;
@@ -68,37 +69,8 @@ function createDOMElementsLegacy() {
   sum = legacyVars.sum;
 }
 
-function setupPromotionTimers() {
-  var lightningDelay = Math.random() * 10000;
-  setTimeout(() => {
-    setInterval(function () {
-      var luckyIdx = Math.floor(Math.random() * prodList.length);
-      var luckyItem = prodList[luckyIdx];
-      if (luckyItem.q > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round(luckyItem.originalVal * 80 / 100);
-        luckyItem.onSale = true;
-        alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
-        onUpdateSelectOptions();
-        doUpdatePricesInCart();
-      }
-    }, 30000);
-  }, lightningDelay);
-  setTimeout(function () {
-    setInterval(function () {
-      if (cartDisp.children.length === 0) {
-      }
-      if (lastSel) {
-        var suggest = findAvailableProductExceptLegacy(lastSel);
-        if (suggest) {
-          alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
-          suggest.val = Math.round(suggest.val * (100 - 5) / 100);
-          suggest.suggestSale = true;
-          onUpdateSelectOptions();
-          doUpdatePricesInCart();
-        }
-      }
-    }, 60000);
-  }, Math.random() * 20000);
+function setupPromotionTimersLegacy() {
+  setupPromotionTimers(AppState, legacyVars);
 }
 
 function initializeUI() {
@@ -111,7 +83,7 @@ function main() {
   initializeApplicationLegacy();
   initializeProductDataLegacy();
   createDOMElementsLegacy();
-  setupPromotionTimers();
+  setupPromotionTimersLegacy();
   initializeUI();
 };
 var sum
