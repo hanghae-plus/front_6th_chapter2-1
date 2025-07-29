@@ -1,4 +1,5 @@
-import { getTotalStock } from './domain/product';
+import { LOW_TOTAL_STOCK_THRESHOLD } from './domain/const';
+import { getStockStatusMessage, getTotalStock } from './domain/product';
 
 let productList;
 
@@ -576,7 +577,7 @@ function handleCalculateCartStuff() {
     }
   }
   stockInfo.textContent = stockMsg;
-  handleStockInfoUpdate();
+  handleStockUpdate();
   doRenderBonusPoints();
 }
 
@@ -676,21 +677,18 @@ const doRenderBonusPoints = function () {
 };
 
 /**  재고 부족/품절 상품의 메시지를 stockInfo에 표시 */
-const handleStockInfoUpdate = function () {
+const handleStockUpdate = () => {
   let infoMsg = '';
   const totalStock = getTotalStock(productList);
-  if (totalStock < 50) {
+
+  if (totalStock < LOW_TOTAL_STOCK_THRESHOLD) {
     // @todo 전체 재고가 50개 미만일 경우 상품 선택 드롭다운 테두리 색상 orange로 변경
   }
-  productList.forEach(function (item) {
-    if (item.q < 5) {
-      if (item.q > 0) {
-        infoMsg = infoMsg + item.name + ': 재고 부족 (' + item.q + '개 남음)\n';
-      } else {
-        infoMsg = infoMsg + item.name + ': 품절\n';
-      }
-    }
+  productList.forEach((product) => {
+    infoMsg += getStockStatusMessage(product);
   });
+
+  // @todo ui업데이트. 따로 분리
   stockInfo.textContent = infoMsg;
 };
 
