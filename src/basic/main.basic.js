@@ -1,9 +1,7 @@
-import { QUANTITY_THRESHOLDS } from "./constants/index.js";
-
 // components
 import { createHeader } from "./components/Header.js";
 import { createProductSelector } from "./components/ProductSelector.js";
-import { createOrderSummary, updateOrderSummary } from "./components/OrderSummary.js";
+import { createOrderSummary } from "./components/OrderSummary.js";
 import { createManualSystem } from "./components/Manual.js";
 import { createLayoutSystem } from "./components/Layout.js";
 import { createCartDisplay } from "./components/CartDisplay.js";
@@ -15,7 +13,7 @@ import { PRODUCT_LIST } from "./data/product.js";
 import { CartService } from "./services/cartService.js";
 import { TimerService } from "./services/timerService.js";
 import { ProductService } from "./services/productService.js";
-import { orderService } from "./services/orderService.js";
+import { OrderService } from "./services/orderService.js";
 import { discountService } from "./services/discountService.js";
 
 // utils
@@ -29,6 +27,7 @@ import { ProductEventListeners } from "./events/listeners/productListeners.js";
 import { OrderEventListeners } from "./events/listeners/orderListeners.js";
 
 // 전역 상태 관리 인스턴스
+let orderService; // 전역 OrderService 인스턴스
 let productService; // 전역 ProductService 인스턴스
 let cartService; // 전역 CartService 인스턴스
 
@@ -53,7 +52,7 @@ function initEventBusListeners() {
   // 각 컴포넌트별 이벤트 리스너 초기화
   new CartEventListeners(uiEventBus, cartService, discountService);
   new ProductEventListeners(uiEventBus, productService);
-  new OrderEventListeners(uiEventBus);
+  new OrderEventListeners(uiEventBus, orderService);
 }
 
 function main() {
@@ -61,7 +60,8 @@ function main() {
 
   // ProductService 초기화
   productService = new ProductService();
-  cartService = new CartService(productService);
+  cartService = new CartService();
+  orderService = new OrderService();
 
   const header = createHeader({ itemCount: 0 });
 

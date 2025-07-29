@@ -73,7 +73,7 @@ export class CartEventListeners {
       const newQuantity = currentQuantity + data.quantityChange;
 
       // cartService의 수량 변경 로직 사용
-      const success = this.cartService.updateCartItemQuantity(data.productId, data.quantityChange);
+      const success = this.cartService.updateCartItemQuantity(data.productId, data.quantityChange, PRODUCT_LIST);
 
       if (!success) {
         alert("재고가 부족합니다.");
@@ -100,7 +100,7 @@ export class CartEventListeners {
     // 아이템 제거 요청 이벤트 처리
     this.uiEventBus.on("cart:item:remove:requested", data => {
       // cartService의 아이템 제거 로직 사용
-      const success = this.cartService.removeProductFromCart(data.productId);
+      const success = this.cartService.removeProductFromCart(data.productId, PRODUCT_LIST);
 
       this.uiEventBus.emit("cart:item:removed", {
         productId: data.productId,
@@ -289,7 +289,7 @@ export class CartEventListeners {
     const selectedProductId = getSelectedProduct();
 
     // 1단계: 검증 로직
-    const targetProduct = this.cartService.validateSelectedProduct(selectedProductId);
+    const targetProduct = this.cartService.validateSelectedProduct(selectedProductId, PRODUCT_LIST);
     if (!targetProduct) return;
 
     // 2단계: 상태 변경 (DOM 조작 없음)
