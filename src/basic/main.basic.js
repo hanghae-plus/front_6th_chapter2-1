@@ -1,6 +1,7 @@
 import { Header } from "./components/Header";
 import { products, productIds } from "./store/product";
-import { calculateItemDiscount } from "./utils/calculateCart/calculateItemDiscount";
+import { calculateItemDiscount } from "./utils/cart/calculateItemDiscount";
+import { checkHasItem } from "./utils/cart/checkHasItem";
 import {
   startLightningSaleTimer,
   startRecommendationTimer,
@@ -645,14 +646,10 @@ function doUpdatePricesInCart() {
 }
 main();
 addBtn.addEventListener("click", () => {
+  // select 값 가져오기
   const selItem = sel.value;
-  var hasItem = false;
-  for (var idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].id === selItem) {
-      hasItem = true;
-      break;
-    }
-  }
+
+  const hasItem = checkHasItem(selItem, prodList);
   if (!selItem || !hasItem) {
     return;
   }
