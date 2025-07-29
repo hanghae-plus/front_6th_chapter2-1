@@ -1,5 +1,6 @@
 import { orderService } from "../../services/orderService.js";
 import { PRODUCT_LIST } from "../../data/product.js";
+import { updateOrderSummary } from "../../components/OrderSummary.js";
 
 /**
  * Order 관련 이벤트 리스너
@@ -48,12 +49,8 @@ export class OrderEventListeners {
       success: true,
     });
 
-    // 포인트 계산 완료 이벤트 emit
-    this.uiEventBus.emit("order:calculation:completed", {
-      orderSummary,
-      pointsResult,
-      success: true,
-    });
+    // UI 업데이트 직접 처리
+    this.updateOrderSummaryUI(orderSummary, pointsResult);
   }
 
   handleOrderCalculation(cartItems, totalAmount, isTuesday, itemCount) {
@@ -63,11 +60,17 @@ export class OrderEventListeners {
     // 포인트 계산
     const pointsResult = orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
 
-    // 계산 결과를 이벤트로 emit
-    this.uiEventBus.emit("order:calculation:completed", {
-      orderSummary,
-      pointsResult,
-      success: true,
-    });
+    // UI 업데이트 직접 처리
+    this.updateOrderSummaryUI(orderSummary, pointsResult);
+  }
+
+  updateOrderSummaryUI(orderSummary, pointsResult) {
+    const orderState = {
+      ...orderSummary,
+      totalPoints: pointsResult.totalPoints,
+      pointsDetails: pointsResult.details,
+    };
+
+    updateOrderSummary(orderState);
   }
 }
