@@ -12,92 +12,29 @@ const product_3 = 'p3';
 const p4 = 'p4';
 const PRODUCT_5 = 'p5';
 let cartDisp;
+
 function main() {
-  var root;
-  let header;
-  let gridContainer;
-  let leftColumn;
-  let selectorContainer;
-  let rightColumn;
-  let manualToggle;
-  let manualOverlay;
-  let manualColumn;
-  let lightningDelay;
-  totalAmt = 0;
-  itemCnt = 0;
-  lastSel = null;
-  prodList = [
-    {
-      id: PRODUCT_ONE,
-      name: '버그 없애는 키보드',
-      val: 10000,
-      originalVal: 10000,
-      q: 50,
-      onSale: false,
-      suggestSale: false,
-    },
-    { id: p2, name: '생산성 폭발 마우스', val: 20000, originalVal: 20000, q: 30, onSale: false, suggestSale: false },
-    {
-      id: product_3,
-      name: '거북목 탈출 모니터암',
-      val: 30000,
-      originalVal: 30000,
-      q: 20,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: p4,
-      name: '에러 방지 노트북 파우치',
-      val: 15000,
-      originalVal: 15000,
-      q: 0,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_5,
-      name: `코딩할 때 듣는 Lo-Fi 스피커`,
-      val: 25000,
-      originalVal: 25000,
-      q: 10,
-      onSale: false,
-      suggestSale: false,
-    },
-  ];
-  var root = document.getElementById('app');
-  header = document.createElement('div');
+  /**  ==================== elements 시작 ================================ */
+  const root = document.getElementById('app');
+
+  const header = document.createElement('div');
   header.className = 'mb-8';
   header.innerHTML = `
     <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
     <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
-  sel = document.createElement('select');
-  sel.id = 'product-select';
-  gridContainer = document.createElement('div');
-  leftColumn = document.createElement('div');
-  leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto';
-  selectorContainer = document.createElement('div');
-  selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
-  sel.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
+
+  const gridContainer = document.createElement('div');
   gridContainer.className = 'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
-  addBtn = document.createElement('button');
-  stockInfo = document.createElement('div');
-  addBtn.id = 'add-to-cart';
-  stockInfo.id = 'stock-status';
-  stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
-  addBtn.innerHTML = 'Add to Cart';
-  addBtn.className =
-    'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
-  selectorContainer.appendChild(sel);
-  selectorContainer.appendChild(addBtn);
-  selectorContainer.appendChild(stockInfo);
-  leftColumn.appendChild(selectorContainer);
-  cartDisp = document.createElement('div');
-  leftColumn.appendChild(cartDisp);
-  cartDisp.id = 'cart-items';
-  rightColumn = document.createElement('div');
+
+  const selectorContainer = document.createElement('div');
+  selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
+
+  const leftColumn = document.createElement('div');
+  leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto';
+
+  const rightColumn = document.createElement('div');
   rightColumn.className = 'bg-black text-white p-8 flex flex-col';
   rightColumn.innerHTML = `
     <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
@@ -128,8 +65,8 @@ function main() {
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
-  sum = rightColumn.querySelector('#cart-total');
-  manualToggle = document.createElement('button');
+
+  const manualToggle = document.createElement('button');
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle('hidden');
     manualColumn.classList.toggle('translate-x-full');
@@ -141,7 +78,8 @@ function main() {
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>
   `;
-  manualOverlay = document.createElement('div');
+
+  const manualOverlay = document.createElement('div');
   manualOverlay.className = 'fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300';
   manualOverlay.onclick = function (e) {
     if (e.target === manualOverlay) {
@@ -149,7 +87,8 @@ function main() {
       manualColumn.classList.add('translate-x-full');
     }
   };
-  manualColumn = document.createElement('div');
+
+  const manualColumn = document.createElement('div');
   manualColumn.className =
     'fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300';
   manualColumn.innerHTML = `
@@ -212,6 +151,77 @@ function main() {
       </p>
     </div>
   `;
+  /**  ==================== elements 끝 ================================ */
+
+  /**  ==================== 상수 및 변수 시작 ================================ */
+  const lightningDelay = Math.random() * 10000;
+  totalAmt = 0;
+  itemCnt = 0;
+  lastSel = null;
+  prodList = [
+    {
+      id: PRODUCT_ONE,
+      name: '버그 없애는 키보드',
+      val: 10000,
+      originalVal: 10000,
+      q: 50,
+      onSale: false,
+      suggestSale: false,
+    },
+    { id: p2, name: '생산성 폭발 마우스', val: 20000, originalVal: 20000, q: 30, onSale: false, suggestSale: false },
+    {
+      id: product_3,
+      name: '거북목 탈출 모니터암',
+      val: 30000,
+      originalVal: 30000,
+      q: 20,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: p4,
+      name: '에러 방지 노트북 파우치',
+      val: 15000,
+      originalVal: 15000,
+      q: 0,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: PRODUCT_5,
+      name: `코딩할 때 듣는 Lo-Fi 스피커`,
+      val: 25000,
+      originalVal: 25000,
+      q: 10,
+      onSale: false,
+      suggestSale: false,
+    },
+  ];
+  /**  ==================== 상수 및 변수 끝 ================================ */
+
+  sel = document.createElement('select');
+  sel.id = 'product-select';
+
+  sel.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
+
+  addBtn = document.createElement('button');
+  stockInfo = document.createElement('div');
+  addBtn.id = 'add-to-cart';
+  stockInfo.id = 'stock-status';
+  stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
+  addBtn.innerHTML = 'Add to Cart';
+  addBtn.className =
+    'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
+  selectorContainer.appendChild(sel);
+  selectorContainer.appendChild(addBtn);
+  selectorContainer.appendChild(stockInfo);
+  leftColumn.appendChild(selectorContainer);
+  cartDisp = document.createElement('div');
+  leftColumn.appendChild(cartDisp);
+  cartDisp.id = 'cart-items';
+
+  sum = rightColumn.querySelector('#cart-total');
+
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
@@ -225,7 +235,7 @@ function main() {
   }
   onUpdateSelectOptions();
   handleCalculateCartStuff();
-  lightningDelay = Math.random() * 10000;
+
   setTimeout(() => {
     setInterval(function () {
       const luckyIdx = Math.floor(Math.random() * prodList.length);
@@ -266,7 +276,9 @@ function main() {
     }, 60000);
   }, Math.random() * 20000);
 }
+
 let sum;
+
 function onUpdateSelectOptions() {
   let totalStock;
   let opt;
@@ -536,7 +548,8 @@ function handleCalculateCartStuff() {
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
-var doRenderBonusPoints = function () {
+
+const doRenderBonusPoints = function () {
   let basePoints;
   let finalPoints;
   let pointsDetail;
@@ -622,6 +635,7 @@ var doRenderBonusPoints = function () {
     }
   }
 };
+
 function onGetStockTotal() {
   let sum;
   let i;
@@ -633,10 +647,11 @@ function onGetStockTotal() {
   }
   return sum;
 }
-var handleStockInfoUpdate = function () {
+
+const handleStockInfoUpdate = function () {
   let infoMsg;
   let totalStock;
-  let messageOptimizer;
+
   infoMsg = '';
   totalStock = onGetStockTotal();
   if (totalStock < 30) {
@@ -652,6 +667,7 @@ var handleStockInfoUpdate = function () {
   });
   stockInfo.textContent = infoMsg;
 };
+
 function doUpdatePricesInCart() {
   let totalCount = 0,
     j = 0;
@@ -710,7 +726,9 @@ function doUpdatePricesInCart() {
   }
   handleCalculateCartStuff();
 }
+
 main();
+
 addBtn.addEventListener('click', function () {
   const selItem = sel.value;
   let hasItem = false;
@@ -772,6 +790,7 @@ addBtn.addEventListener('click', function () {
     lastSel = selItem;
   }
 });
+
 cartDisp.addEventListener('click', function (event) {
   const tgt = event.target;
   if (tgt.classList.contains('quantity-change') || tgt.classList.contains('remove-item')) {
