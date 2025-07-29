@@ -1,3 +1,5 @@
+import { subscribe } from './store';
+
 const PRODUCT_IDS = {
   P1: 'p1', // 버그 없애는 키보드
   P2: 'p2', // 생산성 폭발 마우스
@@ -371,6 +373,8 @@ function initState() {
 }
 
 function main() {
+  subscribe(render);
+
   const lightningDelay = Math.random() * 10000;
 
   initState();
