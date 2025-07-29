@@ -1,6 +1,10 @@
 import { Header } from "./features/shopping-cart/components/Header.js";
 import { HelpModal } from "./features/shopping-cart/components/HelpModal.js";
 import { ProductSelector } from "./features/shopping-cart/components/ProductSelector.js";
+import { renderCartItem } from "./features/shopping-cart/components/CartItem.js";
+import { renderOrderSummaryDetails } from "./features/shopping-cart/components/OrderSummaryDetails.js";
+import { renderCartTotal } from "./features/shopping-cart/components/CartTotal.js";
+import { ELEMENT_IDS } from "./features/shopping-cart/constants/element-ids.js";
 import {
   handleCartClick,
   handleAddToCartClick,
@@ -234,18 +238,18 @@ function createLeftColumn() {
   });
 
   const addToCartButtonElement = document.createElement("button");
-  addToCartButtonElement.id = "add-to-cart";
+  addToCartButtonElement.id = ELEMENT_IDS.ADD_TO_CART;
   addToCartButtonElement.innerHTML = "Add to Cart";
   addToCartButtonElement.className =
     "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
 
   const stockInfoElementCreated = document.createElement("div");
-  stockInfoElementCreated.id = "stock-status";
+  stockInfoElementCreated.id = ELEMENT_IDS.STOCK_STATUS;
   stockInfoElementCreated.className =
     "text-xs text-red-500 mt-3 whitespace-pre-line";
 
   const cartDisplayElementCreated = document.createElement("div");
-  cartDisplayElementCreated.id = "cart-items";
+  cartDisplayElementCreated.id = ELEMENT_IDS.CART_ITEMS;
   cartDisplayElementCreated.className = "space-y-3";
 
   productSelector = productSelectorElement;
@@ -554,34 +558,42 @@ function handleCalculateCartStuff() {
   document.getElementById("item-count").textContent =
     "🛍️ " + totalItemCount + " items in cart";
   summaryDetails = document.getElementById("summary-details");
-  renderOrderSummary({
-    cartItems: Array.from(cartItems),
-    products: productList,
+  // Prepare cart items data for components
+  const cartItemsData = Array.from(cartItems)
+    .map((cartItemElement) => {
+      let product = null;
+      for (let j = 0; j < productList.length; j++) {
+        if (productList[j].id === cartItemElement.id) {
+          product = productList[j];
+          break;
+        }
+      }
+      const qtyElem = cartItemElement.querySelector(".quantity-number");
+      const quantity = qtyElem ? parseInt(qtyElem.textContent) : 0;
+
+      return { product, quantity };
+    })
+    .filter((item) => item.product);
+
+  // Render Order Summary Details
+  renderOrderSummaryDetails({
+    cartItems: cartItemsData,
     subtotal: subtotal,
     totalItemCount: totalItemCount,
     itemDiscounts: itemDiscounts,
     isTuesday: isTuesday,
     totalAmount: totalAmount,
-    containerElement: summaryDetails,
-    bulkDiscountThreshold: BUSINESS_CONSTANTS.DISCOUNT.BULK_DISCOUNT_THRESHOLD,
   });
-  totalDiv = summaryElement.querySelector(".text-2xl");
-  if (totalDiv) {
-    totalDiv.textContent = "₩" + Math.round(totalAmount).toLocaleString();
-  }
-  loyaltyPointsDiv = document.getElementById("loyalty-points");
-  if (loyaltyPointsDiv) {
-    points = Math.floor(
-      totalAmount / BUSINESS_CONSTANTS.POINTS.BASE_POINT_RATE
-    );
-    if (points > 0) {
-      loyaltyPointsDiv.textContent = "적립 포인트: " + points + "p";
-      loyaltyPointsDiv.style.display = "block";
-    } else {
-      loyaltyPointsDiv.textContent = "적립 포인트: 0p";
-      loyaltyPointsDiv.style.display = "block";
-    }
-  }
+  // Calculate bonus points first, then render cart total
+  doRenderBonusPoints();
+
+  // Render Cart Total with calculated points
+  renderCartTotal({
+    amount: totalAmount,
+    discountRate: discountRate,
+    point: bonusPoints,
+  });
+  // Legacy points calculation removed - doRenderBonusPoints() handles this correctly
   discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
   if (discountRate > 0 && totalAmount > 0) {
@@ -620,35 +632,84 @@ function handleCalculateCartStuff() {
     }
   }
   stockInfoElement.textContent = stockMessage;
-  doRenderBonusPoints();
+  // doRenderBonusPoints() moved earlier in the function
 }
 const doRenderBonusPoints = () => {
   if (cartDisplayElement.children.length === 0) {
-    document.getElementById("loyalty-points").style.display = "none";
+    document.getElementById(ELEMENT_IDS.LOYALTY_POINTS).style.display = "none";
     return;
   }
 
-  const cartItems = Array.from(cartDisplayElement.children)
-    .map((node) => {
-      for (let pIdx = 0; pIdx < productList.length; pIdx++) {
-        if (productList[pIdx].id === node.id) {
-          return productList[pIdx];
-        }
+  // Use original approach - directly check DOM elements like the working baseline
+  let basePoints = Math.floor(totalAmount / 1000);
+  let finalPoints = 0;
+  let pointsDetail = [];
+
+  if (basePoints > 0) {
+    finalPoints = basePoints;
+    pointsDetail.push("기본: " + basePoints + "p");
+  }
+
+  // Tuesday multiplier
+  if (new Date().getDay() === 2) {
+    if (basePoints > 0) {
+      finalPoints = basePoints * 2;
+      pointsDetail.push("화요일 2배");
+    }
+  }
+
+  // Check for keyboard, mouse, monitor arm directly from DOM (like baseline)
+  let hasKeyboard = false;
+  let hasMouse = false;
+  let hasMonitorArm = false;
+  const nodes = cartDisplayElement.children;
+
+  for (const node of nodes) {
+    let product = null;
+    for (let pIdx = 0; pIdx < productList.length; pIdx++) {
+      if (productList[pIdx].id === node.id) {
+        product = productList[pIdx];
+        break;
       }
-      return null;
-    })
-    .filter((item) => item !== null);
+    }
+    if (!product) continue;
 
-  const isTuesday = new Date().getDay() === 2;
-  const pointsData = businessLogic.calculatePoints(
-    totalAmount,
-    isTuesday,
-    cartItems,
-    totalItemCount
-  );
+    if (product.id === PRODUCTS.KEYBOARD) {
+      hasKeyboard = true;
+    } else if (product.id === PRODUCTS.MOUSE) {
+      hasMouse = true;
+    } else if (product.id === PRODUCTS.MONITOR_ARM) {
+      hasMonitorArm = true;
+    }
+  }
 
-  bonusPoints = pointsData.points;
-  var ptsTag = document.getElementById("loyalty-points");
+  // Set bonuses (same logic as baseline)
+  if (hasKeyboard && hasMouse) {
+    finalPoints = finalPoints + 50;
+    pointsDetail.push("키보드+마우스 세트 +50p");
+  }
+
+  if (hasKeyboard && hasMouse && hasMonitorArm) {
+    finalPoints = finalPoints + 100;
+    pointsDetail.push("풀세트 구매 +100p");
+  }
+
+  // Bulk purchase bonuses
+  if (totalItemCount >= 30) {
+    finalPoints = finalPoints + 100;
+    pointsDetail.push("대량구매(30개+) +100p");
+  } else if (totalItemCount >= 20) {
+    finalPoints = finalPoints + 50;
+    pointsDetail.push("대량구매(20개+) +50p");
+  } else if (totalItemCount >= 10) {
+    finalPoints = finalPoints + 20;
+    pointsDetail.push("대량구매(10개+) +20p");
+  }
+
+  bonusPoints = finalPoints;
+
+  // Update detailed points display
+  var ptsTag = document.getElementById(ELEMENT_IDS.LOYALTY_POINTS);
   if (ptsTag) {
     if (bonusPoints > 0) {
       ptsTag.innerHTML =
@@ -656,7 +717,7 @@ const doRenderBonusPoints = () => {
         bonusPoints +
         "p</span></div>" +
         '<div class="text-2xs opacity-70 mt-1">' +
-        pointsData.details.join(", ") +
+        pointsDetail.join(", ") +
         "</div>";
       ptsTag.style.display = "block";
     } else {
@@ -768,155 +829,9 @@ const productUtils = {
   },
 };
 
-// Render order summary based on original implementation
-function renderOrderSummary({
-  cartItems,
-  products,
-  subtotal,
-  totalItemCount,
-  itemDiscounts,
-  isTuesday,
-  totalAmount,
-  containerElement,
-  bulkDiscountThreshold,
-}) {
-  if (!containerElement) return;
+// Legacy renderOrderSummary function removed - now using OrderSummaryDetails component
 
-  containerElement.innerHTML = "";
-
-  if (subtotal > 0) {
-    // Add each cart item
-    for (let i = 0; i < cartItems.length; i++) {
-      let curItem = null;
-      for (let j = 0; j < products.length; j++) {
-        if (products[j].id === cartItems[i].id) {
-          curItem = products[j];
-          break;
-        }
-      }
-      if (curItem) {
-        const qtyElem = cartItems[i].querySelector(".quantity-number");
-        const q = parseInt(qtyElem.textContent);
-        const itemTotal = curItem.val * q;
-        containerElement.innerHTML += `
-          <div class="flex justify-between text-xs tracking-wide text-gray-400">
-            <span>${curItem.name} x ${q}</span>
-            <span>₩${itemTotal.toLocaleString()}</span>
-          </div>
-        `;
-      }
-    }
-
-    // Add subtotal
-    containerElement.innerHTML += `
-      <div class="border-t border-white/10 my-3"></div>
-      <div class="flex justify-between text-sm tracking-wide">
-        <span>Subtotal</span>
-        <span>₩${subtotal.toLocaleString()}</span>
-      </div>
-    `;
-
-    // Add bulk discount
-    if (totalItemCount >= 30) {
-      containerElement.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-          <span class="text-xs">-25%</span>
-        </div>
-      `;
-    } else if (itemDiscounts.length > 0) {
-      // Add individual item discounts
-      itemDiscounts.forEach(function (item) {
-        containerElement.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-green-400">
-            <span class="text-xs">${item.name} (10개↑)</span>
-            <span class="text-xs">-${item.discount}%</span>
-          </div>
-        `;
-      });
-    }
-
-    // Add Tuesday discount
-    if (isTuesday && totalAmount > 0) {
-      containerElement.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-purple-400">
-          <span class="text-xs">🌟 화요일 추가 할인</span>
-          <span class="text-xs">-10%</span>
-        </div>
-      `;
-    }
-  }
-}
-
-// Render cart item based on original implementation
-function renderCartItem({ product, quantity, containerElement }) {
-  const newItem = document.createElement("div");
-  newItem.id = product.id;
-  newItem.className =
-    "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
-  newItem.innerHTML = `
-    <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-      <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-    </div>
-    <div>
-      <h3 class="text-base font-normal mb-1 tracking-tight">${
-        product.onSale && product.suggestSale
-          ? "⚡💝"
-          : product.onSale
-          ? "⚡"
-          : product.suggestSale
-          ? "💝"
-          : ""
-      }${product.name}</h3>
-      <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-      <p class="text-xs text-black mb-3">${
-        product.onSale || product.suggestSale
-          ? '<span class="line-through text-gray-400">₩' +
-            product.originalVal.toLocaleString() +
-            '</span> <span class="' +
-            (product.onSale && product.suggestSale
-              ? "text-purple-600"
-              : product.onSale
-              ? "text-red-500"
-              : "text-blue-500") +
-            '">₩' +
-            product.val.toLocaleString() +
-            "</span>"
-          : "₩" + product.val.toLocaleString()
-      }</p>
-      <div class="flex items-center gap-4">
-        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
-          product.id
-        }" data-change="-1">−</button>
-        <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">${quantity}</span>
-        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
-          product.id
-        }" data-change="1">+</button>
-      </div>
-    </div>
-    <div class="text-right">
-      <div class="text-lg mb-2 tracking-tight tabular-nums">${
-        product.onSale || product.suggestSale
-          ? '<span class="line-through text-gray-400">₩' +
-            product.originalVal.toLocaleString() +
-            '</span> <span class="' +
-            (product.onSale && product.suggestSale
-              ? "text-purple-600"
-              : product.onSale
-              ? "text-red-500"
-              : "text-blue-500") +
-            '">₩' +
-            product.val.toLocaleString() +
-            "</span>"
-          : "₩" + product.val.toLocaleString()
-      }</div>
-      <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${
-        product.id
-      }">Remove</a>
-    </div>
-  `;
-  containerElement.appendChild(newItem);
-}
+// Legacy renderCartItem function removed - now using CartItem component
 
 const cartUtils = {
   updateItemQuantity: (product, existingItem) => {
@@ -935,7 +850,7 @@ const cartUtils = {
   },
 
   addNewItem: (product, containerElement) => {
-    renderCartItem({ product, quantity: 1, containerElement });
+    renderCartItem(product, 1);
     product.q--;
   },
 
