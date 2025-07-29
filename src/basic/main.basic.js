@@ -25,6 +25,7 @@ import {
 import { SummaryDetails } from "./components/SummaryDetails";
 import { getOrderSummary } from "./entity/order";
 import { CartTotal } from "./components/CartTotal";
+import { LoyaltyPoints } from "./components/LoyaltyPoints";
 
 let lastSel = null;
 let productSelector = ProductSelector();
@@ -71,16 +72,17 @@ const useFunction = (fn, { onSuccess }) => {
   };
 };
 
-const onSuccess = (summary) => {
-  SummaryDetails(summary);
-  CartTotal(summary);
-};
-
 const handleCalculateCartStuff = useFunction(
   // TODO: 호출하지 말고 본체를 넘기도록 고치기
   () => handleCalculateCartStuffOriginal(),
   {
-    onSuccess,
+    onSuccess: (summary) => {
+      SummaryDetails(summary);
+      CartTotal(summary);
+      LoyaltyPoints(summary);
+
+      doRenderBonusPoints(summary);
+    },
   }
 );
 
@@ -159,16 +161,6 @@ const handleCalculateCartStuffOriginal = () => {
     totalDiscountRate,
   } = getOrderSummary({ cartItems });
 
-  let loyaltyPointsDiv = document.getElementById("loyalty-points");
-  if (loyaltyPointsDiv) {
-    let points = Math.floor(totalDiscountedPrice / 1000);
-    if (points > 0) {
-      loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
-    } else {
-      loyaltyPointsDiv.textContent = "적립 포인트: 0p";
-    }
-  }
-
   let discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
   if (totalDiscountRate > 0 && totalDiscountedPrice > 0) {
@@ -208,7 +200,6 @@ const handleCalculateCartStuffOriginal = () => {
   }
   stockInfo.textContent = stockMsg;
   handleStockInfoUpdate();
-  doRenderBonusPoints({ totalItemCount, totalDiscountedPrice, cartItems });
 
   return {
     cartItems,
@@ -233,11 +224,10 @@ const doRenderBonusPoints = ({
   let hasKeyboard = false;
   let hasMouse = false;
   let hasMonitorArm = false;
-  let nodes = cartItems;
-  if (nodes.length === 0) {
-    document.getElementById("loyalty-points").style.display = "none";
+  if (cartItems.length === 0) {
     return;
   }
+
   if (basePoints > 0) {
     finalPoints = basePoints;
     pointsDetail.push(`기본: ${basePoints}p`);
@@ -248,10 +238,10 @@ const doRenderBonusPoints = ({
       pointsDetail.push("화요일 2배");
     }
   }
-  for (const node of nodes) {
+  for (const cartItem of cartItems) {
     let product = null;
     for (let pIdx = 0; pIdx < prodList.length; pIdx++) {
-      if (prodList[pIdx].id === node.id) {
+      if (prodList[pIdx].id === cartItem.id) {
         product = prodList[pIdx];
         break;
       }
