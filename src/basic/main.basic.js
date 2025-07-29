@@ -1,26 +1,10 @@
 // 모듈 import
-import { appState, PRODUCT_IDS, CONSTANTS } from './entities/app-state/index.js';
-import {
-  findProductById,
-  findAvailableProductExcept,
-  calculateTotalStock,
-} from './shared/utils/product-utils.js';
+import { appState } from './entities/app-state/index.js';
+import { calculateTotalStock } from './shared/utils/product-utils.js';
 import { initializeApplication, initializeProductData } from './features/initialization/index.js';
 import { createDOMElements } from './widgets/dom-creator/index.js';
 import { setupPromotionTimers } from './features/promotion/index.js';
-import {
-  calculateCartSubtotal,
-  calculateFinalDiscount,
-  updateCartUI,
-} from './features/pricing/index.js';
-import {
-  onUpdateSelectOptions,
-  updateStockStatus,
-  handleCalculateCartStuff,
-  doRenderBonusPoints,
-  onGetStockTotal,
-  doUpdatePricesInCart,
-} from './features/events/index.js';
+import { onUpdateSelectOptions, handleCalculateCartStuff } from './features/events/index.js';
 import { setupCartEventHandlers } from './features/cart-management/index.js';
 
 // AppState 참조

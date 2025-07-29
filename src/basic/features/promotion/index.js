@@ -52,19 +52,3 @@ export function setupPromotionTimers(appState) {
     }, 60000);
   }, Math.random() * 20000);
 }
-
-/**
- * 사용 가능한 상품 찾기 (내부 함수)
- * @param {Array} products - 상품 배열
- * @param {string} excludeId - 제외할 상품 ID
- * @returns {Object|null} 찾은 상품 객체 또는 null
- */
-function findAvailableProductExcept(products, excludeId) {
-  for (let i = 0; i < products.length; i++) {
-    const product = products[i];
-    if (product.id !== excludeId && product.q > 0 && !product.suggestSale) {
-      return product;
-    }
-  }
-  return null;
-}

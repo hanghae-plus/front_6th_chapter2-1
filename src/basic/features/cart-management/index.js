@@ -1,7 +1,3 @@
-import { CartRepository } from '../../entities/cart/index.js';
-import { ProductRepository } from '../../entities/product/index.js';
-import { PricingService } from '../pricing/index.js';
-import { PointsService } from '../points/index.js';
 import { findProductById } from '../../shared/utils/product-utils.js';
 import { handleCalculateCartStuff, onUpdateSelectOptions } from '../events/index.js';
 

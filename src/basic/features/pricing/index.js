@@ -1,6 +1,7 @@
 /**
  * 가격 계산 기능
  */
+import { findProductById } from '../../shared/utils/product-utils.js';
 
 /**
  * 장바구니 소계 및 개별 할인 계산
@@ -247,19 +248,4 @@ export function updateCartUI(appState, subTotal, itemDiscounts, discountInfo) {
       itemCountElement.setAttribute('data-changed', 'true');
     }
   }
-}
-
-/**
- * 상품 ID로 상품 찾기 (내부 함수)
- * @param {Array} products - 상품 배열
- * @param {string} productId - 찾을 상품 ID
- * @returns {Object|null} 찾은 상품 객체 또는 null
- */
-function findProductById(products, productId) {
-  for (let i = 0; i < products.length; i++) {
-    if (products[i].id === productId) {
-      return products[i];
-    }
-  }
-  return null;
 }
