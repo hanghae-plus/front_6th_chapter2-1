@@ -64,6 +64,10 @@ function Header() {
   `;
 }
 
+function CartDisplay() {
+  return /* HTML */ ` <div id="cart-items"></div> `;
+}
+
 /**
  * Selector Container
  * - ProductSelector
@@ -167,14 +171,13 @@ function main() {
     'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
 
   leftColumn.innerHTML = SelectorContainer();
+  leftColumn.innerHTML += CartDisplay();
 
   const sel = leftColumn.querySelector('#product-select');
   const addBtn = leftColumn.querySelector('#add-to-cart');
   const stockInfo = leftColumn.querySelector('#stock-status');
+  const cartDisp = leftColumn.querySelector('#cart-items');
 
-  const cartDisp = document.createElement('div');
-  leftColumn.appendChild(cartDisp);
-  cartDisp.id = 'cart-items';
   const rightColumn = document.createElement('div');
   rightColumn.className = 'bg-black text-white p-8 flex flex-col';
   rightColumn.innerHTML = `
@@ -292,6 +295,7 @@ function main() {
   `;
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
+
   manualOverlay.appendChild(manualColumn);
 
   root.innerHTML += Header();
