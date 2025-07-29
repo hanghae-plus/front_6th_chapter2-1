@@ -7,6 +7,7 @@ import { createCartItem, updateCartItemQuantity, updateCartItemPrice, updateCart
 import { createOrderSummary, updateOrderSummary } from "./components/OrderSummary.js";
 import { createManualSystem } from "./components/Manual.js";
 import { createLayoutSystem } from "./components/Layout.js";
+import { createCartDisplay } from "./components/CartDisplay.js";
 
 // data
 import { PRODUCT_LIST } from "./data/product.js";
@@ -54,7 +55,7 @@ function handleQuantityChange(productId, quantityChange, cartDisplay, selectorCo
 }
 
 // 장바구니 아이템 제거
-function handleRemoveItem(productId, cartDisplay, selectorContainer) {
+function handleRemoveItem(productId, selectorContainer) {
   // 4단계: cartService의 아이템 제거 로직 사용
   const success = cartService.removeProductFromCart(productId, PRODUCT_LIST);
 
@@ -65,12 +66,12 @@ function handleRemoveItem(productId, cartDisplay, selectorContainer) {
     }
   }
 
-  updateCartSummary(cartDisplay, selectorContainer);
+  updateCartSummary(selectorContainer);
   onUpdateSelectOptions(selectorContainer);
 }
 
 // 상품을 장바구니에 추가
-function handleAddToCart(productList, cartDisplay, selectorContainer) {
+function handleAddToCart(productList, selectorContainer) {
   const selectedProductId = getSelectedProduct(selectorContainer);
 
   // 1단계: cartService의 검증 로직만 사용
@@ -98,14 +99,14 @@ function handleAddToCart(productList, cartDisplay, selectorContainer) {
     if (success) {
       const newCartItem = createCartItem({
         product: targetProduct,
-        onQuantityChange: (productId, change) => handleQuantityChange(productId, change, cartDisplay, selectorContainer),
-        onRemove: productId => handleRemoveItem(productId, cartDisplay, selectorContainer),
+        onQuantityChange: (productId, change) => handleQuantityChange(productId, change, selectorContainer),
+        onRemove: productId => handleRemoveItem(productId, selectorContainer),
       });
-      cartDisplay.appendChild(newCartItem);
+      document.querySelector("#cart-items").appendChild(newCartItem);
     }
   }
 
-  updateCartSummary(cartDisplay, selectorContainer);
+  updateCartSummary(selectorContainer);
 }
 
 function main() {
@@ -129,12 +130,11 @@ function main() {
     },
     onAddToCart: () => {
       console.log("add");
-      handleAddToCart(productService.getProducts(), cartDisplay, selectorContainer);
+      handleAddToCart(productService.getProducts(), selectorContainer);
     },
   });
 
-  const cartDisplay = document.createElement("div");
-  cartDisplay.id = "cart-items";
+  const cartDisplay = createCartDisplay();
 
   leftColumn.appendChild(selectorContainer);
   leftColumn.appendChild(cartDisplay);
@@ -161,7 +161,7 @@ function main() {
   root.appendChild(manualSystem.overlay);
 
   onUpdateSelectOptions(selectorContainer);
-  updateCartSummary(cartDisplay, header, selectorContainer);
+  updateCartSummary(cartDisplay, selectorContainer);
 
   // 타이머 서비스 초기화 및 시작
   const timerService = new TimerService(productService, onUpdateSelectOptions, doUpdatePricesInCart, cartDisplay);
@@ -245,7 +245,8 @@ function doUpdatePricesInCart(cartDisplay, selectorContainer) {
   updateCartSummary(cartDisplay, selectorContainer);
 }
 
-function updateCartSummary(cartDisplay, selectorContainer) {
+function updateCartSummary(selectorContainer) {
+  const cartDisplay = document.querySelector("#cart-items");
   const cartItems = cartDisplay.children;
 
   // 1. 장바구니 총계 계산
