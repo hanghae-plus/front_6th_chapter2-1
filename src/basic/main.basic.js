@@ -64,6 +64,19 @@ function Header() {
   `;
 }
 
+/**
+ * LeftColumn
+ * - SelectorContainer
+ * - CartDisplay
+ */
+function LeftColumn() {
+  return /* HTML */ `
+    <div class="bg-white border border-gray-200 p-8 overflow-y-auto">
+      ${SelectorContainer()} ${CartDisplay()}
+    </div>
+  `;
+}
+
 function CartDisplay() {
   return /* HTML */ ` <div id="cart-items"></div> `;
 }
@@ -165,18 +178,8 @@ function main() {
   const root = document.getElementById('app');
 
   const gridContainer = document.createElement('div');
-  const leftColumn = document.createElement('div');
-  leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto';
   gridContainer.className =
     'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
-
-  leftColumn.innerHTML = SelectorContainer();
-  leftColumn.innerHTML += CartDisplay();
-
-  const sel = leftColumn.querySelector('#product-select');
-  const addBtn = leftColumn.querySelector('#add-to-cart');
-  const stockInfo = leftColumn.querySelector('#stock-status');
-  const cartDisp = leftColumn.querySelector('#cart-items');
 
   const rightColumn = document.createElement('div');
   rightColumn.className = 'bg-black text-white p-8 flex flex-col';
@@ -293,8 +296,13 @@ function main() {
       </p>
     </div>
   `;
-  gridContainer.appendChild(leftColumn);
+  gridContainer.innerHTML = LeftColumn();
   gridContainer.appendChild(rightColumn);
+
+  const sel = gridContainer.querySelector('#product-select');
+  const addBtn = gridContainer.querySelector('#add-to-cart');
+  const stockInfo = gridContainer.querySelector('#stock-status');
+  const cartDisp = gridContainer.querySelector('#cart-items');
 
   manualOverlay.appendChild(manualColumn);
 
