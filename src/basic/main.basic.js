@@ -24,9 +24,11 @@ function main() {
   var manualOverlay;
   var manualColumn;
   var lightningDelay;
+
   totalAmt = 0;
   itemCnt = 0;
   lastSel = null;
+
   prodList = [
     {
       id: PRODUCT_ONE,
@@ -74,7 +76,9 @@ function main() {
       suggestSale: false,
     },
   ];
+
   var root = document.getElementById('app');
+
   header = document.createElement('div');
   header.className = 'mb-8';
   header.innerHTML = `
@@ -82,31 +86,40 @@ function main() {
     <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
+
   sel = document.createElement('select');
   sel.id = 'product-select';
-  gridContainer = document.createElement('div');
+  sel.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
+
   leftColumn = document.createElement('div');
   leftColumn['className'] = 'bg-white border border-gray-200 p-8 overflow-y-auto';
-  selectorContainer = document.createElement('div');
-  selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
-  sel.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
+
+  gridContainer = document.createElement('div');
   gridContainer.className =
     'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
-  addBtn = document.createElement('button');
+
   stockInfo = document.createElement('div');
-  addBtn.id = 'add-to-cart';
   stockInfo.id = 'stock-status';
   stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
+
+  addBtn = document.createElement('button');
+  addBtn.id = 'add-to-cart';
   addBtn.innerHTML = 'Add to Cart';
   addBtn.className =
     'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
+
+  selectorContainer = document.createElement('div');
+  selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
   selectorContainer.appendChild(sel);
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
-  leftColumn.appendChild(selectorContainer);
+
   cartDisp = document.createElement('div');
-  leftColumn.appendChild(cartDisp);
   cartDisp.id = 'cart-items';
+
+  leftColumn.appendChild(selectorContainer);
+  leftColumn.appendChild(cartDisp);
+
   rightColumn = document.createElement('div');
   rightColumn.className = 'bg-black text-white p-8 flex flex-col';
   rightColumn.innerHTML = `
@@ -139,6 +152,16 @@ function main() {
     </p>
   `;
   sum = rightColumn.querySelector('#cart-total');
+
+  manualOverlay = document.createElement('div');
+  manualOverlay.className = 'fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300';
+  manualOverlay.onclick = function (e) {
+    if (e.target === manualOverlay) {
+      manualOverlay.classList.add('hidden');
+      manualColumn.classList.add('translate-x-full');
+    }
+  };
+
   manualToggle = document.createElement('button');
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle('hidden');
@@ -151,14 +174,7 @@ function main() {
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>
   `;
-  manualOverlay = document.createElement('div');
-  manualOverlay.className = 'fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300';
-  manualOverlay.onclick = function (e) {
-    if (e.target === manualOverlay) {
-      manualOverlay.classList.add('hidden');
-      manualColumn.classList.add('translate-x-full');
-    }
-  };
+
   manualColumn = document.createElement('div');
   manualColumn.className =
     'fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300';
@@ -222,6 +238,7 @@ function main() {
       </p>
     </div>
   `;
+
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
@@ -229,10 +246,12 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
+
   var initStock = 0;
   for (var i = 0; i < prodList.length; i++) {
     initStock += prodList[i].q;
   }
+
   onUpdateSelectOptions();
   handleCalculateCartStuff();
   lightningDelay = Math.random() * 10000;
@@ -240,6 +259,7 @@ function main() {
     setInterval(function () {
       var luckyIdx = Math.floor(Math.random() * prodList.length);
       var luckyItem = prodList[luckyIdx];
+
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
@@ -249,10 +269,12 @@ function main() {
       }
     }, 30000);
   }, lightningDelay);
+
   setTimeout(function () {
     setInterval(function () {
       if (cartDisp.children.length === 0) {
       }
+
       if (lastSel) {
         var suggest = null;
         for (var k = 0; k < prodList.length; k++) {
@@ -265,6 +287,7 @@ function main() {
             }
           }
         }
+
         if (suggest) {
           alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
           suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
@@ -276,25 +299,32 @@ function main() {
     }, 60000);
   }, Math.random() * 20000);
 }
+
 var sum;
+
 function onUpdateSelectOptions() {
   var totalStock;
   var opt;
   var discountText;
+
   sel.innerHTML = '';
   totalStock = 0;
+
   for (var idx = 0; idx < prodList.length; idx++) {
     var _p = prodList[idx];
     totalStock = totalStock + _p.q;
   }
+
   for (var i = 0; i < prodList.length; i++) {
     (function () {
       var item = prodList[i];
       opt = document.createElement('option');
       opt.value = item.id;
       discountText = '';
+
       if (item.onSale) discountText += ' ⚡SALE';
       if (item.suggestSale) discountText += ' 💝추천';
+
       if (item.q === 0) {
         opt.textContent = item.name + ' - ' + item.val + '원 (품절)' + discountText;
         opt.disabled = true;
@@ -325,12 +355,14 @@ function onUpdateSelectOptions() {
       sel.appendChild(opt);
     })();
   }
+
   if (totalStock < 50) {
     sel.style.borderColor = 'orange';
   } else {
     sel.style.borderColor = '';
   }
 }
+
 function handleCalculateCartStuff() {
   var cartItems;
   var subTot;
@@ -353,6 +385,7 @@ function handleCalculateCartStuff() {
   var hasP1;
   var hasP2;
   var loyaltyDiv;
+
   totalAmt = 0;
   itemCnt = 0;
   originalTotal = totalAmt;
@@ -361,11 +394,13 @@ function handleCalculateCartStuff() {
   bulkDisc = subTot;
   itemDiscounts = [];
   lowStockItems = [];
+
   for (idx = 0; idx < prodList.length; idx++) {
     if (prodList[idx].q < 5 && prodList[idx].q > 0) {
       lowStockItems.push(prodList[idx].name);
     }
   }
+
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       var curItem;
@@ -375,15 +410,18 @@ function handleCalculateCartStuff() {
           break;
         }
       }
+
       var qtyElem = cartItems[i].querySelector('.quantity-number');
       var q;
       var itemTot;
       var disc;
+
       q = parseInt(qtyElem.textContent);
       itemTot = curItem.val * q;
       disc = 0;
       itemCnt += q;
       subTot += itemTot;
+
       var itemDiv = cartItems[i];
       var priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
       priceElems.forEach(function (elem) {
@@ -391,6 +429,7 @@ function handleCalculateCartStuff() {
           elem.style.fontWeight = q >= 10 ? 'bold' : 'normal';
         }
       });
+
       if (q >= 10) {
         if (curItem.id === PRODUCT_ONE) {
           disc = 10 / 100;
@@ -415,20 +454,25 @@ function handleCalculateCartStuff() {
           itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
         }
       }
+
       totalAmt += itemTot * (1 - disc);
     })();
   }
+
   let discRate = 0;
   var originalTotal = subTot;
+
   if (itemCnt >= 30) {
     totalAmt = (subTot * 75) / 100;
     discRate = 25 / 100;
   } else {
     discRate = (subTot - totalAmt) / subTot;
   }
+
   const today = new Date();
   var isTuesday = today.getDay() === 2;
   var tuesdaySpecial = document.getElementById('tuesday-special');
+
   if (isTuesday) {
     if (totalAmt > 0) {
       totalAmt = (totalAmt * 90) / 100;
@@ -440,9 +484,12 @@ function handleCalculateCartStuff() {
   } else {
     tuesdaySpecial.classList.add('hidden');
   }
+
   document.getElementById('item-count').textContent = '🛍️ ' + itemCnt + ' items in cart';
+
   summaryDetails = document.getElementById('summary-details');
   summaryDetails.innerHTML = '';
+
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
       var curItem;
@@ -452,9 +499,11 @@ function handleCalculateCartStuff() {
           break;
         }
       }
+
       var qtyElem = cartItems[i].querySelector('.quantity-number');
       var q = parseInt(qtyElem.textContent);
       var itemTotal = curItem.val * q;
+
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
           <span>${curItem.name} x ${q}</span>
@@ -462,6 +511,7 @@ function handleCalculateCartStuff() {
         </div>
       `;
     }
+
     summaryDetails.innerHTML += `
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
@@ -469,6 +519,7 @@ function handleCalculateCartStuff() {
         <span>₩${subTot.toLocaleString()}</span>
       </div>
     `;
+
     if (itemCnt >= 30) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
@@ -486,6 +537,7 @@ function handleCalculateCartStuff() {
         `;
       });
     }
+
     if (isTuesday) {
       if (totalAmt > 0) {
         summaryDetails.innerHTML += `
@@ -496,6 +548,7 @@ function handleCalculateCartStuff() {
         `;
       }
     }
+
     summaryDetails.innerHTML += `
       <div class="flex justify-between text-sm tracking-wide text-gray-400">
         <span>Shipping</span>
@@ -503,10 +556,12 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
+
   totalDiv = sum.querySelector('.text-2xl');
   if (totalDiv) {
     totalDiv.textContent = '₩' + Math.round(totalAmt).toLocaleString();
   }
+
   loyaltyPointsDiv = document.getElementById('loyalty-points');
   if (loyaltyPointsDiv) {
     points = Math.floor(totalAmt / 1000);
@@ -518,8 +573,10 @@ function handleCalculateCartStuff() {
       loyaltyPointsDiv.style.display = 'block';
     }
   }
+
   discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
+
   if (discRate > 0 && totalAmt > 0) {
     savedAmount = originalTotal - totalAmt;
     discountInfoDiv.innerHTML = `
@@ -534,6 +591,7 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
+
   itemCountElement = document.getElementById('item-count');
   if (itemCountElement) {
     previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
@@ -542,6 +600,7 @@ function handleCalculateCartStuff() {
       itemCountElement.setAttribute('data-changed', 'true');
     }
   }
+
   stockMsg = '';
   for (var stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
     var item = prodList[stockIdx];
@@ -554,9 +613,11 @@ function handleCalculateCartStuff() {
     }
   }
   stockInfo.textContent = stockMsg;
+
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
+
 var doRenderBonusPoints = function () {
   var basePoints;
   var finalPoints;
@@ -565,27 +626,33 @@ var doRenderBonusPoints = function () {
   var hasMouse;
   var hasMonitorArm;
   var nodes;
+
   if (cartDisp.children.length === 0) {
     document.getElementById('loyalty-points').style.display = 'none';
     return;
   }
+
   basePoints = Math.floor(totalAmt / 1000);
   finalPoints = 0;
   pointsDetail = [];
+
   if (basePoints > 0) {
     finalPoints = basePoints;
     pointsDetail.push('기본: ' + basePoints + 'p');
   }
+
   if (new Date().getDay() === 2) {
     if (basePoints > 0) {
       finalPoints = basePoints * 2;
       pointsDetail.push('화요일 2배');
     }
   }
+
   hasKeyboard = false;
   hasMouse = false;
   hasMonitorArm = false;
   nodes = cartDisp.children;
+
   for (const node of nodes) {
     var product = null;
     for (var pIdx = 0; pIdx < prodList.length; pIdx++) {
@@ -594,7 +661,9 @@ var doRenderBonusPoints = function () {
         break;
       }
     }
+
     if (!product) continue;
+
     if (product.id === PRODUCT_ONE) {
       hasKeyboard = true;
     } else if (product.id === p2) {
@@ -603,14 +672,17 @@ var doRenderBonusPoints = function () {
       hasMonitorArm = true;
     }
   }
+
   if (hasKeyboard && hasMouse) {
     finalPoints = finalPoints + 50;
     pointsDetail.push('키보드+마우스 세트 +50p');
   }
+
   if (hasKeyboard && hasMouse && hasMonitorArm) {
     finalPoints = finalPoints + 100;
     pointsDetail.push('풀세트 구매 +100p');
   }
+
   if (itemCnt >= 30) {
     finalPoints = finalPoints + 100;
     pointsDetail.push('대량구매(30개+) +100p');
@@ -627,6 +699,7 @@ var doRenderBonusPoints = function () {
   }
   bonusPts = finalPoints;
   var ptsTag = document.getElementById('loyalty-points');
+
   if (ptsTag) {
     if (bonusPts > 0) {
       ptsTag.innerHTML =
@@ -643,10 +716,12 @@ var doRenderBonusPoints = function () {
     }
   }
 };
+
 function onGetStockTotal() {
   var sum;
   var i;
   var currentProduct;
+
   sum = 0;
   for (i = 0; i < prodList.length; i++) {
     currentProduct = prodList[i];
@@ -654,14 +729,18 @@ function onGetStockTotal() {
   }
   return sum;
 }
+
 var handleStockInfoUpdate = function () {
   var infoMsg;
   var totalStock;
   var messageOptimizer;
+
   infoMsg = '';
   totalStock = onGetStockTotal();
+
   if (totalStock < 30) {
   }
+
   prodList.forEach(function (item) {
     if (item.q < 5) {
       if (item.q > 0) {
@@ -671,34 +750,43 @@ var handleStockInfoUpdate = function () {
       }
     }
   });
+
   stockInfo.textContent = infoMsg;
 };
+
 function doUpdatePricesInCart() {
   var totalCount = 0,
     j = 0;
   var cartItems;
+
   while (cartDisp.children[j]) {
     var qty = cartDisp.children[j].querySelector('.quantity-number');
     totalCount += qty ? parseInt(qty.textContent) : 0;
     j++;
   }
+
   totalCount = 0;
   for (j = 0; j < cartDisp.children.length; j++) {
     totalCount += parseInt(cartDisp.children[j].querySelector('.quantity-number').textContent);
   }
+
   cartItems = cartDisp.children;
+
   for (var i = 0; i < cartItems.length; i++) {
     var itemId = cartItems[i].id;
     var product = null;
+
     for (var productIdx = 0; productIdx < prodList.length; productIdx++) {
       if (prodList[productIdx].id === itemId) {
         product = prodList[productIdx];
         break;
       }
     }
+
     if (product) {
       var priceDiv = cartItems[i].querySelector('.text-lg');
       var nameDiv = cartItems[i].querySelector('h3');
+
       if (product.onSale && product.suggestSale) {
         priceDiv.innerHTML =
           '<span class="line-through text-gray-400">₩' +
@@ -729,21 +817,27 @@ function doUpdatePricesInCart() {
       }
     }
   }
+
   handleCalculateCartStuff();
 }
+
 main();
+
 addBtn.addEventListener('click', function () {
   var selItem = sel.value;
   var hasItem = false;
+
   for (var idx = 0; idx < prodList.length; idx++) {
     if (prodList[idx].id === selItem) {
       hasItem = true;
       break;
     }
   }
+
   if (!selItem || !hasItem) {
     return;
   }
+
   var itemToAdd = null;
   for (var j = 0; j < prodList.length; j++) {
     if (prodList[j].id === selItem) {
@@ -751,11 +845,14 @@ addBtn.addEventListener('click', function () {
       break;
     }
   }
+
   if (itemToAdd && itemToAdd.q > 0) {
     var item = document.getElementById(itemToAdd['id']);
+
     if (item) {
       var qtyElem = item.querySelector('.quantity-number');
       var newQty = parseInt(qtyElem['textContent']) + 1;
+
       if (newQty <= itemToAdd.q + parseInt(qtyElem.textContent)) {
         qtyElem.textContent = newQty;
         itemToAdd['q']--;
@@ -831,27 +928,33 @@ addBtn.addEventListener('click', function () {
       cartDisp.appendChild(newItem);
       itemToAdd.q--;
     }
+
     handleCalculateCartStuff();
     lastSel = selItem;
   }
 });
+
 cartDisp.addEventListener('click', function (event) {
   var tgt = event.target;
+
   if (tgt.classList.contains('quantity-change') || tgt.classList.contains('remove-item')) {
     var prodId = tgt.dataset.productId;
     var itemElem = document.getElementById(prodId);
     var prod = null;
+
     for (var prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
       if (prodList[prdIdx].id === prodId) {
         prod = prodList[prdIdx];
         break;
       }
     }
+
     if (tgt.classList.contains('quantity-change')) {
       var qtyChange = parseInt(tgt.dataset.change);
       var qtyElem = itemElem.querySelector('.quantity-number');
       var currentQty = parseInt(qtyElem.textContent);
       var newQty = currentQty + qtyChange;
+
       if (newQty > 0 && newQty <= prod.q + currentQty) {
         qtyElem.textContent = newQty;
         prod.q -= qtyChange;
@@ -867,8 +970,10 @@ cartDisp.addEventListener('click', function (event) {
       prod.q += remQty;
       itemElem.remove();
     }
+
     if (prod && prod.q < 5) {
     }
+
     handleCalculateCartStuff();
     onUpdateSelectOptions();
   }
