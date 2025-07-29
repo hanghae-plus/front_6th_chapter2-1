@@ -7,7 +7,7 @@ export const createProductOption = ({ item }) => {
   if (item.onSale) discountText += ' ⚡SALE';
   if (item.suggestSale) discountText += ' 💝추천';
   // 품절 상품
-  if (item.quanitity === 0) {
+  if (item.quantity === 0) {
     productOption.textContent = item.name + ' - ' + item.changedPrice + '원 (품절)' + discountText;
     productOption.disabled = true;
     productOption.className = 'text-gray-400';
