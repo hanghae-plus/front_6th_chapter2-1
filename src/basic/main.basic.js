@@ -121,6 +121,17 @@ function ProductOption({ item }) {
   `;
 }
 
+function AddToCartButton() {
+  return /* HTML */ `
+    <button
+      id="add-to-cart"
+      class="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all"
+    >
+      Add to Cart
+    </button>
+  `;
+}
+
 function main() {
   let totalAmt = 0;
   let lastSel = null;
@@ -136,19 +147,15 @@ function main() {
   gridContainer.className =
     'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
 
-  const addBtn = document.createElement('button');
   const stockInfo = document.createElement('div');
-  addBtn.id = 'add-to-cart';
   stockInfo.id = 'stock-status';
   stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
-  addBtn.innerHTML = 'Add to Cart';
-  addBtn.className =
-    'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
   selectorContainer.innerHTML = ProductSelector();
-  selectorContainer.appendChild(addBtn);
+  selectorContainer.innerHTML += AddToCartButton();
   selectorContainer.appendChild(stockInfo);
 
   const sel = selectorContainer.querySelector('#product-select');
+  const addBtn = selectorContainer.querySelector('#add-to-cart');
 
   leftColumn.appendChild(selectorContainer);
   const cartDisp = document.createElement('div');
