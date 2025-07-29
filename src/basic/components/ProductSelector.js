@@ -1,20 +1,23 @@
-// 상수 정의
-const STOCK_WARNING_THRESHOLD = 50;
-const LOW_STOCK_THRESHOLD = 5;
+import { STOCK_WARNING_THRESHOLD, LOW_STOCK_THRESHOLD } from "../constants/index.js";
+import { calculateDiscountRate } from "../utils/productDisplay.js";
 
 // 옵션 텍스트를 생성합니다.
 function getOptionText(item) {
   if (item.quantity === 0) {
     return `${item.name} - ${item.price}원 (품절)`;
   }
+
+  const discountRate = calculateDiscountRate(item);
+  const discountPercent = discountRate > 0 ? (discountRate * 100).toFixed(0) : 0;
+
   if (item.onSale && item.suggestSale) {
-    return `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (25% SUPER SALE!)`;
+    return `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (-${discountPercent}% SUPER SALE!)`;
   }
   if (item.onSale) {
-    return `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (20% SALE!)`;
+    return `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (-${discountPercent}% SALE!)`;
   }
   if (item.suggestSale) {
-    return `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (5% 추천할인!)`;
+    return `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (-${discountPercent}% 추천할인!)`;
   }
   return `${item.name} - ${item.price}원`;
 }
@@ -138,10 +141,4 @@ export function updateStockInfo(products) {
 export function getSelectedProduct() {
   const select = document.querySelector("#product-select");
   return select ? select.value : null;
-}
-
-// 장바구니 버튼 상태를 토글합니다.
-export function setAddButtonState(container, disabled) {
-  const button = container.querySelector("#add-to-cart");
-  if (button) toggleButtonState(button, disabled);
 }

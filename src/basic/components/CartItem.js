@@ -1,10 +1,13 @@
-import { getProductDisplayName, getPriceDisplayHTML } from "../utils/productDisplay.js";
+import { getProductDisplayName, getPriceDisplayHTML, calculateDiscountRate } from "../utils/productDisplay.js";
 
 // CartItem 컴포넌트 생성
 export function createCartItem({ product, onQuantityChange, onRemove }) {
   const cartItem = document.createElement("div");
   cartItem.id = product.id;
   cartItem.className = "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
+
+  const discountRate = calculateDiscountRate(product);
+  const discountDisplay = discountRate > 0 ? `<span class="text-xs text-red-500 font-medium">-${(discountRate * 100).toFixed(0)}%</span>` : "";
 
   cartItem.innerHTML = /* HTML */ `
     <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
@@ -13,7 +16,7 @@ export function createCartItem({ product, onQuantityChange, onRemove }) {
     <div>
       <h3 class="text-base font-normal mb-1 tracking-tight">${getProductDisplayName(product)}</h3>
       <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-      <p class="text-xs text-black mb-3">${getPriceDisplayHTML(product)}</p>
+      <p class="text-xs text-black mb-3">${getPriceDisplayHTML(product)} ${discountDisplay}</p>
       <div class="flex items-center gap-4">
         <button
           class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
@@ -76,11 +79,14 @@ export function updateCartItemPrice(cartItemElement, product) {
     nameElement.textContent = getProductDisplayName(product);
   }
 
+  const discountRate = calculateDiscountRate(product);
+  const discountDisplay = discountRate > 0 ? `<span class="text-xs text-red-500 font-medium">-${(discountRate * 100).toFixed(0)}%</span>` : "";
+
   priceElements.forEach(element => {
     if (element.classList.contains("text-lg")) {
       element.innerHTML = getPriceDisplayHTML(product);
     } else if (element.classList.contains("text-xs") && element.textContent.includes("₩")) {
-      element.innerHTML = getPriceDisplayHTML(product);
+      element.innerHTML = getPriceDisplayHTML(product) + " " + discountDisplay;
     }
   });
 }

@@ -225,9 +225,9 @@ function updateStockDisplay() {
   }
 }
 
-const handleStockInfoUpdate = function () {
+function handleStockInfoUpdate() {
   updateStockInfo(PRODUCT_LIST);
-};
+}
 
 function doUpdatePricesInCart() {
   const cartDisplay = document.querySelector("#cart-items");

@@ -51,12 +51,12 @@ export function applyBulkAndSpecialDiscounts(totalAmt, itemCnt, subtotal) {
   return { totalAmt, discRate, originalTotal, isTuesday };
 }
 
-export function getLowStockItems(productList) {
-  const lowStockItems = [];
-  for (let idx = 0; idx < productList.length; idx++) {
-    if (productList[idx].quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING && productList[idx].quantity > 0) {
-      lowStockItems.push(productList[idx].name);
-    }
-  }
-  return lowStockItems;
-}
+// export function getLowStockItems(productList) {
+//   const lowStockItems = [];
+//   for (let idx = 0; idx < productList.length; idx++) {
+//     if (productList[idx].quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING && productList[idx].quantity > 0) {
+//       lowStockItems.push(productList[idx].name);
+//     }
+//   }
+//   return lowStockItems;
+// }
