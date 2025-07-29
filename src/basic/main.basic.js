@@ -276,6 +276,10 @@ function main() {
 }
 
 function onUpdateSelectOptions() {
+  // 함수 재호출 시 셀렉 옵션 초기화
+  // 초기화하지 않을 시 옵션이 계속해서 추가됨
+  selector.innerHTML = '';
+
   const totalStock = getTotalStock(productList);
 
   if (totalStock < 50) {
