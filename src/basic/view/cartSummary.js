@@ -29,3 +29,16 @@ export const renderLoyaltyPoints = ({ totalAmount }) => {
     loyaltyPointsDiv.style.display = 'block';
   }
 };
+
+export const renderItemTotalCount = ({ totalCount }) => {
+  const itemCountElement = document.getElementById('item-count');
+
+  if (itemCountElement) {
+    const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    itemCountElement.textContent = '🛍️ ' + totalCount + ' items in cart';
+
+    if (previousCount !== totalCount) {
+      itemCountElement.setAttribute('data-changed', 'true');
+    }
+  }
+};

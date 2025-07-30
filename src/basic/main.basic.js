@@ -5,7 +5,7 @@ import { initialProducts, LIGHTNING_DISCOUNT, OUT_OF_STOCK, SUGGEST_DISCOUNT } f
 import productManager from './domain/product';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/applyDiscount';
 import { isTuesday } from './utils/dateUtil';
-import { renderDiscountInfo, renderLoyaltyPoints } from './view/cartSummary';
+import { renderDiscountInfo, renderItemTotalCount, renderLoyaltyPoints } from './view/cartSummary';
 import { globalElements } from './view/globalElements';
 import { renderLayout } from './view/layout';
 
@@ -187,14 +187,7 @@ function calculateCart() {
 
   renderDiscountInfo({ finalDiscountRate, originalTotal, totalAmount });
 
-  itemCountElement = document.getElementById('item-count');
-  if (itemCountElement) {
-    previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
-    itemCountElement.textContent = '🛍️ ' + cartManager.getTotalItem() + ' items in cart';
-    if (previousCount !== cartManager.getTotalItem()) {
-      itemCountElement.setAttribute('data-changed', 'true');
-    }
-  }
+  renderItemTotalCount({ totalCount: cartManager.getTotalItem() });
 
   stockMsg = '';
   for (let stockIdx = 0; stockIdx < productManager.getProductCount(); stockIdx++) {
