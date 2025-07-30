@@ -1,5 +1,3 @@
-import { SelectorContainer } from "./components/SelectorContainer.js";
-
 var prodList;
 var bonusPts = 0;
 var stockInfo;
@@ -83,6 +81,8 @@ function main() {
     <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
+  sel = document.createElement("select");
+  sel.id = "product-select";
   gridContainer = document.createElement("div");
   leftColumn = document.createElement("div");
   leftColumn["className"] =
@@ -104,16 +104,6 @@ function main() {
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
-
-  // SelectorContainer 컴포넌트 append (테스트용, 기존 코드와 병행)
-  const selectorComp = SelectorContainer({
-    products: prodList,
-    stockText: "",
-    onAdd: function (selId) {
-      handleAddToCart(selId);
-    },
-  });
-  leftColumn.appendChild(selectorComp);
   cartDisp = document.createElement("div");
   leftColumn.appendChild(cartDisp);
   cartDisp.id = "cart-items";
@@ -784,7 +774,9 @@ function doUpdatePricesInCart() {
   handleCalculateCartStuff();
 }
 main();
-function handleAddToCart(selItem) {
+addBtn.addEventListener("click", function () {
+  var selItem = sel.value;
+
   var hasItem = false;
   for (var idx = 0; idx < prodList.length; idx++) {
     if (prodList[idx].id === selItem) {
@@ -885,7 +877,7 @@ function handleAddToCart(selItem) {
     handleCalculateCartStuff();
     lastSel = selItem;
   }
-}
+});
 cartDisp.addEventListener("click", function (event) {
   var tgt = event.target;
   if (
