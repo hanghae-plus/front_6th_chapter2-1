@@ -255,34 +255,29 @@ const doRenderBonusPoints = ({
 };
 
 const doUpdatePricesInCart = () => {
-  let cartItems = cartItemBox.children;
-  for (let i = 0; i < cartItems.length; i++) {
-    const itemId = cartItems[i].id;
-    let product = null;
-    for (let productIdx = 0; productIdx < prodList.length; productIdx++) {
-      if (prodList[productIdx].id === itemId) {
-        product = prodList[productIdx];
-        break;
-      }
-    }
+  let cartItems = [...cartItemBox.children];
+  cartItems.forEach((cartItem) => {
+    let product = prodList.find((item) => item.id === cartItem.id);
     if (product) {
-      const priceDiv = cartItems[i].querySelector(".text-lg");
-      const nameDiv = cartItems[i].querySelector("h3");
+      const priceDiv = cartItem.querySelector(".text-lg");
+      const nameDiv = cartItem.querySelector("h3");
+      priceDiv.textContent = "₩" + product.price.toLocaleString();
+      nameDiv.textContent = product.name;
+
       if (product.onSale && product.suggestSale) {
         priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-purple-600">₩${product.price.toLocaleString()}</span>`;
         nameDiv.textContent = `⚡💝${product.name}`;
-      } else if (product.onSale) {
+      }
+      if (product.onSale) {
         priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-red-500">₩${product.price.toLocaleString()}</span>`;
         nameDiv.textContent = "⚡" + product.name;
-      } else if (product.suggestSale) {
+      }
+      if (product.suggestSale) {
         priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-blue-500">₩${product.price.toLocaleString()}</span>`;
         nameDiv.textContent = "💝" + product.name;
-      } else {
-        priceDiv.textContent = "₩" + product.price.toLocaleString();
-        nameDiv.textContent = product.name;
       }
     }
-  }
+  });
 };
 
 main();
