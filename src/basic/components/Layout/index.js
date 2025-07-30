@@ -26,6 +26,9 @@ export function Layout() {
     </p>
   `;
 
+  gridContainer.appendChild(leftColumn);
+  gridContainer.appendChild(rightColumn);
+
   return {
     container: gridContainer,
     leftColumn,

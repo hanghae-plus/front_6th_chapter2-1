@@ -8,7 +8,7 @@ import {
   OrderSummaryTotalDisplay,
   OrderSummaryTuesdaySpecial,
 } from './components/OrderSummary';
-import { AddToCartButton, ProductSelect, StockInfo } from './components/Product';
+import { ProductAddToCartButton, ProductSelect, ProductStockInfo } from './components/Product';
 import { addItemToCart } from './services/cartService';
 import { setupTimers } from './utils/setupTimers';
 import { updateUI } from './utils/updateUI';
@@ -31,8 +31,8 @@ export function App() {
   // 초기 선택 상품 ID 설정
   selectedProductId = productSelectComp.element.value;
 
-  const stockInfoComp = StockInfo();
-  const addToCartButtonComp = AddToCartButton(() => {
+  const stockInfoComp = ProductStockInfo();
+  const addToCartButtonComp = ProductAddToCartButton(() => {
     if (!selectedProductId) return alert('상품을 선택해주세요.');
     const result = addItemToCart(selectedProductId);
     if (result.success) {
