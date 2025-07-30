@@ -10,8 +10,8 @@ import { calculateAllBusinessLogic } from "./cartCalculationService";
  */
 export const initializeApplication = () => {
   // 초기화 즉시 실행
-  const prodList = productStore.getState().products;
-  updateSelectOptions(getProductSelect(), prodList);
+  const productList = productStore.getState().products;
+  updateSelectOptions(getProductSelect(), productList);
 };
 
 /**

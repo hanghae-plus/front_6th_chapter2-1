@@ -9,10 +9,10 @@ import productStore from "../store/product";
  * @returns {Array} 재고 부족 상품 정보 배열
  */
 export const getLowStockItems = () => {
-  const prodList = productStore.getState().products;
+  const productList = productStore.getState().products;
   const lowStockItems = [];
 
-  prodList.forEach((product) => {
+  productList.forEach((product) => {
     const currentStock = product.q;
 
     if (currentStock < 5) {
@@ -47,12 +47,12 @@ export const updateStock = (productId, newStock) => {
 /**
  * 상품 재고 확인
  * @param {string} productId - 상품 ID
- * @param {number} requestedQty - 요청 수량
+ * @param {number} requestedQuantity - 요청 수량
  * @returns {boolean} 재고 충분 여부
  */
-export const checkStockAvailability = (productId, requestedQty) => {
+export const checkStockAvailability = (productId, requestedQuantity) => {
   const product = productStore
     .getState()
     .products.find((p) => p.id === productId);
-  return product && product.q >= requestedQty;
+  return product && product.q >= requestedQuantity;
 };

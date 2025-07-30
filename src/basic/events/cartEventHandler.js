@@ -5,20 +5,20 @@ import { getCartContainer } from "../ui/dom/getDOMElements";
  * 장바구니 추가/삭제 이벤트 초기화
  */
 export const initCartDOMEvent = () => {
-  const cartDisp = getCartContainer();
-  cartDisp.addEventListener("click", (event) => {
-    const tgt = event.target;
-    if (!tgt) return;
+  const cartContainer = getCartContainer();
+  cartContainer.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!target) return;
     if (
-      tgt.classList.contains("quantity-change") ||
-      tgt.classList.contains("remove-item")
+      target.classList.contains("quantity-change") ||
+      target.classList.contains("remove-item")
     ) {
-      const prodId = tgt.dataset.productId;
-      const qtyChange = tgt.classList.contains("remove-item")
+      const prodId = target.dataset.productId;
+      const qtyChange = target.classList.contains("remove-item")
         ? -Infinity
-        : parseInt(tgt.dataset.change);
+        : parseInt(target.dataset.change);
 
-      updateCartItem(prodId, qtyChange, cartDisp);
+      updateCartItem(prodId, qtyChange, cartContainer);
     }
   });
 };

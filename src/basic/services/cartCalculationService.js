@@ -6,12 +6,7 @@ import { updateCartUIAfterCalculation } from "../ui/update/updateCartUIAfterCalc
 import { getCartContainer } from "../ui/dom/getDOMElements";
 
 /**
- * 장바구니 계산 관련 비즈니스 로직을 담당하는 함수들
- */
-
-/**
  * 모든 비즈니스 로직을 계산하는 함수
- * @returns {Object} 계산된 모든 비즈니스 데이터
  */
 export const calculateAllBusinessLogic = () => {
   const cartData = calculateAndUpdateCart();

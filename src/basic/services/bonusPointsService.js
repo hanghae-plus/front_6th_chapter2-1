@@ -1,13 +1,7 @@
 import { productIds } from "../store/product";
 
 /**
- * 보너스 포인트 계산 관련 비즈니스 로직을 담당하는 함수들
- */
-
-/**
  * 보너스 포인트 계산
- * @param {Object} cartState - 장바구니 상태
- * @returns {Object} 포인트 계산 결과
  */
 export const calculateBonusPoints = (cartState) => {
   const { items, totals } = cartState;
