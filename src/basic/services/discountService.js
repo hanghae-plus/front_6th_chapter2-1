@@ -1,6 +1,7 @@
 import { DiscountStore } from "../store/discountStore.js";
 import { DISCOUNT_RATES, QUANTITY_THRESHOLDS } from "../constants/index.js";
 import { findProductById, calculateItemDiscount } from "../utils/productUtils.js";
+import { calcTotalDiscount } from "../utils/discountUtils.js";
 
 export class DiscountService {
   constructor() {
@@ -43,7 +44,7 @@ export class DiscountService {
       }
     });
 
-    this.discountStore.updateIndividualDiscounts(individualDiscounts);
+    this.discountStore.setState({ individualDiscounts });
     return individualDiscounts;
   }
 
@@ -57,7 +58,7 @@ export class DiscountService {
       bulkDiscountApplied = true;
     }
 
-    this.discountStore.updateBulkDiscount(bulkDiscountRate, bulkDiscountApplied);
+    this.discountStore.setState({ bulkDiscountRate, bulkDiscountApplied });
     return { rate: bulkDiscountRate, applied: bulkDiscountApplied };
   }
 
@@ -68,7 +69,7 @@ export class DiscountService {
     const tuesdayDiscountRate = isTuesday ? DISCOUNT_RATES.TUESDAY_SPECIAL : 0;
     const tuesdayDiscountApplied = isTuesday;
 
-    this.discountStore.updateTuesdayDiscount(tuesdayDiscountRate, tuesdayDiscountApplied);
+    this.discountStore.setState({ tuesdayDiscountRate, tuesdayDiscountApplied });
     return { rate: tuesdayDiscountRate, applied: tuesdayDiscountApplied };
   }
 
@@ -101,22 +102,41 @@ export class DiscountService {
 
     // 2. 대량구매 및 화요일 할인 적용
     const originalTotal = subtotal;
+    let bulkDiscountRate = 0;
+    let bulkDiscountApplied = false;
 
     if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
-      totalAmount = subtotal * DISCOUNT_RATES.BULK_PURCHASE;
+      bulkDiscountRate = DISCOUNT_RATES.BULK_PURCHASE;
+      bulkDiscountApplied = true;
+      totalAmount = subtotal * bulkDiscountRate; // 수정: (1 - bulkDiscountRate) -> bulkDiscountRate
     }
+
     const today = new Date();
     const isTuesday = today.getDay() === 2;
+    let tuesdayDiscountRate = 0;
+    let tuesdayDiscountApplied = false;
 
     if (isTuesday && totalAmount > 0) {
-      totalAmount = totalAmount * DISCOUNT_RATES.TUESDAY_SPECIAL;
+      tuesdayDiscountRate = DISCOUNT_RATES.TUESDAY_SPECIAL;
+      tuesdayDiscountApplied = true;
+      totalAmount = totalAmount * tuesdayDiscountRate; // 수정: (1 - tuesdayDiscountRate) -> tuesdayDiscountRate
     }
 
-    // 3. DiscountStore 업데이트
-    this.discountStore.updateIndividualDiscounts(itemDiscounts);
-    this.discountStore.updateBulkDiscount(itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE ? DISCOUNT_RATES.BULK_PURCHASE : 0, itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE);
-    this.discountStore.updateTuesdayDiscount(isTuesday ? DISCOUNT_RATES.TUESDAY_SPECIAL : 0, isTuesday);
-    this.discountStore.updateSavedAmount(originalTotal - totalAmount);
+    // 3. 할인 집계 유틸 함수로 집계
+    const { totalDiscountRate, discountTypes, hasAnyDiscount } = calcTotalDiscount(itemDiscounts, bulkDiscountRate, bulkDiscountApplied, tuesdayDiscountRate, tuesdayDiscountApplied);
+
+    // 4. 불변성을 유지하며 상태 업데이트
+    this.discountStore.setState({
+      individualDiscounts: itemDiscounts,
+      bulkDiscountRate,
+      bulkDiscountApplied,
+      tuesdayDiscountRate,
+      tuesdayDiscountApplied,
+      totalDiscountRate,
+      totalSavedAmount: originalTotal - totalAmount,
+      hasAnyDiscount,
+      discountTypes,
+    });
 
     return {
       originalAmount: subtotal,
@@ -124,12 +144,12 @@ export class DiscountService {
       savedAmount: originalTotal - totalAmount,
       individualDiscounts: itemDiscounts,
       bulkDiscount: {
-        rate: itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE ? DISCOUNT_RATES.BULK_PURCHASE : 0,
-        applied: itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE,
+        rate: bulkDiscountRate,
+        applied: bulkDiscountApplied,
       },
       tuesdayDiscount: {
-        rate: isTuesday ? DISCOUNT_RATES.TUESDAY_SPECIAL : 0,
-        applied: isTuesday,
+        rate: tuesdayDiscountRate,
+        applied: tuesdayDiscountApplied,
       },
     };
   }
@@ -191,7 +211,17 @@ export class DiscountService {
 
   // 할인을 초기화합니다.
   resetDiscounts() {
-    this.discountStore.resetDiscounts();
+    this.discountStore.setState({
+      individualDiscounts: [],
+      bulkDiscountRate: 0,
+      bulkDiscountApplied: false,
+      tuesdayDiscountRate: 0,
+      tuesdayDiscountApplied: false,
+      totalDiscountRate: 0,
+      totalSavedAmount: 0,
+      hasAnyDiscount: false,
+      discountTypes: [],
+    });
   }
 }
 

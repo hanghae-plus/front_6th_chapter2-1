@@ -24,58 +24,29 @@ export class DiscountStore {
     this.subscribers = [];
   }
 
-  // 개별 할인 업데이트
-  updateIndividualDiscounts(discounts) {
-    this.state.individualDiscounts = discounts;
-    this.calculateTotalDiscount();
+  // 불변성을 유지하는 상태 업데이트
+  setState(newState) {
+    this.state = { ...this.state, ...newState };
   }
 
-  // 대량구매 할인 업데이트
-  updateBulkDiscount(rate, applied) {
-    this.state.bulkDiscountRate = rate;
-    this.state.bulkDiscountApplied = applied;
-    this.calculateTotalDiscount();
+  // 상태 조회
+  getState() {
+    return this.state;
   }
 
-  // 화요일 할인 업데이트
-  updateTuesdayDiscount(rate, applied) {
-    this.state.tuesdayDiscountRate = rate;
-    this.state.tuesdayDiscountApplied = applied;
-    this.calculateTotalDiscount();
+  // 구독자 관리 (필요한 경우)
+  subscribe(callback) {
+    this.subscribers.push(callback);
+    return () => {
+      const index = this.subscribers.indexOf(callback);
+      if (index > -1) {
+        this.subscribers.splice(index, 1);
+      }
+    };
   }
 
-  // 총 할인 계산
-  calculateTotalDiscount() {
-    const { individualDiscounts, bulkDiscountRate, tuesdayDiscountRate } = this.state;
-
-    let totalRate = 0;
-    const discountTypes = [];
-
-    // 개별 할인
-    if (individualDiscounts.length > 0) {
-      totalRate += individualDiscounts.reduce((sum, discount) => sum + discount.rate, 0);
-      discountTypes.push("individual");
-    }
-
-    // 대량구매 할인
-    if (this.state.bulkDiscountApplied) {
-      totalRate += bulkDiscountRate;
-      discountTypes.push("bulk");
-    }
-
-    // 화요일 할인
-    if (this.state.tuesdayDiscountApplied) {
-      totalRate += tuesdayDiscountRate;
-      discountTypes.push("tuesday");
-    }
-
-    this.state.totalDiscountRate = totalRate;
-    this.state.discountTypes = discountTypes;
-    this.state.hasAnyDiscount = totalRate > 0;
-  }
-
-  // 절약 금액 업데이트
-  updateSavedAmount(savedAmount) {
-    this.state.totalSavedAmount = savedAmount;
+  // 구독자들에게 상태 변경 알림
+  notify() {
+    this.subscribers.forEach(callback => callback(this.state));
   }
 }
