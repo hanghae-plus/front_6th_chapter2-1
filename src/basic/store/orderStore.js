@@ -24,14 +24,13 @@ export class OrderStore {
     this.subscribers = [];
   }
 
-  // 상태 업데이트
-  updateOrderSummary(orderData) {
-    this.state = { ...this.state, ...orderData };
+  // 불변성을 유지하는 상태 업데이트
+  setState(newState) {
+    this.state = { ...this.state, ...newState };
   }
 
-  // 포인트 업데이트
-  updatePoints(pointsData) {
-    this.state.totalPoints = pointsData.totalPoints;
-    this.state.pointsDetails = pointsData.details;
+  // 상태 조회
+  getState() {
+    return this.state;
   }
 }

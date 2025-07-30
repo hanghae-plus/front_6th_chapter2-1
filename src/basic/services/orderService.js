@@ -12,7 +12,7 @@ export class OrderService {
    */
   calculateOrderSummary(cartItems, productList) {
     const orderData = this.calculateOrderData(cartItems, productList);
-    this.orderStore.updateOrderSummary(orderData);
+    this.orderStore.setState(orderData);
     return orderData;
   }
 
@@ -21,8 +21,20 @@ export class OrderService {
    */
   calculatePoints(cartItems, totalAmount, isTuesday, itemCount) {
     const pointsData = pointService.calculatePoints(cartItems, totalAmount, isTuesday, itemCount);
-    this.orderStore.updatePoints(pointsData);
+    this.orderStore.setState({
+      totalPoints: pointsData.totalPoints,
+      pointsDetails: pointsData.details,
+    });
     return pointsData;
+  }
+
+  /**
+   * 주문 상태를 반환합니다.
+   *
+   * @returns {Object} 주문 상태
+   */
+  getState() {
+    return this.orderStore.getState();
   }
 
   /**

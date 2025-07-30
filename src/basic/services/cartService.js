@@ -45,11 +45,14 @@ export class CartService {
       return false;
     }
 
-    const existingItem = this.cartStore.findItem(product.id);
+    const { cartItems } = this.cartStore.getState();
+    const existingItem = cartItems.find(item => item.id === product.id);
 
     if (existingItem) {
       existingItem.quantity += quantity;
-      this.cartStore.updateItem(product.id, existingItem);
+      this.cartStore.setState({
+        cartItems: cartItems.map(item => (item.id === product.id ? existingItem : item)),
+      });
     } else {
       const newItem = {
         id: product.id,
@@ -58,7 +61,9 @@ export class CartService {
         quantity,
         originalPrice: product.originalPrice || product.price,
       };
-      this.cartStore.addItem(newItem);
+      this.cartStore.setState({
+        cartItems: [...cartItems, newItem],
+      });
     }
 
     product.quantity -= quantity;
@@ -75,7 +80,8 @@ export class CartService {
    * @returns {boolean} 성공 여부
    */
   updateCartItemQuantity(productId, quantityChange, productList) {
-    const cartItem = this.cartStore.findItem(productId);
+    const { cartItems } = this.cartStore.getState();
+    const cartItem = cartItems.find(item => item.id === productId);
     const product = productList.find(p => p.id === productId);
 
     if (!cartItem || !product) return false;
@@ -92,8 +98,12 @@ export class CartService {
     }
 
     const quantityDiff = newQuantity - cartItem.quantity;
-    cartItem.quantity = newQuantity;
-    this.cartStore.updateItem(productId, cartItem);
+    const updatedItem = { ...cartItem, quantity: newQuantity };
+
+    this.cartStore.setState({
+      cartItems: cartItems.map(item => (item.id === productId ? updatedItem : item)),
+    });
+
     product.quantity -= quantityDiff;
 
     this.updateCartTotals();
@@ -108,13 +118,16 @@ export class CartService {
    * @returns {boolean} 성공 여부
    */
   removeProductFromCart(productId, productList) {
-    const cartItem = this.cartStore.findItem(productId);
+    const { cartItems } = this.cartStore.getState();
+    const cartItem = cartItems.find(item => item.id === productId);
     const product = productList.find(p => p.id === productId);
 
     if (!cartItem || !product) return false;
 
     product.quantity += cartItem.quantity;
-    this.cartStore.removeItem(productId);
+    this.cartStore.setState({
+      cartItems: cartItems.filter(item => item.id !== productId),
+    });
 
     this.updateCartTotals();
     return true;
@@ -124,20 +137,22 @@ export class CartService {
    * 장바구니 총액과 할인을 계산합니다.
    */
   updateCartTotals() {
-    const cartItems = this.cartStore.getCartItems();
+    const { cartItems } = this.cartStore.getState();
     const discountResult = discountService.applyAllDiscounts(cartItems, []);
 
-    this.cartStore.setTotalAmount(discountResult.finalAmount);
-    this.cartStore.setItemCount(cartItems.reduce((sum, item) => sum + item.quantity, 0));
-    this.cartStore.setDiscountRate(discountResult.originalAmount > 0 ? (discountResult.originalAmount - discountResult.finalAmount) / discountResult.originalAmount : 0);
-    this.cartStore.setSavedAmount(discountResult.savedAmount);
+    this.cartStore.setState({
+      totalAmount: discountResult.finalAmount,
+      itemCount: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+      discountRate: discountResult.originalAmount > 0 ? (discountResult.originalAmount - discountResult.finalAmount) / discountResult.originalAmount : 0,
+      savedAmount: discountResult.savedAmount,
+    });
 
     return {
       subtotal: discountResult.originalAmount,
-      totalAmount: this.cartStore.getTotalAmount(),
-      itemCount: this.cartStore.getItemCount(),
-      discountRate: this.cartStore.getDiscountRate(),
-      savedAmount: this.cartStore.getSavedAmount(),
+      totalAmount: this.cartStore.getState().totalAmount,
+      itemCount: this.cartStore.getState().itemCount,
+      discountRate: this.cartStore.getState().discountRate,
+      savedAmount: this.cartStore.getState().savedAmount,
       itemDiscounts: discountResult.individualDiscounts,
       isTuesday: discountResult.tuesdayDiscount.applied,
     };
@@ -149,7 +164,7 @@ export class CartService {
    * @param {Array} productList - 상품 목록
    */
   resetCart(productList) {
-    const cartItems = this.cartStore.getCartItems();
+    const { cartItems } = this.cartStore.getState();
 
     // 재고 복원
     for (const cartItem of cartItems) {
@@ -159,7 +174,14 @@ export class CartService {
       }
     }
 
-    this.cartStore.clearCart();
+    this.cartStore.setState({
+      cartItems: [],
+      totalAmount: 0,
+      itemCount: 0,
+      discountRate: 0,
+      savedAmount: 0,
+      lastSelectedProduct: null,
+    });
   }
 
   /**
@@ -168,7 +190,7 @@ export class CartService {
    * @returns {number} 장바구니 아이템 개수
    */
   getItemCount() {
-    return this.cartStore.getItemCount();
+    return this.cartStore.getState().itemCount;
   }
 
   /**
@@ -177,7 +199,7 @@ export class CartService {
    * @returns {number} 장바구니 총액
    */
   getTotalAmount() {
-    return this.cartStore.getTotalAmount();
+    return this.cartStore.getState().totalAmount;
   }
 
   /**
@@ -186,7 +208,7 @@ export class CartService {
    * @returns {string|null} 마지막 선택된 상품 ID
    */
   getLastSelectedProduct() {
-    return this.cartStore.getLastSelectedProduct();
+    return this.cartStore.getState().lastSelectedProduct;
   }
 
   /**
@@ -195,7 +217,16 @@ export class CartService {
    * @param {string} productId - 상품 ID
    */
   setLastSelectedProduct(productId) {
-    this.cartStore.setLastSelectedProduct(productId);
+    this.cartStore.setState({ lastSelectedProduct: productId });
+  }
+
+  /**
+   * 장바구니 상태를 반환합니다.
+   *
+   * @returns {Object} 장바구니 상태
+   */
+  getState() {
+    return this.cartStore.getState();
   }
 
   /**

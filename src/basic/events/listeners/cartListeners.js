@@ -277,7 +277,7 @@ export class CartEventListeners {
     this.uiEventBus.emit("cart:summary:calculated", {
       cartItems,
       discountResult,
-      itemCount: this.cartService.getItemCount(),
+      itemCount: this.cartService.getState().itemCount,
       success: true,
     });
 
