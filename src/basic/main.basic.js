@@ -232,7 +232,7 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
-  onUpdateSelectOptions();
+  renderProductSelectOptions();
   handleCalculateCartStuff();
 
   setTimeout(() => {
@@ -243,7 +243,7 @@ function main() {
         luckyItem.value = Math.round((luckyItem.originalValue * 80) / 100);
         luckyItem.onSale = true;
         alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
-        onUpdateSelectOptions();
+        renderProductSelectOptions();
         doUpdatePricesInCart();
       }
     }, 30000);
@@ -267,7 +267,7 @@ function main() {
           alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
           suggest.value = Math.round((suggest.value * (100 - 5)) / 100);
           suggest.suggestSale = true;
-          onUpdateSelectOptions();
+          renderProductSelectOptions();
           doUpdatePricesInCart();
         }
       }
@@ -275,7 +275,7 @@ function main() {
   }, Math.random() * 20000);
 }
 
-function onUpdateSelectOptions() {
+function renderProductSelectOptions() {
   // 함수 재호출 시 셀렉 옵션 초기화
   // 초기화하지 않을 시 옵션이 계속해서 추가됨
   selector.innerHTML = '';
@@ -755,6 +755,6 @@ cartDisp.addEventListener('click', function (event) {
     }
 
     handleCalculateCartStuff();
-    onUpdateSelectOptions();
+    renderProductSelectOptions();
   }
 });
