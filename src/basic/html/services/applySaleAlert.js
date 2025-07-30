@@ -1,7 +1,8 @@
 import { getRandomNumber } from "../../utils/getRandomNumber";
 import { applyFlashSale, applySuggestSale } from "../states/productState";
 import { renderProductOptionList } from "../render/renderProductOptionList";
-import { updateCartStatus } from "../../main.basic";
+import { findSuggestedProduct } from "../../utils/findSuggestedProduct";
+import { updateCartStatus } from "./updateCartStatus";
 
 export const applySaleAlert = ({ state, appState }) => {
   // 세일 추천 alert 함수

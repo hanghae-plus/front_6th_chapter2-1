@@ -1,5 +1,4 @@
 import { renderBonusPoints } from '../render/renderBonusPoint';
-import { renderBonusPoints } from '../render/renderBonusPoint';
 import { renderCartSummaryDetail } from '../render/renderCartSummaryDetail';
 import { renderCartTotalPrice } from '../render/renderCartTotalPrice';
 import { renderDiscountRate } from '../render/renderDiscountRate';

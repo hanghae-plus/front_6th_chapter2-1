@@ -1,8 +1,10 @@
+import { LOW_STOCK_THRESHOLD } from '../html/constants/constants';
+
 export const getStockMessages = (productList) => {
   const messages = [];
 
   productList.forEach((product) => {
-    if (product.quantity < 5) {
+    if (product.quantity < LOW_STOCK_THRESHOLD) {
       if (product.quantity > 0) {
         messages.push(`${product.name}: 재고 부족 (${product.quantity}개 남음)`);
       } else {

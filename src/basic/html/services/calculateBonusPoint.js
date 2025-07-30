@@ -1,5 +1,5 @@
+import { BONUS_POINT, PRODUCT_ID } from '../constants/constants';
 import { isTodayTuesday } from '../../utils/isTodayTuesday';
-import { PRODUCT_1, PRODUCT_2, PRODUCT_3 } from '../../main.basic';
 
 // 포인트 계산
 export const calculateBonusPoint = ({ state, appState }) => {
@@ -31,38 +31,38 @@ export const calculateBonusPoint = ({ state, appState }) => {
   // 화요일 포인트 출력
   if (isTodayTuesday()) {
     if (basePoints > 0) {
-      totalPoints = basePoints * 2;
+      totalPoints = basePoints * BONUS_POINT.TUESDAY_MULTIPLIER;
       pointsDetail.push('화요일 2배');
     }
   }
 
   for (const item of cartState) {
     // 상품 존재 여부 업데이트
-    if (item.id === PRODUCT_1) hasKeyboard = true;
-    if (item.id === PRODUCT_2) hasMouse = true;
-    if (item.id === PRODUCT_3) hasMonitorArm = true;
+    if (item.id === PRODUCT_ID[1]) hasKeyboard = true;
+    if (item.id === PRODUCT_ID[2]) hasMouse = true;
+    if (item.id === PRODUCT_ID[3]) hasMonitorArm = true;
   }
 
   // 상품에 따른 포인트 추가
   if (hasKeyboard && hasMouse) {
-    totalPoints += 50;
+    totalPoints += BONUS_POINT.KEYBOARD_MOUSE_SET;
     pointsDetail.push('키보드+마우스 세트 +50p');
   }
   if (hasKeyboard && hasMouse && hasMonitorArm) {
-    totalPoints += 100;
+    totalPoints += BONUS_POINT.FULL_SET;
     pointsDetail.push('풀세트 구매 +100p');
   }
 
   if (totalProductCount >= 30) {
-    totalPoints += 100;
+    totalPoints += BONUS_POINT.BULK[30];
     pointsDetail.push('대량구매(30개+) +100p');
   } else {
     if (totalProductCount >= 20) {
-      totalPoints += 50;
+      totalPoints += BONUS_POINT.BULK[20];
       pointsDetail.push('대량구매(20개+) +50p');
     } else {
       if (totalProductCount >= 10) {
-        totalPoints += 20;
+        totalPoints += BONUS_POINT.BULK[10];
         pointsDetail.push('대량구매(10개+) +20p');
       }
     }
