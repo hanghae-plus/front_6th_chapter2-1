@@ -5,6 +5,8 @@ export interface CartItem {
   price: number;
   quantity: number;
   saleIcon?: string;
+  isLightningSale?: boolean;
+  isSuggestSale?: boolean;
 }
 
 export interface Cart {

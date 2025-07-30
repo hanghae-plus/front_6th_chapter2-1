@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './index.css';
 import Header from './components/Header';
 import MainLayout from './components/MainLayout';
@@ -7,12 +7,17 @@ import OrderSummary from './components/OrderSummary';
 import InfoButton from './components/ManualButton';
 import ManualModal from './components/ManualModal';
 import { CartProvider } from './contexts/cart/CartProvider';
+import { startLightningSale } from './services/saleService';
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
+
+  useEffect(() => {
+    startLightningSale();
+  }, []);
 
   return (
     <CartProvider>
