@@ -1,4 +1,4 @@
-import { PRODUCT_IDS, DISCOUNT_RATES, INITIAL_PRODUCTS } from './constant';
+import { PRODUCT_IDS, DISCOUNT_RATES, INITIAL_PRODUCTS, POINTS } from './constant';
 
 const state = {
   products: INITIAL_PRODUCTS,
@@ -222,39 +222,64 @@ export const getBonusPoints = (state) => {
 
   const { finalTotal } = getDiscountResult(state);
   const basePoints = Math.floor(finalTotal / 1000);
-  let finalPoints = basePoints;
-  const pointsDetail = basePoints > 0 ? [`기본: ${basePoints}p`] : [];
-
-  if (getIsTuesday() && basePoints > 0) {
-    finalPoints += basePoints;
-    pointsDetail.push('화요일 2배');
-  }
+  const isTuesday = getIsTuesday();
 
   const has = (productId) => getCartList(state).some((item) => item.productId === productId);
   const hasKeyboard = has(PRODUCT_IDS.P1);
   const hasMouse = has(PRODUCT_IDS.P2);
   const hasMonitorArm = has(PRODUCT_IDS.P3);
 
-  if (hasKeyboard && hasMouse) {
-    finalPoints += 50;
-    pointsDetail.push('키보드+마우스 세트 +50p');
-  }
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints += 100;
-    pointsDetail.push('풀세트 구매 +100p');
-  }
-  if (totalQuantity >= 30) {
-    finalPoints += 100;
-    pointsDetail.push('대량구매(30개+) +100p');
-  } else if (totalQuantity >= 20) {
-    finalPoints += 50;
-    pointsDetail.push('대량구매(20개+) +50p');
-  } else if (totalQuantity >= 10) {
-    finalPoints += 20;
-    pointsDetail.push('대량구매(10개+) +20p');
+  const cumulativeRules = [
+    {
+      condition: isTuesday && basePoints > 0,
+      points: basePoints,
+      detail: '화요일 2배',
+    },
+    {
+      condition: hasKeyboard && hasMouse,
+      points: POINTS.COMBO_KEYBOARD_MOUSE,
+      detail: `키보드+마우스 세트 +${POINTS.COMBO_KEYBOARD_MOUSE}p`,
+    },
+    {
+      condition: hasKeyboard && hasMouse && hasMonitorArm,
+      points: POINTS.FULL_SET,
+      detail: `풀세트 구매 +${POINTS.FULL_SET}p`,
+    },
+  ];
+
+  const exclusiveRules = [
+    {
+      condition: totalQuantity >= 30,
+      points: POINTS.BULK_L3,
+      detail: `대량구매(30개+) +${POINTS.BULK_L3}p`,
+    },
+    {
+      condition: totalQuantity >= 20,
+      points: POINTS.BULK_L2,
+      detail: `대량구매(20개+) +${POINTS.BULK_L2}p`,
+    },
+    {
+      condition: totalQuantity >= 10,
+      points: POINTS.BULK_L1,
+      detail: `대량구매(10개+) +${POINTS.BULK_L1}p`,
+    },
+  ];
+
+  const activeCumulativeBonuses = cumulativeRules.filter((rule) => rule.condition);
+
+  const activeExclusiveBonus = exclusiveRules.find((rule) => rule.condition);
+
+  const allActiveBonuses = [...activeCumulativeBonuses];
+  if (activeExclusiveBonus) {
+    allActiveBonuses.push(activeExclusiveBonus);
   }
 
-  return { bonusPoints: finalPoints, pointsDetail };
+  const totalBonusPoints = allActiveBonuses.reduce((sum, rule) => sum + rule.points, basePoints);
+
+  const pointsDetail = basePoints > 0 ? [`기본: ${basePoints}p`] : [];
+  allActiveBonuses.forEach((rule) => pointsDetail.push(rule.detail));
+
+  return { bonusPoints: totalBonusPoints, pointsDetail };
 };
 
 export const getCartSummary = (state) => {

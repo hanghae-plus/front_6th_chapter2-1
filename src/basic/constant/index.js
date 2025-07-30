@@ -70,3 +70,12 @@ export const INITIAL_PRODUCTS = [
     suggestSale: false,
   },
 ];
+
+export const POINTS = {
+  BASE_RATE: 1000, // 1000원당 1포인트
+  COMBO_KEYBOARD_MOUSE: 50,
+  FULL_SET: 100,
+  BULK_L1: 20, // 10개 이상
+  BULK_L2: 50, // 20개 이상
+  BULK_L3: 100, // 30개 이상
+};
