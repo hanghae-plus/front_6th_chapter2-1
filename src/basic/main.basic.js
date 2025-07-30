@@ -11,25 +11,10 @@ import { createProductSelector } from './components/ProductSelector';
 import { createCartProductList } from './components/CartProductList';
 import { createStockStatus } from './components/StockStatus';
 
-import { getRandomNumber } from './utils/getRandomNumber';
-import { findSuggestedProduct } from './utils/findSuggestedProduct';
-
-import { calculateCartSummary } from './html/services/calculateCartSummary';
-import { calculateBonusPoint } from './html/services/calculateBonusPoint';
-
-import { renderBonusPoints } from './html/render/renderBonusPoint';
-import { renderCartSummaryDetail } from './html/render/renderCartSummaryDetail';
-import { renderCartTotalPrice } from './html/render/renderCartTotalPrice';
-import { renderDiscountRate } from './html/render/renderDiscountRate';
-import { renderTotalProductCount } from './html/render/renderTotalProductCount';
-import { renderTuesdaySpecial } from './html/render/renderTuesdaySpecial';
-import { renderStockMessage } from './html/render/renderStockMessage';
-import { renderCartProductList } from './html/render/renderCartProducList';
-import { renderProductOptionList } from './html/render/renderProductOptionList';
-
-import { applyFlashSale, applySuggestSale } from './html/states/productState';
 import { changeQuantity, removeFromCart } from './html/states/cartState';
-import { applySaleAlert } from './services/applySaleAlert';
+import { applySaleAlert } from './html/services/applySaleAlert';
+import { updateProductSelector } from './html/services/updateProductSeletor';
+import { updateCartStatus } from './html/services/updateCartStatus';
 
 // 상품 아이디
 export const PRODUCT_1 = 'p1';
@@ -102,7 +87,7 @@ const appState = {
   lastSelectedProductId: null, // 제일 최근에 장바구니에 담은 상품의 id
 };
 
-// 이거로 최종 상태 관리
+// 최종 상태 관리
 const state = {
   productState: productList,
   cartState: cartList,
@@ -190,47 +175,12 @@ function main() {
   // 장바구니 계산
   updateCartStatus({ state, appState });
   // 셀렉터 옵션 업데이트
-  renderProductOptionList(state);
+  updateProductSelector(state);
   // 세일 추천 alert 함수
   applySaleAlert({ state, appState });
 }
 
 // ----------------------------------------------
-
-export function updateUI({ state, appState }) {
-  renderTuesdaySpecial(appState);
-  renderCartSummaryDetail({ state, appState });
-  renderCartTotalPrice(appState);
-  renderDiscountRate(appState);
-  renderTotalProductCount(appState);
-  renderBonusPoints(appState);
-  renderStockMessage(state);
-  renderCartProductList(state);
-}
-
-// 장바구니 가격 계산 + 출력 함수
-export function updateCartStatus({ state, appState }) {
-  const { totalBeforeDiscount, totalAfterDiscount, totalProductCount, totalDiscountedRate, discountedProductList } =
-    calculateCartSummary(state);
-
-  // 전역 상태 업데이트
-  appState.totalProductCount = totalProductCount;
-
-  appState.totalAfterDiscount = totalAfterDiscount;
-  appState.totalBeforeDiscount = totalBeforeDiscount;
-
-  appState.totalDiscountedRate = totalDiscountedRate;
-  appState.discountedProductList = discountedProductList;
-
-  const { totalPoints, pointsDetail } = calculateBonusPoint({ state, appState });
-
-  appState.totalPoints = totalPoints;
-  appState.pointsDetail = pointsDetail;
-
-  updateUI({ state, appState });
-}
-
-// -------------------------------------
 
 // 페이지 렌더링
 main();
@@ -266,6 +216,6 @@ cartDisp.addEventListener('click', (event) => {
     // 장바구니 관련 계산
     updateCartStatus({ state, appState });
     // 셀렉터 옵션 업데이트
-    renderProductOptionList(state);
+    updateProductSelector(state);
   }
 });
