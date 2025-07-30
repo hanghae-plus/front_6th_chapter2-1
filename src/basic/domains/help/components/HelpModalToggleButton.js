@@ -1,4 +1,4 @@
-import { InfoIcon } from "../../shared/components";
+import { InfoIcon } from "../../../shared/components/icons";
 
 export function HelpModalToggleButton() {
 	return /* HTML */ `

@@ -7,10 +7,8 @@ export function onUpdateSelectOptions(state, uiElements) {
 	const totalStock = products.reduce((total, product) => total + product.q, 0);
 
 	// Create options for each product
-	products.forEach((product) => {
-		const option = createProductOption(product);
-		uiElements.sel.appendChild(option);
-	});
+	const optionsHTML = products.map(product => createProductOption(product)).join('');
+	uiElements.sel.innerHTML = optionsHTML;
 
 	// Update border color based on stock level
 	if (totalStock < STOCK_CONSTANTS.CRITICAL_STOCK_THRESHOLD) {
@@ -21,37 +19,26 @@ export function onUpdateSelectOptions(state, uiElements) {
 }
 
 /**
- * Create option element for product
+ * Create option HTML string for product
  * @param {Object} product - Product data
- * @returns {HTMLOptionElement} - Created option element
+ * @returns {string} - Created option HTML string
  */
 function createProductOption(product) {
-	const option = document.createElement("option");
-	option.value = product.id;
-
 	// Handle out of stock items
 	if (product.q === 0) {
-		option.textContent = `${product.name} - ${product.val}원 (품절)`;
-		option.disabled = true;
-		option.className = "text-gray-400";
-		return option;
+		return `<option value="${product.id}" disabled class="text-gray-400">${product.name} - ${product.val}원 (품절)</option>`;
 	}
 
 	// Handle different sale combinations
 	if (product.onSale && product.suggestSale) {
-		option.textContent = `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`;
-		option.className = "text-purple-600 font-bold";
+		return `<option value="${product.id}" class="text-purple-600 font-bold">⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)</option>`;
 	} else if (product.onSale) {
-		option.textContent = `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`;
-		option.className = "text-red-500 font-bold";
+		return `<option value="${product.id}" class="text-red-500 font-bold">⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)</option>`;
 	} else if (product.suggestSale) {
-		option.textContent = `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`;
-		option.className = "text-blue-500 font-bold";
+		return `<option value="${product.id}" class="text-blue-500 font-bold">💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)</option>`;
 	} else {
-		option.textContent = `${product.name} - ${product.val}원`;
+		return `<option value="${product.id}">${product.name} - ${product.val}원</option>`;
 	}
-
-	return option;
 }
 
 export const handleStockInfoUpdate = function (state, uiElements) {

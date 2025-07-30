@@ -10,17 +10,19 @@ import { initializeSuggestSale } from "./domains/sales/suggestService";
 import {
 	CartAddButton,
 	CartItemsContainer,
+	OrderSummaryColumn
+} from "./domains/cart/components";
+import {
 	HelpContentPanel,
 	HelpModalBackdrop,
-	HelpModalToggleButton,
-	MainLayoutGrid,
-	OrderSummaryColumn,
+	HelpModalToggleButton
+} from "./domains/help/components";
+import {
 	ProductDropdownSelect,
 	ProductSelectionPanel,
-	ShoppingAreaColumn,
 	StockWarningMessage
-} from "./domains/ui";
-import { Header } from "./shared/components";
+} from "./domains/product/components";
+import { Header, MainLayoutGrid, ShoppingAreaColumn } from "./shared/components";
 import { createAppState } from "./shared/state/appState";
 import { findProductById } from "./shared/utils/productUtils";
 

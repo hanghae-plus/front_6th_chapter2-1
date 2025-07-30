@@ -1,5 +1,5 @@
 import { findProductById, productExists } from "../../shared/utils/productUtils";
-import { ShoppingCartItemElement } from "../ui/ui";
+import { ShoppingCartItem } from "./components/ShoppingCartItem";
 
 /**
  * Add product to cart or increase quantity if already exists
@@ -55,8 +55,8 @@ function increaseExistingItemQuantity(cartItem, product) {
  * @returns {boolean} - Success status
  */
 function addNewItemToCart(product, uiElements) {
-	const newItem = ShoppingCartItemElement(product);
-	uiElements.cartDisp.appendChild(newItem);
+	const newItemHTML = ShoppingCartItem(product);
+	uiElements.cartDisp.insertAdjacentHTML('beforeend', newItemHTML);
 	product.q--;
 	return true;
 }

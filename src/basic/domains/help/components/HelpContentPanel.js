@@ -1,4 +1,4 @@
-import { CloseIcon } from "../../shared/components";
+import { CloseIcon } from "../../../shared/components/icons";
 
 export function HelpContentPanel() {
 	return /* HTML */ `
