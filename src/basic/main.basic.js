@@ -111,10 +111,10 @@ let sel;
 function updateSelectOptions() {
   sel.innerHTML = "";
   const totalStock = sumMap(prodList, (item) => item.quantity.getQuantity());
-  for (let i = 0; i < prodList.length; i++) {
-    const opt = renderSelectOption(prodList[i]);
+  prodList.forEach(product => {
+    const opt = renderSelectOption(product);
     sel.appendChild(opt);
-  }
+  });
   if (totalStock < TOTAL_STOCK_WARNING_THRESHOLD) {
     sel.style.borderColor = "orange";
   } else {
@@ -317,17 +317,11 @@ function main() {
     setInterval(function () {
       if (cartState.lastSelectedProductId) {
         let suggest = null;
-        for (let k = 0; k < prodList.length; k++) {
-          if (prodList[k].id !== cartState.lastSelectedProductId) {
-            if (
-              prodList[k].quantity.isGreaterThan(new Quantity(0)) &&
-              !prodList[k].suggestSale
-            ) {
-              suggest = prodList[k];
-              break;
-            }
-          }
-        }
+        suggest = prodList.find(product => 
+          product.id !== cartState.lastSelectedProductId &&
+          product.quantity.isGreaterThan(new Quantity(0)) &&
+          !product.suggestSale
+        );
         if (suggest) {
           alert(
             `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 ${SUGGESTION_DISCOUNT_RATE}% 추가 할인!`
@@ -353,13 +347,7 @@ function handleCalculateCartStuff() {
   let subTot = 0;
   const itemDiscounts = [];
   for (let i = 0; i < cartItems.length; i++) {
-    let curItem;
-    for (let j = 0; j < prodList.length; j++) {
-      if (prodList[j].id === cartItems[i].id) {
-        curItem = prodList[j];
-        break;
-      }
-    }
+    const curItem = prodList.find(product => product.id === cartItems[i].id);
     const qtyElem = cartItems[i].querySelector(".quantity-number");
     const q = parseInt(qtyElem.textContent);
     const itemTot = curItem.price.getAmount() * q;
@@ -426,13 +414,7 @@ function handleCalculateCartStuff() {
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
-      let curItem;
-      for (let j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
-          break;
-        }
-      }
+      const curItem = prodList.find(product => product.id === cartItems[i].id);
       const qtyElem = cartItems[i].querySelector(".quantity-number");
       const q = parseInt(qtyElem.textContent);
       const itemTotal = curItem.price.getAmount() * q;
@@ -568,13 +550,7 @@ const doRenderBonusPoints = function () {
   let hasMouse = false;
   let hasMonitorArm = false;
   for (const node of nodes) {
-    let product = null;
-    for (let pIdx = 0; pIdx < prodList.length; pIdx++) {
-      if (prodList[pIdx].id === node.id) {
-        product = prodList[pIdx];
-        break;
-      }
-    }
+    const product = prodList.find(p => p.id === node.id);
     if (!product) continue;
     if (product.id === PRODUCT_1) {
       hasKeyboard = true;
@@ -630,12 +606,7 @@ const doRenderBonusPoints = function () {
   }
 };
 function onGetStockTotal() {
-  let sum = 0;
-  for (let i = 0; i < prodList.length; i++) {
-    const currentProduct = prodList[i];
-    sum += currentProduct.quantity.getQuantity();
-  }
-  return sum;
+  return sumMap(prodList, (product) => product.quantity.getQuantity());
 }
 
 const handleStockInfoUpdate = function () {
@@ -658,13 +629,7 @@ function doUpdatePricesInCart() {
   const cartItems = uiElements.cartDisp.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
-    let product = null;
-    for (let productIdx = 0; productIdx < prodList.length; productIdx++) {
-      if (prodList[productIdx].id === itemId) {
-        product = prodList[productIdx];
-        break;
-      }
-    }
+    const product = prodList.find(p => p.id === itemId);
     if (product) {
       const priceDiv = cartItems[i].querySelector(".text-lg");
       const nameDiv = cartItems[i].querySelector("h3");
@@ -703,23 +668,11 @@ function doUpdatePricesInCart() {
 main();
 uiElements.addBtn.addEventListener("click", function () {
   const selItem = sel.value;
-  let hasItem = false;
-  for (let idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].id === selItem) {
-      hasItem = true;
-      break;
-    }
-  }
+  const hasItem = prodList.some(product => product.id === selItem);
   if (!selItem || !hasItem) {
     return;
   }
-  let itemToAdd = null;
-  for (let j = 0; j < prodList.length; j++) {
-    if (prodList[j].id === selItem) {
-      itemToAdd = prodList[j];
-      break;
-    }
-  }
+  const itemToAdd = prodList.find(product => product.id === selItem);
   if (itemToAdd && itemToAdd.quantity.isGreaterThan(new Quantity(0))) {
     const item = document.getElementById(itemToAdd["id"]);
     if (item) {
@@ -807,13 +760,7 @@ uiElements.cartDisp.addEventListener("click", function (event) {
   ) {
     const prodId = tgt.dataset.productId;
     const itemElem = document.getElementById(prodId);
-    let prod = null;
-    for (let prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
-      if (prodList[prdIdx].id === prodId) {
-        prod = prodList[prdIdx];
-        break;
-      }
-    }
+    const prod = prodList.find(product => product.id === prodId);
     if (tgt.classList.contains("quantity-change")) {
       const qtyChange = parseInt(tgt.dataset.change);
       const qtyElem = itemElem.querySelector(".quantity-number");
