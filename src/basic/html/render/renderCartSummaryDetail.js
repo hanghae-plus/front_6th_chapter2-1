@@ -3,7 +3,7 @@ import { findProductById } from '../../utils/findProductById';
 
 // 할인 요약 내용
 export const renderCartSummaryDetail = ({ state, appState }) => {
-  const { cartState } = state;
+  const { cartState, productState } = state;
   const { totalBeforeDiscount, totalAfterDiscount, totalProductCount, discountedProductList } = appState;
 
   const summaryDetails = document.getElementById('summary-details');

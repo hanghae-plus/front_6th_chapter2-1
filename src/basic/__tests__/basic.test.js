@@ -479,14 +479,13 @@ describe('basic 테스트', () => {
           sel.value = 'p1';
           addBtn.click();
 
-          const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
-          const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
-
           // 증가
+          const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
           await userEvent.click(increaseBtn);
           expect(cartDisp.querySelector('.quantity-number').textContent).toBe('2');
-
+          
           // 감소
+          const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
           await userEvent.click(decreaseBtn);
           expect(cartDisp.querySelector('.quantity-number').textContent).toBe('1');
         });

@@ -56,7 +56,7 @@ export const createCartProduct = (product, count) => {
       </div>
     </div>
     <div class="text-right">
-      <div class="text-lg mb-2 tracking-tight tabular-nums ${product.count >= 10 ? 'font-bold' : ''}">
+      <div class="text-lg mb-2 tracking-tight tabular-nums ${count >= 10 ? 'font-bold' : ''}">
         ${product.onSale || product.suggestSale
           ? '<span class="line-through text-gray-400">₩' +
             product.originalPrice.toLocaleString() +

@@ -7,6 +7,7 @@ export const createRightColumn = () => {
       <div id="summary-details" class="space-y-3"></div>
       <div class="mt-auto">
         <div id="discount-info" class="mb-4"></div>
+        
         <div id="cart-total" class="pt-5 border-t border-white/10">
           <div class="flex justify-between items-baseline">
             <span class="text-sm uppercase tracking-wider">Total</span>
@@ -14,6 +15,7 @@ export const createRightColumn = () => {
           </div>
           <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
         </div>
+        
         <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
           <div class="flex items-center gap-2">
             <span class="text-2xs">🎉</span>

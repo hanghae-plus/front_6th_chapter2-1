@@ -1,5 +1,5 @@
 import { getTotalStock } from '../../utils/getTotalStock';
-import { createProductOption } from '../../components/ProductOption';
+import { createProductOption } from '../components/ProductOption';
 
 export const renderProductOptionList = (state) => {
   const { productState } = state;
@@ -10,7 +10,7 @@ export const renderProductOptionList = (state) => {
   container.innerHTML = ''; // 기존 초기화
 
   productState.forEach((product) => {
-    const optionItem = createProductOption({ product });
+    const optionItem = createProductOption(product);
     container.appendChild(optionItem);
   });
 
