@@ -1,6 +1,6 @@
 import { formatCurrency, formatPercentage } from '../../utils';
 
-export const DiscountInfo = () => {
+export const OrderSummaryDiscountInfo = () => {
   const discountInfoDiv = document.createElement('div');
   discountInfoDiv.id = 'discount-info';
   discountInfoDiv.className = 'mb-4';

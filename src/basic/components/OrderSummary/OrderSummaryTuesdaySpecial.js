@@ -1,4 +1,4 @@
-export const TuesdaySpecial = () => {
+export const OrderSummaryTuesdaySpecial = () => {
   const tuesdaySpecialDiv = document.createElement('div');
   tuesdaySpecialDiv.id = 'tuesday-special';
   tuesdaySpecialDiv.className = 'mt-4 p-3 bg-white/10 rounded-lg hidden'; // 기본은 숨김

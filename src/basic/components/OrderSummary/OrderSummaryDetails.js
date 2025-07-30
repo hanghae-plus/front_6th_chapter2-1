@@ -1,7 +1,7 @@
 import { getProductById } from '../../services/productService';
 import { formatCurrency } from '../../utils';
 
-export const SummaryDetails = () => {
+export const OrderSummaryDetails = () => {
   const summaryDetailsDiv = document.createElement('div');
   summaryDetailsDiv.id = 'summary-details';
   summaryDetailsDiv.className = 'space-y-3';

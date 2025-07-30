@@ -1,6 +1,6 @@
 import { getProducts } from '../../services/productService';
 
-export const StockInfo = () => {
+export const ProductStockInfo = () => {
   const stockInfoDiv = document.createElement('div');
   stockInfoDiv.id = 'stock-status';
   stockInfoDiv.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';

@@ -1,3 +1,3 @@
-export { AddToCartButton } from './AddToCartButton';
+export { ProductAddToCartButton } from './ProductAddToCartButton';
 export { ProductSelect } from './ProductSelect';
-export { StockInfo } from './StockInfo';
+export { ProductStockInfo } from './ProductStockInfo';

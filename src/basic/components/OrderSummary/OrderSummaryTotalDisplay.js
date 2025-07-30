@@ -1,6 +1,6 @@
 import { formatCurrency, formatPoints } from '../../utils';
 
-export const TotalDisplay = () => {
+export const OrderSummaryTotalDisplay = () => {
   const totalDivWrapper = document.createElement('div');
   totalDivWrapper.id = 'cart-total';
   totalDivWrapper.className = 'pt-5 border-t border-white/10';
