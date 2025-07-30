@@ -1,6 +1,6 @@
 import { cartManager } from '../domain/cart';
 import productManager from '../domain/product';
-import { PRODUCT_FIVE, PRODUCT_FOUR, PRODUCT_ONE, PRODUCT_THREE, PRODUCT_TWO } from '../main.basic';
+import { PRODUCT_FIVE, PRODUCT_FOUR, PRODUCT_ONE, PRODUCT_THREE, PRODUCT_TWO } from '../domain/product';
 
 export const applyItemDiscount = () => {
   return cartManager.getItems().reduce(
