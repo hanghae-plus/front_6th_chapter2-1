@@ -28,6 +28,18 @@ class ProductsManager {
     this.#productList = products;
   }
 
+  changeQuantity(productId, delta) {
+    const product = this.#productList.find((p) => p.id === productId);
+    if (!product) {
+      throw new Error(`Product with id "${productId}" not found`);
+    }
+
+    const newQuantity = product.quantity + delta;
+    if (newQuantity >= 0) {
+      product.quantity = newQuantity;
+    }
+  }
+
   getProducts() {
     return this.#productList;
   }

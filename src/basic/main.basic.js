@@ -1,3 +1,4 @@
+import { cartManager } from './domain/cart';
 import { LIGHTNING_DISCOUNT, LOW_TOTAL_STOCK_THRESHOLD, OUT_OF_STOCK, SUGGEST_DISCOUNT } from './domain/product';
 import productManager from './domain/product';
 import {
@@ -643,16 +644,28 @@ addCartButton.addEventListener('click', function () {
 
   if (itemToAdd && itemToAdd.quantity > 0) {
     const item = document.getElementById(itemToAdd['id']);
+
     if (item) {
-      const qtyElem = item.querySelector('.quantity-number');
-      const newQty = parseInt(qtyElem['textContent']) + 1;
-      if (newQty <= itemToAdd.quantity + parseInt(qtyElem.textContent)) {
-        qtyElem.textContent = newQty;
-        itemToAdd['quantity']--;
+      // 기존에 장바구니에 있던 아이템의 경우
+
+      const quantityElement = item.querySelector('.quantity-number');
+
+      /** @todo 나중엔 cartManager통해 해당 id의 수량이 몇개인지 들고올 거임 */
+      const newQuantity = parseInt(quantityElement['textContent']) + 1;
+
+      if (newQuantity <= itemToAdd.quantity + parseInt(quantityElement.textContent)) {
+        cartManager.changeQuantity(itemToAdd.id, 1);
+        productManager.changeQuantity(itemToAdd.id, -1);
+
+        quantityElement.textContent = newQuantity;
       } else {
         alert('재고가 부족합니다.');
       }
     } else {
+      // 기존에 장바구니에 없던 아이템인 경우
+      cartManager.addItem(itemToAdd.id);
+      productManager.changeQuantity(itemToAdd.id, -1);
+
       const newItem = document.createElement('div');
       newItem.id = itemToAdd.id;
       newItem.className =
@@ -677,7 +690,6 @@ addCartButton.addEventListener('click', function () {
         </div>
       `;
       cartDisplay.appendChild(newItem);
-      itemToAdd.quantity--;
     }
     calculateCart();
     // 장바구니에 마지막으로 담은 아이템
@@ -687,9 +699,10 @@ addCartButton.addEventListener('click', function () {
 
 /** 장바구니에서 수량 조절(±), 제거 이벤트 처리 */
 cartDisplay.addEventListener('click', function (event) {
-  const tgt = event.target;
-  if (tgt.classList.contains('quantity-change') || tgt.classList.contains('remove-item')) {
-    const prodId = tgt.dataset.productId;
+  const target = event.target;
+
+  if (target.classList.contains('quantity-change') || target.classList.contains('remove-item')) {
+    const prodId = target.dataset.productId;
     const itemElem = document.getElementById(prodId);
     let prod = null;
     for (let prdIdx = 0; prdIdx < productManager.getProductCount(); prdIdx++) {
@@ -699,8 +712,8 @@ cartDisplay.addEventListener('click', function (event) {
         break;
       }
     }
-    if (tgt.classList.contains('quantity-change')) {
-      const qtyChange = parseInt(tgt.dataset.change);
+    if (target.classList.contains('quantity-change')) {
+      const qtyChange = parseInt(target.dataset.change);
       var qtyElem = itemElem.querySelector('.quantity-number');
       const currentQty = parseInt(qtyElem.textContent);
       const newQty = currentQty + qtyChange;
@@ -713,7 +726,7 @@ cartDisplay.addEventListener('click', function (event) {
       } else {
         alert('재고가 부족합니다.');
       }
-    } else if (tgt.classList.contains('remove-item')) {
+    } else if (target.classList.contains('remove-item')) {
       var qtyElem = itemElem.querySelector('.quantity-number');
       const remQty = parseInt(qtyElem.textContent);
       prod.quantity += remQty;
