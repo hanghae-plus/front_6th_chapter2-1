@@ -185,6 +185,41 @@ const useProductData = {
   },
 };
 
+// ✅ 재고 관리 캡슐화 (나중에 useStock hook으로 변환 예정)
+const useStockManager = {
+  /**
+   * 재고 경고 메시지 생성
+   * @returns {string} 재고 경고 메시지
+   */
+  generateStockWarningMessage() {
+    const products = useProductData.getProducts();
+    let warningMsg = "";
+
+    products.forEach((item) => {
+      if (item.q < STOCK_THRESHOLDS.LOW_STOCK_WARNING) {
+        if (item.q > 0) {
+          warningMsg += `${item.name}: 재고 부족 (${item.q}개 남음)\n`;
+        } else {
+          warningMsg += `${item.name}: 품절\n`;
+        }
+      }
+    });
+
+    return warningMsg;
+  },
+
+  /**
+   * 재고 정보 UI 업데이트
+   */
+  updateStockInfoDisplay() {
+    const warningMessage = this.generateStockWarningMessage();
+    const stockInfoElement = document.getElementById("stock-status");
+    if (stockInfoElement) {
+      stockInfoElement.textContent = warningMessage;
+    }
+  },
+};
+
 let cartDisp;
 function main() {
   var root;
@@ -466,7 +501,6 @@ function handleCalculateCartStuff() {
   let discountInfoDiv;
   let itemCountElement;
   let previousCount;
-  let stockMsg;
 
   totalAmt = 0;
   itemCnt = 0;
@@ -639,19 +673,8 @@ function handleCalculateCartStuff() {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
-  stockMsg = "";
-  for (let stockIdx = 0; stockIdx < products.length; stockIdx++) {
-    const item = products[stockIdx];
-    if (item.q < 5) {
-      if (item.q > 0) {
-        stockMsg = `${stockMsg + item.name}: 재고 부족 (${item.q}개 남음)\n`;
-      } else {
-        stockMsg = `${stockMsg + item.name}: 품절\n`;
-      }
-    }
-  }
-  stockInfo.textContent = stockMsg;
-  handleStockInfoUpdate();
+  // ✅ useStockManager로 재고 관리 통합
+  useStockManager.updateStockInfoDisplay();
   doRenderBonusPoints();
 }
 
@@ -749,26 +772,6 @@ var doRenderBonusPoints = function () {
   }
 };
 
-var handleStockInfoUpdate = function () {
-  let infoMsg;
-  let totalStock;
-  infoMsg = "";
-  totalStock = useProductData.getTotalStock();
-  if (totalStock < STOCK_THRESHOLDS.TOTAL_STOCK_CRITICAL) {
-  }
-
-  const products = useProductData.getProducts();
-  products.forEach(function (item) {
-    if (item.q < STOCK_THRESHOLDS.LOW_STOCK_WARNING) {
-      if (item.q > 0) {
-        infoMsg = `${infoMsg + item.name}: 재고 부족 (${item.q}개 남음)\n`;
-      } else {
-        infoMsg = `${infoMsg + item.name}: 품절\n`;
-      }
-    }
-  });
-  stockInfo.textContent = infoMsg;
-};
 function doUpdatePricesInCart() {
   const cartItems = cartDisp.children;
 
@@ -855,15 +858,8 @@ cartDisp.addEventListener("click", function (event) {
   if (tgt.classList.contains("quantity-change") || tgt.classList.contains("remove-item")) {
     const prodId = tgt.dataset.productId;
     const itemElem = document.getElementById(prodId);
-    let prod = null;
-
-    const products = useProductData.getProducts();
-    for (let prdIdx = 0; prdIdx < products.length; prdIdx++) {
-      if (products[prdIdx].id === prodId) {
-        prod = products[prdIdx];
-        break;
-      }
-    }
+    const prod = useProductData.findProductById(prodId);
+    if (!prod) return;
 
     if (tgt.classList.contains("quantity-change")) {
       const qtyChange = parseInt(tgt.dataset.change);
