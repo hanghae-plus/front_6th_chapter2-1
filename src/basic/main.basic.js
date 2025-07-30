@@ -77,14 +77,14 @@ let prodList = [
     suggestSale: false,
   },
 ];
-let bonusPts = 0;
-let stockInfo;
-let itemCnt = 0;
-let lastSel = null;
-let sel;
-let totalAmt = 0;
-let cartDisp;
-let sum;
+// 마지막 선택 상품 상태 관리
+const lastSelectionState = {
+  value: null,
+  get: () => lastSelectionState.value,
+  set: (newValue) => { lastSelectionState.value = newValue; }
+};
+
+// 모든 전역 변수 제거 완료!
 
 const findProductById = (productId) =>
   prodList.find((product) => product.id === productId);
@@ -135,10 +135,8 @@ function main() {
   gridContainer = createGridContainer();
   leftColumn = createLeftColumn();
   selectorContainer = createProductSelector();
-  sel = selectorContainer.querySelector('#product-select');
-  stockInfo = selectorContainer.querySelector('#stock-status');
   leftColumn.appendChild(selectorContainer);
-  cartDisp = createCartDisplay();
+  const cartDisp = createCartDisplay();
   leftColumn.appendChild(cartDisp);
   rightColumn = createRightColumn();
 
@@ -154,7 +152,6 @@ function main() {
   });
 
   rightColumn.appendChild(orderSummaryElement);
-  sum = rightColumn.querySelector('#cart-total');
 
   // 매뉴얼 컴포넌트 생성
   const manual = createManual();
@@ -190,18 +187,19 @@ function main() {
 
   // 서비스 시작
   startLightningSale(prodList, onUpdateSelectOptions, handlePriceUpdate);
-  startSuggestSale(prodList, lastSel, onUpdateSelectOptions, handlePriceUpdate);
+  startSuggestSale(prodList, lastSelectionState.get, onUpdateSelectOptions, handlePriceUpdate);
 }
-function onUpdateSelectOptions() {
-  createProductOptions(sel, prodList, STOCK_THRESHOLDS);
+function onUpdateSelectOptions(productSelect = document.getElementById('product-select')) {
+  createProductOptions(productSelect, prodList, STOCK_THRESHOLDS);
 }
 function handleCalculateCartStuff() {
+  const cartDisp = document.getElementById('cart-items');
   const cartItems = cartDisp.children;
   let subTot = 0;
   let itemDiscounts = [];
-  // 전역 변수 초기화 (매번 계산 시마다 리셋)
-  totalAmt = 0;
-  itemCnt = 0;
+  // 로컬 변수 초기화
+  let totalAmt = 0;
+  let itemCnt = 0;
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       const curItem = findProductById(cartItems[i].id);
@@ -270,6 +268,8 @@ function handleCalculateCartStuff() {
   newOrderSummary.classList.add('order-summary-section');
 
   rightColumn.appendChild(newOrderSummary);
+  
+  const sum = rightColumn.querySelector('#cart-total');
   const totalDiv = sum.querySelector('.text-2xl');
   if (totalDiv) {
     totalDiv.textContent = formatPrice(totalAmt);
@@ -296,9 +296,10 @@ function handleCalculateCartStuff() {
   }
 
   handleStockInfoUpdate();
-  doRenderBonusPoints();
+  doRenderBonusPoints(totalAmt, itemCnt);
 }
-let doRenderBonusPoints = function () {
+let doRenderBonusPoints = function (totalAmt, itemCnt) {
+  const cartDisp = document.getElementById('cart-items');
   const nodes = cartDisp.children;
 
   if (nodes.length === 0) {
@@ -357,7 +358,7 @@ let doRenderBonusPoints = function () {
       `대량구매(${bulkBonus.threshold}개+) +${bulkBonus.points}p`
     );
   }
-  bonusPts = finalPoints;
+  const bonusPts = finalPoints;
   const ptsTag = document.getElementById('loyalty-points');
 
   // PointsDisplay 컴포넌트 생성 및 DOM에 추가
@@ -385,12 +386,14 @@ let handleStockInfoUpdate = function () {
       }
     }
   });
+  const stockInfo = document.getElementById('stock-status');
   stockInfo.textContent = infoMsg;
 };
 
 main();
 // 장바구니 추가 전용 핸들러
 function handleAddToCart() {
+  const sel = document.getElementById('product-select');
   const selItem = sel.value;
   const itemToAdd = findProductById(selItem);
 
@@ -412,13 +415,14 @@ function handleAddToCart() {
         return;
       }
     } else {
+      const cartDisp = document.getElementById('cart-items');
       cartDisp.addItem(itemToAdd);
       itemToAdd.q--;
     }
 
     // 장바구니 추가 후 필요한 계산 및 업데이트
     handleCalculateCartStuff();
-    lastSel = selItem;
+    lastSelectionState.set(selItem);
   }
 }
 
@@ -468,6 +472,7 @@ function handleRemoveItem(prodId) {
 
 // 가격 업데이트 전용 핸들러
 function handlePriceUpdate() {
+  const cartDisp = document.getElementById('cart-items');
   const cartItems = cartDisp.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
