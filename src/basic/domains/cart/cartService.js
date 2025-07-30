@@ -1,6 +1,7 @@
 import { PRODUCT_IDS, products } from "../../features/product";
 import { handleStockInfoUpdate } from "../product/productService";
 import { doRenderBonusPoints } from "../loyalty/loyaltyService";
+import { DISCOUNT_CONSTANTS, STOCK_CONSTANTS, UI_CONSTANTS } from "../../constants/discount";
 
 export function handleCalculateCartStuff(state) {
 	// Get DOM elements
@@ -52,27 +53,27 @@ export function handleCalculateCartStuff(state) {
 			// Update visual styling for bulk items
 			priceElems.forEach(function (elem) {
 				if (elem.classList.contains("text-lg")) {
-					elem.style.fontWeight = q >= 10 ? "bold" : "normal";
+					elem.style.fontWeight = q >= DISCOUNT_CONSTANTS.BULK_DISCOUNT.MINIMUM_QUANTITY ? "bold" : "normal";
 				}
 			});
 
 			// Apply bulk discounts for 10+ items
-			if (q >= 10) {
+			if (q >= DISCOUNT_CONSTANTS.BULK_DISCOUNT.MINIMUM_QUANTITY) {
 				switch (curItem.id) {
 					case PRODUCT_IDS.KEYBOARD:
-						disc = 10 / 100;
+						disc = DISCOUNT_CONSTANTS.BULK_DISCOUNT.KEYBOARD / 100;
 						break;
 					case PRODUCT_IDS.MOUSE:
-						disc = 15 / 100;
+						disc = DISCOUNT_CONSTANTS.BULK_DISCOUNT.MOUSE / 100;
 						break;
 					case PRODUCT_IDS.MONITOR_ARM:
-						disc = 20 / 100;
+						disc = DISCOUNT_CONSTANTS.BULK_DISCOUNT.MONITOR_ARM / 100;
 						break;
 					case PRODUCT_IDS.LAPTOP_POUCH:
-						disc = 5 / 100;
+						disc = DISCOUNT_CONSTANTS.BULK_DISCOUNT.LAPTOP_POUCH / 100;
 						break;
 					case PRODUCT_IDS.SPEAKER:
-						disc = 25 / 100;
+						disc = DISCOUNT_CONSTANTS.BULK_DISCOUNT.SPEAKER / 100;
 						break;
 				}
 
@@ -91,21 +92,21 @@ export function handleCalculateCartStuff(state) {
 	const originalTotal = subTot;
 
 	// Apply bulk discount for 30+ items (overrides individual discounts)
-	if (state.itemCnt >= 30) {
-		state.totalAmt = (subTot * 75) / 100;
-		discRate = 25 / 100;
+	if (state.itemCnt >= DISCOUNT_CONSTANTS.GLOBAL_DISCOUNT.MINIMUM_QUANTITY) {
+		state.totalAmt = (subTot * DISCOUNT_CONSTANTS.GLOBAL_DISCOUNT.FINAL_RATE) / 100;
+		discRate = DISCOUNT_CONSTANTS.GLOBAL_DISCOUNT.RATE / 100;
 	} else {
 		discRate = (subTot - state.totalAmt) / subTot;
 	}
 
 	// Apply Tuesday special discount
 	const today = new Date();
-	const isTuesday = today.getDay() === 2;
+	const isTuesday = today.getDay() === UI_CONSTANTS.DAYS.TUESDAY;
 	const tuesdaySpecial = document.getElementById("tuesday-special");
 
 	if (isTuesday) {
 		if (state.totalAmt > 0) {
-			state.totalAmt = (state.totalAmt * 90) / 100;
+			state.totalAmt = (state.totalAmt * DISCOUNT_CONSTANTS.TUESDAY_SPECIAL.FINAL_RATE) / 100;
 			discRate = 1 - state.totalAmt / originalTotal;
 			tuesdaySpecial.classList.remove("hidden");
 		} else {
@@ -201,7 +202,7 @@ export function handleCalculateCartStuff(state) {
 
 	// Update loyalty points display
 	if (loyaltyPointsDiv) {
-		points = Math.floor(state.totalAmt / 1000);
+		points = Math.floor(state.totalAmt / UI_CONSTANTS.LOYALTY_POINTS_RATIO);
 		if (points > 0) {
 			loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
 			loyaltyPointsDiv.style.display = "block";
@@ -239,7 +240,7 @@ export function handleCalculateCartStuff(state) {
 	stockMsg = "";
 	for (let stockIdx = 0; stockIdx < products.length; stockIdx++) {
 		const item = products[stockIdx];
-		if (item.q < 5) {
+		if (item.q < STOCK_CONSTANTS.LOW_STOCK_THRESHOLD) {
 			if (item.q > 0) {
 				stockMsg = `${stockMsg + item.name}: 재고 부족 (${item.q}개 남음)\n`;
 			} else {

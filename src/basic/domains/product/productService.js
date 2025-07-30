@@ -1,4 +1,5 @@
 import { products } from "../../features/product";
+import { STOCK_CONSTANTS } from "../../constants/discount";
 
 export function onUpdateSelectOptions(state) {
 	let totalStock;
@@ -53,7 +54,7 @@ export function onUpdateSelectOptions(state) {
 	}
 
 	// Update border color based on stock level
-	if (totalStock < 50) {
+	if (totalStock < STOCK_CONSTANTS.CRITICAL_STOCK_THRESHOLD) {
 		state.sel.style.borderColor = "orange";
 	} else {
 		state.sel.style.borderColor = "";
@@ -65,7 +66,7 @@ export const handleStockInfoUpdate = function (state) {
 
 	// Generate stock warning messages
 	products.forEach(function (item) {
-		if (item.q < 5) {
+		if (item.q < STOCK_CONSTANTS.LOW_STOCK_THRESHOLD) {
 			if (item.q > 0) {
 				infoMsg = `${infoMsg + item.name}: 재고 부족 (${item.q}개 남음)\n`;
 			} else {
