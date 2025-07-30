@@ -21,7 +21,7 @@ import {useCart, useLastSelected, useProducts} from "./hooks.ts"
 export function useLightningSaleTimer() {
   const lightningDelay = Math.random() * 10000;
 
-  let intervalId
+  let intervalId: number;
   const timeoutId = setTimeout(() => {
     intervalId = setInterval(() => {
       const { products, setProducts } = useProducts();
@@ -48,10 +48,11 @@ export function useLightningSaleTimer() {
 export function useSuggestSaleTimer() {
   const suggestionDelay = Math.random() * 20000;
 
-  let intervalId
+  let intervalId: number;
   const timeoutId = setTimeout(() => {
     intervalId = setInterval(() => {
-      if (cartDisplay.children.length === 0) {
+      const { isEmpty } = useCart();
+      if (isEmpty) {
         return;
       }
       const { lastSel } = useLastSelected();
@@ -79,11 +80,6 @@ export function useSuggestSaleTimer() {
 }
 
 
-// DOM 요소 참조 변수
-let productSelect: HTMLSelectElement;
-let addToCartButton: HTMLButtonElement;
-let cartDisplay: HTMLDivElement;
-let stockInfoDisplay: HTMLDivElement;
 
 // 메인 초기화 함수
 function main() {
@@ -104,10 +100,8 @@ function main() {
   root.innerHTML = App();
 
   // DOM 요소 참조 설정
-  productSelect = document.getElementById('product-select') as HTMLSelectElement;
-  addToCartButton = document.getElementById('add-to-cart') as HTMLButtonElement;
-  cartDisplay = document.getElementById('cart-items') as HTMLDivElement;
-  stockInfoDisplay = document.getElementById('stock-status') as HTMLDivElement;
+  const addToCartButton = document.getElementById('add-to-cart') as HTMLButtonElement;
+  const cartDisplay = document.getElementById('cart-items') as HTMLDivElement;
 
   // 이벤트
   addToCartButton?.addEventListener("click", handleAddToCart);
@@ -130,6 +124,12 @@ function handleAddToCart() {
   const { cart, setCart, getItemQuantity } = useCart();
   const { products, setProducts } = useProducts();
   const { setLastSel } = useLastSelected()
+
+  const productSelect = document.getElementById('product-select') as HTMLSelectElement;
+  if (!productSelect) {
+    console.error('Product select element not found');
+    return;
+  }
 
   const selectedItemId = productSelect.value
   if (!selectedItemId) {
