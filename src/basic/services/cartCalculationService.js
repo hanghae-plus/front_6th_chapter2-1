@@ -1,9 +1,29 @@
 import cartStore from "../store/cart";
 import { calculateCartTotals } from "../utils/cart/calculateCartTotals";
+import { calculateBonusPoints } from "./bonusPointsService";
+import { getLowStockItems } from "./stockService";
 
 /**
  * 장바구니 계산 관련 비즈니스 로직을 담당하는 함수들
  */
+
+/**
+ * 모든 비즈니스 로직을 계산하는 함수
+ * @returns {Object} 계산된 모든 비즈니스 데이터
+ */
+export const calculateAllBusinessLogic = () => {
+  const cartData = calculateAndUpdateCart();
+  const lowStockItems = getLowStockItems();
+  const cartState = getCartState();
+  const bonusPointsData = calculateBonusPoints(cartState);
+
+  return {
+    cartData,
+    lowStockItems,
+    cartState,
+    bonusPointsData,
+  };
+};
 
 /**
  * 장바구니 전체 계산 및 Store 업데이트

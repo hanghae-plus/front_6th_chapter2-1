@@ -22,11 +22,13 @@ import { updateCartUI } from "./ui/update/updateCart";
 import { updateCartItemStyles } from "./ui/update/updateCartItem";
 import { updateBonusPoints } from "./ui/update/updateBonusPoints";
 import { updateStockInfo } from "./ui/update/updateStockInfo";
+import { updateCartUIAfterCalculation } from "./ui/update/updateCartUIAfterCalculation";
 
 // 비즈니스 서비스들
 import {
   calculateAndUpdateCart,
   getCartState,
+  calculateAllBusinessLogic,
 } from "./services/cartCalculationService";
 import { calculateBonusPoints } from "./services/bonusPointsService";
 import { getLowStockItems } from "./services/stockService";
@@ -239,18 +241,9 @@ function main() {
 }
 var sum;
 
-//드롭다운 메뉴를 실시간으로 업데이트 하는 함수
-/*
-1. 재고 상태 반영 : 품절상품은 선택 불가능하게 처리
-2. 할인 정보 표시 : 번개세일, 추천할인 상태를 시각적으로 표시
-3. 가격 정보 업데이트 : 원가 -> 할인가 형태로 표시
-4. 전체 재고 경고 : 재고가 부족하면 드롭다운 테두리 색상 변경
-----
-호출 시점
-1. 상품이 장바구니에서 추가/제거될 때
-2. 할인이 적용될 때
-3. 재고가 변경될 때
-*/
+/**
+ * 드롭다운 메뉴를 실시간으로 업데이트 하는 함수
+ */
 const onUpdateSelectOptions = () => {
   const prodList = productStore.getState().products;
 
@@ -261,17 +254,11 @@ const onUpdateSelectOptions = () => {
  * 장바구니 계산 및 렌더링을 담당하는 함수
  */
 const handleCalculateCartStuff = () => {
-  // 총 금액 계산 로직들
-  const cartData = calculateAndUpdateCart();
-  const lowStockItems = getLowStockItems();
-  const cartState = getCartState();
-  const bonusPointsData = calculateBonusPoints(cartState);
+  // 계산 수행
+  const businessData = calculateAllBusinessLogic();
 
-  // UI 업데이트
-  updateCartItemStyles(cartData.items);
-  updateCartUI(cartData);
-  updateStockInfo(lowStockItems);
-  updateBonusPoints(bonusPointsData);
+  // UI 업데이트 수행
+  updateCartUIAfterCalculation(businessData);
 };
 
 function doUpdatePricesInCart() {
