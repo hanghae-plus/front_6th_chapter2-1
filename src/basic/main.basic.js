@@ -1,7 +1,76 @@
 // 리팩토링 완료 후 파일 분리할 것
 
 // ============================================
-// 전역 상태 관리
+// 📦 상수 및 설정
+// ============================================
+
+// 상품 ID 상수
+const PRODUCT_IDS = {
+  KEYBOARD: 'p1',
+  MOUSE: 'p2',
+  MONITOR_ARM: 'p3',
+  LAPTOP_POUCH: 'p4',
+  SPEAKER: 'p5',
+};
+
+// 할인율 상수
+const DISCOUNT_RATES = {
+  KEYBOARD: 10, // 키보드 10개↑ 할인율
+  MOUSE: 15, // 마우스 10개↑ 할인율
+  MONITOR_ARM: 20, // 모니터암 10개↑ 할인율
+  LAPTOP_POUCH: 5, // 노트북파우치 10개↑ 할인율
+  SPEAKER: 25, // 스피커 10개↑ 할인율
+  BULK_PURCHASE: 25, // 대량구매 할인율 (30개↑)
+  TUESDAY: 10, // 화요일 추가 할인율
+  LIGHTNING_SALE: 20, // 번개세일 할인율
+  RECOMMENDATION: 5, // 추천할인율
+};
+
+// 수량 기준 상수
+const QUANTITY_THRESHOLDS = {
+  INDIVIDUAL_DISCOUNT: 10, // 개별 상품 할인 시작 수량
+  BULK_PURCHASE: 30, // 대량구매 할인 시작 수량
+  LOW_STOCK: 5, // 재고 부족 기준
+  POINTS_BONUS_10: 10, // 포인트 보너스 10개 기준
+  POINTS_BONUS_20: 20, // 포인트 보너스 20개 기준
+  POINTS_BONUS_30: 30, // 포인트 보너스 30개 기준
+};
+
+// 포인트 관련 상수
+const POINTS_CONFIG = {
+  BASE_RATE: 0.1, // 기본 적립률 (0.1%)
+  TUESDAY_MULTIPLIER: 2, // 화요일 포인트 배수
+  KEYBOARD_MOUSE_BONUS: 50, // 키보드+마우스 세트 보너스
+  FULL_SET_BONUS: 100, // 풀세트 보너스
+  BONUS_10_ITEMS: 20, // 10개↑ 보너스
+  BONUS_20_ITEMS: 50, // 20개↑ 보너스
+  BONUS_30_ITEMS: 100, // 30개↑ 보너스
+};
+
+// 타이머 관련 상수
+const TIMER_CONFIG = {
+  LIGHTNING_SALE_DELAY: 10000, // 번개세일 초기 지연시간 (10초)
+  LIGHTNING_SALE_INTERVAL: 30000, // 번개세일 반복 간격 (30초)
+  RECOMMENDATION_DELAY: 20000, // 추천할인 초기 지연시간 (20초)
+  RECOMMENDATION_INTERVAL: 60000, // 추천할인 반복 간격 (60초)
+};
+
+// 계산 관련 상수
+const CALCULATION_CONFIG = {
+  PERCENTAGE_DIVISOR: 100, // 퍼센트 계산용 나누기 값
+  POINTS_DIVISOR: 1000, // 포인트 계산용 나누기 값
+  TUESDAY_DAY_OF_WEEK: 2, // 화요일 요일 번호
+};
+
+// 기존 상수들 (하위 호환성을 위해 유지)
+const PRODUCT_1 = PRODUCT_IDS.KEYBOARD;
+const PRODUCT_2 = PRODUCT_IDS.MOUSE;
+const PRODUCT_3 = PRODUCT_IDS.MONITOR_ARM;
+const PRODUCT_4 = PRODUCT_IDS.LAPTOP_POUCH;
+const PRODUCT_5 = PRODUCT_IDS.SPEAKER;
+
+// ============================================
+// 🗃️ 전역 상태 관리
 // ============================================
 let productList;
 let bonusPts = 0;
@@ -11,15 +80,6 @@ let lastSelector;
 let productSelect;
 let addBtn;
 let totalAmount = 0;
-
-// ============================================
-// 상수 정의
-// ============================================
-const PRODUCT_1 = 'p1';
-const PRODUCT_2 = 'p2';
-const PRODUCT_3 = 'p3';
-const PRODUCT_4 = 'p4';
-const PRODUCT_5 = `p5`;
 
 // ============================================
 // DOM 요소 참조
@@ -144,15 +204,15 @@ function ManualOverlay() {
           <div class="space-y-3">
             <div class="bg-gray-100 rounded-lg p-3">
               <p class="font-semibold text-sm mb-1">기본</p>
-              <p class="text-gray-700 text-xs pl-2">• 구매액의 0.1%</p>
+              <p class="text-gray-700 text-xs pl-2">• 구매액의 ${POINTS_CONFIG.BASE_RATE * 100}%</p>
             </div>
             <div class="bg-gray-100 rounded-lg p-3">
               <p class="font-semibold text-sm mb-1">추가</p>
               <p class="text-gray-700 text-xs pl-2">
-                • 화요일: 2배<br>
-                • 키보드+마우스: +50p<br>
-                • 풀세트: +100p<br>
-                • 10개↑: +20p / 20개↑: +50p / 30개↑: +100p
+                • 화요일: ${POINTS_CONFIG.TUESDAY_MULTIPLIER}배<br>
+                • 키보드+마우스: +${POINTS_CONFIG.KEYBOARD_MOUSE_BONUS}p<br>
+                • 풀세트: +${POINTS_CONFIG.FULL_SET_BONUS}p<br>
+                • 10개↑: +${POINTS_CONFIG.BONUS_10_ITEMS}p / 20개↑: +${POINTS_CONFIG.BONUS_20_ITEMS}p / 30개↑: +${POINTS_CONFIG.BONUS_30_ITEMS}p
               </p>
             </div>
           </div>
@@ -294,19 +354,23 @@ function main() {
   // 자동 할인 시스템 설정
   // ============================================
   // 번개세일 타이머
-  const lightningDelay = Math.random() * 10000;
+  const lightningDelay = Math.random() * TIMER_CONFIG.LIGHTNING_SALE_DELAY;
   setTimeout(() => {
     setInterval(function () {
       const luckyIdx = Math.floor(Math.random() * productList.length);
       const luckyItem = productList[luckyIdx];
       if (luckyItem.quantity > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
+        const lightningDiscountRate =
+          DISCOUNT_RATES.LIGHTNING_SALE / CALCULATION_CONFIG.PERCENTAGE_DIVISOR;
+        luckyItem.val = Math.round(luckyItem.originalVal * (1 - lightningDiscountRate));
         luckyItem.onSale = true;
-        alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
+        alert(
+          `⚡번개세일! ${luckyItem.name}이(가) ${DISCOUNT_RATES.LIGHTNING_SALE}% 할인 중입니다!`,
+        );
         handleUpdateSelectOptions();
         handleUpdatePricesInCart();
       }
-    }, 30000);
+    }, TIMER_CONFIG.LIGHTNING_SALE_INTERVAL);
   }, lightningDelay);
 
   // 추천 할인 타이머
@@ -328,15 +392,19 @@ function main() {
           }
         }
         if (suggest) {
-          alert(`💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
-          suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
+          alert(
+            `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 ${DISCOUNT_RATES.RECOMMENDATION}% 추가 할인!`,
+          );
+          const recommendationDiscountRate =
+            DISCOUNT_RATES.RECOMMENDATION / CALCULATION_CONFIG.PERCENTAGE_DIVISOR;
+          suggest.val = Math.round(suggest.val * (1 - recommendationDiscountRate));
           suggest.suggestSale = true;
           handleUpdateSelectOptions();
           handleUpdatePricesInCart();
         }
       }
-    }, 60000);
-  }, Math.random() * 20000);
+    }, TIMER_CONFIG.RECOMMENDATION_INTERVAL);
+  }, Math.random() * TIMER_CONFIG.RECOMMENDATION_DELAY);
 }
 
 // ============================================
@@ -467,20 +535,23 @@ function handleCalculateCart() {
       // ============================================
       // 개별 상품 할인 계산
       // ============================================
-      if (q >= 10) {
-        if (curItem.id === PRODUCT_1) {
-          disc = 10 / 100;
-        } else if (curItem.id === PRODUCT_2) {
-          disc = 15 / 100;
-        } else if (curItem.id === PRODUCT_3) {
-          disc = 20 / 100;
-        } else if (curItem.id === PRODUCT_4) {
-          disc = 5 / 100;
-        } else if (curItem.id === PRODUCT_5) {
-          disc = 25 / 100;
+      if (q >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
+        if (curItem.id === PRODUCT_IDS.KEYBOARD) {
+          disc = DISCOUNT_RATES.KEYBOARD / CALCULATION_CONFIG.PERCENTAGE_DIVISOR;
+        } else if (curItem.id === PRODUCT_IDS.MOUSE) {
+          disc = DISCOUNT_RATES.MOUSE / CALCULATION_CONFIG.PERCENTAGE_DIVISOR;
+        } else if (curItem.id === PRODUCT_IDS.MONITOR_ARM) {
+          disc = DISCOUNT_RATES.MONITOR_ARM / CALCULATION_CONFIG.PERCENTAGE_DIVISOR;
+        } else if (curItem.id === PRODUCT_IDS.LAPTOP_POUCH) {
+          disc = DISCOUNT_RATES.LAPTOP_POUCH / CALCULATION_CONFIG.PERCENTAGE_DIVISOR;
+        } else if (curItem.id === PRODUCT_IDS.SPEAKER) {
+          disc = DISCOUNT_RATES.SPEAKER / CALCULATION_CONFIG.PERCENTAGE_DIVISOR;
         }
         if (disc > 0) {
-          itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
+          itemDiscounts.push({
+            name: curItem.name,
+            discount: disc * CALCULATION_CONFIG.PERCENTAGE_DIVISOR,
+          });
         }
       }
       totalAmount += itemTot * (1 - disc);
@@ -494,9 +565,10 @@ function handleCalculateCart() {
   const originalTotal = subTot;
 
   // 대량구매 할인 (30개 이상)
-  if (itemCount >= 30) {
-    totalAmount = (subTot * 75) / 100;
-    discRate = 25 / 100;
+  if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
+    const bulkDiscountRate = DISCOUNT_RATES.BULK_PURCHASE / CALCULATION_CONFIG.PERCENTAGE_DIVISOR;
+    totalAmount = subTot * (1 - bulkDiscountRate);
+    discRate = bulkDiscountRate;
   } else {
     discRate = (subTot - totalAmount) / subTot;
   }
@@ -508,7 +580,8 @@ function handleCalculateCart() {
 
   if (isTuesday()) {
     if (totalAmount > 0) {
-      totalAmount = (totalAmount * 90) / 100;
+      const tuesdayDiscountRate = DISCOUNT_RATES.TUESDAY / CALCULATION_CONFIG.PERCENTAGE_DIVISOR;
+      totalAmount = totalAmount * (1 - tuesdayDiscountRate);
       discRate = 1 - totalAmount / originalTotal;
       tuesdaySpecial.classList.remove('hidden');
     } else {
@@ -608,7 +681,7 @@ function handleCalculateCart() {
 
   const loyaltyPointsDiv = document.getElementById('loyalty-points');
   if (loyaltyPointsDiv) {
-    const points = Math.floor(totalAmount / 1000);
+    const points = Math.floor(totalAmount / CALCULATION_CONFIG.POINTS_DIVISOR);
     if (points > 0) {
       loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
       loyaltyPointsDiv.style.display = 'block';
@@ -670,7 +743,7 @@ const handleRenderBonusPoints = function () {
   // ============================================
   // 기본 포인트 계산
   // ============================================
-  const basePoints = Math.floor(totalAmount / 1000);
+  const basePoints = Math.floor(totalAmount / CALCULATION_CONFIG.POINTS_DIVISOR);
   finalPoints = 0;
   const pointsDetail = [];
 
@@ -684,7 +757,7 @@ const handleRenderBonusPoints = function () {
   // ============================================
   if (isTuesday()) {
     if (basePoints > 0) {
-      finalPoints = basePoints * 2;
+      finalPoints = basePoints * POINTS_CONFIG.TUESDAY_MULTIPLIER;
       pointsDetail.push('화요일 2배');
     }
   }
@@ -718,28 +791,28 @@ const handleRenderBonusPoints = function () {
 
   // 키보드+마우스 세트 보너스
   if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push('키보드+마우스 세트 +50p');
+    finalPoints = finalPoints + POINTS_CONFIG.KEYBOARD_MOUSE_BONUS;
+    pointsDetail.push(`키보드+마우스 세트 +${POINTS_CONFIG.KEYBOARD_MOUSE_BONUS}p`);
   }
 
   // 풀세트 보너스
   if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('풀세트 구매 +100p');
+    finalPoints = finalPoints + POINTS_CONFIG.FULL_SET_BONUS;
+    pointsDetail.push(`풀세트 구매 +${POINTS_CONFIG.FULL_SET_BONUS}p`);
   }
 
   // ============================================
   // 대량구매 보너스 포인트
   // ============================================
-  if (itemCount >= 30) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('대량구매(30개+) +100p');
-  } else if (itemCount >= 20) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push('대량구매(20개+) +50p');
-  } else if (itemCount >= 10) {
-    finalPoints = finalPoints + 20;
-    pointsDetail.push('대량구매(10개+) +20p');
+  if (itemCount >= QUANTITY_THRESHOLDS.POINTS_BONUS_30) {
+    finalPoints = finalPoints + POINTS_CONFIG.BONUS_30_ITEMS;
+    pointsDetail.push(`대량구매(30개+) +${POINTS_CONFIG.BONUS_30_ITEMS}p`);
+  } else if (itemCount >= QUANTITY_THRESHOLDS.POINTS_BONUS_20) {
+    finalPoints = finalPoints + POINTS_CONFIG.BONUS_20_ITEMS;
+    pointsDetail.push(`대량구매(20개+) +${POINTS_CONFIG.BONUS_20_ITEMS}p`);
+  } else if (itemCount >= QUANTITY_THRESHOLDS.POINTS_BONUS_10) {
+    finalPoints = finalPoints + POINTS_CONFIG.BONUS_10_ITEMS;
+    pointsDetail.push(`대량구매(10개+) +${POINTS_CONFIG.BONUS_10_ITEMS}p`);
   }
 
   // ============================================
