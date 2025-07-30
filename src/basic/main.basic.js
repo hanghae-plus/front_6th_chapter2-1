@@ -253,6 +253,12 @@ function main() {
 
 let sum;
 
+// 전체 재고 계산
+
+function calculateTotalStock(products) {
+  return products.reduce((total, product) => total + product.quantity, 0);
+}
+
 // 상품 선택 옵션 업데이트
 function updateProductOptions() {
   let totalStock;
@@ -262,10 +268,12 @@ function updateProductOptions() {
   totalStock = 0;
 
   // 전체 재고 계산
-  for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
-    const product = PRODUCT_LIST[idx];
-    totalStock = totalStock + product.quantity;
-  }
+  // for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
+  //   const product = PRODUCT_LIST[idx];
+  //   totalStock = totalStock + product.quantity;
+  // }
+
+  totalStock = calculateTotalStock(PRODUCT_LIST);
 
   // 상품 옵션 생성
   for (let i = 0; i < PRODUCT_LIST.length; i++) {
