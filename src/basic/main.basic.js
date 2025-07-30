@@ -634,26 +634,13 @@ main();
 
 /** 장바구니 담기 버튼 클릭 이벤트 핸들러 */
 addCartButton.addEventListener('click', function () {
-  const selItem = productSelector.value;
-  let hasItem = false;
-  for (let idx = 0; idx < productManager.getProductCount(); idx++) {
-    const currentProduct = productManager.getProductAt(idx);
-    if (currentProduct.id === selItem) {
-      hasItem = true;
-      break;
-    }
-  }
-  if (!selItem || !hasItem) {
+  const selectedItem = productSelector.value;
+  const itemToAdd = productManager.getProducts().find((product) => product.id === selectedItem);
+
+  if (!selectedItem || !itemToAdd) {
     return;
   }
-  let itemToAdd = null;
-  for (let j = 0; j < productManager.getProductCount(); j++) {
-    const currentProduct = productManager.getProductAt(j);
-    if (currentProduct.id === selItem) {
-      itemToAdd = currentProduct;
-      break;
-    }
-  }
+
   if (itemToAdd && itemToAdd.quantity > 0) {
     const item = document.getElementById(itemToAdd['id']);
     if (item) {
@@ -694,7 +681,7 @@ addCartButton.addEventListener('click', function () {
     }
     calculateCart();
     // 장바구니에 마지막으로 담은 아이템
-    lastSelectedItem = selItem;
+    lastSelectedItem = selectedItem;
   }
 });
 
