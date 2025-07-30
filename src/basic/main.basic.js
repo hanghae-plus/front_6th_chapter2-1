@@ -368,6 +368,70 @@ const useCartManager = {
   },
 };
 
+// ✅ 보너스 포인트 관리 캡슐화 (나중에 useBonusPoints hook으로 변환 예정)
+const useBonusPointsManager = {
+  // 내부 상태
+  bonusPoints: 0,
+
+  /**
+   * 현재 보너스 포인트 반환
+   * @returns {number} 보너스 포인트
+   */
+  getBonusPoints() {
+    return this.bonusPoints;
+  },
+
+  /**
+   * 보너스 포인트 설정
+   * @param {number} points - 설정할 포인트
+   */
+  setBonusPoints(points) {
+    this.bonusPoints = points;
+  },
+
+  /**
+   * 보너스 포인트 초기화
+   */
+  resetBonusPoints() {
+    this.bonusPoints = 0;
+  },
+
+  /**
+   * 기본 포인트 계산 (구매액 기준)
+   * @param {number} totalAmount - 총 구매액
+   * @returns {number} 기본 포인트
+   */
+  calculateBasePoints(totalAmount) {
+    return Math.floor(totalAmount / POINTS_RULES.BASE_CALCULATION_UNIT);
+  },
+
+  /**
+   * 특별 포인트 날짜 보너스 계산
+   * @param {number} basePoints - 기본 포인트
+   * @returns {Object} {points, isSpecialDay, detail}
+   */
+  calculateSpecialDayBonus(basePoints) {
+    const isSpecialDay = isSpecialPointsDay();
+
+    if (isSpecialDay && basePoints > 0) {
+      const bonusPoints = basePoints * POINTS_RULES.SPECIAL_POINTS_MULTIPLIER;
+      const detail = `${POINTS_RULES.SPECIAL_POINTS_DAYS.map(getKoreanDayName).join(", ")} ${POINTS_RULES.SPECIAL_POINTS_MULTIPLIER}배`;
+
+      return {
+        points: bonusPoints,
+        isSpecialDay: true,
+        detail,
+      };
+    }
+
+    return {
+      points: basePoints,
+      isSpecialDay: false,
+      detail: basePoints > 0 ? `기본: ${basePoints}p` : "",
+    };
+  },
+};
+
 let cartDisp;
 let sum;
 
