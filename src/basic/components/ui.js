@@ -130,19 +130,9 @@ function formatPrice(product) {
 function QuantityControls(product) {
   return `
     <div class="flex items-center gap-4">
-      ${Button({
-        className:
-          'quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white',
-        text: '−',
-        onclick: `changeQuantity('${product.id}', -1)`,
-      })}
+      <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="-1">−</button>
       <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-      ${Button({
-        className:
-          'quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white',
-        text: '+',
-        onclick: `changeQuantity('${product.id}', 1)`,
-      })}
+      <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="1">+</button>
     </div>
   `;
 }
@@ -169,7 +159,7 @@ function CartItem(product) {
       <div class="text-right">
         <div class="text-lg mb-2 tracking-tight tabular-nums">${formatPrice(product)}</div>
         <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" 
-           onclick="removeItem('${product.id}')">Remove</a>
+           data-product-id="${product.id}">Remove</a>
       </div>
     </div>
   `;
