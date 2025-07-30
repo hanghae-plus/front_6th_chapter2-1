@@ -123,19 +123,12 @@ function updateSelectOptions() {
 }
 
 function main() {
-  let header;
-  let gridContainer;
-  let leftColumn;
-  let rightColumn;
-  let manualToggle;
-  let manualOverlay;
-  let manualColumn;
   let lightningDelay;
   cartState.totalAmt = 0;
   cartState.itemCnt = 0;
   cartState.lastSelectedProductId = null;
   const root = document.getElementById("app");
-  header = createElementFromHTML(`
+  const header = createElementFromHTML(`
     <div class="mb-8">
       <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
       <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
@@ -156,10 +149,10 @@ function main() {
   // 상품 선택 select 추가
   selectorContainer.appendChild(sel);
 
-  gridContainer = createElementFromHTML(`
+  const gridContainer = createElementFromHTML(`
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden"></div>
   `);
-  leftColumn = createElementFromHTML(`
+  const leftColumn = createElementFromHTML(`
     <div class="bg-white border border-gray-200 p-8 overflow-y-auto"></div>
   `);
   uiElements.addBtn = createElementFromHTML(`
@@ -175,7 +168,7 @@ function main() {
     <div id="cart-items"></div>
   `);
   leftColumn.appendChild(uiElements.cartDisp);
-  rightColumn = createElementFromHTML(`
+  const rightColumn = createElementFromHTML(`
     <div class="bg-black text-white p-8 flex flex-col">
       <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
       <div class="flex-1 flex flex-col">
@@ -207,7 +200,7 @@ function main() {
     </div>
   `);
   sum = rightColumn.querySelector("#cart-total");
-  manualToggle = createElementFromHTML(`
+  const manualToggle = createElementFromHTML(`
     <button class="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -218,7 +211,7 @@ function main() {
     manualOverlay.classList.toggle("hidden");
     manualColumn.classList.toggle("translate-x-full");
   };
-  manualOverlay = createElementFromHTML(`
+  const manualOverlay = createElementFromHTML(`
     <div class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
   `);
   manualOverlay.onclick = function (e) {
@@ -227,7 +220,7 @@ function main() {
       manualColumn.classList.add("translate-x-full");
     }
   };
-  manualColumn = createElementFromHTML(`
+  const manualColumn = createElementFromHTML(`
     <div class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300">
     <button class="absolute top-4 right-4 text-gray-500 hover:text-black" onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -593,20 +586,15 @@ function handleCalculateCartStuff() {
   doRenderBonusPoints();
 }
 const doRenderBonusPoints = function () {
-  let basePoints;
   let finalPoints;
-  let pointsDetail;
-  let hasKeyboard;
-  let hasMouse;
-  let hasMonitorArm;
   const nodes = uiElements.cartDisp.children;
   if (uiElements.cartDisp.children.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
   }
-  basePoints = Math.floor(cartState.totalAmt / POINTS_PER_THOUSAND);
+  const basePoints = Math.floor(cartState.totalAmt / POINTS_PER_THOUSAND);
   finalPoints = 0;
-  pointsDetail = [];
+  const pointsDetail = [];
   if (basePoints > 0) {
     finalPoints = basePoints;
     pointsDetail.push(`기본: ${basePoints}p`);
@@ -617,9 +605,9 @@ const doRenderBonusPoints = function () {
       pointsDetail.push("화요일 2배");
     }
   }
-  hasKeyboard = false;
-  hasMouse = false;
-  hasMonitorArm = false;
+  let hasKeyboard = false;
+  let hasMouse = false;
+  let hasMonitorArm = false;
   for (const node of nodes) {
     let product = null;
     for (let pIdx = 0; pIdx < prodList.length; pIdx++) {
@@ -710,7 +698,6 @@ const handleStockInfoUpdate = function () {
 function doUpdatePricesInCart() {
   let totalCount = 0,
     j = 0;
-  let cartItems;
   while (uiElements.cartDisp.children[j]) {
     const qty =
       uiElements.cartDisp.children[j].querySelector(".quantity-number");
@@ -724,7 +711,7 @@ function doUpdatePricesInCart() {
         .textContent
     );
   }
-  cartItems = uiElements.cartDisp.children;
+  const cartItems = uiElements.cartDisp.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
     let product = null;
