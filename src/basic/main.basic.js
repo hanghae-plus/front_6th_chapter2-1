@@ -16,7 +16,7 @@ import {
 } from './features/cart/services/promotionService.js';
 import { updateOrderSummary } from './features/order/services/orderService.js';
 import { calculateAndRenderPoints } from './features/point/services/pointService.js';
-import { initialProducts } from './features/product/constants/productConstants.js';
+import { initialProducts } from './features/product/constants/index.js';
 import {
   updateProductSelector,
   updateStockInfo,
