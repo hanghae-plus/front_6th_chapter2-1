@@ -1,4 +1,4 @@
-import { findAvailableProductExcept } from '../../shared/utils/index.js';
+import { findAvailableProductExcept } from '../../shared/utils/product-utils.js';
 
 /**
  * 프로모션 기능
