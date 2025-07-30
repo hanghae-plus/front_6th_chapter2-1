@@ -208,6 +208,20 @@ function setupSuggestionTimer() {
   }, initialDelay);
 }
 
+// 타이머 초기화
+
+function initializeTimers() {
+  setupLightningSaleTimer();
+  setupSuggestionTimer();
+}
+
+// 초기 렌더링 수행
+
+function initializeRender() {
+  updateProductOptions();
+  doUpdatePricesInCart();
+}
+
 function main() {
   // DOM 요소 변수들
 
