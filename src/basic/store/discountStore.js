@@ -79,5 +79,3 @@ export class DiscountStore {
     this.state.totalSavedAmount = savedAmount;
   }
 }
-
-export const discountStore = new DiscountStore();

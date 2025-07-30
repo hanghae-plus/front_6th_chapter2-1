@@ -1,10 +1,10 @@
-import { discountStore } from "../store/discountStore.js";
+import { DiscountStore } from "../store/discountStore.js";
 import { DISCOUNT_RATES, QUANTITY_THRESHOLDS } from "../constants/index.js";
 import { findProductById, calculateItemDiscount } from "../utils/productUtils.js";
 
 export class DiscountService {
   constructor() {
-    this.discountStore = discountStore;
+    this.discountStore = new DiscountStore();
   }
 
   // 장바구니 아이템에서 수량을 추출합니다.

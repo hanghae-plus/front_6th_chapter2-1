@@ -1,10 +1,10 @@
-import { orderStore } from "../store/orderStore.js";
+import { OrderStore } from "../store/orderStore.js";
 import { discountService } from "./discountService.js";
 import { pointService } from "./pointService.js";
 
 export class OrderService {
   constructor() {
-    this.orderStore = orderStore;
+    this.orderStore = new OrderStore();
   }
 
   /**

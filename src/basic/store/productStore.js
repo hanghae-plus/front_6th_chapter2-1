@@ -32,7 +32,6 @@ export class ProductStore {
     const product = this.getProductById(productId);
     if (product) {
       product.quantity = Math.max(0, product.quantity + quantity);
-      this.notifySubscribers();
       return true;
     }
     return false;
@@ -49,7 +48,6 @@ export class ProductStore {
     const product = this.getProductById(productId);
     if (product) {
       product.price = newPrice;
-      this.notifySubscribers();
       return true;
     }
     return false;
@@ -62,7 +60,6 @@ export class ProductStore {
       product.price = product.originalPrice;
       product.onSale = false;
       product.suggestSale = false;
-      this.notifySubscribers();
       return true;
     }
     return false;
@@ -74,7 +71,6 @@ export class ProductStore {
     if (product && product.quantity > 0 && !product.onSale) {
       product.price = Math.round(product.originalPrice * DISCOUNT_RATES.LIGHTNING_SALE);
       product.onSale = true;
-      this.notifySubscribers();
       return true;
     }
     return false;
@@ -86,7 +82,6 @@ export class ProductStore {
     if (product && product.quantity > 0 && !product.suggestSale) {
       product.price = Math.round(product.price * DISCOUNT_RATES.SUGGEST_SALE);
       product.suggestSale = true;
-      this.notifySubscribers();
       return true;
     }
     return false;
@@ -98,24 +93,6 @@ export class ProductStore {
       product.price = product.originalPrice;
       product.onSale = false;
       product.suggestSale = false;
-    });
-    this.notifySubscribers();
-  }
-
-  // 구독자 등록
-  subscribe(callback) {
-    this.subscribers.add(callback);
-    return () => this.subscribers.delete(callback); // 구독 해제 함수 반환
-  }
-
-  // 구독자들에게 변경 알림
-  notifySubscribers() {
-    this.subscribers.forEach(callback => {
-      try {
-        callback(this.getProducts());
-      } catch (error) {
-        console.error("ProductStore subscriber error:", error);
-      }
     });
   }
 

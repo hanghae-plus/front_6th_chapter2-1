@@ -27,33 +27,11 @@ export class OrderStore {
   // 상태 업데이트
   updateOrderSummary(orderData) {
     this.state = { ...this.state, ...orderData };
-    this.notifySubscribers();
   }
 
   // 포인트 업데이트
   updatePoints(pointsData) {
     this.state.totalPoints = pointsData.totalPoints;
     this.state.pointsDetails = pointsData.details;
-    this.notifySubscribers();
-  }
-
-  // 구독자 패턴
-  subscribe(callback) {
-    this.subscribers.push(callback);
-    return () => this.unsubscribe(callback);
-  }
-
-  unsubscribe(callback) {
-    this.subscribers = this.subscribers.filter(sub => sub !== callback);
-  }
-
-  notifySubscribers() {
-    this.subscribers.forEach(callback => callback(this.state));
-  }
-
-  getState() {
-    return { ...this.state };
   }
 }
-
-export const orderStore = new OrderStore();
