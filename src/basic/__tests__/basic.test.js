@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+/* eslint-disable no-empty-function */
 /* eslint-disable quotes */
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -37,7 +37,11 @@ describe("basic 테스트", () => {
 
     beforeEach(async () => {
       vi.setSystemTime(new Date("2025-07-28"));
-      vi.spyOn(window, "alert").mockImplementation(() => {});
+      
+      // window 객체가 존재할 때만 alert mock 설정
+      if (typeof window !== 'undefined') {
+        vi.spyOn(window, "alert").mockImplementation(() => {});
+      }
 
       // 전체 DOM 재초기화
       document.body.innerHTML = '<div id="app"></div>';
