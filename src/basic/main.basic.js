@@ -1,5 +1,6 @@
 import { calculateBasePoint } from './features/point/service';
 import { renderProductSelectOptions } from './features/product/render';
+import { isTuesday } from './utils/date';
 
 let itemCount;
 let lastSelector;
@@ -363,11 +364,9 @@ function handleCalculateCartStuff() {
     discountRate = (subTotal - totalAmount) / subTotal;
   }
 
-  const today = new Date();
-  const isTuesday = today.getDay() === 2;
   const tuesdaySpecial = document.getElementById('tuesday-special');
 
-  if (isTuesday) {
+  if (isTuesday()) {
     if (totalAmount > 0) {
       totalAmount = (totalAmount * 90) / 100;
       discountRate = 1 - totalAmount / originalTotal;
@@ -518,7 +517,7 @@ const doRenderBonusPoints = function () {
   }
 
   // 기본 포인트가 0보다 크고 화요일인 경우 문구 추가, 최종 포인트 2배로 업데이트
-  if (new Date().getDay() === 2 && basePoints > 0) {
+  if (isTuesday() && basePoints > 0) {
     finalPoints = basePoints * 2;
     pointsDetail.push('화요일 2배');
   }
