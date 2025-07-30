@@ -449,7 +449,6 @@ function main() {
         luckyItem.val = Math.round((luckyItem.originalVal * (100 - LIGHTNING_SALE_DISCOUNT)) / 100);
         luckyItem.onSale = true;
         alert(`⚡번개세일! ${luckyItem.name} 이(가) ${LIGHTNING_SALE_DISCOUNT}% 할인 중입니다!`);
-        onUpdateSelectOptions();
         doUpdatePricesInCart();
       }
     }, LIGHTNING_SALE_INTERVAL);
@@ -474,7 +473,6 @@ function main() {
           );
           suggest.val = Math.round((suggest.val * (100 - SUGGEST_SALE_DISCOUNT)) / 100);
           suggest.suggestSale = true;
-          onUpdateSelectOptions();
           doUpdatePricesInCart();
         }
       }
@@ -502,8 +500,8 @@ function main() {
     totalAmt = 0;
     itemCnt = 0;
     let originalTotal = totalAmt;
-    const cartItems = cartDisp.children;
     let subTot = 0;
+
     const itemDiscounts = [];
     const lowStockItems = [];
     for (let idx = 0; idx < productList.length; idx++) {
@@ -511,55 +509,56 @@ function main() {
         lowStockItems.push(productList[idx].name);
       }
     }
+
+    const cartItems = cartDisp.children;
     for (let i = 0; i < cartItems.length; i++) {
-      (function () {
-        let curItem;
-        for (let j = 0; j < productList.length; j++) {
-          if (productList[j].id === cartItems[i].id) {
-            curItem = productList[j];
-            break;
-          }
+      let curItem;
+      for (let j = 0; j < productList.length; j++) {
+        if (productList[j].id === cartItems[i].id) {
+          curItem = productList[j];
+          break;
         }
-        const qtyElem = cartItems[i].querySelector('.quantity-number');
-        const q = parseInt(qtyElem.textContent);
-        const itemTot = curItem.val * q;
-        let disc = 0;
-        itemCnt += q;
-        subTot += itemTot;
-        const itemDiv = cartItems[i];
-        const priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
-        priceElems.forEach(function (elem) {
-          if (elem.classList.contains('text-lg')) {
-            elem.style.fontWeight = q >= INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD ? 'bold' : 'normal';
-          }
-        });
-        if (q >= INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD) {
-          if (curItem.id === KEYBOARD) {
-            disc = PRODUCT_DISCOUNTS[KEYBOARD] / 100;
+      }
+      const qtyElem = cartItems[i].querySelector('.quantity-number');
+      const q = parseInt(qtyElem.textContent);
+      const itemTot = curItem.val * q;
+      let disc = 0;
+      itemCnt += q;
+      subTot += itemTot;
+      const itemDiv = cartItems[i];
+      const priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
+      priceElems.forEach(function (elem) {
+        if (elem.classList.contains('text-lg')) {
+          elem.style.fontWeight = q >= INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD ? 'bold' : 'normal';
+        }
+      });
+      if (q >= INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD) {
+        if (curItem.id === KEYBOARD) {
+          disc = PRODUCT_DISCOUNTS[KEYBOARD] / 100;
+        } else {
+          if (curItem.id === MOUSE) {
+            disc = PRODUCT_DISCOUNTS[MOUSE] / 100;
           } else {
-            if (curItem.id === MOUSE) {
-              disc = PRODUCT_DISCOUNTS[MOUSE] / 100;
+            if (curItem.id === MONITOR_ARM) {
+              disc = PRODUCT_DISCOUNTS[MONITOR_ARM] / 100;
             } else {
-              if (curItem.id === MONITOR_ARM) {
-                disc = PRODUCT_DISCOUNTS[MONITOR_ARM] / 100;
+              if (curItem.id === NOTEBOOK_CASE) {
+                disc = PRODUCT_DISCOUNTS[NOTEBOOK_CASE] / 100;
               } else {
-                if (curItem.id === NOTEBOOK_CASE) {
-                  disc = PRODUCT_DISCOUNTS[NOTEBOOK_CASE] / 100;
-                } else {
-                  if (curItem.id === SPEAKER) {
-                    disc = PRODUCT_DISCOUNTS[SPEAKER] / 100;
-                  }
+                if (curItem.id === SPEAKER) {
+                  disc = PRODUCT_DISCOUNTS[SPEAKER] / 100;
                 }
               }
             }
           }
-          if (disc > 0) {
-            itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
-          }
         }
-        totalAmt += itemTot * (1 - disc);
-      })();
+        if (disc > 0) {
+          itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
+        }
+      }
+      totalAmt += itemTot * (1 - disc);
     }
+
     let discRate = 0;
     originalTotal = subTot;
     if (itemCnt >= BULK_PURCHASE_THRESHOLD) {
@@ -582,7 +581,7 @@ function main() {
     } else {
       tuesdaySpecial.classList.add('hidden');
     }
-    document.getElementById('item-count').textContent = `🛍️  ${itemCnt} items in cart`;
+
     const summaryDetails = document.getElementById('summary-details');
     summaryDetails.innerHTML = '';
     if (subTot > 0) {
@@ -685,18 +684,6 @@ function main() {
         itemCountElement.setAttribute('data-changed', 'true');
       }
     }
-    let stockMsg = '';
-    for (let stockIdx = 0; stockIdx < productList.length; stockIdx++) {
-      const item = productList[stockIdx];
-      if (item.q < LOW_STOCK_THRESHOLD) {
-        if (item.q > 0) {
-          stockMsg = `${stockMsg}${item.name}: 재고 부족 (${item.q}개 남음)\n`;
-        } else {
-          stockMsg = `${stockMsg}${item.name}: 품절\n`;
-        }
-      }
-    }
-    stockInfo.textContent = stockMsg;
     handleStockInfoUpdate();
     doRenderBonusPoints();
   }
@@ -791,17 +778,17 @@ function main() {
   }
 
   function handleStockInfoUpdate() {
-    let infoMsg = '';
+    let stockInfoMsg = '';
     productList.forEach(function (item) {
       if (item.q < LOW_STOCK_THRESHOLD) {
         if (item.q > 0) {
-          infoMsg = `${infoMsg}${item.name}: 재고 부족 (${item.q}개 남음)\n`;
+          stockInfoMsg = `${stockInfoMsg}${item.name}: 재고 부족 (${item.q}개 남음)\n`;
         } else {
-          infoMsg = `${infoMsg}${item.name}: 품절\n`;
+          stockInfoMsg = `${stockInfoMsg}${item.name}: 품절\n`;
         }
       }
     });
-    stockInfo.textContent = infoMsg;
+    stockInfo.textContent = stockInfoMsg;
   }
   function doUpdatePricesInCart() {
     const cartItems = cartDisp.children;
@@ -990,7 +977,6 @@ function main() {
         itemElem.remove();
       }
       handleCalculateCartStuff();
-      onUpdateSelectOptions();
     }
   });
 }
