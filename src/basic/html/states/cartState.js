@@ -1,32 +1,36 @@
-export const addToCart = (cartList, itemToAddId) => {
-  const idx = cartList.findIndex((item) => item.id === itemToAddId);
+import { findProductById } from "../../utils/findProductById";
 
-  if (idx !== -1) {
-    cartList[idx].count += 1;
-  } else {
-    cartList.push({
-      id: itemToAddId,
-      count: 1,
-    });
+export const changeQuantity = (state, productId, delta) => {
+  const { cartState, productState } = state;
+  const product = findProductById(productState, productId);
+
+  const cartItem = cartState.find(item => item.id === productId);
+
+  if (!product || !cartItem) return;
+
+  if (delta < 0 && cartItem.count === 1) {
+    cartState.splice(cartIdx, 1);
+    return;
   }
+
+  if (delta > 0 && product.quantity <= 0) {
+    alert('재고가 부족합니다.');
+    return;
+  }
+
+  cartItem.count += delta;
+  product.quantity -= delta;
 };
 
-export const deleteFromCart = (cartList, itemToDeleteId) => {
-  const idx = cartList.findIndex((item) => item.id === itemToDeleteId);
+export const removeFromCart = (state, productId) => {
+  const { cartState, productState } = state;
+  const cartIdx = cartState.findIndex(item => item.id === productId);
 
-  if (idx !== -1) {
-    if (cartList[idx].count > 1) {
-      cartList[idx].count -= 1;
-    } else {
-      cartList.splice(idx, 1);
-    }
-  }
-};
+  if (cartIdx === -1) return;
 
-export const removeFromCart = (cartList, itemToRemoveId) => {
-  const idx = cartList.findIndex((item) => item.id === itemToRemoveId);
+  const cartItem = cartState[cartIdx];
+  const product = findProductById(productState, productId);
 
-  if (idx !== -1) {
-    cartList.splice(idx, 1);
-  }
+  product.quantity += cartItem.count;
+  cartState.splice(cartIdx, 1);
 };
