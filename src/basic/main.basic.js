@@ -496,22 +496,16 @@ function handleCalculateCartStuff() {
 
 // 추가 포인트 UI를 렌더링
 const doRenderBonusPoints = function () {
-  const basePoints = calculateBasePoint(totalAmount);
+  const cartProductEls = Array.from(cartContainerEl.children);
+  const hasKeyboard = cartProductEls.some((el) => el.id === productIds.keyboard);
+  const hasMouse = cartProductEls.some((el) => el.id === productIds.mouse);
+  const hasMonitorArm = cartProductEls.some((el) => el.id === productIds.monitorArm);
 
+  const basePoints = calculateBasePoint(totalAmount);
   // 최종포인트
   let finalPoints = 0;
   // 포인트 상세 정보
   const pointsDetail = [];
-
-  // 키보드유무
-  let hasKeyboard = false;
-  // 마우스유무
-  let hasMouse = false;
-  // 모니터암유무
-  let hasMonitorArm = false;
-
-  // 장바구니에 담긴 상품 요소들
-  const cartProductEls = cartContainerEl.children;
 
   // 장바구니에 상품이 없으면 loyalty-points 요소 숨김
   if (cartProductEls.length === 0) {
@@ -529,32 +523,6 @@ const doRenderBonusPoints = function () {
   if (isTuesday() && basePoints > 0) {
     finalPoints = basePoints * 2;
     pointsDetail.push('화요일 2배');
-  }
-
-  // 장바구니를 순회하여 현재 선택한 상품이 있는지 없는지 업데이트
-  for (const cartProductEl of cartProductEls) {
-    let cartProduct = null;
-
-    // 장바구니상품요소의 id를 통해 상품 정보 조회
-    for (let i = 0; i < productList.length; i++) {
-      if (productList[i].id === cartProductEl.id) {
-        cartProduct = productList[i];
-        break;
-      }
-    }
-    // 장바구니상품이 없을 경우 다음 반복문으로 이동
-    if (!cartProduct) {
-      continue;
-    }
-
-    // 장바구니에 담긴 상품으로 상품선택 유무 상태 변경
-    if (cartProduct.id === productIds.keyboard) {
-      hasKeyboard = true;
-    } else if (cartProduct.id === productIds.mouse) {
-      hasMouse = true;
-    } else if (cartProduct.id === productIds.monitorArm) {
-      hasMonitorArm = true;
-    }
   }
 
   // 선택 상품에 따라 포인트 문구 추가, 최종포인트 업데이트
