@@ -8,6 +8,8 @@ import {
   SUGGEST_DISCOUNT,
 } from './domain/product';
 import productManager from './domain/product';
+import { applyItemDiscount, applyTotalDiscount } from './usecase/discount';
+import { isTuesday } from './utils/dateUtil';
 import {
   createAddCartButton,
   createCartDisplay,
@@ -22,17 +24,15 @@ import {
   createRightColumn,
   createSelectorContainer,
   createStockInfo,
-} from './view';
-import { applyItemDiscount, applyTotalDiscount } from './usecase/discount';
-import { isTuesday } from './utils/dateUtil';
-
-let stockInfo;
+} from './view/elements';
 
 let totalAmount = 0;
 
+/** 다 UI 요소들. 여러군데서 사용해서 전역 컴포넌트로,,  */
 let productSelector;
 let addCartButton;
 let cartDisplay;
+let stockInfo;
 
 /**
  * 페이지 초기화. DOM 요소 생성 및 초기 렌더링, 버튼 및 이벤트 등록, 세일/추천 세일 주기적 발생 설정.
