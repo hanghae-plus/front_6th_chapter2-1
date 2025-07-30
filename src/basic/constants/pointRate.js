@@ -1,0 +1,12 @@
+/**
+ * 포인트 관련 상수 정의
+ */
+export const POINT_RATES = {
+  BASE_RATE: 0.001, // 0.1% (1000원당 1포인트)
+  TUESDAY_MULTIPLIER: 2,
+  SET_BONUS: 50,
+  FULL_SET_BONUS: 100,
+  QUANTITY_BONUS_10: 20,
+  QUANTITY_BONUS_20: 50,
+  QUANTITY_BONUS_30: 100,
+};
