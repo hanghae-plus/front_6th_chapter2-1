@@ -103,6 +103,12 @@ class ProductsManager {
       )
       .join('\n');
   }
+
+  getLowStockProducts() {
+    return this.#productList.filter(
+      (product) => OUT_OF_STOCK < product.quantity && product.quantity < LOW_STOCK_THRESHOLD
+    );
+  }
 }
 
 const productManager = new ProductsManager();
