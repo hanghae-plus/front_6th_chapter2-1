@@ -1,9 +1,13 @@
+import { handleCalculateCartStuff } from "../services/cartCalculationService";
 import { updateCartItem } from "../services/cartService";
+import { getCartContainer } from "../ui/dom/getDOMElements";
 
 /**
  * 장바구니 추가/삭제 이벤트 초기화
  */
-export const initCartDOMEvent = (cartDisp, handleCalculateCartStuff) => {
+export const initCartDOMEvent = () => {
+  const cartDisp = getCartContainer();
+
   cartDisp.addEventListener("click", (event) => {
     const tgt = event.target;
     if (!tgt) return;
@@ -17,7 +21,7 @@ export const initCartDOMEvent = (cartDisp, handleCalculateCartStuff) => {
         ? -Infinity
         : parseInt(tgt.dataset.change);
 
-      updateCartItem(prodId, qtyChange, handleCalculateCartStuff, cartDisp);
+      updateCartItem(prodId, qtyChange, cartDisp);
     }
   });
 };

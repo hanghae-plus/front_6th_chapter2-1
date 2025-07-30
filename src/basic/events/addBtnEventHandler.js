@@ -1,16 +1,21 @@
 import productStore from "../store/product";
 import cartStore from "../store/cart";
 import { updateCartItem } from "../services/cartService";
+import {
+  getAddToCartButton,
+  getProductSelect,
+  getCartContainer,
+} from "../ui/dom/getDOMElements";
+import { handleCalculateCartStuff } from "../services/cartCalculationService";
 
 /**
  * "추가" 버튼 이벤트 초기화
  */
-export const initAddButtonEvent = (
-  addBtn,
-  sel,
-  cartDisp,
-  handleCalculateCartStuff
-) => {
+export const initAddButtonEvent = () => {
+  const addBtn = getAddToCartButton();
+  const sel = getProductSelect();
+  const cartDisp = getCartContainer();
+
   addBtn.addEventListener("click", () => {
     const selectedItemId = sel.value;
     if (!selectedItemId) return;
@@ -22,6 +27,6 @@ export const initAddButtonEvent = (
       return;
     }
 
-    updateCartItem(selectedItemId, +1, handleCalculateCartStuff, cartDisp);
+    updateCartItem(selectedItemId, +1, cartDisp);
   });
 };

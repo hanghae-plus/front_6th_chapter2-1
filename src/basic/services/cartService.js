@@ -2,6 +2,7 @@ import productStore from "../store/product";
 import cartStore from "../store/cart";
 import { renderQuantity } from "../ui/render/renderQuantity";
 import { renderNewCartItem } from "../ui/render/renderNewCartItem";
+import { handleCalculateCartStuff } from "./cartCalculationService";
 
 /**
  * 장바구니 상품 수량 추가/감소/삭제 및 UI 처리까지 담당하는 서비스
@@ -9,7 +10,7 @@ import { renderNewCartItem } from "../ui/render/renderNewCartItem";
 export const updateCartItem = (
   prodId,
   qtyChange,
-  onCartUpdated,
+
   cartContainer
 ) => {
   const product = productStore.getState().products.find((p) => p.id === prodId);
@@ -45,5 +46,5 @@ export const updateCartItem = (
 
   cartStore.addCartItem(product);
 
-  onCartUpdated();
+  handleCalculateCartStuff();
 };

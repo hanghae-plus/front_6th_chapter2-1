@@ -2,6 +2,8 @@ import cartStore from "../store/cart";
 import { calculateCartTotals } from "../utils/cart/calculateCartTotals";
 import { calculateBonusPoints } from "./bonusPointsService";
 import { getLowStockItems } from "./stockService";
+import { updateCartUIAfterCalculation } from "../ui/update/updateCartUIAfterCalculation";
+import { getCartContainer } from "../ui/dom/getDOMElements";
 
 /**
  * 장바구니 계산 관련 비즈니스 로직을 담당하는 함수들
@@ -67,4 +69,15 @@ export const updateItemQuantity = (productId, quantity) => {
  */
 export const removeCartItem = (productId) => {
   cartStore.removeCartItem(productId);
+};
+
+/**
+ * 장바구니 계산 및 렌더링을 담당하는 함수
+ */
+export const handleCalculateCartStuff = () => {
+  // 계산 수행
+  const businessData = calculateAllBusinessLogic();
+
+  // UI 업데이트 수행
+  updateCartUIAfterCalculation(getCartContainer(), businessData);
 };
