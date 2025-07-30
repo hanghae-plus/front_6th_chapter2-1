@@ -275,9 +275,13 @@ const Header = () => {
 
 // 셀렉터 컨테이너 (상품 선택 영역)
 const SelectorContainer = () => {
+  // 재고 상태에 따른 테두리 색상 결정 (상태 기반)
+  const totalStock = AppState.getTotalStock();
+  const borderColorClass = totalStock < 50 ? 'border-orange-500' : 'border-gray-300';
+
   return `
     <div class="mb-6 pb-6 border-b border-gray-200">
-      <select id="product-select" class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3" onchange="handleProductSelect(event)">
+      <select id="product-select" class="w-full p-3 border ${borderColorClass} rounded-lg text-base mb-3">
         ${generateSelectOptions()}
       </select>
       <button 
@@ -459,9 +463,9 @@ const ManualToggle = () => {
 const ManualOverlay = () => {
   const isOpen = AppState.isManualOpen;
   return `
-    <div id="manual-overlay" class="fixed inset-0 bg-black/50 z-40 ${isOpen ? '' : 'hidden'} transition-opacity duration-300">
+    <div id="manual-overlay" class="fixed inset-0 bg-black/50 z-40 ${isOpen ? '' : 'hidden'} transition-opacity duration-300" onclick="handleModalBackgroundClick()">
       <div id="manual-column" class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform ${isOpen ? '' : 'translate-x-full'} transition-transform duration-300">
-        <button id="manual-close" class="absolute top-4 right-4 text-gray-500 hover:text-black">
+        <button id="manual-close" class="absolute top-4 right-4 text-gray-500 hover:text-black" onclick="handleModalClose()">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -543,20 +547,10 @@ const isTuesday = () => {
 // 🏪 비즈니스 로직 서비스
 // ============================================
 
-// 셀렉터 옵션 업데이트
+// 셀렉터 옵션 업데이트 (React 변환용 - 전체 앱 다시 렌더링)
 const handleUpdateSelectOptions = () => {
-  const selectElement = document.getElementById('product-select');
-  if (!selectElement) return;
-
-  selectElement.innerHTML = generateSelectOptions();
-
-  // 재고 상태에 따른 테두리 색상 변경
-  const totalStock = handleGetStockTotal();
-  if (totalStock < 50) {
-    selectElement.style.borderColor = 'orange';
-  } else {
-    selectElement.style.borderColor = '';
-  }
+  // DOM 직접 조작 대신 전체 앱 다시 렌더링
+  renderApp();
 };
 
 // 카트 계산
@@ -836,37 +830,14 @@ const setupTimers = () => {
 };
 
 // ============================================
-// 🎯 이벤트 핸들러
+// 🎯 이벤트 핸들러 (React 스타일 - 전역 함수로 노출)
 // ============================================
 
-// 상품 선택 핸들러
-const handleProductSelect = (event) => {
-  const selectedId = event.target.value;
-  AppState.setSelectedProductId(selectedId);
-  AppState.setLastSelector(selectedId);
-};
-
-// 수동 안내 토글 핸들러
-const handleManualToggle = () => {
-  AppState.isManualOpen = !AppState.isManualOpen;
-  renderApp();
-};
-
-// 카트에 상품 추가 핸들러
-const handleAddToCart = () => {
-  // DOM에서 현재 선택된 상품 ID 가져오기 (테스트 호환성)
+// 카트에 상품 추가 핸들러 (React 스타일)
+window.handleAddToCart = function () {
+  // DOM에서 현재 선택된 상품 ID 가져오기
   const selectElement = document.getElementById('product-select');
-  let selItem = null;
-
-  if (selectElement) {
-    selItem = selectElement.value;
-    // 상태도 업데이트
-    AppState.setSelectedProductId(selItem);
-    AppState.setLastSelector(selItem);
-  } else {
-    // 폴백: 상태에서 가져오기
-    selItem = AppState.selectedProductId || AppState.lastSelector;
-  }
+  const selItem = selectElement ? selectElement.value : null;
 
   if (!selItem) return;
 
@@ -882,8 +853,8 @@ const handleAddToCart = () => {
   renderApp();
 };
 
-// 수량 변경 핸들러
-const handleQuantityChange = (productId, change) => {
+// 수량 변경 핸들러 (React 스타일)
+window.handleQuantityChange = function (productId, change) {
   const product = AppState.productList.find((p) => p.id === productId);
   if (!product) return;
 
@@ -905,8 +876,8 @@ const handleQuantityChange = (productId, change) => {
   renderApp();
 };
 
-// 상품 제거 핸들러
-const handleRemoveItem = (productId) => {
+// 상품 제거 핸들러 (React 스타일)
+window.handleRemoveItem = function (productId) {
   const product = AppState.productList.find((p) => p.id === productId);
   if (!product) return;
 
@@ -917,6 +888,24 @@ const handleRemoveItem = (productId) => {
   AppState.removeCartItem(productId);
 
   // UI 업데이트: 전체 렌더링 (상태 기반)
+  renderApp();
+};
+
+// 수동 안내 토글 핸들러 (React 스타일)
+window.handleManualToggle = function () {
+  AppState.isManualOpen = !AppState.isManualOpen;
+  renderApp();
+};
+
+// 모달 배경 클릭 핸들러 (React 스타일)
+window.handleModalBackgroundClick = function () {
+  AppState.isManualOpen = false;
+  renderApp();
+};
+
+// 모달 닫기 버튼 핸들러 (React 스타일)
+window.handleModalClose = function () {
+  AppState.isManualOpen = false;
   renderApp();
 };
 
