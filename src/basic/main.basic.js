@@ -157,7 +157,7 @@ function RightColumn() {
               <div class="text-2xl tracking-tight">₩0</div>
             </div>
             <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">
-              적립 포인트: 0p
+              ${LoyaltyPointsTag({ bonusPoints: 0, pointsDetail: [] })}
             </div>
           </div>
           <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
@@ -180,6 +180,19 @@ function RightColumn() {
         <span id="points-notice">Earn loyalty points with purchase.</span>
       </p>
     </div>
+  `;
+}
+
+function LoyaltyPointsTag({ bonusPoints = 0, pointsDetail }) {
+  if (bonusPoints === 0) {
+    return '적립 포인트: 0p';
+  }
+
+  return /* HTML */ `
+    <div>적립 포인트: <span class="font-bold">${bonusPoints}p</span></div>
+    ${pointsDetail.length > 0
+      ? `<div class="text-2xs opacity-70 mt-1">${pointsDetail.join(', ')}</div>`
+      : ''}
   `;
 }
 
@@ -399,6 +412,85 @@ function ManualColumn() {
           • ⚡+💝 중복 가능<br />
           • 상품4 = 품절
         </p>
+      </div>
+    </div>
+  `;
+}
+
+function NewItem({ item }) {
+  return /* HTML */ `
+    <div
+      id="${item.id}"
+      class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0"
+    >
+      <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
+        <div
+          class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"
+        ></div>
+      </div>
+      <div>
+        <h3 class="text-base font-normal mb-1 tracking-tight">
+          ${item.onSale && item.suggestSale
+            ? '⚡💝'
+            : item.onSale
+            ? '⚡'
+            : item.suggestSale
+            ? '💝'
+            : ''}${item.name}
+        </h3>
+        <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
+        <p class="text-xs text-black mb-3">
+          ${item.onSale || item.suggestSale
+            ? `
+          <span class="line-through text-gray-400">₩${item.originalVal.toLocaleString()}</span>
+          <span class="${
+            item.onSale && item.suggestSale
+              ? 'text-purple-600'
+              : item.onSale
+              ? 'text-red-500'
+              : 'text-blue-500'
+          }">₩${item.val.toLocaleString()}</span>`
+            : `₩${item.val.toLocaleString()}`}
+        </p>
+        <div class="flex items-center gap-4">
+          <button
+            class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
+            data-product-id="${item.id}"
+            data-change="-1"
+          >
+            -
+          </button>
+          <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums"
+            >1</span
+          >
+          <button
+            class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
+            data-product-id="${item.id}"
+            data-change="1"
+          >
+            +
+          </button>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-lg mb-2 tracking-tight tabular-nums">
+          ${item.onSale || item.suggestSale
+            ? `
+          <span class="line-through text-gray-400">₩${item.originalVal.toLocaleString()}</span>
+          <span class="${
+            item.onSale && item.suggestSale
+              ? 'text-purple-600'
+              : item.onSale
+              ? 'text-red-500'
+              : 'text-blue-500'
+          }">₩${item.val.toLocaleString()}</span>`
+            : `₩${item.val.toLocaleString()}`}
+        </div>
+        <a
+          class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
+          data-product-id="${item.id}"
+          >Remove</a
+        >
       </div>
     </div>
   `;
@@ -724,22 +816,10 @@ function main() {
       }
     }
     const bonusPts = finalPoints;
-    const ptsTag = document.getElementById('loyalty-points');
-    if (ptsTag) {
-      if (bonusPts > 0) {
-        ptsTag.innerHTML = `
-          <div>
-            적립 포인트: <span class="font-bold">${bonusPts}p</span>
-          </div>
-          <div class="text-2xs opacity-70 mt-1">
-            ${pointsDetail.join(', ')}
-          </div>
-        `;
-      } else {
-        ptsTag.textContent = '적립 포인트: 0p';
-      }
-
-      ptsTag.style.display = 'block';
+    const loyaltyPoints = document.getElementById('loyalty-points');
+    if (loyaltyPoints) {
+      loyaltyPoints.innerHTML = LoyaltyPointsTag({ bonusPoints: bonusPts, pointsDetail });
+      loyaltyPoints.style.display = 'block';
     }
   }
 
@@ -810,7 +890,7 @@ function main() {
     const itemToAdd = findProductById(selItem);
 
     if (itemToAdd && itemToAdd.q > 0) {
-      const item = document.getElementById(itemToAdd['id']);
+      const item = document.getElementById(itemToAdd.id);
       if (item) {
         const qtyElem = item.querySelector('.quantity-number');
         const newQty = parseInt(qtyElem['textContent']) + 1;
@@ -821,68 +901,7 @@ function main() {
           alert('재고가 부족합니다.');
         }
       } else {
-        const newItem = document.createElement('div');
-        newItem.id = itemToAdd.id;
-        newItem.className =
-          'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
-        newItem.innerHTML = `
-          <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-            <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-          </div>
-          <div>
-            <h3 class="text-base font-normal mb-1 tracking-tight">${
-              itemToAdd.onSale && itemToAdd.suggestSale
-                ? '⚡💝'
-                : itemToAdd.onSale
-                ? '⚡'
-                : itemToAdd.suggestSale
-                ? '💝'
-                : ''
-            }${itemToAdd.name}</h3>
-            <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-            <p class="text-xs text-black mb-3">${
-              itemToAdd.onSale || itemToAdd.suggestSale
-                ? `
-                  <span class="line-through text-gray-400">₩${itemToAdd.originalVal.toLocaleString()}</span>
-                  <span class="${
-                    itemToAdd.onSale && itemToAdd.suggestSale
-                      ? 'text-purple-600'
-                      : itemToAdd.onSale
-                      ? 'text-red-500'
-                      : 'text-blue-500'
-                  }">₩${itemToAdd.val.toLocaleString()}</span>`
-                : `₩${itemToAdd.val.toLocaleString()}`
-            }</p>
-            <div class="flex items-center gap-4">
-              <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
-                itemToAdd.id
-              }" data-change="-1">−</button>
-              <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-              <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
-                itemToAdd.id
-              }" data-change="1">+</button>
-            </div>
-          </div>
-          <div class="text-right">
-            <div class="text-lg mb-2 tracking-tight tabular-nums">${
-              itemToAdd.onSale || itemToAdd.suggestSale
-                ? `
-                  <span class="line-through text-gray-400">₩${itemToAdd.originalVal.toLocaleString()}</span>
-                  <span class="${
-                    itemToAdd.onSale && itemToAdd.suggestSale
-                      ? 'text-purple-600'
-                      : itemToAdd.onSale
-                      ? 'text-red-500'
-                      : 'text-blue-500'
-                  }">₩${itemToAdd.val.toLocaleString()}</span>`
-                : `₩${itemToAdd.val.toLocaleString()}`
-            }</div>
-            <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${
-              itemToAdd.id
-            }">Remove</a>
-          </div>
-        `;
-        cartDisp.appendChild(newItem);
+        cartDisp.innerHTML += NewItem({ item: itemToAdd });
         itemToAdd.q--;
       }
       handleCalculateCartStuff();
