@@ -7,7 +7,7 @@ const SALE_EVENT = {
 
 const NONE_SALE_RATE = 0;
 const LIGHTNING_SALE_RATE = 0.2;
-const SUGGEST_SALE_RATE = 0.1;
+const SUGGEST_SALE_RATE = 0.05;
 const ALL_SALE_RATE = 0.25;
 
 export interface Product {
@@ -20,7 +20,7 @@ export interface Product {
   saleEvent: number;
 }
 
-let products: Product[] = [
+export const ProductsData = [
   {
     id: 'p1',
     name: '버그 없애는 키보드',
@@ -67,6 +67,8 @@ let products: Product[] = [
     saleEvent: SALE_EVENT.NONE,
   },
 ];
+
+let products: Product[] = [...ProductsData];
 
 export function getProducts(): Product[] {
   return products;
@@ -122,11 +124,11 @@ function getSaleRate(saleEvent: number): number {
 
 function applySale(productId: string, saleEvent: number): void {
   products = products.map((product) => {
-    const nextSaleEvent =
-      product.id === productId
-        ? product.saleEvent | saleEvent
-        : product.saleEvent;
+    if (product.id !== productId) {
+      return product;
+    }
 
+    const nextSaleEvent = product.saleEvent | saleEvent;
     return {
       ...product,
       price: product.price * (1 - getSaleRate(nextSaleEvent)),
@@ -155,4 +157,20 @@ export function isLowStock(product: Product): boolean {
 export function isBulk(product: Product): boolean {
   const BULK_THRESHOLD = 10;
   return product.quantity >= BULK_THRESHOLD;
+}
+
+export function updateProductQuantity({
+  id,
+  quantity,
+}: {
+  id: string;
+  quantity: number;
+}): void {
+  products = products.map((product) => {
+    if (product.id !== id) {
+      return product;
+    }
+
+    return { ...product, quantity: product.quantity + quantity };
+  });
 }

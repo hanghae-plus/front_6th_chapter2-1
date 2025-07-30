@@ -1,3 +1,5 @@
+import { handleQuantityChange } from './handler/quantity-change';
+import { handleRemoveCartItem } from './handler/remove-cart-item';
 import {
   applyLightningSale,
   applySuggestSale,
@@ -251,7 +253,7 @@ function main() {
   }, Math.random() * 20000);
 }
 let sum: HTMLDivElement;
-function onUpdateSelectOptions() {
+export function onUpdateSelectOptions() {
   let totalStock;
   let opt;
   let discountText;
@@ -320,7 +322,7 @@ function onUpdateSelectOptions() {
     sel.style.borderColor = '';
   }
 }
-function handleCalculateCartStuff() {
+export function handleCalculateCartStuff() {
   let savedAmount;
   let points;
   let previousCount;
@@ -739,45 +741,8 @@ addBtn.addEventListener('click', function () {
     lastSel = selItem;
   }
 });
-cartDisp.addEventListener('click', function (event) {
-  const tgt = event.target;
-  if (
-    tgt.classList.contains('quantity-change') ||
-    tgt.classList.contains('remove-item')
-  ) {
-    const prodId = tgt.dataset.productId;
-    const itemElem = document.getElementById(prodId);
-    let prod = null;
-    const productCount = getProductCount();
-    const products = getProducts();
-    for (let prdIdx = 0; prdIdx < productCount; prdIdx++) {
-      const _product = products[prdIdx];
-      if (_product.id === prodId) {
-        prod = _product;
-        break;
-      }
-    }
-    if (tgt.classList.contains('quantity-change')) {
-      const qtyChange = parseInt(tgt.dataset.change);
-      const qtyElem = itemElem.querySelector('.quantity-number');
-      const currentQty = parseInt(qtyElem.textContent);
-      const newQty = currentQty + qtyChange;
-      if (newQty > 0 && newQty <= prod?.quantity + currentQty) {
-        qtyElem.textContent = newQty;
-        prod.quantity -= qtyChange;
-      } else if (newQty <= 0) {
-        prod.quantity += currentQty;
-        itemElem.remove();
-      } else {
-        alert('재고가 부족합니다.');
-      }
-    } else if (tgt.classList.contains('remove-item')) {
-      const qtyElem = itemElem.querySelector('.quantity-number');
-      const remQty = parseInt(qtyElem.textContent);
-      prod.q += remQty;
-      itemElem.remove();
-    }
-    handleCalculateCartStuff();
-    onUpdateSelectOptions();
-  }
+
+cartDisp.addEventListener('click', (e) => {
+  handleQuantityChange(e);
+  handleRemoveCartItem(e);
 });
