@@ -153,6 +153,41 @@ function handleLightningSale() {
   doUpdatePricesInCart();
 }
 
+// 추천 상품 찾기
+
+function findSuggestionProduct() {
+  if (!lastSelectedProduct) return null;
+
+  return PRODUCT_LIST.find(
+    (product) =>
+      product.id !== lastSelectedProduct &&
+      product.quantity > 0 &&
+      !product.suggestSale
+  );
+}
+
+// 추천 상품 할인 처리
+
+function handleProductSuggestion() {
+  // 장바구니가 비어 있거나, 마지막 선택 상품이 없으면 리턴
+  if (cartDisplay.children.length === 0 || !lastSelectedProduct) return;
+
+  const suggestedProduct = findSuggestionProduct();
+  if (!suggestedProduct) return;
+
+  suggestedProduct.price = Math.round(
+    suggestedProduct.price * PRICE_CONFIG.SUGGESTION_SALE_MULTIPLIER
+  );
+  suggestedProduct.suggestSale = true;
+
+  alert(
+    `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 ${DISCOUNT_RATES.SUGGESTION * 100}% 추가 할인!`
+  );
+
+  updateProductOptions();
+  doUpdatePricesInCart();
+}
+
 function main() {
   // DOM 요소 변수들
 
