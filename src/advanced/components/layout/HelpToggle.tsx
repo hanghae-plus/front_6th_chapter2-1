@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 
-import { useLayoutStore } from '@/advanced/store/layoutStore';
+import { useLayoutStore } from '@/advanced/store/useLayoutStore';
 
 export default function HelpToggle(): ReactElement {
   const { showHelpOverlay, setShowHelpOverlay } = useLayoutStore();

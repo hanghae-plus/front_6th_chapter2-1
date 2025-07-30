@@ -8,7 +8,7 @@ import MainLayout from '@/advanced/components/layout/MainLayout';
 import SectionLayout from '@/advanced/components/layout/SectionLayout';
 import OrderSummary from '@/advanced/components/order/OrderSummary';
 import ProductSelect from '@/advanced/components/product/ProductSelect';
-import { useLayoutStore } from '@/advanced/store/layoutStore';
+import { useLayoutStore } from '@/advanced/store/useLayoutStore';
 
 function App(): ReactElement {
   const { showHelpOverlay } = useLayoutStore();

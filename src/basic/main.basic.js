@@ -81,13 +81,7 @@ function handleCalculateCartStuff() {
   const cartItems = cartDisplay.children;
   let subTot = 0;
   const itemDiscounts = [];
-  const lowStockItems = [];
 
-  for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
-    if (PRODUCT_LIST[idx].q < LOW_STOCK_THRESHOLD && PRODUCT_LIST[idx].q > 0) {
-      lowStockItems.push(PRODUCT_LIST[idx].name);
-    }
-  }
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       let curItem;

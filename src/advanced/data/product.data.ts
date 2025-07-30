@@ -1,4 +1,4 @@
-import { Product } from '../types';
+import { ProductData } from '@/advanced/types/product.type';
 
 export const PRODUCT_1 = 'p1';
 export const PRODUCT_2 = 'p2';
@@ -6,7 +6,7 @@ export const PRODUCT_3 = 'p3';
 export const PRODUCT_4 = 'p4';
 export const PRODUCT_5 = 'p5';
 
-export const PRODUCT_LIST: Product[] = [
+export const PRODUCT_LIST: ProductData[] = [
   {
     id: 'p1',
     name: '버그 없애는 키보드',

@@ -1,14 +1,3 @@
-// Product 관련 타입
-export interface Product {
-  id: string;
-  name: string;
-  val: number;
-  originalVal: number;
-  q: number;
-  onSale: boolean;
-  suggestSale: boolean;
-}
-
 // Cart Item 타입
 export interface CartItem {
   id: string;
