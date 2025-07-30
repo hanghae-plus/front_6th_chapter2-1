@@ -108,31 +108,6 @@ export class ProductService {
     return this.productStore.getSaleProducts();
   }
 
-  // 상품 상태 변경 구독
-  subscribeToChanges(callback) {
-    return this.productStore.subscribe(callback);
-  }
-
-  // 모든 할인 초기화
-  resetAllSales() {
-    this.productStore.resetAllSales();
-  }
-
-  // 상품 상태 초기화
-  reset() {
-    this.productStore.reset();
-  }
-
-  // 할인율 계산 (discountService 사용)
-  calculateProductDiscountRate(product) {
-    return discountService.calculateProductDiscountRate(product);
-  }
-
-  // 할인 상태 조회 (discountService 사용)
-  getProductDiscountStatus(product) {
-    return discountService.getProductDiscountStatus(product);
-  }
-
   // 초기화 메서드
   async initializeUI() {
     const products = this.getProducts();
@@ -150,8 +125,8 @@ export class ProductService {
   calculateProductDiscountInfos(products) {
     return products.map(product => ({
       productId: product.id,
-      rate: this.calculateProductDiscountRate(product),
-      status: this.getProductDiscountStatus(product),
+      rate: discountService.calculateProductDiscountRate(product),
+      status: discountService.getProductDiscountStatus(product),
     }));
   }
 }
