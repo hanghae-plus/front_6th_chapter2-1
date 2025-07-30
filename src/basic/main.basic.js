@@ -126,32 +126,47 @@ import { productState } from './states/productState.js';
 import { stateActions, subscribeToState } from './states/state.js';
 import { uiState } from './states/uiState.js';
 
-function Header() {
+/**
+ * Header 컴포넌트
+ * Props: itemCount - 장바구니 아이템 수
+ */
+function Header({ itemCount = 0 }) {
   return /* HTML */ `
     <div class="mb-8">
       <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">
         🛒 Hanghae Online Store
       </h1>
       <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-      <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
+      <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">
+        🛍️ ${itemCount} items in cart
+      </p>
     </div>
   `;
 }
 
 /**
- * GridContainer
- * - LeftColumn
- * - RightColumn
+ * GridContainer 컴포넌트
+ * Props:
+ * - total - 총 금액
+ * - bonusPoints - 보너스 포인트
+ * - pointsDetail - 포인트 상세 내역
  */
-function GridContainer() {
+function GridContainer({ total = 0, bonusPoints = 0, pointsDetail = [] }) {
   return /* HTML */ `
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
-      ${LeftColumn()} ${RightColumn()}
+      ${LeftColumn()} ${RightColumn({ total, bonusPoints, pointsDetail })}
     </div>
   `;
 }
 
-function RightColumn() {
+/**
+ * RightColumn 컴포넌트
+ * Props:
+ * - total - 총 금액
+ * - bonusPoints - 보너스 포인트
+ * - pointsDetail - 포인트 상세 내역
+ */
+function RightColumn({ total = 0, bonusPoints = 0, pointsDetail = [] }) {
   return /* HTML */ `
     <div class="bg-black text-white p-8 flex flex-col">
       <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
@@ -162,10 +177,10 @@ function RightColumn() {
           <div id="cart-total" class="pt-5 border-t border-white/10">
             <div class="flex justify-between items-baseline">
               <span class="text-sm uppercase tracking-wider">Total</span>
-              <div class="text-2xl tracking-tight">₩0</div>
+              <div class="text-2xl tracking-tight">₩${total.toLocaleString()}</div>
             </div>
             <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">
-              ${LoyaltyPointsTag({ bonusPoints: 0, pointsDetail: [] })}
+              ${LoyaltyPointsTag({ bonusPoints, pointsDetail })}
             </div>
           </div>
           <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
@@ -245,51 +260,56 @@ function ProductSelector() {
   `;
 }
 
+/**
+ * ProductOption 컴포넌트
+ * Props: item - 상품 정보 객체
+ * Returns: 상품 옵션 HTML
+ */
 function ProductOption({ item }) {
-  /**
-   * @todo 배열 방식으로 할 지? 팀원들과 이야기해보기
-   */
-  let discountText = '';
-  if (item.onSale) discountText += ' ⚡SALE';
-  if (item.suggestSale) discountText += ' 💝추천';
+  const { id, name, val, originalVal, q, onSale, suggestSale } = item;
 
-  /**
-   * @todo item.q -> item.quantity 변경 필요
-   */
-  if (item.q === 0) {
+  // 할인 상태 계산
+  const discountStates = [];
+  if (onSale) discountStates.push('⚡SALE');
+  if (suggestSale) discountStates.push('💝추천');
+  const discountText = discountStates.join(' ');
+
+  // 품절 상태
+  if (q === 0) {
     return /* HTML */ `
-      <option value="${item.id}" disabled class="text-gray-400">
-        ${item.name} - ${item.val}원 (품절) ${discountText}
+      <option value="${id}" disabled class="text-gray-400">
+        ${name} - ${val}원 (품절) ${discountText}
       </option>
     `;
   }
 
-  if (item.onSale && item.suggestSale) {
+  // 할인 상태에 따른 렌더링
+  if (onSale && suggestSale) {
     return /* HTML */ `
-      <option value="${item.id}" class="text-purple-600 font-bold">
-        ⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)
+      <option value="${id}" class="text-purple-600 font-bold">
+        ⚡💝${name} - ${originalVal}원 → ${val}원 (25% SUPER SALE!)
       </option>
     `;
   }
 
-  if (item.onSale) {
+  if (onSale) {
     return /* HTML */ `
-      <option value="${item.id}" class="text-red-500 font-bold">
-        ⚡ ${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)
+      <option value="${id}" class="text-red-500 font-bold">
+        ⚡ ${name} - ${originalVal}원 → ${val}원 (20% SALE!)
       </option>
     `;
   }
 
-  if (item.suggestSale) {
+  if (suggestSale) {
     return /* HTML */ `
-      <option value="${item.id}" class="text-blue-500 font-bold">
-        💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)
+      <option value="${id}" class="text-blue-500 font-bold">
+        💝${name} - ${originalVal}원 → ${val}원 (5% 추천할인!)
       </option>
     `;
   }
 
   return /* HTML */ `
-    <option value="${item.id}">${item.name} - ${item.val}원${discountText}</option>
+    <option value="${id}">${name} - ${val}원${discountText ? ` ${discountText}` : ''}</option>
   `;
 }
 
@@ -425,10 +445,44 @@ function ManualColumn() {
   `;
 }
 
+/**
+ * NewItem 컴포넌트
+ * Props: item - 상품 정보 객체
+ * Returns: 장바구니 아이템 HTML
+ */
 function NewItem({ item }) {
+  const { id, name, val, originalVal, onSale, suggestSale } = item;
+
+  // 할인 아이콘 결정
+  const getDiscountIcon = () => {
+    if (onSale && suggestSale) return '⚡💝';
+    if (onSale) return '⚡';
+    if (suggestSale) return '💝';
+    return '';
+  };
+
+  // 할인 스타일 결정
+  const getDiscountStyle = () => {
+    if (onSale && suggestSale) return 'text-purple-600';
+    if (onSale) return 'text-red-500';
+    if (suggestSale) return 'text-blue-500';
+    return '';
+  };
+
+  // 가격 표시 렌더링
+  const renderPrice = () => {
+    if (onSale || suggestSale) {
+      return `
+        <span class="line-through text-gray-400">₩${originalVal.toLocaleString()}</span>
+        <span class="${getDiscountStyle()}">₩${val.toLocaleString()}</span>
+      `;
+    }
+    return `₩${val.toLocaleString()}`;
+  };
+
   return /* HTML */ `
     <div
-      id="${item.id}"
+      id="${id}"
       class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0"
     >
       <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
@@ -437,33 +491,13 @@ function NewItem({ item }) {
         ></div>
       </div>
       <div>
-        <h3 class="text-base font-normal mb-1 tracking-tight">
-          ${item.onSale && item.suggestSale
-            ? '⚡💝'
-            : item.onSale
-            ? '⚡'
-            : item.suggestSale
-            ? '💝'
-            : ''}${item.name}
-        </h3>
+        <h3 class="text-base font-normal mb-1 tracking-tight">${getDiscountIcon()}${name}</h3>
         <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-        <p class="text-xs text-black mb-3">
-          ${item.onSale || item.suggestSale
-            ? `
-          <span class="line-through text-gray-400">₩${item.originalVal.toLocaleString()}</span>
-          <span class="${
-            item.onSale && item.suggestSale
-              ? 'text-purple-600'
-              : item.onSale
-              ? 'text-red-500'
-              : 'text-blue-500'
-          }">₩${item.val.toLocaleString()}</span>`
-            : `₩${item.val.toLocaleString()}`}
-        </p>
+        <p class="text-xs text-black mb-3">${renderPrice()}</p>
         <div class="flex items-center gap-4">
           <button
             class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-            data-product-id="${item.id}"
+            data-product-id="${id}"
             data-change="-1"
           >
             -
@@ -473,7 +507,7 @@ function NewItem({ item }) {
           >
           <button
             class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-            data-product-id="${item.id}"
+            data-product-id="${id}"
             data-change="1"
           >
             +
@@ -481,22 +515,10 @@ function NewItem({ item }) {
         </div>
       </div>
       <div class="text-right">
-        <div class="text-lg mb-2 tracking-tight tabular-nums">
-          ${item.onSale || item.suggestSale
-            ? `
-          <span class="line-through text-gray-400">₩${item.originalVal.toLocaleString()}</span>
-          <span class="${
-            item.onSale && item.suggestSale
-              ? 'text-purple-600'
-              : item.onSale
-              ? 'text-red-500'
-              : 'text-blue-500'
-          }">₩${item.val.toLocaleString()}</span>`
-            : `₩${item.val.toLocaleString()}`}
-        </div>
+        <div class="text-lg mb-2 tracking-tight tabular-nums">${renderPrice()}</div>
         <a
           class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
-          data-product-id="${item.id}"
+          data-product-id="${id}"
           >Remove</a
         >
       </div>
@@ -516,8 +538,12 @@ function isTuesday() {
 function main() {
   const root = document.getElementById('app');
 
-  root.innerHTML += Header();
-  root.innerHTML += GridContainer();
+  root.innerHTML += Header({ itemCount: cartState.itemCount });
+  root.innerHTML += GridContainer({
+    total: cartState.total,
+    bonusPoints: 0,
+    pointsDetail: [],
+  });
   root.innerHTML += ManualToggle();
   root.innerHTML += ManualOverlay();
 
@@ -656,16 +682,18 @@ function main() {
       discRate = (subTot - totalAmt) / subTot;
     }
     const tuesdaySpecial = document.getElementById('tuesday-special');
-    if (isTuesday()) {
-      if (totalAmt > 0) {
-        totalAmt = (totalAmt * (100 - TUESDAY_SPECIAL_DISCOUNT)) / 100;
-        discRate = 1 - totalAmt / originalTotal;
-        tuesdaySpecial.classList.remove('hidden');
+    if (tuesdaySpecial) {
+      if (isTuesday()) {
+        if (totalAmt > 0) {
+          totalAmt = (totalAmt * (100 - TUESDAY_SPECIAL_DISCOUNT)) / 100;
+          discRate = 1 - totalAmt / originalTotal;
+          tuesdaySpecial.classList.remove('hidden');
+        } else {
+          tuesdaySpecial.classList.add('hidden');
+        }
       } else {
         tuesdaySpecial.classList.add('hidden');
       }
-    } else {
-      tuesdaySpecial.classList.add('hidden');
     }
 
     const summaryDetails = document.getElementById('summary-details');
@@ -707,7 +735,7 @@ function main() {
           `;
         });
       }
-      if (isTuesday) {
+      if (isTuesday()) {
         if (totalAmt > 0) {
           summaryDetails.innerHTML += `
             <div class="flex justify-between text-sm tracking-wide text-purple-400">
