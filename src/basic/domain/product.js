@@ -13,6 +13,60 @@ export const LIGHTNING_DISCOUNT = 0.2;
 /* 추천 세일 할인율 */
 export const SUGGEST_DISCOUNT = 0.05;
 
+export const PRODUCT_ONE = 'p1';
+export const PRODUCT_TWO = 'p2';
+export const PRODUCT_THREE = 'p3';
+export const PRODUCT_FOUR = 'p4';
+export const PRODUCT_FIVE = 'p5';
+
+export const initialProducts = [
+  {
+    id: PRODUCT_ONE,
+    name: '버그 없애는 키보드',
+    discountValue: 10000,
+    originalValue: 10000,
+    quantity: 50,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: PRODUCT_TWO,
+    name: '생산성 폭발 마우스',
+    discountValue: 20000,
+    originalVal: 20000,
+    quantity: 30,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: PRODUCT_THREE,
+    name: '거북목 탈출 모니터암',
+    discountValue: 30000,
+    originalVal: 30000,
+    quantity: 20,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: PRODUCT_FOUR,
+    name: '에러 방지 노트북 파우치',
+    discountValue: 15000,
+    originalVal: 15000,
+    quantity: 0,
+    onSale: false,
+    suggestSale: false,
+  },
+  {
+    id: PRODUCT_FIVE,
+    name: `코딩할 때 듣는 Lo-Fi 스피커`,
+    discountValue: 25000,
+    originalVal: 25000,
+    quantity: 10,
+    onSale: false,
+    suggestSale: false,
+  },
+];
+
 class ProductsManager {
   static #instance;
   #productList = [];
@@ -70,6 +124,27 @@ class ProductsManager {
     return this.#productList.reduce((totalStock, currentProduct) => totalStock + currentProduct.quantity, 0);
   }
 
+  isLowTotalStock() {
+    return this.getTotalStock() < LOW_TOTAL_STOCK_THRESHOLD;
+  }
+
+  getLowStockMessages() {
+    return this.#productList
+      .filter((product) => product.quantity < LOW_STOCK_THRESHOLD)
+      .map((product) =>
+        product.quantity > OUT_OF_STOCK
+          ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
+          : `${product.name}: 품절`
+      )
+      .join('\n');
+  }
+
+  getLowStockProducts() {
+    return this.#productList.filter(
+      (product) => OUT_OF_STOCK < product.quantity && product.quantity < LOW_STOCK_THRESHOLD
+    );
+  }
+
   getOptionMessage(product) {
     const baseText = `${product.name} - ${product.discountValue}원`;
 
@@ -93,21 +168,12 @@ class ProductsManager {
     return baseText;
   }
 
-  getLowStockMessages() {
-    return this.#productList
-      .filter((product) => product.quantity < LOW_STOCK_THRESHOLD)
-      .map((product) =>
-        product.quantity > OUT_OF_STOCK
-          ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
-          : `${product.name}: 품절`
-      )
-      .join('\n');
-  }
-
-  getLowStockProducts() {
-    return this.#productList.filter(
-      (product) => OUT_OF_STOCK < product.quantity && product.quantity < LOW_STOCK_THRESHOLD
-    );
+  getProductOptions() {
+    return this.#productList.map((product) => ({
+      id: product.id,
+      message: this.getOptionMessage(product),
+      disabled: product.quantity === OUT_OF_STOCK,
+    }));
   }
 }
 

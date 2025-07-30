@@ -1,6 +1,7 @@
 import { cartManager } from '../domain/cart';
 import productManager from '../domain/product';
-import { PRODUCT_FIVE, PRODUCT_FOUR, PRODUCT_ONE, PRODUCT_THREE, PRODUCT_TWO } from '../main.basic';
+import { PRODUCT_FIVE, PRODUCT_FOUR, PRODUCT_ONE, PRODUCT_THREE, PRODUCT_TWO } from '../domain/product';
+import { isTuesday } from '../utils/dateUtil';
 
 export const applyItemDiscount = () => {
   return cartManager.getItems().reduce(
@@ -56,8 +57,7 @@ export const applyTotalDiscount = ({ subTotal, totalAfterItemDiscount, appliedIt
     finalDiscountRate = 0.25;
   }
 
-  const isTuesday = new Date().getDay() === 2;
-  if (isTuesday && finalTotal > 0) {
+  if (isTuesday() && finalTotal > 0) {
     finalTotal = finalTotal * 0.9;
     finalDiscountRate = subTotal === 0 ? 0 : 1 - finalTotal / subTotal;
   }
@@ -69,6 +69,5 @@ export const applyTotalDiscount = ({ subTotal, totalAfterItemDiscount, appliedIt
     finalTotal,
     finalDiscountRate,
     itemDiscounts: totalItemCount >= 30 ? [] : appliedItemDiscounts, // 전체 할인 시 개별 할인 내역 제거
-    isTuesday,
   };
 };
