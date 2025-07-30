@@ -27,6 +27,15 @@ export const updateCartItem = (
   if (newQty <= 0) {
     itemElem?.remove();
     productStore.updateStock(prodId, product.q + currentQty);
+
+    // cartStore에서도 해당 아이템 제거
+    const currentState = cartStore.getState();
+    const updatedItems = currentState.items.filter(
+      (item) => item.id !== prodId
+    );
+    cartStore.updateItems(updatedItems);
+
+    handleCalculateCartStuff();
     return;
   }
 
@@ -44,7 +53,22 @@ export const updateCartItem = (
     cartContainer.insertAdjacentHTML("beforeend", newItemHTML);
   }
 
-  cartStore.addCartItem(product);
+  // 수량이 증가하는 경우에만 addCartItem 호출
+  if (qtyChange > 0) {
+    cartStore.addCartItem(product);
+  } else {
+    // 수량이 감소하는 경우 cartStore에서 직접 수량 업데이트
+    const currentState = cartStore.getState();
+    const updatedItems = currentState.items
+      .map((item) =>
+        item.id === prodId
+          ? { ...item, quantity: Math.max(0, item.quantity + qtyChange) }
+          : item
+      )
+      .filter((item) => item.quantity > 0); // 수량이 0 이하인 아이템 제거
+
+    cartStore.updateItems(updatedItems);
+  }
 
   handleCalculateCartStuff();
 };

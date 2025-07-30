@@ -20,7 +20,7 @@ function main() {
   // 초기화
   initializeApplication();
   initializeUIState();
-  initializeTimers();
+  // initializeTimers();
 
   // 이벤트 핸들러 설정
   initManualOverlayEvent();

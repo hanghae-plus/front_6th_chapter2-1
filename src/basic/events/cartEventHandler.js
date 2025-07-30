@@ -1,4 +1,3 @@
-import { handleCalculateCartStuff } from "../services/cartCalculationService";
 import { updateCartItem } from "../services/cartService";
 import { getCartContainer } from "../ui/dom/getDOMElements";
 
@@ -7,11 +6,9 @@ import { getCartContainer } from "../ui/dom/getDOMElements";
  */
 export const initCartDOMEvent = () => {
   const cartDisp = getCartContainer();
-
   cartDisp.addEventListener("click", (event) => {
     const tgt = event.target;
     if (!tgt) return;
-
     if (
       tgt.classList.contains("quantity-change") ||
       tgt.classList.contains("remove-item")
