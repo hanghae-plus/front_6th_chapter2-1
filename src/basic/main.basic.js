@@ -219,6 +219,47 @@ const useStockManager = {
   },
 };
 
+// ✅ 장바구니 관리 캡슐화 (나중에 useCart hook으로 변환 예정)
+const useCartManager = {
+  // 내부 상태
+  totalAmount: 0,
+  itemCount: 0,
+
+  /**
+   * 장바구니 총 금액 반환
+   * @returns {number} 총 금액
+   */
+  getTotalAmount() {
+    return this.totalAmount;
+  },
+
+  /**
+   * 장바구니 총 상품 개수 반환
+   * @returns {number} 상품 개수
+   */
+  getItemCount() {
+    return this.itemCount;
+  },
+
+  /**
+   * 장바구니 상태 초기화
+   */
+  resetCart() {
+    this.totalAmount = 0;
+    this.itemCount = 0;
+  },
+
+  /**
+   * 장바구니 총액과 개수 설정 (내부용)
+   * @param {number} amount - 총 금액
+   * @param {number} count - 상품 개수
+   */
+  setCartTotals(amount, count) {
+    this.totalAmount = amount;
+    this.itemCount = count;
+  },
+};
+
 let cartDisp;
 let sum;
 
@@ -586,6 +627,9 @@ function main() {
   totalAmt = 0;
   itemCnt = 0;
   lastSel = null;
+
+  // 장바구니 상태 초기화
+  useCartManager.resetCart();
 
   const root = document.getElementById("app");
   header = document.createElement("div");
