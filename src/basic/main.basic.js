@@ -3,6 +3,7 @@ import DiscountRate from "../core/domain/vo/discount-rate";
 import Quantity from "../core/domain/vo/quantity";
 import InMemoryProductRepository from "../infrastructure/repositories/product/inmemory-product-repository";
 import { sumMap } from "../utils/math";
+import { createElementFromHTML } from "../utils/dom";
 
 const productRepository = new InMemoryProductRepository();
 const getProductListService = new GetProductListService(productRepository);
@@ -127,104 +128,100 @@ function main() {
   cartState.itemCnt = 0;
   cartState.lastSelectedProductId = null;
   const root = document.getElementById("app");
-  header = document.createElement("div");
-  header.className = "mb-8";
-  header.innerHTML = `
-  <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
-  <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-  <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
-  `;
+  header = createElementFromHTML(`
+    <div class="mb-8">
+      <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
+      <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
+      <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
+    </div>
+  `);
 
   // 상품 선택 select 컨테이너 생성
-  const selectorContainer = document.createElement("div");
-  selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
+  const selectorContainer = createElementFromHTML(`
+    <div class="mb-6 pb-6 border-b border-gray-200"></div>
+  `);
 
   // 상품 선택 select 생성
-  sel = document.createElement("select");
-  sel.id = "product-select";
-  sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
+  sel = createElementFromHTML(`
+    <select id="product-select" class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"></select>
+  `);
 
   // 상품 선택 select 추가
   selectorContainer.appendChild(sel);
 
-  gridContainer = document.createElement("div");
-  leftColumn = document.createElement("div");
-  leftColumn["className"] =
-    "bg-white border border-gray-200 p-8 overflow-y-auto";
-  gridContainer.className =
-    "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  uiElements.addBtn = document.createElement("button");
-  uiElements.stockInfo = document.createElement("div");
-  uiElements.addBtn.id = "add-to-cart";
-  uiElements.stockInfo.id = "stock-status";
-  uiElements.stockInfo.className =
-    "text-xs text-red-500 mt-3 whitespace-pre-line";
-  uiElements.addBtn.innerHTML = "Add to Cart";
-  uiElements.addBtn.className =
-    "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
+  gridContainer = createElementFromHTML(`
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden"></div>
+  `);
+  leftColumn = createElementFromHTML(`
+    <div class="bg-white border border-gray-200 p-8 overflow-y-auto"></div>
+  `);
+  uiElements.addBtn = createElementFromHTML(`
+    <button id="add-to-cart" class="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all">Add to Cart</button>
+  `);
+  uiElements.stockInfo = createElementFromHTML(`
+    <div id="stock-status" class="text-xs text-red-500 mt-3 whitespace-pre-line"></div>
+  `);
   selectorContainer.appendChild(uiElements.addBtn);
   selectorContainer.appendChild(uiElements.stockInfo);
   leftColumn.appendChild(selectorContainer);
-  uiElements.cartDisp = document.createElement("div");
+  uiElements.cartDisp = createElementFromHTML(`
+    <div id="cart-items"></div>
+  `);
   leftColumn.appendChild(uiElements.cartDisp);
-  uiElements.cartDisp.id = "cart-items";
-  rightColumn = document.createElement("div");
-  rightColumn.className = "bg-black text-white p-8 flex flex-col";
-  rightColumn.innerHTML = `
-    <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
-    <div class="flex-1 flex flex-col">
-      <div id="summary-details" class="space-y-3"></div>
-      <div class="mt-auto">
-        <div id="discount-info" class="mb-4"></div>
-        <div id="cart-total" class="pt-5 border-t border-white/10">
-          <div class="flex justify-between items-baseline">
-            <span class="text-sm uppercase tracking-wider">Total</span>
-            <div class="text-2xl tracking-tight">₩0</div>
+  rightColumn = createElementFromHTML(`
+    <div class="bg-black text-white p-8 flex flex-col">
+      <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
+      <div class="flex-1 flex flex-col">
+        <div id="summary-details" class="space-y-3"></div>
+        <div class="mt-auto">
+          <div id="discount-info" class="mb-4"></div>
+          <div id="cart-total" class="pt-5 border-t border-white/10">
+            <div class="flex justify-between items-baseline">
+              <span class="text-sm uppercase tracking-wider">Total</span>
+              <div class="text-2xl tracking-tight">₩0</div>
+            </div>
+            <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
           </div>
-          <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
-        </div>
-        <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
-          <div class="flex items-center gap-2">
-            <span class="text-2xs">🎉</span>
-            <span class="text-xs uppercase tracking-wide">Tuesday Special ${TUESDAY_DISCOUNT_RATE}% Applied</span>
+          <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
+            <div class="flex items-center gap-2">
+              <span class="text-2xs">🎉</span>
+              <span class="text-xs uppercase tracking-wide">Tuesday Special ${TUESDAY_DISCOUNT_RATE}% Applied</span>
+            </div>
           </div>
         </div>
       </div>
+      <button class="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">
+        Proceed to Checkout
+      </button>
+      <p class="mt-4 text-2xs text-white/60 text-center leading-relaxed">
+        Free shipping on all orders.<br>
+        <span id="points-notice">Earn loyalty points with purchase.</span>
+      </p>
     </div>
-    <button class="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">
-      Proceed to Checkout
-    </button>
-    <p class="mt-4 text-2xs text-white/60 text-center leading-relaxed">
-      Free shipping on all orders.<br>
-      <span id="points-notice">Earn loyalty points with purchase.</span>
-    </p>
-  `;
+  `);
   sum = rightColumn.querySelector("#cart-total");
-  manualToggle = document.createElement("button");
+  manualToggle = createElementFromHTML(`
+    <button class="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </button>
+  `);
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle("hidden");
     manualColumn.classList.toggle("translate-x-full");
   };
-  manualToggle.className =
-    "fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
-  manualToggle.innerHTML = `
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-  `;
-  manualOverlay = document.createElement("div");
-  manualOverlay.className =
-    "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
+  manualOverlay = createElementFromHTML(`
+    <div class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
+  `);
   manualOverlay.onclick = function (e) {
     if (e.target === manualOverlay) {
       manualOverlay.classList.add("hidden");
       manualColumn.classList.add("translate-x-full");
     }
   };
-  manualColumn = document.createElement("div");
-  manualColumn.className =
-    "fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300";
-  manualColumn.innerHTML = `
+  manualColumn = createElementFromHTML(`
+    <div class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300">
     <button class="absolute top-4 right-4 text-gray-500 hover:text-black" onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -283,7 +280,8 @@ function main() {
         • 상품4 = 품절
       </p>
     </div>
-  `;
+    </div>
+  `);
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
@@ -799,11 +797,10 @@ uiElements.addBtn.addEventListener("click", function () {
         alert("재고가 부족합니다.");
       }
     } else {
-      const newItem = document.createElement("div");
-      newItem.id = itemToAdd.id;
-      newItem.className =
-        "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
-      newItem.innerHTML = `
+      const newItem = createElementFromHTML(`
+        <div id="${
+          itemToAdd.id
+        }" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
         <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
           <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
         </div>
@@ -855,7 +852,8 @@ uiElements.addBtn.addEventListener("click", function () {
             itemToAdd.id
           }">Remove</a>
         </div>
-      `;
+        </div>
+      `);
       uiElements.cartDisp.appendChild(newItem);
       itemToAdd.quantity = itemToAdd.quantity.subtract(new Quantity(1));
     }
