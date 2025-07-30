@@ -4,16 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "start:basic": "vite serve --open ./index.basic.html",
-    "start:advanced": "vite serve --open ./index.advanced.html",
+    "start:advanced": "vite serve --open ./index.html",
     "test": "vitest",
     "test:basic": "vitest basic.test.js",
     "test:advanced": "vitest advanced.test.js",
     "test:ui": "vitest --ui",
-    "prepare": "husky"
+    "prepare": "husky",
+    "deploy": "vite build && gh-pages -d dist"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown",
@@ -32,6 +32,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "gh-pages": "^6.3.0",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
