@@ -127,6 +127,32 @@ function setupModalEventListeners() {
   }
 }
 
+// 번개 세일 처리 로직
+
+function handleLightningSale() {
+  const availableProducts = PRODUCT_LIST.filter(
+    (product) => product.quantity > 0 && !product.onSale
+  );
+
+  if (availableProducts.length === 0) return;
+
+  const luckyIndex = Math.floor(Math.random() * availableProducts.length);
+  const selectedItem = availableProducts[luckyIndex];
+
+  // 가격 할인 적용
+  selectedItem.pridce = Math.round(
+    selectedItem.originalPrice & PRICE_CONFIG.LIGHTNING_SALE_MULTIPLIER
+  );
+  selectedItem.onSale = true;
+
+  alert(
+    `⚡번개세일! ${luckyItem.name}이(가) ${DISCOUNT_RATES.LIGHTNING_SALE * 100}% 할인 중입니다!`
+  );
+
+  updateProductOptions();
+  doUpdatePricesInCart();
+}
+
 function main() {
   // DOM 요소 변수들
 
