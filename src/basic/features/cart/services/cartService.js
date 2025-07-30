@@ -12,7 +12,7 @@ import {
   batchDOM,
   safeDOM,
 } from '../../../shared/core/domUtils.js';
-import { PRODUCTS } from '../../product/constants/productConstants.js';
+import { PRODUCTS } from '../../product/constants/index.js';
 import {
   productState,
   setProductState,
@@ -122,7 +122,7 @@ const updateHeaderItemCount = cartResults => {
 };
 
 /**
- * 장바구니 UI 업데이트 (선언적 접근)
+ * 장바구니 UI 업데이트
  * @param {object} cartResults - 카트 계산 결과
  */
 export const updateCartUI = cartResults => {

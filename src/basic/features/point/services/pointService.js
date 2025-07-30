@@ -5,7 +5,7 @@
 
 import { BUSINESS_CONSTANTS } from '../../../shared/constants/business.js';
 import { findElement } from '../../../shared/core/domUtils.js';
-import { PRODUCTS } from '../../product/constants/productConstants.js';
+import { PRODUCTS } from '../../product/constants/index.js';
 import { productState } from '../../product/store/ProductStore.js';
 
 import { calculateAndRenderPoints as calculatePointsFunction } from './PointsCalculator.js';
