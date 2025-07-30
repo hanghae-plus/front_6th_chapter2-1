@@ -875,10 +875,9 @@ const handleGetStockTotal = () => {
 
 // 원본 함수명: handleStockInfoUpdate
 const handleUpdateStockInfo = () => {
-  let infoMsg;
+  let infoMsg = '';
   const totalStock = handleGetStockTotal();
   const stockInfo = document.getElementById('stock-status');
-  infoMsg = '';
   if (totalStock < 30) {
   }
   AppState.productList.forEach((item) => {
@@ -1124,18 +1123,19 @@ const handleRemoveItem = (productId) => {
 // 이벤트 위임 핸들러 (중앙 집중식 이벤트 관리)
 // ============================================
 const handleEventDelegation = (event) => {
-  const { handler } = event.target.dataset;
+  const { target } = event;
+  const { handler } = target.dataset;
 
   switch (handler) {
     case 'addToCart':
       handleAddToCart();
       break;
     case 'quantityChange':
-      const { productId, change } = event.target.dataset;
+      const { productId, change } = target.dataset;
       handleQuantityChange(productId, parseInt(change));
       break;
     case 'removeItem':
-      const { productId: removeProductId } = event.target.dataset;
+      const { productId: removeProductId } = target.dataset;
       handleRemoveItem(removeProductId);
       break;
   }
@@ -1146,5 +1146,4 @@ const handleEventDelegation = (event) => {
 // ============================================
 main();
 
-// 이벤트 위임 설정 (한 번만 설정)
 document.addEventListener('click', handleEventDelegation);
