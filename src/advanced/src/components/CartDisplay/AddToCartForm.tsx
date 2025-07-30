@@ -1,6 +1,11 @@
 import { useRef, useState, useEffect } from 'react';
 import { useCart } from '../../hooks/useCart';
-import { getProducts, setProductUpdateCallback, setSelectedProduct, type Product } from '../../services/saleService';
+import {
+  getProducts,
+  setProductUpdateCallback,
+  setSelectedProduct,
+  type Product,
+} from '../../services/saleService';
 
 export default function AddToCartForm() {
   const { dispatch } = useCart();
@@ -17,6 +22,12 @@ export default function AddToCartForm() {
     const selected = selectRef.current?.value;
     if (!selected) return;
 
+    const selectedProduct = products.find((p) => p.id === selected);
+    if (selectedProduct && selectedProduct.quantity === 0) {
+      alert('재고가 부족합니다.');
+      return;
+    }
+
     dispatch({
       type: 'ADD_ITEM',
       payload: {
@@ -28,16 +39,18 @@ export default function AddToCartForm() {
 
   const formatProductOption = (product: Product) => {
     const hasDiscount = product.price < product.originalPrice;
-    const discountRate = hasDiscount ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
-    
+    const discountRate = hasDiscount
+      ? Math.round((1 - product.price / product.originalPrice) * 100)
+      : 0;
+
     if (product.quantity === 0) {
       return `${product.name} - ₩${product.originalPrice.toLocaleString()} (품절)`;
     }
-    
+
     if (hasDiscount) {
       return `${product.saleIcon}${product.name} - ₩${product.originalPrice.toLocaleString()} → ₩${product.price.toLocaleString()} (${discountRate}% SALE!)`;
     }
-    
+
     return `${product.name} - ₩${product.price.toLocaleString()}`;
   };
 
@@ -63,10 +76,10 @@ export default function AddToCartForm() {
             disabled={product.quantity === 0}
             className={
               product.quantity === 0
-                ? "text-gray-400"
+                ? 'text-gray-400'
                 : product.price < product.originalPrice
-                ? "text-red-500 font-bold"
-                : ""
+                  ? 'text-red-500 font-bold'
+                  : ''
             }
           >
             {formatProductOption(product)}
@@ -80,14 +93,20 @@ export default function AddToCartForm() {
       >
         Add to Cart
       </button>
-      {products.some(p => p.quantity === 0) && (
+      {products.some((p) => p.quantity <= 5) && (
         <div
           id="stock-status"
           className="text-xs text-red-500 mt-3 whitespace-pre-line"
         >
           {products
-            .filter(p => p.quantity === 0)
-            .map(p => `${p.name}: 품절`)
+            .filter((p) => p.quantity <= 5)
+            .map((p) => {
+              if (p.quantity === 0) {
+                return `${p.name}: 품절`;
+              } else {
+                return `${p.name}: 재고 부족 (${p.quantity}개 남음)`;
+              }
+            })
             .join('\n')}
         </div>
       )}

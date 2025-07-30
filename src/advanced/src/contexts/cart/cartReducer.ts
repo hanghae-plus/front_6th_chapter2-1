@@ -43,6 +43,7 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
 
       const existingItem = state.items.find((item) => item.id === productId);
       let updatedItems: CartItem[];
+      
       if (existingItem) {
         // 기존 상품 수량 증가
         updatedItems = state.items.map((item) =>
@@ -54,6 +55,7 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
         // 새 상품 추가
         updatedItems = [...state.items, { ...product, quantity }];
       }
+      
       return {
         ...state,
         items: updatedItems,

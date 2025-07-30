@@ -21,7 +21,7 @@ const products: Product[] = [
     originalPrice: 10000,
     price: 10000,
     saleIcon: '',
-    quantity: 100,
+    quantity: 50,
   },
   {
     id: 'p2',
@@ -29,7 +29,7 @@ const products: Product[] = [
     originalPrice: 20000,
     price: 20000,
     saleIcon: '',
-    quantity: 100,
+    quantity: 30,
   },
   {
     id: 'p3',
@@ -37,7 +37,7 @@ const products: Product[] = [
     originalPrice: 30000,
     price: 30000,
     saleIcon: '',
-    quantity: 100,
+    quantity: 20,
   },
   {
     id: 'p4',
@@ -53,7 +53,7 @@ const products: Product[] = [
     originalPrice: 25000,
     price: 25000,
     saleIcon: '',
-    quantity: 100,
+    quantity: 10,
   },
 ];
 
@@ -78,6 +78,24 @@ function updateProduct(productId: string, updates: Partial<Product>) {
     products[productIndex] = { ...products[productIndex], ...updates };
     updateProductCallback?.(products);
   }
+}
+
+export function decreaseProductStock(productId: string, amount: number = 1) {
+  const product = products.find((p) => p.id === productId);
+  if (product && product.quantity >= amount) {
+    updateProduct(productId, { quantity: product.quantity - amount });
+    return true;
+  }
+  return false;
+}
+
+export function increaseProductStock(productId: string, amount: number = 1) {
+  const product = products.find((p) => p.id === productId);
+  if (product) {
+    updateProduct(productId, { quantity: product.quantity + amount });
+    return true;
+  }
+  return false;
 }
 
 export function startLightningSale() {
