@@ -177,34 +177,49 @@ export const getDiscountResult = (state) => {
   const subtotal = getSubtotal(state);
   const totalQuantity = getTotalQuantity(state);
   const isTuesday = getIsTuesday();
-  const discounts = [];
-  let totalAfterDiscounts = 0;
 
-  if (totalQuantity >= 30) {
-    totalAfterDiscounts = subtotal * (1 - DISCOUNT_RATES.BULK);
-    discounts.push({ reason: '🎉 대량구매 할인 (30개 이상)', amount: '25%' });
-  } else {
-    totalAfterDiscounts = cartDetails.reduce((total, item) => {
-      let itemDiscountRate = 0;
-      const individualDiscount = DISCOUNT_RATES.INDIVIDUAL[item.productId];
+  const baseDiscountRules = [
+    {
+      condition: totalQuantity >= 30,
+      apply: () => ({
+        total: subtotal * (1 - DISCOUNT_RATES.BULK),
+        details: [{ reason: '🎉 대량구매 할인 (30개 이상)', amount: '25%' }],
+      }),
+    },
+    {
+      condition: true,
+      apply: () => {
+        const details = [];
+        const total = cartDetails.reduce((acc, item) => {
+          let itemDiscountRate = 0;
+          const individualDiscount = DISCOUNT_RATES.INDIVIDUAL[item.productId];
+          if (item.quantity >= 10 && individualDiscount) {
+            itemDiscountRate = individualDiscount;
+            details.push({
+              reason: `${item.product.name} (10개↑)`,
+              amount: `${itemDiscountRate * 100}%`,
+            });
+          }
+          return acc + item.itemTotal * (1 - itemDiscountRate);
+        }, 0);
+        return { total, details };
+      },
+    },
+  ];
 
-      if (item.quantity >= 10 && individualDiscount) {
-        itemDiscountRate = individualDiscount;
-        discounts.push({
-          reason: `${item.product.name} (10개↑)`,
-          amount: `${itemDiscountRate * 100}%`,
-        });
-      }
-      return total + item.itemTotal * (1 - itemDiscountRate);
-    }, 0);
-  }
+  const { total: totalAfterBaseDiscount, details: baseDiscountDetails } = baseDiscountRules
+    .find((rule) => rule.condition)
+    .apply();
 
-  let finalTotal = totalAfterDiscounts;
+  let finalTotal = totalAfterBaseDiscount;
+  const finalDiscountDetails = [...baseDiscountDetails];
+
   if (isTuesday && finalTotal > 0) {
     finalTotal *= 1 - DISCOUNT_RATES.TUESDAY;
+    finalDiscountDetails.push({ reason: '🌟 화요일 추가 할인', amount: '10%' });
   }
 
-  return { finalTotal, discounts };
+  return { finalTotal, discounts: finalDiscountDetails };
 };
 
 export const getStockMessages = (state) => {
