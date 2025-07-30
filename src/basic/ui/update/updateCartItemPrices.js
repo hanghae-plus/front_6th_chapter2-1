@@ -25,9 +25,12 @@ export const updateCartItemPrices = (cartContainer) => {
     const priceDiv = cartItem.querySelector(".text-lg");
     const nameDiv = cartItem.querySelector("h3");
 
+    // 가격 업데이트
     if (priceDiv) {
       priceDiv.innerHTML = priceHTML;
     }
+
+    // 이름 업데이트
     if (nameDiv) {
       nameDiv.textContent = displayName;
     }

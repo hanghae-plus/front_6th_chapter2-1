@@ -2,6 +2,10 @@ import { renderCartSummary } from "../render/renderCartSummary";
 import { renderDiscountInfo } from "../render/renderDiscountInfo";
 import { renderLoyaltyPoints } from "../render/renderLoyaltyPoints";
 
+/**
+ * 장바구니 UI 업데이트
+ * @param {Object} cartData - 장바구니 데이터
+ */
 export const updateCartUI = (cartData) => {
   const { totals } = cartData;
 
