@@ -1,3 +1,4 @@
+import { calculateBasePoint } from './features/point/service';
 import { renderProductSelectOptions } from './features/product/render';
 
 let itemCount;
@@ -487,8 +488,8 @@ function handleCalculateCartStuff() {
 
 // 추가 포인트 UI를 렌더링
 const doRenderBonusPoints = function () {
-  // 판매금액의 0.1% 기본포인트
-  const basePoints = Math.floor(totalAmount / 1000);
+  const basePoints = calculateBasePoint(totalAmount);
+
   // 최종포인트
   let finalPoints = 0;
   // 포인트 상세 정보
