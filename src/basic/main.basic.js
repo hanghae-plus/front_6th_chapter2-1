@@ -546,13 +546,10 @@ const doRenderBonusPoints = function () {
 
   if (pointsTag) {
     if (finalPoints > 0) {
-      pointsTag.innerHTML =
-        '<div>적립 포인트: <span class="font-bold">' +
-        finalPoints +
-        'p</span></div>' +
-        '<div class="text-2xs opacity-70 mt-1">' +
-        pointsDetailText.join(', ') +
-        '</div>';
+      pointsTag.innerHTML = `
+        <div>적립 포인트: <span class="font-bold">${finalPoints}p</span></div>
+        <div class="text-2xs opacity-70 mt-1">${pointsDetailText.join(', ')}</div>
+      `;
       pointsTag.style.display = 'block';
     } else {
       pointsTag.textContent = '적립 포인트: 0p';
