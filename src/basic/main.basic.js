@@ -5,6 +5,8 @@ const LIGHTNING_INTERVAL = 30000;
 const SUGGEST_DELAY = Math.random() * 20000;
 const SUGGEST_INTERVAL = 60000;
 
+const elements = {};
+
 const ProductSelectItem = (product) => {
   // 품절 상품
   if (product.quantity === 0) {
@@ -106,7 +108,7 @@ const CartProductItem = ({ product, quantity }) => {
     </div>`;
 };
 
-const StockInfo = () => {
+const StockStatus = () => {
   let text = '';
   state.products.forEach(function (item) {
     if (item.quantity === 0) {
@@ -284,7 +286,7 @@ function DiscountInfo(summary) {
 }
 
 function renderCartItems() {
-  const cartItemsEl = document.getElementById('cart-items');
+  const { cartItems } = elements;
 
   state.cartList.forEach((cartItem) => {
     const product = state.products.find((p) => p.id === cartItem.productId);
@@ -299,12 +301,12 @@ function renderCartItems() {
       }
     } else {
       const newItemHTML = CartProductItem({ product, quantity: cartItem.quantity });
-      cartItemsEl.insertAdjacentHTML('beforeend', newItemHTML);
+      cartItems.insertAdjacentHTML('beforeend', newItemHTML);
     }
   });
 
   const currentItemIdsInState = state.cartList.map((item) => item.productId);
-  Array.from(cartItemsEl.children).forEach((element) => {
+  Array.from(cartItems.children).forEach((element) => {
     if (!currentItemIdsInState.includes(element.id)) {
       element.remove();
     }
@@ -325,16 +327,11 @@ function renderInitialLayout() {
 }
 
 function attachEventListeners() {
-  const addButton = document.getElementById('add-to-cart');
-  const cartDisplay = document.getElementById('cart-items');
+  const { addToCart, cartItems, manualToggle, manualOverlay, manualColumn, manualCloseBtn } =
+    elements;
 
-  addButton.addEventListener('click', handleAddItemToCart);
-  cartDisplay.addEventListener('click', handleCartItemActions);
-
-  const manualToggle = document.getElementById('manual-toggle');
-  const manualOverlay = document.getElementById('manual-overlay');
-  const manualColumn = document.getElementById('manual-column');
-  const manualCloseBtn = document.getElementById('manual-close-btn');
+  addToCart.addEventListener('click', handleAddItemToCart);
+  cartItems.addEventListener('click', handleCartItemActions);
 
   const toggleManual = () => {
     manualOverlay.classList.toggle('hidden');
@@ -343,7 +340,6 @@ function attachEventListeners() {
 
   manualToggle.addEventListener('click', toggleManual);
   manualCloseBtn.addEventListener('click', toggleManual);
-
   manualOverlay.addEventListener('click', (event) => {
     if (event.target === manualOverlay) {
       toggleManual();
@@ -351,53 +347,70 @@ function attachEventListeners() {
   });
 }
 
+const cacheDOMElements = () => {
+  elements.itemCount = document.getElementById('item-count');
+  elements.productSelect = document.getElementById('product-select');
+  elements.stockStatus = document.getElementById('stock-status');
+  elements.cartItems = document.getElementById('cart-items');
+  elements.addToCart = document.getElementById('add-to-cart');
+
+  elements.summaryDetails = document.getElementById('summary-details');
+  elements.discountInfo = document.getElementById('discount-info');
+  elements.totalAmount = document.querySelector('#cart-total .text-2xl');
+  elements.loyaltyPoints = document.getElementById('loyalty-points');
+  elements.tuesdaySpecial = document.getElementById('tuesday-special');
+
+  elements.manualToggle = document.getElementById('manual-toggle');
+  elements.manualOverlay = document.getElementById('manual-overlay');
+  elements.manualColumn = document.getElementById('manual-column');
+  elements.manualCloseBtn = document.getElementById('manual-close-btn');
+};
+
 function render() {
+  const {
+    itemCount,
+    productSelect,
+    stockStatus,
+    summaryDetails,
+    discountInfo,
+    totalAmount,
+    loyaltyPoints,
+    tuesdaySpecial,
+  } = elements;
   const summary = getCartSummary(state);
-
-  const itemCountEl = document.getElementById('item-count');
-  const productSelectEl = document.getElementById('product-select');
-  const stockStatusEl = document.getElementById('stock-status');
-  const summaryDetailsEl = document.getElementById('summary-details');
-  const discountInfoEl = document.getElementById('discount-info');
-  const totalAmountEl = document.querySelector('#cart-total .text-2xl');
-  const loyaltyPointsEl = document.getElementById('loyalty-points');
-
   const { bonusPoints, pointsDetail } = getBonusPoints(state, summary);
-  loyaltyPointsEl.innerHTML = LoyaltyPoints(bonusPoints, pointsDetail);
+
+  itemCount.textContent = `🛍️ ${summary.totalQuantity} items in cart`;
+
+  loyaltyPoints.innerHTML = LoyaltyPoints(bonusPoints, pointsDetail);
   if (state.cartList.length === 0) {
-    loyaltyPointsEl.style.display = 'none';
+    loyaltyPoints.style.display = 'none';
   } else {
-    loyaltyPointsEl.style.display = 'block';
+    loyaltyPoints.style.display = 'block';
   }
-  loyaltyPointsEl.innerHTML = LoyaltyPoints(bonusPoints, pointsDetail);
 
-  const tuesdaySpecialEl = document.getElementById('tuesday-special');
+  // 선택값 유지
+  const currentSelection = productSelect.value;
+  productSelect.innerHTML = state.products.map(ProductSelectItem).join('');
+  productSelect.value = currentSelection;
 
-  itemCountEl.textContent = `🛍️ ${summary.totalQuantity} items in cart`;
-
-  const currentSelection = productSelectEl.value;
-
-  productSelectEl.innerHTML = state.products.map(ProductSelectItem).join('');
-
-  productSelectEl.value = currentSelection;
-
-  stockStatusEl.innerHTML = StockInfo();
+  stockStatus.innerHTML = StockStatus();
 
   renderCartItems();
 
-  summaryDetailsEl.innerHTML = OrderItemSummary(summary);
-  discountInfoEl.innerHTML = DiscountInfo(summary);
-  totalAmountEl.textContent = `₩${Math.round(summary.finalTotal).toLocaleString()}`;
+  summaryDetails.innerHTML = OrderItemSummary(summary);
+  discountInfo.innerHTML = DiscountInfo(summary);
+  totalAmount.textContent = `₩${Math.round(summary.finalTotal).toLocaleString()}`;
 
-  tuesdaySpecialEl.classList.toggle('hidden', !summary.isTuesday || summary.totalQuantity === 0);
+  tuesdaySpecial.classList.toggle('hidden', !summary.isTuesday || summary.totalQuantity === 0);
 }
 
 function main() {
-  subscribe(render);
-
   renderInitialLayout();
-  attachEventListeners();
+  cacheDOMElements();
+  subscribe(render);
   render();
+  attachEventListeners();
 
   setTimeout(() => {
     setInterval(startLightningSale, LIGHTNING_INTERVAL);
@@ -409,7 +422,8 @@ function main() {
 }
 
 const handleAddItemToCart = () => {
-  const selectedId = document.getElementById('product-select').value;
+  const { productSelect } = elements;
+  const selectedId = productSelect.value;
   if (!selectedId) return;
 
   dispatch({ type: 'ADD_ITEM', payload: { productId: selectedId } });
