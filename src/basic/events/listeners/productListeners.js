@@ -3,10 +3,7 @@ import { updateCartItemPrice } from "../../components/CartItem.js";
 import { discountService } from "../../services/discountService.js";
 import { generateStockWarningMessage } from "../../utils/stockUtils.js";
 
-/**
- * Product 관련 이벤트 리스너
- * 상품 관련 이벤트만 처리하는 전용 클래스
- */
+// Product 관련 이벤트 리스너
 export class ProductEventListeners {
   constructor(uiEventBus, productService) {
     this.uiEventBus = uiEventBus;

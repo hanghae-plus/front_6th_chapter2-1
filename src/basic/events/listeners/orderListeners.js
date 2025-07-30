@@ -2,10 +2,7 @@ import { orderService } from "../../services/orderService.js";
 import { PRODUCT_LIST } from "../../data/product.js";
 import { updateOrderSummary } from "../../components/OrderSummary.js";
 
-/**
- * Order 관련 이벤트 리스너
- * 주문 요약 관련 이벤트만 처리하는 전용 클래스
- */
+// 주문 관련 이벤트 리스너
 export class OrderEventListeners {
   constructor(uiEventBus) {
     this.uiEventBus = uiEventBus;

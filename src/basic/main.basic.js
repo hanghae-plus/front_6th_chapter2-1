@@ -53,6 +53,13 @@ function initEventBusListeners() {
   new CartEventListeners(uiEventBus, cartService, discountService);
   new ProductEventListeners(uiEventBus, productService);
   new OrderEventListeners(uiEventBus, orderService);
+
+  // 장바구니 요약 계산 요청 이벤트 처리
+  uiEventBus.on("cart:summary:calculation:requested", data => {
+    if (data.success) {
+      handleCartSummaryUpdate(data.cartItems);
+    }
+  });
 }
 
 function main() {

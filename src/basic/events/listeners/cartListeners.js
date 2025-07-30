@@ -1,7 +1,6 @@
 import { updateCartItemQuantity, updateCartItemPriceStyle } from "../../components/CartItem.js";
 import { updateHeaderItemCount } from "../../components/Header.js";
 import { createCartItem } from "../../components/CartItem.js";
-import { generateStockWarningMessage } from "../../utils/stockUtils.js";
 import { PRODUCT_LIST } from "../../data/product.js";
 import { getSelectedProduct } from "../../components/ProductSelector.js";
 import { extractNumberFromText } from "../../utils/domUtils.js";
@@ -142,8 +141,15 @@ export class CartEventListeners {
 
     // 장바구니 요약 업데이트 이벤트
     this.uiEventBus.on("cart:summary:updated", () => {
-      // updateCartSummary 함수 호출
-      this.updateCartSummary();
+      // DOM에서 장바구니 아이템을 가져와서 이벤트로 전달
+      const cartDisplay = document.querySelector("#cart-items");
+      const cartItems = Array.from(cartDisplay.children);
+
+      // 장바구니 요약 계산 요청 이벤트 발송
+      this.uiEventBus.emit("cart:summary:calculation:requested", {
+        cartItems,
+        success: true,
+      });
     });
 
     // 장바구니 요약 계산 완료 이벤트 처리
@@ -175,28 +181,24 @@ export class CartEventListeners {
     });
   }
 
-  updateCartSummary() {
-    // 기존 updateCartSummary 로직을 여기로 이동하거나 호출
-    // 현재는 main.basic.js의 updateCartSummary 함수를 호출
-    const cartDisplay = document.querySelector("#cart-items");
-    const cartItems = cartDisplay.children;
+  // updateCartSummary 메서드는 이제 이벤트 기반으로 처리되므로 주석 처리
+  // updateCartSummary() {
+  //   // DOM에서 장바구니 아이템 가져오기
+  //   const cartDisplay = document.querySelector("#cart-items");
+  //   const cartItems = Array.from(cartDisplay.children);
 
-    // DiscountService를 사용하여 할인 계산
-    const discountResult = this.discountService.applyAllDiscounts(Array.from(cartItems), PRODUCT_LIST);
+  //   // DiscountService를 사용하여 할인 계산
+  //   const discountResult = this.discountService.applyAllDiscounts(cartItems, PRODUCT_LIST);
 
-    // 아이템 수 계산
-    const itemCount = this.cartService.getItemCount();
+  //   // 아이템 수 계산
+  //   const itemCount = this.cartService.getItemCount();
 
-    // UI 업데이트
-    this.updateCartUI(cartItems, discountResult, itemCount);
+  //   // UI 업데이트
+  //   this.updateCartUI(cartItems, discountResult, itemCount);
 
-    // 재고 상태 업데이트
-    this.uiEventBus.emit("product:stock:updated", {
-      products: PRODUCT_LIST,
-      stockMessage: generateStockWarningMessage(PRODUCT_LIST),
-      success: true,
-    });
-  }
+  //   // 재고 정보 업데이트 요청 (이벤트 기반 통신)
+  //   this.uiEventBus.emit("stock:update:requested");
+  // }
 
   updateCartUI(cartItems, discountResult, itemCount) {
     // 장바구니 아이템 스타일 업데이트
