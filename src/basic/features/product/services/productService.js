@@ -1,36 +1,50 @@
-// 리액트처럼 간단한 state import
+/**
+ * 상품 서비스
+ * 상품 관련 비즈니스 로직과 UI 업데이트
+ */
+
+import {
+  findElement,
+  setStyle,
+  setTextContent,
+  safeDOM,
+} from '../../../shared/core/domUtils.js';
 import { productState, setProductState } from '../store/ProductStore.js';
 import {
   getTotalStock,
   generateStockStatusMessage,
 } from '../utils/productUtils.js';
 
-export const initializeProductService = () => {
-  // 초기화 로직이 필요하면 여기에
-};
-
+/**
+ * 상품 선택기 업데이트 (선언적)
+ */
 export const updateProductSelector = () => {
-  const productSelector = document.getElementById('product-select');
+  const productSelector = findElement('#product-select');
   if (!productSelector) return;
 
+  // 상품 선택기 업데이트
   productSelector.updateProducts(
     productState.products,
     productState.lastSelectedProduct,
   );
 
+  // 재고 상태에 따른 스타일 업데이트
   const totalStock = getTotalStock(productState.products);
+  const borderColor = totalStock < 50 ? 'orange' : '';
 
-  if (totalStock < 50) {
-    productSelector.style.borderColor = 'orange';
-  } else {
-    productSelector.style.borderColor = '';
-  }
+  safeDOM('#product-select', element =>
+    setStyle(element, 'borderColor', borderColor),
+  );
 };
 
+/**
+ * 재고 정보 업데이트 (선언적)
+ */
 export const updateStockInfo = () => {
-  const stockInfoElement = document.getElementById('stock-status');
-  if (!stockInfoElement) return;
-
   const infoMsg = generateStockStatusMessage(productState.products, 5);
-  stockInfoElement.textContent = infoMsg;
+
+  safeDOM('#stock-status', element => setTextContent(element, infoMsg));
 };
+
+// setProductState를 외부에서 사용할 수 있도록 export
+export { setProductState };

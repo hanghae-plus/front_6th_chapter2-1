@@ -2,7 +2,7 @@ import { ELEMENT_IDS } from '../../../shared/constants/element-ids.js';
 import { htmlToElement } from '../../../shared/utils/dom.js';
 import { productState, setProductState } from '../store/ProductStore.js';
 
-import { ProductSelector } from './ProductSelector.js';
+import ProductSelector from './ProductSelector.js';
 
 export const ProductSection = () => {
   const productSelectorElement = ProductSelector({

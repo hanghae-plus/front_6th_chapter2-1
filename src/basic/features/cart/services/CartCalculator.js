@@ -1,12 +1,125 @@
 /**
- * Cart Calculation Utilities
- * 리액트 친화적인 순수 함수들로 구성
+ * 장바구니 계산기
+ * 순수 함수로 구성된 계산 로직
  */
 
+import { findProductById } from '../../product/utils/productUtils.js';
 import { calculateItemDiscountRate } from '../utils/discountUtils.js';
 
 /**
- * 장바구니 총 계산 (메인 함수)
+ * 상품별 수량 추출 (순수 함수)
+ * @param {Element} cartItem - 장바구니 아이템 요소
+ * @returns {number} 수량
+ */
+const extractQuantity = cartItem => {
+  const qtyElem = cartItem.querySelector('.quantity-number');
+  return parseInt(qtyElem?.textContent || '0');
+};
+
+/**
+ * 상품별 총액 계산 (순수 함수)
+ * @param {object} product - 상품 정보
+ * @param {number} quantity - 수량
+ * @returns {number} 총액
+ */
+const calculateItemTotal = (product, quantity) => {
+  return product.val * quantity;
+};
+
+/**
+ * 소계 계산 (순수 함수)
+ * @param {Array} cartItems - 장바구니 아이템들
+ * @param {Array} products - 상품 목록
+ * @returns {object} 소계 계산 결과
+ */
+const calculateSubtotal = (cartItems, products) => {
+  const result = cartItems.reduce(
+    (acc, cartItem) => {
+      const product = findProductById(cartItem.id, products);
+      if (!product) return acc;
+
+      const quantity = extractQuantity(cartItem);
+      const itemTotal = calculateItemTotal(product, quantity);
+
+      return {
+        subtotal: acc.subtotal + itemTotal,
+        totalItemCount: acc.totalItemCount + quantity,
+      };
+    },
+    { subtotal: 0, totalItemCount: 0 },
+  );
+
+  return result;
+};
+
+/**
+ * 개별 상품 할인 적용 (순수 함수)
+ * @param {Array} cartItems - 장바구니 아이템들
+ * @param {Array} products - 상품 목록
+ * @param {object} constants - 비즈니스 상수
+ * @param {object} productIds - 상품 ID 매핑
+ * @returns {object} 개별 할인 적용 결과
+ */
+const applyItemDiscounts = (cartItems, products, constants, productIds) => {
+  return cartItems.reduce(
+    (acc, cartItem) => {
+      const product = findProductById(cartItem.id, products);
+      if (!product) return acc;
+
+      const quantity = extractQuantity(cartItem);
+      const discountRate = calculateItemDiscountRate(
+        cartItem.id,
+        quantity,
+        constants,
+        productIds,
+      );
+      const itemTotal = calculateItemTotal(product, quantity);
+      const discountedTotal = itemTotal * (1 - discountRate);
+
+      return {
+        totalAmount: acc.totalAmount + discountedTotal,
+        itemDiscounts: [
+          ...acc.itemDiscounts,
+          {
+            productId: cartItem.id,
+            originalAmount: itemTotal,
+            discountedAmount: discountedTotal,
+            discountRate,
+          },
+        ],
+      };
+    },
+    { totalAmount: 0, itemDiscounts: [] },
+  );
+};
+
+/**
+ * 화요일 할인 적용 (순수 함수)
+ * @param {number} amount - 금액
+ * @returns {object} 화요일 할인 적용 결과
+ */
+const applyTuesdayDiscount = amount => {
+  const isTuesday = new Date().getDay() === 2;
+  const discountedAmount = isTuesday && amount > 0 ? amount * 0.9 : amount;
+
+  return {
+    finalAmount: discountedAmount,
+    isTuesday,
+  };
+};
+
+/**
+ * 할인율 계산 (순수 함수)
+ * @param {number} subtotal - 소계
+ * @param {number} finalAmount - 최종 금액
+ * @returns {number} 할인율
+ */
+const calculateDiscountRate = (subtotal, finalAmount) => {
+  return subtotal > 0 ? (subtotal - finalAmount) / subtotal : 0;
+};
+
+/**
+ * 장바구니 총 계산 (메인 함수) - 불변성
  * @param {HTMLCollection} cartElements - DOM cart elements
  * @param {Array} products - Product list
  * @param {object} constants - Business constants
@@ -24,127 +137,31 @@ export const calculateCart = (
   // 1. 기본 계산
   const { subtotal, totalItemCount } = calculateSubtotal(cartItems, products);
 
-  // 2. 개별 상품 할인 적용
-  const { totalAmount: afterItemDiscount, itemDiscounts } = applyItemDiscounts(
-    cartItems,
-    products,
-    constants,
-    productIds,
+  // 2. 대량 구매 할인 확인 (개별 할인 무시)
+  const isBulkPurchase =
+    totalItemCount >= constants.DISCOUNT.BULK_DISCOUNT_THRESHOLD;
+
+  const amountAfterBulkDiscount = isBulkPurchase ? subtotal * 0.75 : subtotal;
+
+  // 3. 개별 상품 할인 적용 (대량 구매가 아닌 경우에만)
+  const itemDiscountResult = isBulkPurchase
+    ? { totalAmount: amountAfterBulkDiscount, itemDiscounts: [] }
+    : applyItemDiscounts(cartItems, products, constants, productIds);
+
+  // 4. 화요일 할인 적용
+  const { finalAmount: afterTuesdayDiscount, isTuesday } = applyTuesdayDiscount(
+    itemDiscountResult.totalAmount,
   );
 
-  let finalAmount = afterItemDiscount;
-
-  // 3. 대량 구매 할인 (개별 할인 무시)
-  if (totalItemCount >= constants.DISCOUNT.BULK_DISCOUNT_THRESHOLD) {
-    finalAmount = subtotal * 0.75; // 25% 할인
-  }
-
-  // 4. 화요일 할인
-  const isTuesday = new Date().getDay() === 2;
-  if (isTuesday && finalAmount > 0) {
-    finalAmount = finalAmount * 0.9; // 10% 추가 할인
-  }
-
   // 5. 할인율 계산
-  const discountRate = subtotal > 0 ? (subtotal - finalAmount) / subtotal : 0;
-
-  // 6. UI 하이라이트 적용
-  highlightDiscountableItems(cartItems, products, constants);
+  const discountRate = calculateDiscountRate(subtotal, afterTuesdayDiscount);
 
   return {
     subtotal,
-    totalAmount: finalAmount,
+    totalAmount: afterTuesdayDiscount,
     totalItemCount,
-    itemDiscounts,
+    itemDiscounts: itemDiscountResult.itemDiscounts,
     discountRate,
     isTuesday,
   };
-};
-
-/**
- * 소계 및 총 수량 계산
- */
-const calculateSubtotal = (cartItems, products) => {
-  let subtotal = 0;
-  let totalItemCount = 0;
-
-  cartItems.forEach(cartItem => {
-    const product = findProductById(cartItem.id, products);
-    if (!product) return;
-
-    const qtyElem = cartItem.querySelector('.quantity-number');
-    const quantity = parseInt(qtyElem.textContent) || 0;
-    const itemTotal = product.val * quantity;
-
-    totalItemCount += quantity;
-    subtotal += itemTotal;
-  });
-
-  return { subtotal, totalItemCount };
-};
-
-/**
- * 개별 상품 할인 적용
- */
-const applyItemDiscounts = (cartItems, products, constants, productIds) => {
-  let totalAmount = 0;
-  const itemDiscounts = [];
-
-  cartItems.forEach(cartItem => {
-    const product = findProductById(cartItem.id, products);
-    if (!product) return;
-
-    const qtyElem = cartItem.querySelector('.quantity-number');
-    const quantity = parseInt(qtyElem.textContent) || 0;
-    const itemTotal = product.val * quantity;
-
-    const discount = calculateItemDiscountRate(
-      product.id,
-      quantity,
-      constants,
-      productIds,
-    );
-
-    if (discount > 0) {
-      itemDiscounts.push({
-        name: product.name,
-        discount: discount * 100,
-      });
-      totalAmount += itemTotal * (1 - discount);
-    } else {
-      totalAmount += itemTotal;
-    }
-  });
-
-  return { totalAmount, itemDiscounts };
-};
-
-/**
- * 할인 가능 아이템 하이라이트
- */
-const highlightDiscountableItems = (cartItems, products, constants) => {
-  cartItems.forEach(cartItem => {
-    const product = findProductById(cartItem.id, products);
-    if (!product) return;
-
-    const qtyElem = cartItem.querySelector('.quantity-number');
-    const quantity = parseInt(qtyElem.textContent) || 0;
-
-    const priceElems = cartItem.querySelectorAll('.text-lg, .text-xs');
-    priceElems.forEach(elem => {
-      if (elem.classList.contains('text-lg')) {
-        elem.style.fontWeight =
-          quantity >= constants.DISCOUNT.ITEM_DISCOUNT_MIN_QUANTITY
-            ? 'bold'
-            : 'normal';
-      }
-    });
-  });
-};
-
-/**
- * 상품 찾기 헬퍼
- */
-const findProductById = (productId, products) => {
-  return products.find(p => p.id === productId);
 };
