@@ -5,7 +5,6 @@ import {
   PRODUCT_PRICES,
   INITIAL_STOCK,
   DISCOUNT_THRESHOLDS,
-  DISCOUNT_RATES,
   POINT_RATES,
   UI_CONSTANTS,
 } from './constants/index.js';
@@ -22,7 +21,15 @@ import {
   getOutOfStockProducts,
   getTotalStock,
   calculateItemDiscount,
-} from './services/product/ProductService.js';
+} from './services/product/ProductService.js';
+
+// DiscountService import
+import {
+  calculateTotalDiscountRate,
+  createDiscountInfo,
+  calculateSavedAmount,
+  checkIsTuesday,
+} from './services/discount/DiscountService.js';
 
 // 전역 변수들 (명명 규칙 적용)
 let productList;
@@ -322,35 +329,11 @@ function processCartItems(cartItems) {
 
 // 할인 총합 계산 (대량구매 할인 + 화요일 할인)
 function calculateTotalDiscount(subTot, itemCount, currentAmount) {
-  let finalAmount = currentAmount;
-  let discountRate = 0;
-
-  // 대량구매 할인 적용
-  if (itemCount >= DISCOUNT_THRESHOLDS.BULK_PURCHASE) {
-    finalAmount = subTot * (1 - DISCOUNT_RATES.BULK_PURCHASE);
-    discountRate = DISCOUNT_RATES.BULK_PURCHASE;
-  } else {
-    discountRate = (subTot - finalAmount) / subTot;
-  }
-
-  // 화요일 할인 적용
-  const today = new Date();
-  const isTuesday = today.getDay() === UI_CONSTANTS.TUESDAY;
-
-  if (isTuesday && finalAmount > 0) {
-    finalAmount = finalAmount * (1 - DISCOUNT_RATES.TUESDAY);
-    discountRate = 1 - finalAmount / subTot;
-  }
-
-  return {
-    finalAmount,
-    discountRate,
-    isTuesday,
-  };
+  return calculateTotalDiscountRate(itemCount, subTot, currentAmount);
 }
 
 // 주문 요약 상세 내역 갱신
-function updateOrderSummary(cartItems, subTot, itemCount, itemDiscounts, isTuesday, totalAmount) {
+function updateOrderSummary(cartItems, subTot, itemCount, itemDiscounts) {
   const summaryDetails = document.getElementById('summary-details');
   summaryDetails.innerHTML = '';
 
@@ -386,34 +369,18 @@ function updateOrderSummary(cartItems, subTot, itemCount, itemDiscounts, isTuesd
       </div>
     `;
 
-    // 할인 정보 표시
-    if (itemCount >= DISCOUNT_THRESHOLDS.BULK_PURCHASE) {
+    // 할인 정보 표시 - DiscountService 사용
+    const discountInfo = createDiscountInfo(itemDiscounts, itemCount);
+    discountInfo.forEach(function (discount) {
+      const colorClass = discount.type === 'tuesday' ? 'text-purple-400' : 'text-green-400';
+      const icon = discount.type === 'tuesday' ? '🌟' : discount.type === 'bulk' ? '🎉' : '';
       summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-          <span class="text-xs">-25%</span>
+        <div class="flex justify-between text-sm tracking-wide ${colorClass}">
+          <span class="text-xs">${icon} ${discount.name}</span>
+          <span class="text-xs">-${discount.rate}%</span>
         </div>
       `;
-    } else if (itemDiscounts.length > 0) {
-      itemDiscounts.forEach(function (item) {
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-green-400">
-            <span class="text-xs">${item.name} (10개↑)</span>
-            <span class="text-xs">-${item.discount}%</span>
-          </div>
-        `;
-      });
-    }
-
-    // 화요일 할인 표시
-    if (isTuesday && totalAmount > 0) {
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-purple-400">
-          <span class="text-xs">🌟 화요일 추가 할인</span>
-          <span class="text-xs">-10%</span>
-        </div>
-      `;
-    }
+    });
 
     // 배송비 표시
     summaryDetails.innerHTML += `
@@ -516,7 +483,7 @@ function calculateCartSummary() {
   document.getElementById('item-count').textContent = `🛍️ ${itemCount} items in cart`;
 
   // 주문 요약(상품별, 할인, 배송 등) 갱신
-  updateOrderSummary(cartItems, subTot, itemCount, itemDiscounts, isTuesday, totalAmount);
+  updateOrderSummary(cartItems, subTot, itemCount, itemDiscounts);
   // 총 결제 금액 표시 갱신
   const totalDiv = orderSummaryElement.querySelector('.text-2xl');
   if (totalDiv) {
@@ -539,7 +506,7 @@ function calculateCartSummary() {
   discountInfoDiv.innerHTML = '';
 
   if (discRate > 0 && totalAmount > 0) {
-    savedAmount = originalTotal - totalAmount;
+    savedAmount = calculateSavedAmount(originalTotal, totalAmount);
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -588,7 +555,7 @@ const renderBonusPoints = function () {
     pointsDetail.push(`기본: ${basePoints}p`);
   }
   // 화요일 2배 포인트
-  if (new Date().getDay() === UI_CONSTANTS.TUESDAY) {
+  if (checkIsTuesday()) {
     if (basePoints > 0) {
       finalPoints = basePoints * POINT_RATES.TUESDAY_MULTIPLIER;
       pointsDetail.push('화요일 2배');
