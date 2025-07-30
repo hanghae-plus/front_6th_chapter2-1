@@ -491,11 +491,10 @@ function handleCalculateCartStuff() {
   }
   stockInfo.textContent = stockMessage;
   handleStockInfoUpdate();
-  doRenderBonusPoints();
+  renderBonusPoints();
 }
 
-// 추가 포인트 UI를 렌더링
-const doRenderBonusPoints = function () {
+const renderBonusPoints = () => {
   const loyaltyPointsEl = document.getElementById('loyalty-points');
   const cartProductEls = Array.from(cartContainerEl.children);
   const hasKeyboard = cartProductEls.some((el) => el.id === productIds.keyboard);
