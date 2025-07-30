@@ -5,6 +5,7 @@ import {
   calculateTuesdayDiscount,
   selectBestDiscount,
 } from './discountUtils';
+import { calculateLoyaltyPoints } from './pointUtils';
 
 // 기본 금액 계산
 function calculateBasicAmounts(items: CartItem[]) {
@@ -20,7 +21,7 @@ function calculateBasicAmounts(items: CartItem[]) {
 // 메인 계산 함수
 export function calculateCartTotals(
   items: CartItem[]
-): Pick<Cart, 'totalAmount' | 'originalAmount' | 'discountAmount' | 'itemCount' | 'appliedDiscounts'> {
+): Pick<Cart, 'totalAmount' | 'originalAmount' | 'discountAmount' | 'itemCount' | 'appliedDiscounts' | 'loyaltyPoints' | 'pointsBreakdown'> {
   // 기본 금액 계산
   const { originalAmount: cartOriginalAmount, itemCount: cartItemCount } = calculateBasicAmounts(items);
 
@@ -44,11 +45,16 @@ export function calculateCartTotals(
 
   const finalTotalAmount = cartOriginalAmount - finalDiscountAmount;
 
+  // 포인트 계산 (최종 결제 금액 기준)
+  const { loyaltyPoints, pointsBreakdown } = calculateLoyaltyPoints(items, finalTotalAmount);
+
   return {
     totalAmount: Math.max(0, finalTotalAmount),
     originalAmount: cartOriginalAmount,
     discountAmount: finalDiscountAmount,
     itemCount: cartItemCount,
     appliedDiscounts: finalAppliedDiscounts,
+    loyaltyPoints,
+    pointsBreakdown,
   };
 }

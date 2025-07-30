@@ -1,15 +1,5 @@
 import type { CartItem } from '../types/cart';
-import { QUANTITY_THRESHOLDS, DISCOUNT_RATES } from '../constants/shopPolicy';
-import { KEYBOARD_ID, MOUSE_ID, MONITOR_ID, HEADPHONE_ID, SPEAKER_ID } from '../constants/productId';
-
-// productId와 할인 키 매핑 (기존 상수 활용)
-export const PRODUCT_ID_TO_DISCOUNT_KEY = {
-  [KEYBOARD_ID]: 'KEYBOARD',
-  [MOUSE_ID]: 'MOUSE', 
-  [MONITOR_ID]: 'MONITOR_ARM',
-  [HEADPHONE_ID]: 'LAPTOP_POUCH',
-  [SPEAKER_ID]: 'SPEAKER',
-} as const;
+import { QUANTITY_THRESHOLDS, DISCOUNT_RATES, PRODUCT_ID_TO_DISCOUNT_KEY } from '../constants/shopPolicy';
 
 // 개별 상품 할인 계산
 export function calculateIndividualDiscounts(items: CartItem[]) {

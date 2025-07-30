@@ -45,6 +45,8 @@ export const initialCartState: Cart = {
   discountAmount: 0,
   itemCount: 0,
   appliedDiscounts: [],
+  loyaltyPoints: 0,
+  pointsBreakdown: [],
 };
 
 

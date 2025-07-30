@@ -72,30 +72,49 @@ export default function OrderSummary() {
               <span className="text-sm uppercase tracking-wider">Total</span>
               <div className="text-2xl tracking-tight">₩{state.totalAmount.toLocaleString()}</div>
             </div>
-            <div
-              id="loyalty-points"
-              className="text-xs text-blue-400 mt-2 text-right"
-              style={{ display: 'block' }}
-            >
-              <div>
-                적립 포인트: <span className="font-bold">134p</span>
+            {state.loyaltyPoints > 0 && (
+              <div
+                id="loyalty-points"
+                className="text-xs text-blue-400 mt-2 text-right"
+                style={{ display: 'block' }}
+              >
+                <div>
+                  적립 포인트: <span className="font-bold">{state.loyaltyPoints}p</span>
+                </div>
+                <div className="text-2xs opacity-70 mt-1">
+                  {state.pointsBreakdown.join(', ')}
+                </div>
               </div>
-              <div className="text-2xs opacity-70 mt-1">
-                기본: 84p, 키보드+마우스 세트 +50p
+            )}
+          </div>
+          {(() => {
+            const isTuesday = new Date().getDay() === 2;
+            const hasTuesdayDiscount = state.appliedDiscounts.some(discount => 
+              discount.includes('화요일 특가')
+            );
+            const hasTuesdayPoints = state.pointsBreakdown.some(breakdown => 
+              breakdown.includes('화요일')
+            );
+            
+            return (isTuesday && (hasTuesdayDiscount || hasTuesdayPoints)) ? (
+              <div
+                id="tuesday-special"
+                className="mt-4 p-3 bg-white/10 rounded-lg"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-2xs">🎉</span>
+                  <span className="text-xs uppercase tracking-wide">
+                    Tuesday Special Applied
+                  </span>
+                </div>
+                <div className="text-2xs opacity-70 mt-1">
+                  {hasTuesdayDiscount && "10% 추가 할인"}
+                  {hasTuesdayDiscount && hasTuesdayPoints && " + "}
+                  {hasTuesdayPoints && "포인트 2배 적립"}
+                </div>
               </div>
-            </div>
-          </div>
-          <div
-            id="tuesday-special"
-            className="mt-4 p-3 bg-white/10 rounded-lg hidden"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-2xs">🎉</span>
-              <span className="text-xs uppercase tracking-wide">
-                Tuesday Special 10% Applied
-              </span>
-            </div>
-          </div>
+            ) : null;
+          })()}
         </div>
       </div>
       <button className="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">

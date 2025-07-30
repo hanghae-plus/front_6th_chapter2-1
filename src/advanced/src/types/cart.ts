@@ -14,6 +14,8 @@ export interface Cart {
   discountAmount: number; // 할인 금액
   itemCount: number;
   appliedDiscounts: string[];
+  loyaltyPoints: number; // 적립 포인트
+  pointsBreakdown: string[]; // 포인트 적립 내역
 }
 
 export interface CartAction {

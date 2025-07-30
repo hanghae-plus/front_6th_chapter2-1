@@ -6,6 +6,15 @@ export const QUANTITY_THRESHOLDS = {
   BONUS_LARGE: 30, // 할인+포인트 보너스 대량 기준
 };
 
+// productId와 할인 키 매핑
+export const PRODUCT_ID_TO_DISCOUNT_KEY = {
+  p1: 'KEYBOARD',
+  p2: 'MOUSE',
+  p3: 'MONITOR_ARM',
+  p4: 'LAPTOP_POUCH',
+  p5: 'SPEAKER',
+} as const;
+
 // 할인 정책
 export const DISCOUNT_RATES = {
   // 개별 상품 할인율 (10개↑)
