@@ -1,4 +1,3 @@
-let bonusPts = 0;
 let stockInfo;
 let lastSel;
 let sel;
@@ -775,9 +774,6 @@ function doRenderBonusPoints() {
 
   const finalPoints = bonusResult.totalPoints;
   const pointsDetail = bonusResult.details;
-
-  // bonusPts 전역 변수도 업데이트 (하위 호환성)
-  bonusPts = finalPoints;
 
   // UI 렌더링
   const ptsTag = document.getElementById("loyalty-points");
