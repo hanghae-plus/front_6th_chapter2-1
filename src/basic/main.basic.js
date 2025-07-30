@@ -1,3 +1,4 @@
+import { CART_TOTAL_BENEFIT_THRESHOLD, PER_ITEM_DISCOUNT_THRESHOLD } from './const/discount';
 import { handleUpdateProductSelectOptions } from './controller/handleProductSelector';
 import { cartManager } from './domain/cart';
 import { calculateBonusPoints, renderBonusPoints } from './domain/point';
@@ -5,7 +6,15 @@ import { initialProducts, LIGHTNING_DISCOUNT, OUT_OF_STOCK, SUGGEST_DISCOUNT } f
 import productManager from './domain/product';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/applyDiscount';
 import { isTuesday } from './utils/dateUtil';
-import { renderDiscountInfo, renderItemTotalCount, renderLoyaltyPoints } from './view/cartSummary';
+import {
+  renderDiscountInfo,
+  renderFinalPrice,
+  renderItemTotalCount,
+  renderLoyaltyPoints,
+  renderSummaryDetails,
+  updateAppliedPerItemDiscount,
+  updateTuesdaySpecialStyle,
+} from './view/cartSummary';
 import { globalElements } from './view/globalElements';
 import { renderLayout } from './view/layout';
 
@@ -82,14 +91,7 @@ function calculateCart() {
 
   let originalTotal;
 
-  let savedAmount;
   let summaryDetails;
-  let totalDiv;
-  let loyaltyPointsDiv;
-  let points;
-  let discountInfoDiv;
-  let itemCountElement;
-  let previousCount;
   let stockMsg;
 
   const { subTotal, totalAfterItemDiscount, appliedItemDiscounts } = applyItemDiscount();
@@ -102,86 +104,20 @@ function calculateCart() {
   });
   totalAmount = finalTotal;
 
-  /** @todo 뷰 업데이트 부분. 분리 필요 */
-  for (const itemElement of cartItems) {
-    const priceElems = itemElement.querySelectorAll('.text-lg, .text-xs');
-    priceElems.forEach(function (elem) {
-      if (elem.classList.contains('text-lg')) {
-        elem.style.fontWeight = cartManager.getQuantityByProductId(itemElement.id) >= 10 ? 'bold' : 'normal';
-      }
+  updateAppliedPerItemDiscount({ getQuantityById: cartManager.getQuantityByProductId });
+  updateTuesdaySpecialStyle();
+
+  if (subTotal > 0) {
+    renderSummaryDetails({
+      getProductById: productManager.getProductById,
+      getTotalItem: cartManager.getTotalItem,
+      appliedItemDiscounts,
+      subTotal,
+      totalAmount,
     });
   }
-  document.getElementById('tuesday-special').classList.toggle('hidden', !isTuesday());
-  document.getElementById('item-count').textContent = '🛍️ ' + cartManager.getTotalItem() + ' items in cart';
 
-  summaryDetails = document.getElementById('summary-details');
-  summaryDetails.innerHTML = '';
-  if (subTotal > 0) {
-    for (let i = 0; i < cartItems.length; i++) {
-      var curItem;
-      for (let j = 0; j < productManager.getProductCount(); j++) {
-        const product = productManager.getProductAt(j);
-        if (product.id === cartItems[i].id) {
-          curItem = product;
-          break;
-        }
-      }
-      const qtyElem = cartItems[i].querySelector('.quantity-number');
-      const q = parseInt(qtyElem.textContent);
-      const itemTotal = curItem.discountValue * q;
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-xs tracking-wide text-gray-400">
-          <span>${curItem.name} x ${q}</span>
-          <span>₩${itemTotal.toLocaleString()}</span>
-        </div>
-      `;
-    }
-    summaryDetails.innerHTML += `
-      <div class="border-t border-white/10 my-3"></div>
-      <div class="flex justify-between text-sm tracking-wide">
-        <span>Subtotal</span>
-        <span>₩${subTotal.toLocaleString()}</span>
-      </div>
-    `;
-    if (cartManager.getTotalItem() >= 30) {
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-          <span class="text-xs">-25%</span>
-        </div>
-      `;
-    } else if (appliedItemDiscounts.length > 0) {
-      appliedItemDiscounts.forEach(function (item) {
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-green-400">
-            <span class="text-xs">${item.name} (10개↑)</span>
-            <span class="text-xs">-${item.discount}%</span>
-          </div>
-        `;
-      });
-    }
-    if (isTuesday()) {
-      if (totalAmount > 0) {
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-purple-400">
-            <span class="text-xs">🌟 화요일 추가 할인</span>
-            <span class="text-xs">-10%</span>
-          </div>
-        `;
-      }
-    }
-    summaryDetails.innerHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-gray-400">
-        <span>Shipping</span>
-        <span>Free</span>
-      </div>
-    `;
-  }
-
-  totalDiv = globalElements.cartSummary.querySelector('.text-2xl');
-  if (totalDiv) {
-    totalDiv.textContent = '₩' + Math.round(totalAmount).toLocaleString();
-  }
+  renderFinalPrice({ finalPrice: totalAmount });
 
   renderLoyaltyPoints({ totalAmount });
 
