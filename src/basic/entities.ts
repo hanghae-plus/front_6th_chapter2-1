@@ -132,25 +132,19 @@ export function createInitialProducts(): Product[] {
 }
 
 export function calculateTotalStock(products: Product[]): number {
-  return products.reduce(function(total: number, product: Product) {
-    return total + product.q;
-  }, 0);
+  return products.reduce((total: number, product: Product) => total + product.q, 0);
 }
 
 export function getStockInfo(products: Product[]): StockInfo {
   const totalStock = calculateTotalStock(products);
   const lowStockItems = products
-    .filter(function(item: Product) {
-      return item.q < DISCOUNT_THRESHOLDS.LOW_STOCK;
-    })
-    .map(function(item: Product) {
-      return {
-        product: item,
-        message: item.q > 0 
-          ? `${item.name}: 재고 부족 (${item.q}개 남음)`
-          : `${item.name}: 품절`
-      };
-    });
+    .filter((item: Product) => item.q < DISCOUNT_THRESHOLDS.LOW_STOCK)
+    .map((item: Product) => ({
+      product: item,
+      message: item.q > 0
+        ? `${item.name}: 재고 부족 (${item.q}개 남음)`
+        : `${item.name}: 품절`
+    }));
   
   return { totalStock, lowStockItems };
 }
@@ -192,6 +186,7 @@ export function applyBulkDiscount(subtotal: number, itemCount: number): BulkDisc
       discountRate: DISCOUNT_RATES.BULK
     };
   }
+
   return {
     amount: subtotal,
     discountRate: 0

@@ -59,7 +59,7 @@ export function Header() {
 
 // ProductOptions Component - 전체 select 요소 생성
 export function ProductOptions() {
-  const { products, totalStock, hasLowStock } = useProducts();
+  const { products, hasLowStock } = useProducts();
   const borderColor = hasLowStock() ? 'orange' : '';
 
   const options = products.map(item => {
@@ -652,6 +652,8 @@ export function rerenderStockStatus() {
 
 // 전체 UI 재렌더링 (모든 부분을 재렌더링)
 export function rerenderUI() {
+  rerenderProductSelect();
+  rerenderCartItems();
   rerenderTuesdayBanner();
   rerenderItemCount();
   rerenderSummaryDetails();

@@ -1,6 +1,6 @@
 // 유틸리티 함수 import
 // 렌더 함수 import
-import {App, rerenderCartItems, rerenderProductSelect, rerenderStockStatus, rerenderUI} from './render.js'
+import {App, rerenderUI} from './render.js'
 
 // 비즈니스 로직 import
 import {
@@ -22,17 +22,9 @@ import {
 
 // 전역 변수 선언
 // 상태 관리 변수
-var prodList
-var stockInfo
-var lastSel
+var prodList = []
 var cart = {} // 장바구니 모델 { productId: quantity }
-
-
-// DOM 요소 참조 변수
-var sel
-var addBtn
-var cartDisp
-
+var lastSel = null
 
 export function useProducts() {
   return {
@@ -75,31 +67,6 @@ export function useLastSelected() {
 
 // APP FUNCTIONS
 
-// 앱 초기화 함수 (useEffect - 마운트 시 1회)
-function initializeApp() {
-  // 전역 상태 초기화
-  const { setLastSel } = useLastSelected();
-  setLastSel(null);
-  cart = {}; // cart 객체 초기화
-  
-  // 상품 목록 초기화
-  prodList = createInitialProducts();
-  
-  // DOM 요소 생성
-  var root = document.getElementById('app');
-  root.innerHTML = App();
-  
-  // DOM 요소 참조 설정
-  sel = document.getElementById('product-select');
-  addBtn = document.getElementById('add-to-cart');
-  cartDisp = document.getElementById('cart-items');
-  stockInfo = document.getElementById('stock-status');
-  
-  // 초기 UI 업데이트
-  rerenderProductSelect();
-  rerenderCart();
-}
-
 // 번개세일 타이머 설정 (useEffect)
 export function setupLightningSaleTimer() {
   const lightningDelay = Math.random() * 10000;
@@ -113,8 +80,7 @@ export function setupLightningSaleTimer() {
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         // setState 패턴으로 상태 업데이트
         updateProducts(applyLightningSale(products, luckyItem.id));
-        rerenderProductSelect();
-        doUpdatePricesInCart();
+        rerenderUI();
 
         alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
       }
@@ -147,8 +113,7 @@ export function setupSuggestSaleTimer() {
         if (suggest) {
           // setState 패턴으로 상태 업데이트
           updateProducts(applySuggestionSale(products, suggest.id, lastSel));
-          rerenderProductSelect();
-          doUpdatePricesInCart();
+          rerenderUI();
 
           alert(`💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
         }
@@ -163,46 +128,49 @@ export function setupSuggestSaleTimer() {
   };
 }
 
-// 이벤트 리스너 설정 (useEffect)
-function setupEventListeners() {
-  // 장바구니 추가 버튼 클릭 이벤트
-  addBtn.addEventListener("click", handleAddToCart);
-  
-  // 장바구니 아이템 클릭 이벤트
-  cartDisp.addEventListener("click", handleCartItemClick);
-}
+
+// DOM 요소 참조 변수
+let sel
+let addBtn
+let cartDisp
+let stockInfo
 
 // 메인 초기화 함수
 function main() {
-  // 앱 초기화
-  initializeApp();
-  
-  // 이벤트 리스너 설정
-  setupEventListeners();
-  
+  // DOM 요소 생성
+  const root = document.getElementById('app')
+  if (!root) {
+    throw new Error('Root element not found');
+  }
+
+  // 전역 상태 초기화
+  const { updateProducts } = useProducts();
+  const { setLastSel } = useLastSelected();
+
+  setLastSel(null);
+  updateProducts(createInitialProducts())
+  cart = {}; // cart 객체 초기화
+
+  // 초기 렌더링
+  root.innerHTML = App();
+
+  // DOM 요소 참조 설정
+  sel = document.getElementById('product-select');
+  addBtn = document.getElementById('add-to-cart');
+  cartDisp = document.getElementById('cart-items');
+  stockInfo = document.getElementById('stock-status');
+
+  // 이벤트
+  addBtn?.addEventListener("click", handleAddToCart);
+  cartDisp?.addEventListener("click", handleCartItemClick);
+
   // 타이머 설정 (useEffect 패턴)
   setupLightningSaleTimer();
   setupSuggestSaleTimer();
-}
 
-// 장바구니 계산 및 UI 업데이트 메인 함수
-function rerenderCart() {
-  // UI 업데이트
+  // 초기 UI 업데이트
   rerenderUI()
-  
-  // 추가 업데이트 함수 호출
-  rerenderStockStatus();
 }
-
-// 장바구니 내 가격 업데이트 함수
-function doUpdatePricesInCart() {
-  // cart 객체 기반으로 DOM 재렌더링
-  rerenderCartItems();
-  
-  // 전체 재계산
-  rerenderCart();
-}
-
 
 // 메인 함수 실행
 main();
@@ -232,13 +200,11 @@ function handleAddToCart() {
     cart = addToCart(cart, selItem, 1)
     updateProducts(updateProductStock(products, selItem, -1))
 
-    // DOM 업데이트
-    rerenderCartItems()
-    rerenderCart()
-    
     // 마지막 선택 상품 업데이트
     const { setLastSel } = useLastSelected()
     setLastSel(selItem)
+
+    rerenderUI()
   }
 }
 
@@ -283,8 +249,6 @@ function handleCartItemClick(event) {
     }
     
     // DOM 업데이트
-    rerenderCartItems();
-    rerenderCart();
-    rerenderProductSelect();
+    rerenderUI()
   }
 }

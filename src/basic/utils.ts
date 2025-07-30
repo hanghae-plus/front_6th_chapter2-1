@@ -19,35 +19,37 @@ export function createElement(html) {
  * @param {string} newHTML - 새로운 HTML 문자열
  * @returns {Element} - 업데이트된 DOM 요소 (동일한 요소 반환)
  */
-export function $$(elementOrSelector, newHTML) {
-  // 요소 찾기
-  var element = typeof elementOrSelector === 'string' 
-    ? document.querySelector(elementOrSelector)
-    : elementOrSelector;
-    
+export function $$(element:HTMLElement, newHTML:string) {
+  let i
   if (!element) {
-    console.error('Element not found:', elementOrSelector);
+    console.error('Element not found:', element);
     return null;
   }
   
   // 임시 요소를 생성하여 새 HTML 파싱
-  var tempElement = createElement(newHTML);
-  
+  const tempElement = createElement(newHTML)
+
   // 속성 업데이트
   // 기존 속성 모두 제거
-  var attrs = element.attributes;
-  for (var i = attrs.length - 1; i >= 0; i--) {
+  const attrs = element.attributes
+  for (i = attrs.length - 1; i >= 0; i--) {
     element.removeAttribute(attrs[i].name);
   }
   
   // 새 속성 추가
   var newAttrs = tempElement.attributes;
-  for (var i = 0; i < newAttrs.length; i++) {
+  for (i = 0; i < newAttrs.length; i++) {
     element.setAttribute(newAttrs[i].name, newAttrs[i].value);
   }
-  
+
+  let value = element.value
+
   // innerHTML 업데이트
   element.innerHTML = tempElement.innerHTML;
-  
+
+  if (value) {
+    element.value = value
+  }
+
   return element;
 }
