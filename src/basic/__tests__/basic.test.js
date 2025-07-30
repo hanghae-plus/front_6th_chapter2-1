@@ -1,5 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { cartManager } from '../domain/cart.js';
 
 describe('basic 테스트', () => {
   // 공통 헬퍼 함수
@@ -58,6 +59,8 @@ describe('basic 테스트', () => {
     afterEach(() => {
       vi.setSystemTime(new Date('2025-07-28'));
       vi.restoreAllMocks();
+
+      cartManager.clear();
     });
 
     // 2. 상품 정보 테스트

@@ -1,5 +1,5 @@
 export const cartManager = (() => {
-  const instance = {}; // { productId: quantity }
+  let instance = {}; // { productId: quantity }
   let lastAddedItem; // 마지막에 추가된 아이템
 
   //   const getCart = () => ({ ...instance });
@@ -40,8 +40,7 @@ export const cartManager = (() => {
   };
 
   const clear = () => {
-    // instance 내부 내용 다 삭제
-    Object.keys(this.state).forEach((key) => delete this.state[key]);
+    instance = {};
 
     lastAddedItem = null;
   };
