@@ -68,7 +68,7 @@ export const ProductsData = [
   },
 ];
 
-let products: Product[] = [...ProductsData];
+let products: Product[] = JSON.parse(JSON.stringify(ProductsData));
 
 export function getProducts(): Product[] {
   return products;
@@ -104,6 +104,22 @@ export function hasSuggestSale(product: Product): boolean {
 
 export function hasAllSale(product: Product): boolean {
   return isAllSale(product.saleEvent);
+}
+
+export function saleEmoji(saleEvent: number) {
+  if (isAllSale(saleEvent)) {
+    return '⚡💝';
+  }
+
+  if (isLightningSale(saleEvent)) {
+    return '⚡';
+  }
+
+  if (isSuggestSale(saleEvent)) {
+    return '💝';
+  }
+
+  return '';
 }
 
 function getSaleRate(saleEvent: number): number {
