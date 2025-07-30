@@ -634,57 +634,48 @@ function doUpdatePricesInCart() {
 }
 main();
 addBtn.addEventListener("click", () => {
-  // select 값 가져오기
-  const selItem = sel.value;
-  const prodList = productStore.getState().products;
-  const itemToAdd = prodList.find((product) => product.id === selItem);
+  // 선택된 상품 ID 가져오기
+  const selectedItemId = sel.value;
+  if (!selectedItemId) return;
 
-  if (!selItem || !itemToAdd || itemToAdd.q <= 0) {
+  // 상품 목록에서 선택된 상품 찾기
+  const prodList = productStore.getState().products;
+  const itemToAdd = prodList.find((product) => product.id === selectedItemId);
+  if (!itemToAdd || itemToAdd.q <= 0) return;
+
+  // 장바구니에 이미 있는 상품인지 확인
+  const isExistInCart = cartStore.isExistInCart(itemToAdd.id);
+  const currentQty = cartStore.getItemQuantity(itemToAdd.id);
+  const newQty = currentQty + 1;
+
+  // 장바구니에 이미 있는 상품이면 수량 증가
+  if (isExistInCart && itemToAdd.q >= 1) {
+    renderQuantity(itemToAdd.id, newQty);
+  }
+
+  // 장바구니에 이미 있는 상품이 아니면 새로 추가
+  if (!isExistInCart) {
+    const newItemHTML = renderNewCartItem(itemToAdd);
+    cartDisp.insertAdjacentHTML("beforeend", newItemHTML);
+  }
+
+  // 재고 확인 후 재고가 부족하면 알림 후 종료
+  if (itemToAdd.q < 1) {
+    alert("재고가 부족합니다.");
     return;
   }
 
-  const item = document.getElementById(itemToAdd["id"]);
-  if (item) {
-    // 상품 수량
-    // const qtyElem = item.querySelector(".quantity-number");
+  // Store - 재고 업데이트
+  cartStore.addCartItem(itemToAdd);
+  productStore.updateStock(itemToAdd.id, itemToAdd.q - 1);
 
-    // 현재 수량
-    const currentQty = cartStore.getItemQuantity(itemToAdd.id);
-
-    // 새로운 수량
-    const newQty = currentQty + 1;
-
-    // 최신 재고
-    const itemQuantity = itemToAdd.q;
-    if (itemQuantity > 0) {
-      // UI - 최신 재고로 수량 업데이트
-      renderQuantity(itemToAdd.id, newQty);
-
-      // Store - 재고 업데이트
-      cartStore.addCartItem(itemToAdd);
-      productStore.updateStock(itemToAdd.id, itemQuantity - 1);
-    } else {
-      alert("재고가 부족합니다.");
-    }
-  } else {
-    // UI - 새로운 상품을 장바구니에 추가
-    const newItemHTML = renderNewCartItem(itemToAdd);
-    cartDisp.insertAdjacentHTML("beforeend", newItemHTML);
-
-    // Store - 최신 재고 정보를 가져와서 업데이트
-    const latestProdList = productStore.getState().products;
-    const latestItem = latestProdList.find(
-      (product) => product.id === itemToAdd.id
-    );
-    if (latestItem) {
-      cartStore.addCartItem(latestItem);
-      productStore.updateStock(itemToAdd.id, latestItem.q - 1);
-    }
-  }
+  // 장바구니 업데이트
   handleCalculateCartStuff();
 
-  lastSel = selItem;
+  // 마지막 선택된 상품 ID 업데이트
+  lastSel = selectedItemId;
 });
+
 cartDisp.addEventListener("click", function (event) {
   var tgt = event.target;
   const prodList = productStore.getState().products;
