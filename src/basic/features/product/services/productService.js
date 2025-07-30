@@ -7,7 +7,7 @@ export function onUpdateSelectOptions(state, uiElements) {
 	const totalStock = products.reduce((total, product) => total + product.q, 0);
 
 	// Create options for each product
-	const optionsHTML = products.map(product => createProductOption(product)).join('');
+	const optionsHTML = products.map((product) => createProductOption(product)).join("");
 	uiElements.sel.innerHTML = optionsHTML;
 
 	// Update border color based on stock level

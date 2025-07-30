@@ -1,6 +1,3 @@
 export function CartItemsContainer() {
-	return /* HTML */ `
-		<div id="cart-items">
-		</div>
-	`;
+	return /* HTML */ ` <div id="cart-items"></div> `;
 }

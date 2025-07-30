@@ -1,5 +1,10 @@
 import { PRODUCT_IDS, products } from "../../product";
-import { BASE_POINT_POLICY, TUESDAY_POINT_BONUS, COMBO_BONUS_POINTS, QUANTITY_BONUS_POINTS } from "../constants";
+import {
+	BASE_POINT_POLICY,
+	TUESDAY_POINT_BONUS,
+	COMBO_BONUS_POINTS,
+	QUANTITY_BONUS_POINTS
+} from "../constants";
 import { WEEKDAYS } from "../../../shared/constants";
 
 export const doRenderBonusPoints = function (state, uiElements) {

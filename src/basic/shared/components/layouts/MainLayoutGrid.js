@@ -1,8 +1,7 @@
 export function MainLayoutGrid(leftColumnHTML, rightColumnHTML) {
 	return /* HTML */ `
-		<div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
-			${leftColumnHTML}
-			${rightColumnHTML}
+		<div class="grid flex-1 grid-cols-1 gap-6 overflow-hidden lg:grid-cols-[1fr_360px]">
+			${leftColumnHTML} ${rightColumnHTML}
 		</div>
 	`;
 }

@@ -1,6 +1,6 @@
 export function OrderSummaryColumn() {
 	return /* HTML */ `
-		<div class="bg-black text-white p-8 flex flex-col">
+		<div class="flex flex-col bg-black p-8 text-white">
 			<h2 class="tracking-extra-wide mb-5 text-xs font-medium uppercase">Order Summary</h2>
 			<div class="flex flex-1 flex-col">
 				<div id="summary-details" class="space-y-3"></div>

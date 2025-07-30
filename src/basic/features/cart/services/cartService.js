@@ -44,8 +44,7 @@ export function handleCalculateCartStuff(state, uiElements) {
 			// Update visual styling for bulk items
 			priceElems.forEach(function (elem) {
 				if (elem.classList.contains("text-lg")) {
-					elem.style.fontWeight =
-						q >= BULK_DISCOUNT.MINIMUM_QUANTITY ? "bold" : "normal";
+					elem.style.fontWeight = q >= BULK_DISCOUNT.MINIMUM_QUANTITY ? "bold" : "normal";
 				}
 			});
 

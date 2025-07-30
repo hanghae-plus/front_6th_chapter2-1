@@ -8,9 +8,7 @@ import { onUpdateSelectOptions } from "../../product";
  * @param {Object} product - Product to apply sale to
  */
 function applyLightningSaleDiscount(product) {
-	product.val = Math.round(
-		(product.originalVal * LIGHTNING_SALE_DISCOUNT.FINAL_RATE) / 100
-	);
+	product.val = Math.round((product.originalVal * LIGHTNING_SALE_DISCOUNT.FINAL_RATE) / 100);
 	product.onSale = true;
 }
 

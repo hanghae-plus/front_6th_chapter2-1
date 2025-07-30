@@ -5,7 +5,7 @@
 // 개별 상품 대량 구매 할인 정책
 export const BULK_DISCOUNT = {
 	KEYBOARD: 10, // 키보드 10% 할인
-	MOUSE: 15, // 마우스 15% 할인 
+	MOUSE: 15, // 마우스 15% 할인
 	MONITOR_ARM: 20, // 모니터암 20% 할인
 	LAPTOP_POUCH: 5, // 노트북 파우치 5% 할인
 	SPEAKER: 25, // 스피커 25% 할인

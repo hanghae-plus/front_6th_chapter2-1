@@ -56,7 +56,7 @@ function increaseExistingItemQuantity(cartItem, product) {
  */
 function addNewItemToCart(product, uiElements) {
 	const newItemHTML = ShoppingCartItem(product);
-	uiElements.cartDisp.insertAdjacentHTML('beforeend', newItemHTML);
+	uiElements.cartDisp.insertAdjacentHTML("beforeend", newItemHTML);
 	product.q--;
 	return true;
 }
