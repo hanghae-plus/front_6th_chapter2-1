@@ -1,8 +1,6 @@
-// render.js - 모든 HTML 렌더링 함수들 (순수 함수)
-
-import { useProducts, useCart } from './main.basic.js';
-import { isTuesday } from './entities.js';
-import { $$ } from './utils.js';
+import { useProducts, useCart } from './hooks';
+import { isTuesday } from './entities';
+import { $$ } from './utils';
 
 // App Component - 전체 애플리케이션 렌더링
 export function App() {
