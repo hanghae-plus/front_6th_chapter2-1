@@ -260,20 +260,6 @@ function calculateTotalStock(products) {
   return products.reduce((total, product) => total + product.quantity, 0);
 }
 
-/**
- * 1. 할인 상태 확인 -> 아이콘 변환
- * 2. 할인 정보 텍스트 생성 (슈퍼세일~ 세일~ 추천할인~)
- * 3. 상품 옵션의 클래스 결정
- * 4. 품절 상품 옵션 텍스트 생성
- * 5. 할인 상품 옵션 텍스트 생성
- * 6. 일반 상품 옵션 텍스트 생성
- * 7. 상품 옵션 텍스트 생성
- * 8. 개별 상품 옵션 요소 생성
- * 9. 상품 선택 드롭다운 렌더링
- * 10. 재고 상태에 따른 ui 스타일 업데이트
- * 11. 상품 선택 옵션 업데이트
- */
-
 // 할인 상태 확인하여 아이콘으로 변환
 function getSaleIcon(product) {
   if (product.onSale && product.suggestSale) return SALE_ICONS.SUPER_COMBO;
@@ -410,67 +396,63 @@ function updateProductOptions() {
   }
 }
 
-// 상품 선택 옵션 업데이트
-// function updateProductOptions() {
-//   let totalStock;
-//   let option;
-//   let discountText;
-//   productSelect.innerHTML = '';
-//   totalStock = 0;
-
-//   // 전체 재고 계산
-//   // for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
-//   //   const product = PRODUCT_LIST[idx];
-//   //   totalStock = totalStock + product.quantity;
-//   // }
-
-//   totalStock = calculateTotalStock(PRODUCT_LIST);
-
-//   // 상품 옵션 생성
-//   for (let i = 0; i < PRODUCT_LIST.length; i++) {
-//     (function () {
-//       const item = PRODUCT_LIST[i];
-//       option = document.createElement('option');
-//       option.value = item.id;
-//       discountText = '';
-//       if (item.onSale) discountText += ' ⚡SALE';
-//       if (item.suggestSale) discountText += ' 💝추천';
-
-//       if (item.quantity === 0) {
-//         // 품절 상품
-//         option.textContent = `${item.name} - ${item.price}원 (품절)${discountText}`;
-//         option.disabled = true;
-//         option.className = 'text-gray-400';
-//       } else {
-//         // 판매 가능 상품
-//         if (item.onSale && item.suggestSale) {
-//           option.textContent = `⚡💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (${DISCOUNT_RATES.SUPER_SALE_COMBO * 100}% SUPER SALE!)`;
-//           option.className = 'text-purple-600 font-bold';
-//         } else if (item.onSale) {
-//           option.textContent = `⚡${item.name} - ${item.originalPrice}원 → ${item.price}원 (${DISCOUNT_RATES.LIGHTNING_SALE * 100}% SALE!)`;
-//           option.className = 'text-red-500 font-bold';
-//         } else if (item.suggestSale) {
-//           option.textContent = `💝${item.name} - ${item.originalPrice}원 → ${item.price}원 (${DISCOUNT_RATES.SUGGESTION * 100}% 추천할인!)`;
-//           option.className = 'text-blue-500 font-bold';
-//         } else {
-//           option.textContent = `${item.name} - ${item.price}원${discountText}`;
-//         }
-//       }
-//       productSelect.appendChild(option);
-//     })();
-//   }
-
-//   // 재고 부족 시 테두리 색상 변경
-//   if (totalStock < QUANTITY_THRESHOLDS.STOCK_BORDER_WARNING) {
-//     productSelect.style.borderColor = 'orange';
-//   } else {
-//     productSelect.style.borderColor = '';
-//   }
-// }
-
 // ==========================================
 // 장바구니 계산 및 할인 로직
 // ==========================================
+
+// 할인 계산
+const PRODUCT_BULK_DISCOUNT_MAP = {
+  [PRODUCT_ONE]: DISCOUNT_RATES.PRODUCT_BULK_DISCOUNTS.KEYBOARD,
+  [PRODUCT_TWO]: DISCOUNT_RATES.PRODUCT_BULK_DISCOUNTS.MOUSE,
+  [PRODUCT_THREE]: DISCOUNT_RATES.PRODUCT_BULK_DISCOUNTS.MONITOR_ARM,
+  [PRODUCT_FOUR]: DISCOUNT_RATES.PRODUCT_BULK_DISCOUNTS.LAPTOP_POUCH,
+  [PRODUCT_FIVE]: DISCOUNT_RATES.PRODUCT_BULK_DISCOUNTS.SPEAKER,
+};
+
+// 개별 상품 할인 계산 (10개 이상)
+function calculateItemDiscount(item) {
+  if (item.quantity < QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT_MINIMUM) {
+    return 0;
+  }
+
+  return PRODUCT_BULK_DISCOUNT_MAP[item.product.id] || 0;
+}
+
+// 상품 정보 찾기
+function findProductById(productId) {
+  return PRODUCT_LIST.find((product) => product.id === productId);
+}
+
+// 장바구니에 담은 아이템 데이터 파싱
+function parseCartItems() {
+  const cartItems = Array.from(cartDisplay.children);
+
+  return cartItems.map((cartItem) => {
+    const product = findProductById(cartItem.id);
+    const quantityElement = cartItem.querySelector('.quantity-number');
+    const quantity = parseInt(quantityElement.textContent);
+
+    return {
+      cartElement: cartItem,
+      product,
+      quantity,
+      subtotal: product.price * quantity,
+    };
+  });
+}
+
+// 대량 구매 시 UI 강조
+function updateBulkPurchaseUI(cartItem, quantity) {
+  const priceElements = cartItem.querySelectorAll('.text-lg, .text-xs');
+  const isBulkPurchase =
+    quantity >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT_MINIMUM;
+
+  priceElements.forEach((element) => {
+    if (element.classList.contains('text-lg')) {
+      element.style.fontWeight = isBulkPurchase ? 'bold' : 'normal';
+    }
+  });
+}
 
 // 장바구니 총액 및 할인 계산
 function handleCalculateCartStuff() {
