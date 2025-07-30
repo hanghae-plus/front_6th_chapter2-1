@@ -1036,20 +1036,20 @@ addButton.addEventListener('click', () => {
   //   }
   // }
 
-  const hasItem = PRODUCT_LIST.some((product) => product.id === selectItem);
+  const itemToAdd = PRODUCT_LIST.find((product) => product.id === selectItem);
 
-  if (!selectItem || !hasItem) {
+  if (!selectItem || !itemToAdd) {
     return;
   }
 
   // 추가할 상품 정보 조회
-  let itemToAdd = null;
-  for (let j = 0; j < PRODUCT_LIST.length; j++) {
-    if (PRODUCT_LIST[j].id === selectItem) {
-      itemToAdd = PRODUCT_LIST[j];
-      break;
-    }
-  }
+  // let itemToAdd = null;
+  // for (let j = 0; j < PRODUCT_LIST.length; j++) {
+  //   if (PRODUCT_LIST[j].id === selectItem) {
+  //     itemToAdd = PRODUCT_LIST[j];
+  //     break;
+  //   }
+  // }
 
   // 재고 확인 및 장바구니 추가
   if (itemToAdd && itemToAdd.quantity > 0) {
