@@ -120,7 +120,7 @@ function main() {
         alert(`⚡번개세일! ${randomItem.name}이(가) 20% 할인 중입니다!`);
 
         updateSelectOptions();
-        doUpdatePricesInCart();
+        updatePricesInCart();
       }
     }, 30000);
   }, lightningDelay);
@@ -139,7 +139,7 @@ function main() {
           suggest.suggestSale = true;
 
           updateSelectOptions();
-          doUpdatePricesInCart();
+          updatePricesInCart();
         }
       }
     }, 60000);
@@ -332,11 +332,11 @@ function calculateCart() {
   }
   stockInfo.textContent = stockMsg;
 
-  handleStockUpdate();
-  updateBonusPoints();
+  updateStockMessage();
+  updateBonusPoint();
 }
 
-const updateBonusPoints = () => {
+const updateBonusPoint = () => {
   if (cartDisplay.children.length === 0) {
     document.getElementById('loyalty-points').style.display = 'none';
     return;
@@ -348,7 +348,7 @@ const updateBonusPoints = () => {
 };
 
 /**  재고 부족/품절 상품의 메시지를 stockInfo에 표시 */
-const handleStockUpdate = () => {
+const updateStockMessage = () => {
   const infoMessage = productManager.getLowStockMessages();
 
   // @todo ui업데이트. 따로 분리
@@ -356,60 +356,41 @@ const handleStockUpdate = () => {
 };
 
 /** 장바구니 내 각 상품의 UI 가격 정보 업데이트 */
-function doUpdatePricesInCart() {
-  let totalCount = 0,
-    j = 0;
-  let cartItems;
-  while (cartDisplay.children[j]) {
-    const qty = cartDisplay.children[j].querySelector('.quantity-number');
-    totalCount += qty ? parseInt(qty.textContent) : 0;
-    j++;
-  }
-  totalCount = 0;
-  for (j = 0; j < cartDisplay.children.length; j++) {
-    totalCount += parseInt(cartDisplay.children[j].querySelector('.quantity-number').textContent);
-  }
-  cartItems = cartDisplay.children;
+function updatePricesInCart() {
+  const cartItems = cartDisplay.children;
+
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
-    let product = null;
-    for (let productIdx = 0; productIdx < productManager.getProductCount(); productIdx++) {
-      const currentProduct = productManager.getProductAt(productIdx);
-      if (currentProduct.id === itemId) {
-        product = currentProduct;
-        break;
-      }
-    }
+    const product = productManager.getProductById(itemId);
+
     if (product) {
       const priceDiv = cartItems[i].querySelector('.text-lg');
       const nameDiv = cartItems[i].querySelector('h3');
+
+      let icon = '';
+      let priceColor = '';
+      const showDiscount = product.originalVal !== product.discountValue;
+
       if (product.onSale && product.suggestSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-purple-600">₩' +
-          product.discountValue.toLocaleString() +
-          '</span>';
-        nameDiv.textContent = '⚡💝' + product.name;
+        icon = '⚡💝';
+        priceColor = 'text-purple-600';
       } else if (product.onSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-red-500">₩' +
-          product.discountValue.toLocaleString() +
-          '</span>';
-        nameDiv.textContent = '⚡' + product.name;
+        icon = '⚡';
+        priceColor = 'text-red-500';
       } else if (product.suggestSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-blue-500">₩' +
-          product.discountValue.toLocaleString() +
-          '</span>';
-        nameDiv.textContent = '💝' + product.name;
+        icon = '💝';
+        priceColor = 'text-blue-500';
+      }
+
+      nameDiv.textContent = `${icon}${product.name}`;
+
+      if (showDiscount) {
+        priceDiv.innerHTML = `
+    <span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span>
+    <span class="${priceColor}">₩${product.discountValue.toLocaleString()}</span>
+  `;
       } else {
-        priceDiv.textContent = '₩' + product.discountValue.toLocaleString();
-        nameDiv.textContent = product.name;
+        priceDiv.textContent = `₩${product.discountValue.toLocaleString()}`;
       }
     }
   }
