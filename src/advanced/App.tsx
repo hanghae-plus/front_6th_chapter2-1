@@ -1,5 +1,6 @@
-import React, { ReactElement } from 'react';
+import React, { useEffect } from 'react';
 
+import getProducts from '@/advanced/api/getProducts';
 import CartItems from '@/advanced/components/cart/CartItems';
 import Header from '@/advanced/components/layout/Header';
 import HelpOverlay from '@/advanced/components/layout/HelpOverlay';
@@ -9,9 +10,17 @@ import SectionLayout from '@/advanced/components/layout/SectionLayout';
 import OrderSummary from '@/advanced/components/order/OrderSummary';
 import ProductSelect from '@/advanced/components/product/ProductSelect';
 import { useLayoutStore } from '@/advanced/store/useLayoutStore';
+import { useProductStore } from '@/advanced/store/useProductStore';
 
-function App(): ReactElement {
+function App() {
   const { showHelpOverlay } = useLayoutStore();
+  const { setProducts } = useProductStore();
+
+  useEffect(() => {
+    getProducts().then(products => {
+      setProducts(products);
+    });
+  }, []);
 
   return (
     <React.Fragment>
