@@ -315,8 +315,6 @@ function main() {
   }, lightningDelay);
   setTimeout(function () {
     setInterval(function () {
-      if (uiElements.cartDisp.children.length === 0) {
-      }
       if (cartState.lastSelectedProductId) {
         let suggest = null;
         for (let k = 0; k < prodList.length; k++) {
@@ -349,96 +347,57 @@ function main() {
 let sum;
 
 function handleCalculateCartStuff() {
-  let cartItems;
-  let subTot;
-  let itemDiscounts;
-  let lowStockItems;
-  let idx;
-  let originalTotal;
-  let bulkDisc;
-  let itemDisc;
-  let savedAmount;
-  let summaryDetails;
-  let totalDiv;
-  let loyaltyPointsDiv;
-  let points;
-  let discountInfoDiv;
-  let itemCountElement;
-  let previousCount;
-  let stockMsg;
-  let pts;
-  let loyaltyDiv;
   cartState.totalAmt = 0;
   cartState.itemCnt = 0;
-  originalTotal = cartState.totalAmt;
-  cartItems = uiElements.cartDisp.children;
-  subTot = 0;
-  bulkDisc = subTot;
-  itemDiscounts = [];
-  lowStockItems = [];
-  for (idx = 0; idx < prodList.length; idx++) {
-    if (
-      prodList[idx].quantity.isLessThan(new Quantity(LOW_STOCK_THRESHOLD)) &&
-      prodList[idx].quantity.isGreaterThan(new Quantity(0))
-    ) {
-      lowStockItems.push(prodList[idx].name);
-    }
-  }
+  const cartItems = uiElements.cartDisp.children;
+  let subTot = 0;
+  const itemDiscounts = [];
   for (let i = 0; i < cartItems.length; i++) {
-    (function () {
-      let curItem;
-      for (let j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
-          break;
-        }
+    let curItem;
+    for (let j = 0; j < prodList.length; j++) {
+      if (prodList[j].id === cartItems[i].id) {
+        curItem = prodList[j];
+        break;
       }
-      const qtyElem = cartItems[i].querySelector(".quantity-number");
-      let q;
-      let itemTot;
-      let disc;
-      q = parseInt(qtyElem.textContent);
-      itemTot = curItem.price.getAmount() * q;
-      disc = 0;
-      cartState.itemCnt += q;
-      subTot += itemTot;
-      const itemDiv = cartItems[i];
-      const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
-      priceElems.forEach(function (elem) {
-        if (elem.classList.contains("text-lg")) {
-          elem.style.fontWeight =
-            q >= INDIVIDUAL_DISCOUNT_MIN_QUANTITY ? "bold" : "normal";
-        }
-      });
-      if (q >= INDIVIDUAL_DISCOUNT_MIN_QUANTITY) {
-        if (curItem.id === PRODUCT_1) {
-          disc = PRODUCT_1_DISCOUNT_RATE / 100;
-        } else {
-          if (curItem.id === PRODUCT_2) {
-            disc = PRODUCT_2_DISCOUNT_RATE / 100;
-          } else {
-            if (curItem.id === PRODUCT_3) {
-              disc = PRODUCT_3_DISCOUNT_RATE / 100;
-            } else {
-              if (curItem.id === PRODUCT_4) {
-                disc = PRODUCT_4_DISCOUNT_RATE / 100;
-              } else {
-                if (curItem.id === PRODUCT_5) {
-                  disc = PRODUCT_5_DISCOUNT_RATE / 100;
-                }
-              }
-            }
-          }
-        }
-        if (disc > 0) {
-          itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
-        }
+    }
+    const qtyElem = cartItems[i].querySelector(".quantity-number");
+    const q = parseInt(qtyElem.textContent);
+    const itemTot = curItem.price.getAmount() * q;
+    let disc = 0;
+    cartState.itemCnt += q;
+    subTot += itemTot;
+    
+    // 10개 이상일 때 굵은 글씨로 표시
+    const itemDiv = cartItems[i];
+    const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
+    priceElems.forEach(function (elem) {
+      if (elem.classList.contains("text-lg")) {
+        elem.style.fontWeight = q >= INDIVIDUAL_DISCOUNT_MIN_QUANTITY ? "bold" : "normal";
       }
-      cartState.totalAmt += itemTot * (1 - disc);
-    })();
+    });
+    
+    // 개별 할인 적용
+    if (q >= INDIVIDUAL_DISCOUNT_MIN_QUANTITY) {
+      if (curItem.id === PRODUCT_1) {
+        disc = PRODUCT_1_DISCOUNT_RATE / 100;
+      } else if (curItem.id === PRODUCT_2) {
+        disc = PRODUCT_2_DISCOUNT_RATE / 100;
+      } else if (curItem.id === PRODUCT_3) {
+        disc = PRODUCT_3_DISCOUNT_RATE / 100;
+      } else if (curItem.id === PRODUCT_4) {
+        disc = PRODUCT_4_DISCOUNT_RATE / 100;
+      } else if (curItem.id === PRODUCT_5) {
+        disc = PRODUCT_5_DISCOUNT_RATE / 100;
+      }
+      
+      if (disc > 0) {
+        itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
+      }
+    }
+    cartState.totalAmt += itemTot * (1 - disc);
   }
   let discRate = 0;
-  originalTotal = subTot;
+  const originalTotal = subTot;
   if (cartState.itemCnt >= BULK_DISCOUNT_MIN_QUANTITY) {
     cartState.totalAmt = (subTot * (100 - BULK_DISCOUNT_RATE)) / 100;
     discRate = BULK_DISCOUNT_RATE / 100;
@@ -463,7 +422,7 @@ function handleCalculateCartStuff() {
   document.getElementById(
     "item-count"
   ).textContent = `🛍️ ${cartState.itemCnt} items in cart`;
-  summaryDetails = document.getElementById("summary-details");
+  const summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
@@ -525,15 +484,15 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
-  totalDiv = sum.querySelector(".text-2xl");
+  const totalDiv = sum.querySelector(".text-2xl");
   if (totalDiv) {
     totalDiv.textContent = `₩${Math.round(
       cartState.totalAmt
     ).toLocaleString()}`;
   }
-  loyaltyPointsDiv = document.getElementById("loyalty-points");
+  const loyaltyPointsDiv = document.getElementById("loyalty-points");
   if (loyaltyPointsDiv) {
-    points = Math.floor(cartState.totalAmt / POINTS_PER_THOUSAND);
+    const points = Math.floor(cartState.totalAmt / POINTS_PER_THOUSAND);
     if (points > 0) {
       loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
       loyaltyPointsDiv.style.display = "block";
@@ -542,10 +501,10 @@ function handleCalculateCartStuff() {
       loyaltyPointsDiv.style.display = "block";
     }
   }
-  discountInfoDiv = document.getElementById("discount-info");
+  const discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
   if (discRate > 0 && cartState.totalAmt > 0) {
-    savedAmount = originalTotal - cartState.totalAmt;
+    const savedAmount = originalTotal - cartState.totalAmt;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -560,15 +519,15 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
-  itemCountElement = document.getElementById("item-count");
+  const itemCountElement = document.getElementById("item-count");
   if (itemCountElement) {
-    previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
     itemCountElement.textContent = `🛍️ ${cartState.itemCnt} items in cart`;
     if (previousCount !== cartState.itemCnt) {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
-  stockMsg = "";
+  let stockMsg = "";
   for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
     const item = prodList[stockIdx];
     if (item.quantity.isLessThan(new Quantity(LOW_STOCK_THRESHOLD))) {
@@ -696,21 +655,6 @@ const handleStockInfoUpdate = function () {
   uiElements.stockInfo.textContent = infoMsg;
 };
 function doUpdatePricesInCart() {
-  let totalCount = 0,
-    j = 0;
-  while (uiElements.cartDisp.children[j]) {
-    const qty =
-      uiElements.cartDisp.children[j].querySelector(".quantity-number");
-    totalCount += qty ? parseInt(qty.textContent) : 0;
-    j++;
-  }
-  totalCount = 0;
-  for (j = 0; j < uiElements.cartDisp.children.length; j++) {
-    totalCount += parseInt(
-      uiElements.cartDisp.children[j].querySelector(".quantity-number")
-        .textContent
-    );
-  }
   const cartItems = uiElements.cartDisp.children;
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
@@ -891,8 +835,6 @@ uiElements.cartDisp.addEventListener("click", function (event) {
       const remQty = parseInt(qtyElem.textContent);
       prod.quantity = prod.quantity.add(new Quantity(remQty));
       itemElem.remove();
-    }
-    if (prod && prod.quantity.isLessThan(new Quantity(LOW_STOCK_THRESHOLD))) {
     }
     handleCalculateCartStuff();
     updateSelectOptions();
