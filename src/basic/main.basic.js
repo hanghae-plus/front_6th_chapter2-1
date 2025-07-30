@@ -68,32 +68,6 @@ function main() {
   }, Math.random() * 20000);
 }
 
-// /* 상품 셀렉트 박스(selectedItem)의 옵션을 현재 상품 상태에 맞게 갱신 */
-// function handleUpdateProductSelectOptions() {
-//   globalElements.productSelector.innerHTML = '';
-
-//   const options = productManager.getProductOptions();
-
-//   options.forEach((option) => {
-//     const optionElement = createProductSelectorOption(option);
-//   });
-//   productManager.getProducts().map((product) => {
-//     const optionElement = createProductSelectorOption({
-//       value: product.id,
-//       message: productManager.getOptionMessage(product),
-//       disabled: product.quantity === OUT_OF_STOCK,
-//     });
-
-//     globalElements.productSelector.appendChild(optionElement);
-//   });
-
-//   if (productManager.isLowTotalStock()) {
-//     globalElements.productSelector.style.borderColor = 'orange';
-//   } else {
-//     globalElements.productSelector.style.borderColor = '';
-//   }
-// }
-
 /**
  * 총 상품 수량 및 가격 계산
  * 개별 할인 (10개 이상 구매), 대량 구매 할인(30개↑), 화요일 할인 적용
