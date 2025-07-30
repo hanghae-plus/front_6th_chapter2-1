@@ -152,7 +152,7 @@ function main() {
   /* 데이터 준비 */
   initProducts();
   updateSelectOptions();
-  handleCalculateCartStuff();
+  calculateCart();
 
   /* 번개 세일 */
   setTimeout(() => {
@@ -225,15 +225,13 @@ function updateSelectOptions() {
  *
  * doRenderBonusPoints, handleStockInfoUpdate 호출 중
  */
-function handleCalculateCartStuff() {
-  let cartItems;
-  let subTot;
-  let itemDiscounts;
-  let lowStockItems;
+function calculateCart() {
+  const cartItems = cartDisplay.children;
+  let subTot = 0;
+
   let idx;
-  var originalTotal;
-  let bulkDisc;
-  let itemDisc;
+  let originalTotal;
+
   let savedAmount;
   let summaryDetails;
   let totalDiv;
@@ -243,24 +241,21 @@ function handleCalculateCartStuff() {
   let itemCountElement;
   let previousCount;
   let stockMsg;
-  let pts;
-  let hasP1;
-  let hasP2;
-  let loyaltyDiv;
-  totalAmount = 0;
-  itemCount = 0;
-  originalTotal = totalAmount;
-  cartItems = cartDisplay.children;
-  subTot = 0;
-  bulkDisc = subTot;
-  itemDiscounts = [];
-  lowStockItems = [];
+
+  totalAmount = 0; //전역변수로 관리 중
+  itemCount = 0; // 전역변수로 관리 중
+
+  const itemDiscounts = [];
+  const lowStockItems = [];
+
   for (idx = 0; idx < productManager.getProductCount(); idx++) {
     const product = productManager.getProductAt(idx);
     if (0 < product.quantity && product.quantity < 5) {
       lowStockItems.push(product.name);
     }
   }
+
+  /** 1. 할인 적용된 가격 계산 - 번쩍 세일, 추천 세일 제외하고도 추가 할인항목 있음 */
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       let curItem;
@@ -314,8 +309,10 @@ function handleCalculateCartStuff() {
       totalAmount += itemTot * (1 - disc);
     })();
   }
+
+  /** 2. 총 할인율 및 적립 포인트 계산 */
   let discRate = 0;
-  var originalTotal = subTot;
+  originalTotal = subTot;
   if (itemCount >= 30) {
     totalAmount = (subTot * 75) / 100;
     discRate = 25 / 100;
@@ -336,7 +333,10 @@ function handleCalculateCartStuff() {
   } else {
     tuesdaySpecial.classList.add('hidden');
   }
+
   document.getElementById('item-count').textContent = '🛍️ ' + itemCount + ' items in cart';
+
+  /** 3. 할인 정보 및 재고 경고 표시 [view] */
   summaryDetails = document.getElementById('summary-details');
   summaryDetails.innerHTML = '';
   if (subTot > 0) {
@@ -400,10 +400,12 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
+
   totalDiv = sum.querySelector('.text-2xl');
   if (totalDiv) {
     totalDiv.textContent = '₩' + Math.round(totalAmount).toLocaleString();
   }
+
   loyaltyPointsDiv = document.getElementById('loyalty-points');
   if (loyaltyPointsDiv) {
     points = Math.floor(totalAmount / 1000);
@@ -415,6 +417,7 @@ function handleCalculateCartStuff() {
       loyaltyPointsDiv.style.display = 'block';
     }
   }
+
   discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
   if (discRate > 0 && totalAmount > 0) {
@@ -429,6 +432,7 @@ function handleCalculateCartStuff() {
       </div>
     `;
   }
+
   itemCountElement = document.getElementById('item-count');
   if (itemCountElement) {
     previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
@@ -437,6 +441,7 @@ function handleCalculateCartStuff() {
       itemCountElement.setAttribute('data-changed', 'true');
     }
   }
+
   stockMsg = '';
   for (let stockIdx = 0; stockIdx < productManager.getProductCount(); stockIdx++) {
     const item = productManager.getProductAt(stockIdx);
@@ -449,6 +454,7 @@ function handleCalculateCartStuff() {
     }
   }
   stockInfo.textContent = stockMsg;
+
   handleStockUpdate();
   doRenderBonusPoints();
 }
@@ -621,7 +627,7 @@ function doUpdatePricesInCart() {
       }
     }
   }
-  handleCalculateCartStuff();
+  calculateCart();
 }
 
 main();
@@ -686,7 +692,7 @@ addCartButton.addEventListener('click', function () {
       cartDisplay.appendChild(newItem);
       itemToAdd.quantity--;
     }
-    handleCalculateCartStuff();
+    calculateCart();
     // 장바구니에 마지막으로 담은 아이템
     lastSelectedItem = selItem;
   }
@@ -728,7 +734,7 @@ cartDisplay.addEventListener('click', function (event) {
     }
     if (prod && prod.quantity < 5) {
     }
-    handleCalculateCartStuff();
+    calculateCart();
     updateSelectOptions();
   }
 });
