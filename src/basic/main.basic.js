@@ -3,6 +3,7 @@ import { initAddButtonEvent } from "./events/addBtnEventHandler";
 import { initCartDOMEvent } from "./events/cartEventHandler";
 
 import productStore, { productIds } from "./store/product";
+import cartStore from "./store/cart";
 
 import { calculateItemDiscount } from "./utils/cart/calculateItemDiscount";
 import { extractCartData } from "./utils/cart/extractCartData";
@@ -19,14 +20,20 @@ import { renderDiscountInfo } from "./ui/render/renderDiscountInfo";
 import { renderLoyaltyPoints } from "./ui/render/renderLoyaltyPoints";
 import { updateCartUI } from "./ui/update/updateCart";
 import { updateCartItemStyles } from "./ui/update/updateCartItem";
-import cartStore from "./store/cart";
+import { updateBonusPoints } from "./ui/update/updateBonusPoints";
+import { updateStockInfo } from "./ui/update/updateStockInfo";
 
-// const prodList = productStore.getAllProducts();
-// const productIds = productStore.getState().productIds;
+// 비즈니스 서비스들
+import {
+  calculateAndUpdateCart,
+  getCartState,
+} from "./services/cartCalculationService";
+import { calculateBonusPoints } from "./services/bonusPointsService";
+import { getLowStockItems } from "./services/stockService";
+
+// 전역 변수들
 var bonusPts = 0;
-var itemCnt;
 var lastSel;
-var totalAmt = 0;
 
 //DOM 관련 변수
 var stockInfo;
@@ -254,131 +261,17 @@ const onUpdateSelectOptions = () => {
  * 장바구니 계산 및 렌더링을 담당하는 함수
  */
 const handleCalculateCartStuff = () => {
-  // store에서 cartItems 가져오기
-  const cartItems = cartStore.getState().items;
-
-  // 총 금액 계산 (할인 포함)
-  const totals = calculateCartTotals(cartItems);
-
-  // 계산금액 스토어 업데이트
-  cartStore.updateTotals(totals);
+  // 총 금액 계산 로직들
+  const cartData = calculateAndUpdateCart();
+  const lowStockItems = getLowStockItems();
+  const cartState = getCartState();
+  const bonusPointsData = calculateBonusPoints(cartState);
 
   // UI 업데이트
-  updateCartItemStyles(cartItems);
-  updateCartUI({ items: cartItems, totals });
-
-  // 추가 업데이트
-  handleStockInfoUpdate();
-  doRenderBonusPoints();
-};
-
-const doRenderBonusPoints = () => {
-  // Store에서 데이터 가져오기
-  const cartState = cartStore.getState();
-  const { items, totals } = cartState;
-  const { totalAmount, totalQty } = totals;
-
-  if (items.length === 0) {
-    document.getElementById("loyalty-points").style.display = "none";
-    return;
-  }
-
-  const basePoints = Math.floor(totalAmount / 1000);
-  let finalPoints = 0;
-  const pointsDetail = [];
-
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push("기본: " + basePoints + "p");
-  }
-
-  // 화요일 2배 포인트
-  if (totals.isTuesday && basePoints > 0) {
-    finalPoints = basePoints * 2;
-    pointsDetail.push("화요일 2배");
-  }
-
-  // 상품 조합 보너스 포인트
-  let hasKeyboard = false;
-  let hasMouse = false;
-  let hasMonitorArm = false;
-
-  items.forEach((item) => {
-    if (item.id === productIds.p1) {
-      hasKeyboard = true;
-    } else if (item.id === productIds.p2) {
-      hasMouse = true;
-    } else if (item.id === productIds.p3) {
-      hasMonitorArm = true;
-    }
-  });
-
-  if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push("키보드+마우스 세트 +50p");
-  }
-
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push("풀세트 구매 +100p");
-  }
-
-  // 대량구매 보너스 포인트
-  if (totalQty >= 30) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push("대량구매(30개+) +100p");
-  } else if (totalQty >= 20) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push("대량구매(20개+) +50p");
-  } else if (totalQty >= 10) {
-    finalPoints = finalPoints + 20;
-    pointsDetail.push("대량구매(10개+) +20p");
-  }
-
-  bonusPts = finalPoints;
-  const ptsTag = document.getElementById("loyalty-points");
-
-  if (ptsTag) {
-    if (bonusPts > 0) {
-      ptsTag.innerHTML =
-        '<div>적립 포인트: <span class="font-bold">' +
-        bonusPts +
-        "p</span></div>" +
-        '<div class="text-2xs opacity-70 mt-1">' +
-        pointsDetail.join(", ") +
-        "</div>";
-      ptsTag.style.display = "block";
-    } else {
-      ptsTag.textContent = "적립 포인트: 0p";
-      ptsTag.style.display = "block";
-    }
-  }
-};
-
-const handleStockInfoUpdate = () => {
-  let infoMsg = "";
-
-  const prodList = productStore.getState().products;
-
-  prodList.forEach((product) => {
-    const currentStock = product.q;
-
-    // 조건 수정: 5개 미만이면 재고 부족 표시
-    if (currentStock < 5) {
-      if (currentStock > 0) {
-        infoMsg =
-          infoMsg +
-          product.name +
-          ": 재고 부족 (" +
-          currentStock +
-          "개 남음)\n";
-      } else {
-        infoMsg = infoMsg + product.name + ": 품절\n";
-      }
-    }
-  });
-
-  stockInfo.textContent = infoMsg;
+  updateCartItemStyles(cartData.items);
+  updateCartUI(cartData);
+  updateStockInfo(lowStockItems);
+  updateBonusPoints(bonusPointsData);
 };
 
 function doUpdatePricesInCart() {

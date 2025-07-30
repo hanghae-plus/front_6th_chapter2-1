@@ -1,0 +1,50 @@
+import cartStore from "../store/cart";
+import { calculateCartTotals } from "../utils/cart/calculateCartTotals";
+
+/**
+ * 장바구니 계산 관련 비즈니스 로직을 담당하는 함수들
+ */
+
+/**
+ * 장바구니 전체 계산 및 Store 업데이트
+ * @returns {Object} 계산된 장바구니 데이터
+ */
+export const calculateAndUpdateCart = () => {
+  const cartItems = cartStore.getState().items;
+  const totals = calculateCartTotals(cartItems);
+  cartStore.updateTotals(totals);
+  return { items: cartItems, totals };
+};
+
+/**
+ * 장바구니 상태 가져오기
+ * @returns {Object} 장바구니 상태
+ */
+export const getCartState = () => {
+  return cartStore.getState();
+};
+
+/**
+ * 장바구니 아이템 추가
+ * @param {Object} product - 추가할 상품 정보
+ */
+export const addCartItem = (product) => {
+  cartStore.addCartItem(product);
+};
+
+/**
+ * 장바구니 아이템 수량 업데이트
+ * @param {string} productId - 상품 ID
+ * @param {number} quantity - 새로운 수량
+ */
+export const updateItemQuantity = (productId, quantity) => {
+  cartStore.updateItemQuantity(productId, quantity);
+};
+
+/**
+ * 장바구니 아이템 제거
+ * @param {string} productId - 제거할 상품 ID
+ */
+export const removeCartItem = (productId) => {
+  cartStore.removeCartItem(productId);
+};
