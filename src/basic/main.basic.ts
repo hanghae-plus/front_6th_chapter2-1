@@ -10,7 +10,6 @@ import { Header } from './components/header';
 import { ManualColumn } from './components/manual/manual-column';
 import { ManualOverlay } from './components/manual/manual-overlay';
 import { ManualToggle } from './components/manual/manual-toggle';
-import { getProductSelect, initProductSelect } from './model/product-select';
 import {
   applyLightningSale,
   applySuggestSale,
@@ -66,7 +65,6 @@ function main() {
     }),
   ]);
 
-  initProductSelect();
   onUpdateSelectOptions();
   handleCalculateCartStuff();
   const lightningDelay = Math.random() * 10000;
@@ -124,7 +122,7 @@ export function onUpdateSelectOptions() {
   let totalStock;
   let opt;
   let discountText;
-  const sel = getProductSelect();
+  const sel = selectById('product-select');
   sel.innerHTML = '';
   totalStock = 0;
 

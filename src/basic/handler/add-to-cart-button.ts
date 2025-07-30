@@ -1,9 +1,6 @@
 import { CartItem } from '../components/cart/cart-tem';
 import { handleCalculateCartStuff } from '../main.basic';
-import {
-  getSelectedProductId,
-  setLastSelectedProductId,
-} from '../model/product-select';
+import { getSelectedProductId } from '../model/product-select';
 import {
   findProduct,
   isSoldOut,
@@ -37,7 +34,6 @@ export function handleAddItemToCart() {
     }
     cartDisp.innerHTML += CartItem({ id: product.id });
     handleCalculateCartStuff();
-    setLastSelectedProductId(selectedProductId);
     return;
   }
 
@@ -58,5 +54,4 @@ export function handleAddItemToCart() {
   }
 
   handleCalculateCartStuff();
-  setLastSelectedProductId(selectedProductId);
 }
