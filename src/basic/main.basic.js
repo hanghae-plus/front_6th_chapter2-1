@@ -4,7 +4,7 @@ import { createManualOverlay } from './components/ManualOverlay';
 import { createManualColumn } from './components/ManualColumn';
 import { createGridContainer } from './components/GridContainer';
 import { createLeftColumn } from './components/LeftColumn';
-import { createRightColumn } from './components/rightColumn';
+import { createRightColumn } from './components/RightColumn';
 import { createSelectorContainer } from './components/SelectorContainer';
 import { createAddToCartBtn } from './components/AddToCartBtn';
 import { createProductSelector } from './components/ProductSelector';
@@ -93,10 +93,6 @@ let sel;
 let addBtn;
 // 장바구니 내 상품 목록
 let cartDisp;
-// 장바구니 총 가격 컴포넌트
-let cartTotal;
-// 상품 재고 품절 표시 컴포넌트
-let stockInfo;
 
 function main() {
   // 전체 페이지 -----
@@ -136,7 +132,7 @@ function main() {
   addBtn = createAddToCartBtn();
 
   // 상품 재고 품절 표시
-  stockInfo = createStockStatus();
+  const stockInfo = createStockStatus();
 
   // selectContainer 선언 후 차례로 컴포넌트 추가
   const selectorContainer = createSelectorContainer();
@@ -154,9 +150,6 @@ function main() {
 
   // right - Order Summary 검은 박스
   const rightColumn = createRightColumn();
-
-  // 장바구니 총 가격 컴포넌트
-  cartTotal = rightColumn.querySelector('#cart-total');
 
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
