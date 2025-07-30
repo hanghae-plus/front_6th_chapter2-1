@@ -99,3 +99,20 @@ export const getSaleStatus = (product) => {
 
   return 'NORMAL';
 };
+
+/**
+ * @description 상품 재고 정보 반환
+ * @param {Product} product - 상품
+ * @returns {string} 상품 재고 정보
+ */
+export const getStockInfo = (product) => {
+  if (product.quantity < 1) {
+    return `${product.name}: 품절`;
+  }
+
+  if (product.quantity < 5) {
+    return `${product.name}: 재고 부족 (${product.quantity}개 남음)`;
+  }
+
+  return '';
+};
