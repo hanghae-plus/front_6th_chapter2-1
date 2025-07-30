@@ -2,6 +2,7 @@
  * 가격 계산 기능
  */
 import { findProductById } from '../../shared/utils/product-utils.js';
+import { PRODUCT_IDS, BUSINESS_CONSTANTS } from '../../shared/constants/index.js';
 
 /**
  * 장바구니 소계 및 개별 할인 계산
@@ -47,17 +48,17 @@ export function calculateCartSubtotal(appState) {
       });
 
       // 개별 할인 계산 (상수 사용)
-      if (quantity >= appState.CONSTANTS.BULK_DISCOUNT_THRESHOLD) {
-        if (curItem.id === appState.PRODUCT_IDS.KEYBOARD) {
-          discount = appState.CONSTANTS.KEYBOARD_DISCOUNT;
-        } else if (curItem.id === appState.PRODUCT_IDS.MOUSE) {
-          discount = appState.CONSTANTS.MOUSE_DISCOUNT;
-        } else if (curItem.id === appState.PRODUCT_IDS.MONITOR_ARM) {
-          discount = appState.CONSTANTS.MONITOR_ARM_DISCOUNT;
-        } else if (curItem.id === appState.PRODUCT_IDS.LAPTOP_POUCH) {
-          discount = appState.CONSTANTS.LAPTOP_POUCH_DISCOUNT;
-        } else if (curItem.id === appState.PRODUCT_IDS.SPEAKER) {
-          discount = appState.CONSTANTS.SPEAKER_DISCOUNT;
+      if (quantity >= BUSINESS_CONSTANTS.BULK_DISCOUNT_THRESHOLD) {
+        if (curItem.id === PRODUCT_IDS.KEYBOARD) {
+          discount = BUSINESS_CONSTANTS.KEYBOARD_DISCOUNT;
+        } else if (curItem.id === PRODUCT_IDS.MOUSE) {
+          discount = BUSINESS_CONSTANTS.MOUSE_DISCOUNT;
+        } else if (curItem.id === PRODUCT_IDS.MONITOR_ARM) {
+          discount = BUSINESS_CONSTANTS.MONITOR_ARM_DISCOUNT;
+        } else if (curItem.id === PRODUCT_IDS.LAPTOP_POUCH) {
+          discount = BUSINESS_CONSTANTS.LAPTOP_POUCH_DISCOUNT;
+        } else if (curItem.id === PRODUCT_IDS.SPEAKER) {
+          discount = BUSINESS_CONSTANTS.SPEAKER_DISCOUNT;
         }
         if (discount > 0) {
           itemDiscounts.push({ name: curItem.name, discount: discount * 100 });
@@ -89,36 +90,28 @@ export function calculateFinalDiscount(appState, subTotal) {
   var originalTotal = subTotal;
 
   // 대량구매 할인
-  if (appState.itemCount >= appState.CONSTANTS.BULK_QUANTITY_THRESHOLD) {
-    appState.totalAmount = subTotal * (1 - appState.CONSTANTS.BULK_QUANTITY_DISCOUNT_RATE);
+  if (appState.itemCount >= BUSINESS_CONSTANTS.BULK_QUANTITY_THRESHOLD) {
+    appState.totalAmount = subTotal * (1 - BUSINESS_CONSTANTS.BULK_QUANTITY_DISCOUNT_RATE);
     appState.totalAmt = appState.totalAmount; // AppState 동기화
-    discountRate = appState.CONSTANTS.BULK_QUANTITY_DISCOUNT_RATE;
+    discountRate = BUSINESS_CONSTANTS.BULK_QUANTITY_DISCOUNT_RATE;
   } else {
     discountRate = (subTotal - appState.totalAmount) / subTotal;
   }
 
   // 화요일 할인
-  const today = new Date();
-  var isTuesday = today.getDay() === appState.CONSTANTS.TUESDAY_DAY_OF_WEEK;
-  var tuesdaySpecial = document.getElementById('tuesday-special');
-
+  var today = new Date();
+  var isTuesday = today.getDay() === BUSINESS_CONSTANTS.TUESDAY_DAY_OF_WEEK;
   if (isTuesday) {
-    if (appState.totalAmount > 0) {
-      appState.totalAmount = appState.totalAmount * (1 - appState.CONSTANTS.TUESDAY_DISCOUNT_RATE);
-      appState.totalAmt = appState.totalAmount; // AppState 동기화
-      discountRate = 1 - appState.totalAmount / originalTotal;
-      tuesdaySpecial.classList.remove('hidden');
-    } else {
-      tuesdaySpecial.classList.add('hidden');
-    }
-  } else {
-    tuesdaySpecial.classList.add('hidden');
+    appState.totalAmount = appState.totalAmount * (1 - BUSINESS_CONSTANTS.TUESDAY_DISCOUNT_RATE);
+    appState.totalAmt = appState.totalAmount; // AppState 동기화
+    // 화요일 할인율을 기존 할인율에 추가
+    discountRate = 1 - appState.totalAmount / originalTotal;
   }
 
   return {
     discountRate: discountRate,
-    originalTotal: originalTotal,
     isTuesday: isTuesday,
+    originalTotal: originalTotal,
   };
 }
 
@@ -164,7 +157,7 @@ export function updateCartUI(appState, subTotal, itemDiscounts, discountInfo) {
     `;
 
     // 할인 정보 표시
-    if (appState.itemCount >= appState.CONSTANTS.BULK_QUANTITY_THRESHOLD) {
+    if (appState.itemCount >= BUSINESS_CONSTANTS.BULK_QUANTITY_THRESHOLD) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
@@ -212,7 +205,7 @@ export function updateCartUI(appState, subTotal, itemDiscounts, discountInfo) {
   // 기본 포인트 표시 업데이트 (AppState 사용)
   var loyaltyPointsDiv = document.getElementById('loyalty-points');
   if (loyaltyPointsDiv) {
-    var points = Math.floor(appState.totalAmount * appState.CONSTANTS.POINTS_RATE * 1000);
+    var points = Math.floor(appState.totalAmount * BUSINESS_CONSTANTS.POINTS_RATE * 1000);
     if (points > 0) {
       loyaltyPointsDiv.textContent = '적립 포인트: ' + points + 'p';
       loyaltyPointsDiv.style.display = 'block';
@@ -237,6 +230,16 @@ export function updateCartUI(appState, subTotal, itemDiscounts, discountInfo) {
         <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
       </div>
     `;
+  }
+
+  // 화요일 할인 배너 표시
+  var tuesdayBanner = document.getElementById('tuesday-special');
+  if (tuesdayBanner) {
+    if (discountInfo.isTuesday) {
+      tuesdayBanner.classList.remove('hidden');
+    } else {
+      tuesdayBanner.classList.add('hidden');
+    }
   }
 
   // 아이템 카운트 변경 표시 (AppState 사용)
