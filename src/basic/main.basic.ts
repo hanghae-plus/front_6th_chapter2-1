@@ -19,6 +19,7 @@ import {
   hasAllSale,
   hasLightningSale,
   hasSuggestSale,
+  isLowStock,
   isSoldOut,
 } from './model/products';
 import { appendChildren } from './utils/append-children';
@@ -393,7 +394,7 @@ export function handleCalculateCartStuff() {
   }
   const stockInfo = selectById(STOCK_STATUS_ID);
   stockInfo.textContent = stockMsg;
-  handleStockInfoUpdate();
+  updateStockStatus();
   doRenderBonusPoints();
 }
 
@@ -480,28 +481,26 @@ const doRenderBonusPoints = function () {
     }
   }
 };
-const handleStockInfoUpdate = function () {
-  let infoMsg;
-  infoMsg = '';
 
+function updateStockStatus() {
   const products = getProducts();
-  products.forEach(function (product) {
-    if (product.quantity < 5) {
-      if (product.quantity > 0) {
-        infoMsg =
-          infoMsg +
-          product.name +
-          ': 재고 부족 (' +
-          product.quantity +
-          '개 남음)\n';
-      } else {
-        infoMsg = infoMsg + product.name + ': 품절\n';
+  const stockStatus = products
+    .reduce<string[]>((acc, product) => {
+      if (isSoldOut(product)) {
+        acc.push(`${product.name}: 품절`);
       }
-    }
-  });
-  const stockInfo = selectById(STOCK_STATUS_ID);
-  stockInfo.textContent = infoMsg;
-};
+
+      if (isLowStock(product)) {
+        acc.push(`${product.name}: 재고 부족 (${product.quantity}개 남음)`);
+      }
+
+      return acc;
+    }, [])
+    .join('\n');
+
+  selectById(STOCK_STATUS_ID).textContent = stockStatus;
+}
+
 function doUpdatePricesInCart() {
   const cartItems = cartDisp.children;
   const productCount = getProductCount();
