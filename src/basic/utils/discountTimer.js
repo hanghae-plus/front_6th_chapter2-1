@@ -25,7 +25,7 @@ const createTimer = (callback, interval, delay) => {
 const lightningSaleCallback = (
   prodList,
   onUpdateSelectOptions,
-  doUpdatePricesInCart,
+  updateCartPricesAndRefresh,
   config = DISCOUNT_CONFIG.LIGHTNING // 기본값 추가
 ) => {
   const luckyIndex = Math.floor(Math.random() * prodList.length);
@@ -37,7 +37,7 @@ const lightningSaleCallback = (
     luckyItem.onSale = true;
     alert(config.ALERT_MESSAGE.replace("{name}", luckyItem.name)); // 설정된 메시지 사용
     onUpdateSelectOptions();
-    doUpdatePricesInCart();
+    updateCartPricesAndRefresh();
   }
 };
 
@@ -46,7 +46,7 @@ const recommendationCallback = (
   prodList,
   lastSel,
   onUpdateSelectOptions,
-  doUpdatePricesInCart,
+  updateCartPricesAndRefresh,
   config = DISCOUNT_CONFIG.RECOMMENDATION // 기본값 추가
 ) => {
   if (!lastSel) return;
@@ -61,7 +61,7 @@ const recommendationCallback = (
     suggest.val = Math.round(suggest.val * discountMultiplier);
     suggest.suggestSale = true;
     onUpdateSelectOptions();
-    doUpdatePricesInCart();
+    updateCartPricesAndRefresh();
   }
 };
 
@@ -69,7 +69,7 @@ const recommendationCallback = (
 export const startLightningSaleTimer = ({
   prodList,
   onUpdateSelectOptions,
-  doUpdatePricesInCart,
+  updateCartPricesAndRefresh,
   delay = Math.random() * 10000,
   config = DISCOUNT_CONFIG.LIGHTNING, // 기본값 추가
 }) => {
@@ -78,7 +78,7 @@ export const startLightningSaleTimer = ({
       lightningSaleCallback(
         prodList,
         onUpdateSelectOptions,
-        doUpdatePricesInCart,
+        updateCartPricesAndRefresh,
         config // config 전달
       ),
     config.INTERVAL, // 설정된 간격 사용
@@ -91,7 +91,7 @@ export const startRecommendationTimer = ({
   prodList,
   lastSel,
   onUpdateSelectOptions,
-  doUpdatePricesInCart,
+  updateCartPricesAndRefresh,
   delay = Math.random() * 20000,
   config = DISCOUNT_CONFIG.RECOMMENDATION, // 기본값 추가
 }) => {
@@ -101,7 +101,7 @@ export const startRecommendationTimer = ({
         prodList,
         lastSel,
         onUpdateSelectOptions,
-        doUpdatePricesInCart,
+        updateCartPricesAndRefresh,
         config // config 전달
       ),
     config.INTERVAL, // 설정된 간격 사용

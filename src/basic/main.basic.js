@@ -23,6 +23,7 @@ import { updateCartItemStyles } from "./ui/update/updateCartItem";
 import { updateBonusPoints } from "./ui/update/updateBonusPoints";
 import { updateStockInfo } from "./ui/update/updateStockInfo";
 import { updateCartUIAfterCalculation } from "./ui/update/updateCartUIAfterCalculation";
+import { updateCartItemPrices } from "./ui/update/updateCartItemPrices";
 
 // 비즈니스 서비스들
 import {
@@ -211,33 +212,26 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
-  //TODO : 사용되지 않는 코드처럼 보임.. 일단 주석처리
-  // var initStock = 0;
-  // for (var i = 0; i < prodList.length; i++) {
-  //   initStock += prodList[i].q;
-  // }
-
   onUpdateSelectOptions();
   handleCalculateCartStuff();
-  // lightningDelay = Math.random() * 10000;
 
   const prodList = productStore.getState().products;
 
   //TODO : 주석 꼭 풀어야함@@@@@
-  // // 번개할인 타이머 시작
-  // startLightningSaleTimer({
-  //   prodList,
-  //   onUpdateSelectOptions,
-  //   doUpdatePricesInCart,
-  // });
+  // 번개할인 타이머 시작
+  startLightningSaleTimer({
+    prodList,
+    onUpdateSelectOptions,
+    updateCartPricesAndRefresh,
+  });
 
-  // // 추천할인 타이머 시작
-  // startRecommendationTimer({
-  //   prodList,
-  //   lastSel,
-  //   onUpdateSelectOptions,
-  //   doUpdatePricesInCart,
-  // });
+  // 추천할인 타이머 시작
+  startRecommendationTimer({
+    prodList,
+    lastSel,
+    onUpdateSelectOptions,
+    updateCartPricesAndRefresh,
+  });
 }
 var sum;
 
@@ -246,7 +240,6 @@ var sum;
  */
 const onUpdateSelectOptions = () => {
   const prodList = productStore.getState().products;
-
   updateSelectOptions(sel, prodList);
 };
 
@@ -261,67 +254,17 @@ const handleCalculateCartStuff = () => {
   updateCartUIAfterCalculation(businessData);
 };
 
-function doUpdatePricesInCart() {
-  var totalCount = 0,
-    j = 0;
-  var cartItems;
-  const prodList = productStore.getState().products;
-  while (cartDisp.children[j]) {
-    var qty = cartDisp.children[j].querySelector(".quantity-number");
-    totalCount += qty ? parseInt(qty.textContent) : 0;
-    j++;
-  }
-  totalCount = 0;
-  for (j = 0; j < cartDisp.children.length; j++) {
-    totalCount += parseInt(
-      cartDisp.children[j].querySelector(".quantity-number").textContent
-    );
-  }
-  cartItems = cartDisp.children;
-  for (var i = 0; i < cartItems.length; i++) {
-    var itemId = cartItems[i].id;
-    var product = null;
-    for (var productIdx = 0; productIdx < prodList.length; productIdx++) {
-      if (prodList[productIdx].id === itemId) {
-        product = prodList[productIdx];
-        break;
-      }
-    }
-    if (product) {
-      var priceDiv = cartItems[i].querySelector(".text-lg");
-      var nameDiv = cartItems[i].querySelector("h3");
-      if (product.onSale && product.suggestSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-purple-600">₩' +
-          product.val.toLocaleString() +
-          "</span>";
-        nameDiv.textContent = "⚡💝" + product.name;
-      } else if (product.onSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-red-500">₩' +
-          product.val.toLocaleString() +
-          "</span>";
-        nameDiv.textContent = "⚡" + product.name;
-      } else if (product.suggestSale) {
-        priceDiv.innerHTML =
-          '<span class="line-through text-gray-400">₩' +
-          product.originalVal.toLocaleString() +
-          '</span> <span class="text-blue-500">₩' +
-          product.val.toLocaleString() +
-          "</span>";
-        nameDiv.textContent = "💝" + product.name;
-      } else {
-        priceDiv.textContent = "₩" + product.val.toLocaleString();
-        nameDiv.textContent = product.name;
-      }
-    }
-  }
+/**
+ * 카트 아이템들의 가격을 업데이트하고 카트 디스플레이를 새로고침하는 함수
+ */
+const updateCartPricesAndRefresh = () => {
+  // 카트 아이템 가격 업데이트
+  updateCartItemPrices(cartDisp);
+
+  // 카트 디스플레이 새로고침
   handleCalculateCartStuff();
-}
+};
+
 main();
 
 initAddButtonEvent(addBtn, sel, cartDisp, handleCalculateCartStuff);
