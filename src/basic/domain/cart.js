@@ -2,7 +2,19 @@ export const cartManager = (() => {
   const instance = {}; // { productId: quantity }
   let lastAddedItem; // 마지막에 추가된 아이템
 
-  const getItems = () => ({ ...instance });
+  //   const getCart = () => ({ ...instance });
+
+  const getQuantityByProductId = (productId) => {
+    const quantity = instance[productId];
+    if (!quantity) throw Error('doesnt exist');
+    return instance[productId];
+  };
+
+  const getItems = () =>
+    Object.entries(instance).map(([productId, quantity]) => ({
+      productId,
+      quantity,
+    }));
 
   const addItem = (productId, quantity = 1) => {
     if (!instance[productId]) instance[productId] = 0;
@@ -37,7 +49,7 @@ export const cartManager = (() => {
   // ====== 파생 정보 ======
 
   const getTotalItem = () => {
-    return Object.values(instance).reduce((sum, q) => sum + q, 0);
+    return Object.values(instance).reduce((total, quantity) => total + quantity, 0);
   };
 
   const getLastAddedItem = () => lastAddedItem;
@@ -72,13 +84,15 @@ export const cartManager = (() => {
   //   };
 
   return {
+    // getItems: getCart,
+    getQuantityByProductId,
     getItems,
     addItem,
     removeItem,
     changeQuantity,
     clear,
 
-    getItemCount: getTotalItem,
+    getTotalItem,
     getLastAddedItem,
     // getProductsInCart,
     // getSubtotal,
