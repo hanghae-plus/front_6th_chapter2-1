@@ -1,5 +1,4 @@
-import { createStore, QUERY } from ".";
-import { products } from "./product";
+import { ACTION_TYPE, createStore } from ".";
 
 export const cartState = {
   selectedProductId: null,
@@ -51,7 +50,7 @@ const cartActions = {
   getItemQuantity: (state, productId) => {
     const item = state.items.find((item) => item.id === productId);
     return {
-      type: QUERY,
+      type: ACTION_TYPE.QUERY,
       data: item ? item.quantity : 0,
     };
   },

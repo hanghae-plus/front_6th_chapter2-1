@@ -1,4 +1,6 @@
-export const QUERY = "QUERY";
+export const ACTION_TYPE = {
+  QUERY: "QUERY",
+};
 
 export const createStore = (initialState, actions = {}) => {
   let state = initialState;
