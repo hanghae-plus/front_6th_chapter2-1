@@ -488,49 +488,56 @@ function doUpdatePricesInCart(state) {
 	handleCalculateCartStuff(state);
 }
 
-function main() {
-	// Initialize application state and get root element
-	const appState = createAppState();
-	const root = document.getElementById("app");
+// Component creation functions
+function createProductSelector() {
+	const select = document.createElement("select");
+	select.id = "product-select";
+	select.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
+	return select;
+}
 
-	// Create product selector container
-	const selectorContainer = document.createElement("div");
-	selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
-
-	// Create product selector dropdown
-	appState.sel = document.createElement("select");
-	appState.sel.id = "product-select";
-	appState.sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
-
-	// Create add to cart button
-	appState.addBtn = document.createElement("button");
-	appState.addBtn.id = "add-to-cart";
-	appState.addBtn.innerHTML = "Add to Cart";
-	appState.addBtn.className =
+function createAddToCartButton() {
+	const button = document.createElement("button");
+	button.id = "add-to-cart";
+	button.innerHTML = "Add to Cart";
+	button.className =
 		"w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
+	return button;
+}
 
-	// Create stock information display
-	appState.stockInfo = document.createElement("div");
-	appState.stockInfo.id = "stock-status";
-	appState.stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
+function createStockInfoDisplay() {
+	const div = document.createElement("div");
+	div.id = "stock-status";
+	div.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
+	return div;
+}
 
-	// Assemble selector container
-	selectorContainer.appendChild(appState.sel);
-	selectorContainer.appendChild(appState.addBtn);
-	selectorContainer.appendChild(appState.stockInfo);
+function createSelectorContainer(selector, addButton, stockInfo) {
+	const container = document.createElement("div");
+	container.className = "mb-6 pb-6 border-b border-gray-200";
+	
+	container.appendChild(selector);
+	container.appendChild(addButton);
+	container.appendChild(stockInfo);
+	
+	return container;
+}
 
-	// Create left column (product selection and cart)
+function createCartDisplay() {
+	const div = document.createElement("div");
+	div.id = "cart-items";
+	return div;
+}
+
+function createLeftColumn(selectorContainer, cartDisplay) {
 	const leftColumn = document.createElement("div");
 	leftColumn["className"] = "bg-white border border-gray-200 p-8 overflow-y-auto";
 	leftColumn.appendChild(selectorContainer);
+	leftColumn.appendChild(cartDisplay);
+	return leftColumn;
+}
 
-	// Create cart display container
-	appState.cartDisp = document.createElement("div");
-	appState.cartDisp.id = "cart-items";
-
-	leftColumn.appendChild(appState.cartDisp);
-
-	// Create right column (order summary)
+function createRightColumn() {
 	const rightColumn = document.createElement("div");
 	rightColumn.className = "bg-black text-white p-8 flex flex-col";
 	rightColumn.innerHTML = /* HTML */ `
@@ -566,10 +573,10 @@ function main() {
 			<span id="points-notice">Earn loyalty points with purchase.</span>
 		</p>
 	`;
+	return rightColumn;
+}
 
-	appState.sum = rightColumn.querySelector("#cart-total");
-
-	// manual
+function createManualToggleButton(manualOverlay, manualColumn) {
 	const manualToggle = document.createElement("button");
 	manualToggle.onclick = function () {
 		manualOverlay.classList.toggle("hidden");
@@ -578,7 +585,10 @@ function main() {
 	manualToggle.className =
 		"fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
 	manualToggle.innerHTML = InfoIcon();
+	return manualToggle;
+}
 
+function createManualOverlay(manualColumn) {
 	const manualOverlay = document.createElement("div");
 	manualOverlay.className = "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
 	manualOverlay.onclick = function (e) {
@@ -587,7 +597,10 @@ function main() {
 			manualColumn.classList.add("translate-x-full");
 		}
 	};
+	return manualOverlay;
+}
 
+function createManualColumn() {
 	const manualColumn = document.createElement("div");
 	manualColumn.className =
 		"fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300";
@@ -652,15 +665,70 @@ function main() {
 			</p>
 		</div>
 	`;
+	return manualColumn;
+}
 
-	manualOverlay.appendChild(manualColumn);
-
-	// gridContainer
+function createGridContainer(leftColumn, rightColumn) {
 	const gridContainer = document.createElement("div");
 	gridContainer.className =
 		"grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
 	gridContainer.appendChild(leftColumn);
 	gridContainer.appendChild(rightColumn);
+	return gridContainer;
+}
+
+function createCartItem(itemToAdd) {
+	const newItem = document.createElement("div");
+	newItem.id = itemToAdd.id;
+	newItem.className =
+		"grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
+	newItem.innerHTML = `
+        <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
+          <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+        </div>
+        <div>
+          <h3 class="text-base font-normal mb-1 tracking-tight">${itemToAdd.onSale && itemToAdd.suggestSale ? "⚡💝" : itemToAdd.onSale ? "⚡" : itemToAdd.suggestSale ? "💝" : ""}${itemToAdd.name}</h3>
+          <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
+          <p class="text-xs text-black mb-3">${itemToAdd.onSale || itemToAdd.suggestSale ? `<span class="line-through text-gray-400">₩${itemToAdd.originalVal.toLocaleString()}</span> <span class="${itemToAdd.onSale && itemToAdd.suggestSale ? "text-purple-600" : itemToAdd.onSale ? "text-red-500" : "text-blue-500"}">₩${itemToAdd.val.toLocaleString()}</span>` : `₩${itemToAdd.val.toLocaleString()}`}</p>
+          <div class="flex items-center gap-4">
+            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="-1">−</button>
+            <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
+            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="1">+</button>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-lg mb-2 tracking-tight tabular-nums">${itemToAdd.onSale || itemToAdd.suggestSale ? `<span class="line-through text-gray-400">₩${itemToAdd.originalVal.toLocaleString()}</span> <span class="${itemToAdd.onSale && itemToAdd.suggestSale ? "text-purple-600" : itemToAdd.onSale ? "text-red-500" : "text-blue-500"}">₩${itemToAdd.val.toLocaleString()}</span>` : `₩${itemToAdd.val.toLocaleString()}`}</div>
+          <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemToAdd.id}">Remove</a>
+        </div>
+      `;
+	return newItem;
+}
+
+function main() {
+	// Initialize application state and get root element
+	const appState = createAppState();
+	const root = document.getElementById("app");
+
+	// Create UI components using component functions
+	appState.sel = createProductSelector();
+	appState.addBtn = createAddToCartButton();
+	appState.stockInfo = createStockInfoDisplay();
+	
+	const selectorContainer = createSelectorContainer(appState.sel, appState.addBtn, appState.stockInfo);
+	appState.cartDisp = createCartDisplay();
+	const leftColumn = createLeftColumn(selectorContainer, appState.cartDisp);
+
+	const rightColumn = createRightColumn();
+	appState.sum = rightColumn.querySelector("#cart-total");
+
+	// Create manual components
+	const manualColumn = createManualColumn();
+	const manualOverlay = createManualOverlay(manualColumn);
+	const manualToggle = createManualToggleButton(manualOverlay, manualColumn);
+	
+	manualOverlay.appendChild(manualColumn);
+
+	const gridContainer = createGridContainer(leftColumn, rightColumn);
 
 	appState.totalAmt = 0;
 	appState.itemCnt = 0;
@@ -751,30 +819,7 @@ function main() {
 					alert("재고가 부족합니다.");
 				}
 			} else {
-				const newItem = document.createElement("div");
-				newItem.id = itemToAdd.id;
-				newItem.className =
-					"grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
-				newItem.innerHTML = `
-        <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-          <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-        </div>
-        <div>
-          <h3 class="text-base font-normal mb-1 tracking-tight">${itemToAdd.onSale && itemToAdd.suggestSale ? "⚡💝" : itemToAdd.onSale ? "⚡" : itemToAdd.suggestSale ? "💝" : ""}${itemToAdd.name}</h3>
-          <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-          <p class="text-xs text-black mb-3">${itemToAdd.onSale || itemToAdd.suggestSale ? `<span class="line-through text-gray-400">₩${itemToAdd.originalVal.toLocaleString()}</span> <span class="${itemToAdd.onSale && itemToAdd.suggestSale ? "text-purple-600" : itemToAdd.onSale ? "text-red-500" : "text-blue-500"}">₩${itemToAdd.val.toLocaleString()}</span>` : `₩${itemToAdd.val.toLocaleString()}`}</p>
-          <div class="flex items-center gap-4">
-            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="-1">−</button>
-            <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="1">+</button>
-          </div>
-        </div>
-        <div class="text-right">
-          <div class="text-lg mb-2 tracking-tight tabular-nums">${itemToAdd.onSale || itemToAdd.suggestSale ? `<span class="line-through text-gray-400">₩${itemToAdd.originalVal.toLocaleString()}</span> <span class="${itemToAdd.onSale && itemToAdd.suggestSale ? "text-purple-600" : itemToAdd.onSale ? "text-red-500" : "text-blue-500"}">₩${itemToAdd.val.toLocaleString()}</span>` : `₩${itemToAdd.val.toLocaleString()}`}</div>
-          <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemToAdd.id}">Remove</a>
-        </div>
-      `;
-
+				const newItem = createCartItem(itemToAdd);
 				appState.cartDisp.appendChild(newItem);
 				itemToAdd.q--;
 			}
