@@ -56,22 +56,36 @@ function renderInitialUI() {
   `;
 }
 
+// DOM 요소들 참조 설정
+
+function bindDOMElements() {
+  const elements = {
+    productSelect: 'product-select',
+    addButton: 'add-to-cart',
+    cartDisplay: 'cart-items',
+    stockInfo: 'stock-status',
+    sum: 'cart-total',
+    manualToggle: 'manual-toggle',
+    manualOverlay: 'manual-overlay',
+  };
+
+  // 전역 변수에 할당
+  productSelect = document.getElementById(elements.productSelect);
+  addButton = document.getElementById(elements.addButton);
+  cartDisplay = document.getElementById(elements.cartDisplay);
+  stockInfo = document.getElementById(elements.stockInfo);
+  sum = document.getElementById(elements.cartTotal);
+
+  return {
+    manualToggle: document.getElementById(elements.manualToggle),
+    manualOverlay: document.getElementById(elements.manualOverlay),
+  };
+}
+
 function main() {
   // DOM 요소 변수들
-  let manualToggle;
-  let manualOverlay;
+
   let lightningDelay;
-
-  // DOM 요소 참조 (Template Literal 방식 이후)
-  productSelect = document.getElementById('product-select');
-  addButton = document.getElementById('add-to-cart');
-  cartDisplay = document.getElementById('cart-items');
-  stockInfo = document.getElementById('stock-status');
-
-  sum = document.getElementById('cart-total');
-
-  manualToggle = document.getElementById('manual-toggle');
-  manualOverlay = document.getElementById('manual-overlay');
 
   // 이벤트 리스너 등록 (Template Literal 방식 이후)
   if (manualToggle) {
