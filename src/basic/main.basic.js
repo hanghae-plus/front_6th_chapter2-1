@@ -1,5 +1,10 @@
 import { state, dispatch, subscribe, getCartSummary, getBonusPoints } from './store';
 
+const LIGHTNING_DELAY = Math.random() * 10000;
+const LIGHTNING_INTERVAL = 30000;
+const SUGGEST_DELAY = Math.random() * 20000;
+const SUGGEST_INTERVAL = 60000;
+
 const ProductSelectItem = (product) => {
   // 품절 상품
   if (product.quantity === 0) {
@@ -357,13 +362,14 @@ function render() {
   const totalAmountEl = document.querySelector('#cart-total .text-2xl');
   const loyaltyPointsEl = document.getElementById('loyalty-points');
 
+  const { bonusPoints, pointsDetail } = getBonusPoints(state, summary);
+  loyaltyPointsEl.innerHTML = LoyaltyPoints(bonusPoints, pointsDetail);
   if (state.cartList.length === 0) {
     loyaltyPointsEl.style.display = 'none';
   } else {
     loyaltyPointsEl.style.display = 'block';
-    const { bonusPoints, pointsDetail } = getBonusPoints(state, summary);
-    loyaltyPointsEl.innerHTML = LoyaltyPoints(bonusPoints, pointsDetail);
   }
+  loyaltyPointsEl.innerHTML = LoyaltyPoints(bonusPoints, pointsDetail);
 
   const tuesdaySpecialEl = document.getElementById('tuesday-special');
 
@@ -383,15 +389,10 @@ function render() {
   discountInfoEl.innerHTML = DiscountInfo(summary);
   totalAmountEl.textContent = `₩${Math.round(summary.finalTotal).toLocaleString()}`;
 
-  const { bonusPoints, pointsDetail } = getBonusPoints(state, summary);
-  loyaltyPointsEl.innerHTML = LoyaltyPoints(bonusPoints, pointsDetail);
-
   tuesdaySpecialEl.classList.toggle('hidden', !summary.isTuesday || summary.totalQuantity === 0);
 }
 
 function main() {
-  const lightningDelay = Math.random() * 10000;
-
   subscribe(render);
 
   renderInitialLayout();
@@ -399,39 +400,12 @@ function main() {
   render();
 
   setTimeout(() => {
-    setInterval(function () {
-      const luckyIdx = Math.floor(Math.random() * state.products.length);
-      const luckyItem = state.products[luckyIdx];
-      if (luckyItem) {
-        alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
-        dispatch({ type: 'START_LIGHTNING_SALE', payload: { productId: luckyItem.id } });
-      }
-    }, 30000);
-  }, lightningDelay);
+    setInterval(startLightningSale, LIGHTNING_INTERVAL);
+  }, LIGHTNING_DELAY);
 
   setTimeout(function () {
-    setInterval(function () {
-      if (state.lastSelectedId) {
-        let luckyItem = null;
-        for (let k = 0; k < state.products.length; k++) {
-          if (state.products[k].id !== state.lastSelectedId) {
-            if (state.products[k].quantity > 0) {
-              if (!state.products[k].suggestSale) {
-                luckyItem = state.products[k];
-                break;
-              }
-            }
-          }
-        }
-        if (luckyItem) {
-          alert(`💝 ${luckyItem.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
-          luckyItem.price = Math.round((luckyItem.price * (100 - 5)) / 100);
-          luckyItem.suggestSale = true;
-          dispatch({ type: 'START_SUGGEST_SALE', payload: { productId: luckyItem.id } });
-        }
-      }
-    }, 60000);
-  }, Math.random() * 20000);
+    setInterval(startSuggestSale, SUGGEST_INTERVAL);
+  }, SUGGEST_DELAY);
 }
 
 const handleAddItemToCart = () => {
@@ -464,6 +438,30 @@ const handleCartItemActions = (event) => {
 
   if (button.classList.contains('remove-item')) {
     dispatch({ type: 'REMOVE_ITEM', payload: { productId } });
+  }
+};
+
+const startLightningSale = () => {
+  const luckyIdx = Math.floor(Math.random() * state.products.length);
+  const luckyItem = state.products[luckyIdx];
+  if (luckyItem) {
+    alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
+    dispatch({ type: 'START_LIGHTNING_SALE', payload: { productId: luckyItem.id } });
+  }
+};
+
+const startSuggestSale = () => {
+  if (!state.lastSelectedId) return;
+
+  const luckyItem = state.products.find(
+    (product) => product.id !== state.lastSelectedId && product.quantity && !product.suggestSale,
+  );
+
+  if (luckyItem) {
+    alert(`💝 ${luckyItem.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
+    luckyItem.price = Math.round((luckyItem.price * (100 - 5)) / 100);
+    luckyItem.suggestSale = true;
+    dispatch({ type: 'START_SUGGEST_SALE', payload: { productId: luckyItem.id } });
   }
 };
 
