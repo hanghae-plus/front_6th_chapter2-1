@@ -1,16 +1,24 @@
-import { Header } from "./components/Header";
+import { renderHeader } from "./ui/renderHeader";
 import { initAddButtonEvent } from "./events/addBtnEventHandler";
 import { initCartDOMEvent } from "./events/cartEventHandler";
 
 import productStore, { productIds } from "./store/product";
 
 import { calculateItemDiscount } from "./utils/cart/calculateItemDiscount";
+import { extractCartData } from "./utils/cart/extractCartData";
+import { calculateCartTotals } from "./utils/cart/calculateCartTotals";
 
 import {
   startLightningSaleTimer,
   startRecommendationTimer,
 } from "./utils/discountTimer";
 import { updateSelectOptions } from "./utils/select/selectUtils";
+
+import { renderCartSummary } from "./ui/render/renderCartSummary";
+import { renderDiscountInfo } from "./ui/render/renderDiscountInfo";
+import { renderLoyaltyPoints } from "./ui/render/renderLoyaltyPoints";
+import { updateCartUI } from "./ui/update/updateCart";
+import { updateCartItemStyles } from "./ui/update/updateCartItem";
 
 // const prodList = productStore.getAllProducts();
 // const productIds = productStore.getState().productIds;
@@ -42,7 +50,7 @@ function main() {
 
   var root = document.getElementById("app");
 
-  const header = Header();
+  const header = renderHeader();
   sel = document.createElement("select");
   sel.id = "product-select";
   gridContainer = document.createElement("div");
@@ -100,7 +108,7 @@ function main() {
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
-  sum = rightColumn.querySelector("#cart-total");
+  // sum = rightColumn.querySelector("#cart-total");
   manualToggle = document.createElement("button");
   manualToggle.onclick = function () {
     manualOverlay.classList.toggle("hidden");
@@ -242,273 +250,28 @@ const onUpdateSelectOptions = () => {
 };
 
 /**
- * 장바구니 계산을 담당하는 함수
- * 1. 장바구니 아이템 계산
- *
- * 2. 할인 정책 적용
- *  - 개별 아이템 할인 적용 : 10개 이상 구매시
- *    - p1 : 10% 할인
- *    - p2 : 15% 할인
- *    - p3 : 20% 할인
- *    - p4 : 5% 할인
- *    - p5 : 25% 할인
- *  - 30개 이상 구매시 : 25% 할인
- *  - 화요일 구매시 특별 할인 : 10% 할인
- *
- * 3. UI 업데이트
- *  - 장바구니 아이템 수 표시
- *  - 상세 내역(summary-details) 업데이트
- *  - 총 금액 표시
- *  - 적립 포인트 계산 (1000원당 1포인트)
- *  - 할인 정보 표시
- *  - 재고 부족 알림
- *
- * 4. 재고 관리
- *  - 재고가 5개 미만인 상품을 찾아서 리스트에 저장하는 함수
+ * 장바구니 계산 및 렌더링을 담당하는 함수
+ * 계산과 렌더링을 분리하여 가독성과 유지보수성을 향상시킴
  */
 function handleCalculateCartStuff() {
-  // ===== 1단계: 변수 초기화 =====
-  var cartItems; // 장바구니 DOM 요소들
-  var subTot; // 소계 (할인 적용 전 총액)
-  var itemDiscounts; // 개별 상품 할인 정보 배열
-  var lowStockItems; // 재고 부족 상품 리스트 (사용되지 않음)
-  var idx; // 반복문 인덱스 (사용되지 않음)
-  var originalTotal; // 원래 총액 (할인 계산용)
-  var bulkDisc; // 대량구매 할인 (사용되지 않음)
-  var itemDisc; // 개별 할인 (사용되지 않음)
-  var savedAmount; // 절약된 금액
-  var summaryDetails; // 요약 상세 DOM 요소
-  var totalDiv; // 총액 표시 DOM 요소
-  var loyaltyPointsDiv; // 포인트 표시 DOM 요소
-  var points; // 계산된 포인트
-  var discountInfoDiv; // 할인 정보 DOM 요소
-  var itemCountElement; // 아이템 수 표시 DOM 요소
-  var previousCount; // 이전 아이템 수 (변경 감지용)
-  var stockMsg; // 재고 메시지 (사용되지 않음)
-  var pts; // 포인트 (사용되지 않음)
-  var hasP1; // 키보드 보유 여부 (사용되지 않음)
-  var hasP2; // 마우스 보유 여부 (사용되지 않음)
-  var loyaltyDiv; // 포인트 DOM (사용되지 않음)
-
-  // 전역 변수 초기화
-  totalAmt = 0; // 총 금액 (할인 적용 후)
-  itemCnt = 0; // 총 아이템 수
-  originalTotal = totalAmt; // 원래 총액 (현재는 0으로 초기화됨 - 버그 가능성)
-
-  // DOM 요소들 가져오기
-  cartItems = cartDisp.children; // 장바구니 내 모든 아이템 DOM 요소들
-  subTot = 0; // 소계 초기화
-  bulkDisc = subTot; // 대량구매 할인 초기화 (사용되지 않음)
-  itemDiscounts = []; // 개별 할인 정보 배열 초기화
-
-  // 상품 데이터 가져오기
+  // ===== 1단계: 데이터 추출 =====
   const prodList = productStore.getState().products;
+  const cartItems = extractCartData(cartDisp, prodList);
 
-  // ===== 2단계: 장바구니 아이템 순회하며 계산 =====
-  for (let i = 0; i < cartItems.length; i++) {
-    const cartItem = cartItems[i]; // 현재 장바구니 아이템 DOM
-    const curItem = prodList.find((product) => product.id === cartItem.id); // 상품 정보 찾기
-    if (!curItem) continue; // 상품 정보가 없으면 건너뛰기
+  // 값 계산 및 스토어 업데이트
+  const totals = calculateCartTotals(cartItems);
 
-    // 수량 정보 추출
-    const qtyElem = cartItem.querySelector(".quantity-number"); // 수량 표시 DOM
-    const q = parseInt(qtyElem.textContent); // 수량을 숫자로 변환
-    const itemTot = curItem.val * q; // 현재 아이템 총액 (수량 × 단가)
+  // ===== 3단계: 전역 변수 업데이트 =====
+  totalAmt = totals.totalAmount;
+  itemCnt = totals.totalQty;
 
-    // ===== 전역 변수 업데이트 =====
-    itemCnt += q; // 총 아이템 수에 현재 수량 추가
-    subTot += itemTot; // 소계에 현재 아이템 총액 추가
+  // UI 업데이트
+  updateCartItemStyles(cartItems);
+  updateCartUI({ items: cartItems, totals });
 
-    // ===== UI 스타일 업데이트 =====
-    // 10개 이상 구매시 가격 텍스트를 굵게 표시
-    const priceElems = cartItem.querySelectorAll(".text-lg");
-    priceElems.forEach((elem) => {
-      elem.style.fontWeight = q >= 10 ? "bold" : "normal";
-    });
-
-    // ===== 개별 상품 할인 계산 =====
-    const disc = calculateItemDiscount(curItem.id, q); // 할인율 계산 (10개 이상시)
-    if (disc > 0) {
-      // 할인이 적용되면 할인 정보 배열에 추가
-      itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
-    }
-
-    // ===== 최종 가격 계산 =====
-    // 할인 적용된 가격을 총액에 추가
-    totalAmt += itemTot * (1 - disc);
-  }
-
-  // ===== 3단계: 대량구매 할인 계산 =====
-  let discRate = 0; // 총 할인율
-  var originalTotal = subTot; // 원래 총액 (소계로 재설정)
-
-  if (itemCnt >= 30) {
-    // 30개 이상 구매시 25% 할인
-    totalAmt = (subTot * 75) / 100; // 75%만 적용
-    discRate = 25 / 100; // 할인율 25%
-  } else {
-    // 30개 미만시 개별 할인만 적용된 할인율 계산
-    discRate = (subTot - totalAmt) / subTot;
-  }
-
-  // ===== 4단계: 화요일 특별 할인 계산 =====
-  const today = new Date();
-  var isTuesday = today.getDay() === 2; // 화요일인지 확인 (0=일요일, 2=화요일)
-  var tuesdaySpecial = document.getElementById("tuesday-special"); // 화요일 할인 표시 DOM
-
-  if (isTuesday) {
-    if (totalAmt > 0) {
-      // 화요일이고 총액이 있으면 10% 추가 할인
-      totalAmt = (totalAmt * 90) / 100; // 90%만 적용
-      discRate = 1 - totalAmt / originalTotal; // 총 할인율 재계산
-      tuesdaySpecial.classList.remove("hidden"); // 화요일 할인 표시
-    } else {
-      tuesdaySpecial.classList.add("hidden"); // 총액이 없으면 숨김
-    }
-  } else {
-    tuesdaySpecial.classList.add("hidden"); // 화요일이 아니면 숨김
-  }
-
-  // ===== 5단계: UI 업데이트 시작 =====
-
-  // 아이템 수 표시 업데이트
-  document.getElementById("item-count").textContent =
-    "🛍️ " + itemCnt + " items in cart";
-
-  // 요약 상세 영역 초기화
-  summaryDetails = document.getElementById("summary-details");
-  summaryDetails.innerHTML = "";
-
-  // ===== 6단계: 요약 상세 내용 렌더링 =====
-  if (subTot > 0) {
-    // 각 장바구니 아이템별 상세 정보 렌더링
-    for (let i = 0; i < cartItems.length; i++) {
-      var curItem;
-      // 상품 정보 찾기 (이중 반복문 - 비효율적)
-      for (var j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
-          break;
-        }
-      }
-
-      // 아이템별 정보 추출
-      var qtyElem = cartItems[i].querySelector(".quantity-number");
-      var q = parseInt(qtyElem.textContent);
-      var itemTotal = curItem.val * q;
-
-      // 아이템별 상세 정보 HTML 추가
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-xs tracking-wide text-gray-400">
-          <span>${curItem.name} x ${q}</span>
-          <span>₩${itemTotal.toLocaleString()}</span>
-        </div>
-      `;
-    }
-
-    // 구분선과 소계 표시
-    summaryDetails.innerHTML += `
-      <div class="border-t border-white/10 my-3"></div>
-      <div class="flex justify-between text-sm tracking-wide">
-        <span>Subtotal</span>
-        <span>₩${subTot.toLocaleString()}</span>
-      </div>
-    `;
-
-    // ===== 할인 정보 렌더링 =====
-    if (itemCnt >= 30) {
-      // 대량구매 할인 표시
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-          <span class="text-xs">-25%</span>
-        </div>
-      `;
-    } else if (itemDiscounts.length > 0) {
-      // 개별 상품 할인 표시
-      itemDiscounts.forEach(function (item) {
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-green-400">
-            <span class="text-xs">${item.name} (10개↑)</span>
-            <span class="text-xs">-${item.discount}%</span>
-          </div>
-        `;
-      });
-    }
-
-    // 화요일 할인 표시
-    if (isTuesday) {
-      if (totalAmt > 0) {
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-purple-400">
-            <span class="text-xs">🌟 화요일 추가 할인</span>
-            <span class="text-xs">-10%</span>
-          </div>
-        `;
-      }
-    }
-
-    // 배송비 정보 표시
-    summaryDetails.innerHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-gray-400">
-        <span>Shipping</span>
-        <span>Free</span>
-      </div>
-    `;
-  }
-
-  // ===== 7단계: 총액 표시 업데이트 =====
-  totalDiv = sum.querySelector(".text-2xl");
-  if (totalDiv) {
-    totalDiv.textContent = "₩" + Math.round(totalAmt).toLocaleString();
-  }
-
-  // ===== 8단계: 포인트 정보 업데이트 =====
-  loyaltyPointsDiv = document.getElementById("loyalty-points");
-  if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmt / 1000); // 1000원당 1포인트
-    if (points > 0) {
-      loyaltyPointsDiv.textContent = "적립 포인트: " + points + "p";
-      loyaltyPointsDiv.style.display = "block";
-    } else {
-      loyaltyPointsDiv.textContent = "적립 포인트: 0p";
-      loyaltyPointsDiv.style.display = "block";
-    }
-  }
-
-  // ===== 9단계: 할인 정보 상세 표시 =====
-  discountInfoDiv = document.getElementById("discount-info");
-  discountInfoDiv.innerHTML = "";
-  if (discRate > 0 && totalAmt > 0) {
-    savedAmount = originalTotal - totalAmt; // 절약된 금액 계산
-    discountInfoDiv.innerHTML = `
-      <div class="bg-green-500/20 rounded-lg p-3">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(
-            discRate * 100
-          ).toFixed(1)}%</span>
-        </div>
-        <div class="text-2xs text-gray-300">₩${Math.round(
-          savedAmount
-        ).toLocaleString()} 할인되었습니다</div>
-      </div>
-    `;
-  }
-
-  // ===== 10단계: 아이템 수 표시 업데이트 (중복) =====
-  itemCountElement = document.getElementById("item-count");
-  if (itemCountElement) {
-    previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0); // 이전 수량 추출
-    itemCountElement.textContent = "🛍️ " + itemCnt + " items in cart"; // 새 수량 표시
-    if (previousCount !== itemCnt) {
-      itemCountElement.setAttribute("data-changed", "true"); // 변경 표시
-    }
-  }
-
-  // ===== 11단계: 추가 업데이트 함수들 호출 =====
-  handleStockInfoUpdate(); // 재고 정보 업데이트
-  doRenderBonusPoints(); // 보너스 포인트 렌더링
+  // ===== 6단계: 추가 업데이트 =====
+  handleStockInfoUpdate();
+  doRenderBonusPoints();
 }
 
 var doRenderBonusPoints = function () {

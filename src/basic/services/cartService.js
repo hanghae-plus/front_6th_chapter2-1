@@ -1,7 +1,7 @@
 import productStore from "../store/product";
 import cartStore from "../store/cart";
-import { renderQuantity } from "../render/renderQuantity";
-import { renderNewCartItem } from "../render/renderNewCartItem";
+import { renderQuantity } from "../ui/render/renderQuantity";
+import { renderNewCartItem } from "../ui/render/renderNewCartItem";
 
 /**
  * 장바구니 상품 수량 추가/감소/삭제 및 UI 처리까지 담당하는 서비스
