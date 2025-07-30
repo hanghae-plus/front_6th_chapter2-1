@@ -1,5 +1,6 @@
 import { handleCalculateCartStuff, onUpdateSelectOptions } from '../main.basic';
-import { ProductsData, addProductQuantity } from '../model/products';
+import { addCartQuantity, removeCart } from '../model/cart';
+import { findProduct, ProductsData } from '../model/products';
 
 export function handleClickCartItems(e: MouseEvent) {
   handleQuantityChange(e);
@@ -34,32 +35,25 @@ function handleQuantityChange(e: MouseEvent) {
     }
 
     const currentQuantity = +(quantitySpan.textContent ?? '');
-    const newQuantity = currentQuantity + +change;
+    const changeQuantity = +change;
+    const product = findProduct(productId);
 
-    const productData = ProductsData.find(
-      (product) => product.id === productId
-    );
-
-    if (!productData) {
-      throw new Error('productData is not found');
+    if (product.quantity < changeQuantity) {
+      alert('재고가 부족합니다.');
+      return;
     }
+
+    const newQuantity = currentQuantity + changeQuantity;
 
     if (newQuantity <= 0) {
       cartDiv.remove();
-      handleCalculateCartStuff();
-      onUpdateSelectOptions();
-      return;
-    }
-
-    if (newQuantity <= productData.quantity) {
+    } else {
       quantitySpan.textContent = newQuantity.toString();
-      addProductQuantity({ id: productId, quantity: +change });
-      handleCalculateCartStuff();
-      onUpdateSelectOptions();
-      return;
+      addCartQuantity({ id: productId, quantity: +change });
     }
 
-    alert('재고가 부족합니다.');
+    handleCalculateCartStuff();
+    onUpdateSelectOptions();
   }
 }
 
@@ -99,7 +93,7 @@ function handleRemoveCartItem(e: MouseEvent) {
       throw new Error('productData is not found');
     }
 
-    addProductQuantity({ id: productId, quantity: productData.quantity });
+    removeCart(productId);
     cartDiv.remove();
     handleCalculateCartStuff();
     onUpdateSelectOptions();

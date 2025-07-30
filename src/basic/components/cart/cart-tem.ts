@@ -1,8 +1,8 @@
+import { findCart } from '../../model/cart';
 import {
   findProduct,
   hasAllSale,
   hasSuggestSale,
-  ProductsData,
   saleEmoji,
 } from '../../model/products';
 import { html } from '../../utils/html';
@@ -12,15 +12,9 @@ interface Props {
 }
 
 export function CartItem({ id }: Props) {
+  const { quantity } = findCart(id);
   const product = findProduct(id);
-  const productData = ProductsData.find((product) => product.id === id);
-
-  if (!product || !productData) {
-    throw new Error('Product or cart not found');
-  }
-
   const { name, price, originalPrice } = product;
-  const quantity = productData.quantity - product.quantity;
 
   return html`
     <div

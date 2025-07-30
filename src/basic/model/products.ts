@@ -69,8 +69,14 @@ export function getProducts(): Product[] {
   return products;
 }
 
-export function findProduct(id: string): Product | null {
-  return products.find((product) => product.id === id) ?? null;
+export function findProduct(id: string): Product {
+  const product = products.find((product) => product.id === id);
+
+  if (!product) {
+    throw new Error(`findProduct: ${id} not found`);
+  }
+
+  return product;
 }
 
 export function getProductCount(): number {

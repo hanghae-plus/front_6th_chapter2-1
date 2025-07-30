@@ -1,24 +1,13 @@
 import { CartItem } from '../components/cart/cart-tem';
 import { handleCalculateCartStuff } from '../main.basic';
+import { addToCart } from '../model/cart';
 import { getSelectedProductId } from '../model/product-select';
-import {
-  findProduct,
-  isSoldOut,
-  ProductsData,
-  addProductQuantity,
-} from '../model/products';
+import { findProduct, isSoldOut } from '../model/products';
 import { CART_ITEMS_ID, selectById } from '../utils/selector';
 
 export function handleAddItemToCart() {
   const selectedProductId = getSelectedProductId();
   const product = findProduct(selectedProductId);
-  const productData = ProductsData.find(
-    (product) => product.id === selectedProductId
-  );
-
-  if (!product || !productData) {
-    throw new Error('product is not found');
-  }
 
   if (isSoldOut(product)) {
     return;
@@ -27,7 +16,7 @@ export function handleAddItemToCart() {
   const cartItem = document.getElementById(product['id']);
 
   if (!cartItem) {
-    addProductQuantity({ id: product.id, quantity: -1 });
+    addToCart(product.id);
     const cartDisp = selectById(CART_ITEMS_ID);
     if (!cartDisp) {
       throw new Error('cartDisp not found');
@@ -44,14 +33,15 @@ export function handleAddItemToCart() {
   }
 
   const currentQuantity = +(quantitySpan.textContent ?? '');
-  const nextQuantity = currentQuantity + 1;
+  const changeQuantity = 1;
 
-  if (nextQuantity <= productData.quantity) {
-    quantitySpan.textContent = nextQuantity.toString();
-    addProductQuantity({ id: product.id, quantity: -1 });
-  } else {
+  if (product.quantity < changeQuantity) {
     alert('재고가 부족합니다.');
+    return;
   }
 
+  const nextQuantity = currentQuantity + changeQuantity;
+  quantitySpan.textContent = nextQuantity.toString();
+  addToCart(product.id);
   handleCalculateCartStuff();
 }
