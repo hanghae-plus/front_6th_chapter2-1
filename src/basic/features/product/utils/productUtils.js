@@ -38,6 +38,3 @@ export const generateStockStatusMessage = (products, threshold = 5) => {
 /**
  * 재고 부족 여부 확인 (총 재고가 임계값 미만인지)
  */
-export const isLowTotalStock = (products, threshold = 50) => {
-  return getTotalStock(products) < threshold;
-};
