@@ -1,3 +1,4 @@
+import { CART_TOTAL_BENEFIT_THRESHOLD } from '../const/discount';
 import { PRODUCT_ONE, PRODUCT_THREE, PRODUCT_TWO } from './product';
 
 /** @logic */
@@ -33,7 +34,7 @@ export const calculateBonusPoints = (cartItems, totalAmount, today = new Date())
 
   /** 이거 사실 cartManager의 getTotal 저시기 써야 하는데.. */
   const totalItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  if (totalItemCount >= 30) {
+  if (totalItemCount >= CART_TOTAL_BENEFIT_THRESHOLD) {
     points += 100;
     detail.push('대량구매(30개+) +100p');
   } else if (totalItemCount >= 20) {

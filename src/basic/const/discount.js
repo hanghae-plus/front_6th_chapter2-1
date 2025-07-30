@@ -1,0 +1,3 @@
+export const PER_ITEM_DISCOUNT_THRESHOLD = 10;
+
+export const CART_TOTAL_BENEFIT_THRESHOLD = 30;
