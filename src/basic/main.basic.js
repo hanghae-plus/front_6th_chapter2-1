@@ -26,6 +26,7 @@ import {
   createStockInfo,
 } from './elements';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/getCartDetails';
+import { isTuesday } from './utils/dateUtil';
 
 let stockInfo;
 
@@ -197,7 +198,7 @@ function calculateCart() {
   const { subTotal, totalAfterItemDiscount, appliedItemDiscounts } = applyItemDiscount();
   totalAmount = totalAfterItemDiscount;
 
-  const { finalTotal, finalDiscountRate, isTuesday } = applyTotalDiscount({
+  const { finalTotal, finalDiscountRate } = applyTotalDiscount({
     subTotal,
     totalAfterItemDiscount,
     appliedItemDiscounts,
@@ -213,7 +214,7 @@ function calculateCart() {
       }
     });
   }
-  document.getElementById('tuesday-special').classList.toggle('hidden', !isTuesday);
+  document.getElementById('tuesday-special').classList.toggle('hidden', !isTuesday());
   document.getElementById('item-count').textContent = '🛍️ ' + cartManager.getTotalItem() + ' items in cart';
 
   summaryDetails = document.getElementById('summary-details');
@@ -262,7 +263,7 @@ function calculateCart() {
         `;
       });
     }
-    if (isTuesday) {
+    if (isTuesday()) {
       if (totalAmount > 0) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-purple-400">
