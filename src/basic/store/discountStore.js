@@ -28,7 +28,6 @@ export class DiscountStore {
   updateIndividualDiscounts(discounts) {
     this.state.individualDiscounts = discounts;
     this.calculateTotalDiscount();
-    this.notifySubscribers();
   }
 
   // 대량구매 할인 업데이트
@@ -36,7 +35,6 @@ export class DiscountStore {
     this.state.bulkDiscountRate = rate;
     this.state.bulkDiscountApplied = applied;
     this.calculateTotalDiscount();
-    this.notifySubscribers();
   }
 
   // 화요일 할인 업데이트
@@ -44,7 +42,6 @@ export class DiscountStore {
     this.state.tuesdayDiscountRate = rate;
     this.state.tuesdayDiscountApplied = applied;
     this.calculateTotalDiscount();
-    this.notifySubscribers();
   }
 
   // 총 할인 계산
@@ -80,41 +77,6 @@ export class DiscountStore {
   // 절약 금액 업데이트
   updateSavedAmount(savedAmount) {
     this.state.totalSavedAmount = savedAmount;
-    this.notifySubscribers();
-  }
-
-  // 구독자 패턴
-  subscribe(callback) {
-    this.subscribers.push(callback);
-    return () => this.unsubscribe(callback);
-  }
-
-  unsubscribe(callback) {
-    this.subscribers = this.subscribers.filter(sub => sub !== callback);
-  }
-
-  notifySubscribers() {
-    this.subscribers.forEach(callback => callback(this.state));
-  }
-
-  getState() {
-    return { ...this.state };
-  }
-
-  // 할인 초기화
-  resetDiscounts() {
-    this.state = {
-      individualDiscounts: [],
-      bulkDiscountRate: 0,
-      bulkDiscountApplied: false,
-      tuesdayDiscountRate: 0,
-      tuesdayDiscountApplied: false,
-      totalDiscountRate: 0,
-      totalSavedAmount: 0,
-      hasAnyDiscount: false,
-      discountTypes: [],
-    };
-    this.notifySubscribers();
   }
 }
 

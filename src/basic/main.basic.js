@@ -12,7 +12,7 @@ import { TimerService } from "./services/timerService.js";
 import { ProductService } from "./services/productService.js";
 import { OrderService } from "./services/orderService.js";
 import { discountService } from "./services/discountService.js";
-import { ServiceManager } from "./services/serviceManager.js";
+import { ServiceManager } from "./core/serviceManager.js";
 
 // events
 import { uiEventBus } from "./core/eventBus.js";
