@@ -156,20 +156,35 @@ const onUpdateSelectOptions = () => {
   productSelector.style.borderColor = totalStock < 50 ? "orange" : "";
 };
 
-const doRenderBonusPoints = ({
+const getHasItemInCart = (cartItems, prodList) => {
+  const hasItemInfo = {
+    hasKeyboard: false,
+    hasMouse: false,
+    hasMonitorArm: false,
+  };
+
+  cartItems.forEach((cartItem) => {
+    const product = prodList.find((item) => item.id === cartItem.id);
+    hasItemInfo.hasKeyboard =
+      hasItemInfo.hasKeyboard || product.id === PRODUCT_ONE;
+    hasItemInfo.hasMouse = hasItemInfo.hasMouse || product.id === PRODUCT_TWO;
+    hasItemInfo.hasMonitorArm =
+      hasItemInfo.hasMonitorArm || product.id === PRODUCT_THREE;
+  });
+
+  return hasItemInfo;
+};
+
+const getCalculatePoints = ({
   totalItemCount,
   totalDiscountedPrice,
-  cartItems,
+  hasKeyboard,
+  hasMouse,
+  hasMonitorArm,
 }) => {
   let basePoints = Math.floor(totalDiscountedPrice / 1000);
   let finalPoints = 0;
   let pointsDetail = [];
-  let hasKeyboard = false;
-  let hasMouse = false;
-  let hasMonitorArm = false;
-  if (cartItems.length === 0) {
-    return;
-  }
 
   if (basePoints > 0) {
     finalPoints = basePoints;
@@ -181,23 +196,7 @@ const doRenderBonusPoints = ({
       pointsDetail.push("화요일 2배");
     }
   }
-  for (const cartItem of cartItems) {
-    let product = null;
-    for (let pIdx = 0; pIdx < prodList.length; pIdx++) {
-      if (prodList[pIdx].id === cartItem.id) {
-        product = prodList[pIdx];
-        break;
-      }
-    }
-    if (!product) continue;
-    if (product.id === PRODUCT_ONE) {
-      hasKeyboard = true;
-    } else if (product.id === PRODUCT_TWO) {
-      hasMouse = true;
-    } else if (product.id === PRODUCT_THREE) {
-      hasMonitorArm = true;
-    }
-  }
+
   if (hasKeyboard && hasMouse) {
     finalPoints = finalPoints + 50;
     pointsDetail.push("키보드+마우스 세트 +50p");
@@ -206,34 +205,53 @@ const doRenderBonusPoints = ({
     finalPoints = finalPoints + 100;
     pointsDetail.push("풀세트 구매 +100p");
   }
+
   if (totalItemCount >= 30) {
     finalPoints = finalPoints + 100;
     pointsDetail.push("대량구매(30개+) +100p");
-  } else {
-    if (totalItemCount >= 20) {
-      finalPoints = finalPoints + 50;
-      pointsDetail.push("대량구매(20개+) +50p");
-    } else {
-      if (totalItemCount >= 10) {
-        finalPoints = finalPoints + 20;
-        pointsDetail.push("대량구매(10개+) +20p");
-      }
-    }
+  } else if (totalItemCount >= 20) {
+    finalPoints = finalPoints + 50;
+    pointsDetail.push("대량구매(20개+) +50p");
+  } else if (totalItemCount >= 10) {
+    finalPoints = finalPoints + 20;
+    pointsDetail.push("대량구매(10개+) +20p");
   }
-  let bonusPts = finalPoints;
-  const ptsTag = document.getElementById("loyalty-points");
-  if (ptsTag) {
-    if (bonusPts > 0) {
-      ptsTag.innerHTML = `
-        <div>적립 포인트: <span class="font-bold">${bonusPts}p</span></div>
-        <div class="text-2xs opacity-70 mt-1">${pointsDetail.join(", ")}</div>
-      `;
-      ptsTag.style.display = "block";
-    } else {
-      ptsTag.textContent = "적립 포인트: 0p";
-      ptsTag.style.display = "block";
-    }
+
+  return {
+    basePoints,
+    finalPoints,
+    pointsDetail,
+  };
+};
+
+const doRenderBonusPoints = ({
+  totalItemCount,
+  totalDiscountedPrice,
+  cartItems,
+}) => {
+  if (cartItems.length === 0) {
+    return;
   }
+
+  const { hasKeyboard, hasMouse, hasMonitorArm } = getHasItemInCart(
+    cartItems,
+    prodList
+  );
+
+  const { finalPoints, pointsDetail } = getCalculatePoints({
+    totalItemCount,
+    totalDiscountedPrice,
+    hasKeyboard,
+    hasMouse,
+    hasMonitorArm,
+  });
+
+  LoyaltyPoints({
+    totalDiscountedPrice,
+    cartItems,
+    bonusPoints: finalPoints,
+    pointsDetail,
+  });
 };
 
 const doUpdatePricesInCart = () => {
