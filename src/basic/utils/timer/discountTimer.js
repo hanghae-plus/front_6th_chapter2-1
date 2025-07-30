@@ -17,20 +17,20 @@ const createTimer = (callback, interval, delay) => {
 
 /**
  * 번개세일 로직
- * @param {Array} prodList - 상품 리스트
- * @param {Function} onUpdateSelectOptions - 상품 선택 옵션 업데이트 콜백
+ * @param {Array} productList - 상품 리스트
+ * @param {Function} updateSelectOptionsHandler - 상품 선택 옵션 업데이트 콜백
  * @param {Function} updateCartPricesAndRefresh - 장바구니 가격 업데이트 콜백
  * @param {Object} config - 설정 정보
  */
 const lightningSaleCallback = (
-  prodList,
-  onUpdateSelectOptions,
+  productList,
+  updateSelectOptionsHandler,
   updateCartPricesAndRefresh,
   config = DISCOUNT_CONFIG.LIGHTNING // 기본값 추가
 ) => {
   // 랜덤 인덱스 생성
-  const luckyIndex = Math.floor(Math.random() * prodList.length);
-  const luckyItem = prodList[luckyIndex];
+  const luckyIndex = Math.floor(Math.random() * productList.length);
+  const luckyItem = productList[luckyIndex];
 
   // 상품 존재 체크
   if (luckyItem.quantity > 0 && !luckyItem.onSale) {
@@ -45,7 +45,7 @@ const lightningSaleCallback = (
     alert(config.ALERT_MESSAGE.replace("{name}", luckyItem.name));
 
     // 상품 선택 옵션 업데이트
-    onUpdateSelectOptions();
+    updateSelectOptionsHandler();
 
     // 장바구니 가격 업데이트
     updateCartPricesAndRefresh();
@@ -54,19 +54,19 @@ const lightningSaleCallback = (
 
 /**
  * 추천할인 로직
- * @param {Array} prodList - 상품 리스트
- * @param {Function} onUpdateSelectOptions - 상품 선택 옵션 업데이트 콜백
+ * @param {Array} productList - 상품 리스트
+ * @param {Function} updateSelectOptionsHandler - 상품 선택 옵션 업데이트 콜백
  * @param {Function} updateCartPricesAndRefresh - 장바구니 가격 업데이트 콜백
  * @param {Object} config - 설정 정보
  */
 const recommendationCallback = (
-  prodList,
-  onUpdateSelectOptions,
+  productList,
+  updateSelectOptionsHandler,
   updateCartPricesAndRefresh,
   config = DISCOUNT_CONFIG.RECOMMENDATION // 기본값 추가
 ) => {
   // 추천할인 가능 상품 필터링
-  const availableItems = prodList.filter(
+  const availableItems = productList.filter(
     (item) => item.quantity > 0 && !item.suggestSale
   );
 
@@ -90,7 +90,7 @@ const recommendationCallback = (
     suggest.suggestSale = true;
 
     // 상품 선택 옵션 업데이트
-    onUpdateSelectOptions();
+    updateSelectOptionsHandler();
 
     // 장바구니 가격 업데이트
     updateCartPricesAndRefresh();
@@ -102,17 +102,17 @@ const recommendationCallback = (
  * @param {Object} config - 설정 정보
  */
 export const startLightningSaleTimer = ({
-  prodList,
-  onUpdateSelectOptions,
+  productList,
+  updateSelectOptionsHandler,
   updateCartPricesAndRefresh,
-  delay = Math.random() * 10000,
+  delay = DISCOUNT_CONFIG.LIGHTNING.delay,
   config = DISCOUNT_CONFIG.LIGHTNING, // 기본값 추가
 }) => {
   createTimer(
     () =>
       lightningSaleCallback(
-        prodList,
-        onUpdateSelectOptions,
+        productList,
+        updateSelectOptionsHandler,
         updateCartPricesAndRefresh,
         config // config 전달
       ),
@@ -126,17 +126,17 @@ export const startLightningSaleTimer = ({
  * @param {Object} config - 설정 정보
  */
 export const startRecommendationTimer = ({
-  prodList,
-  onUpdateSelectOptions,
+  productList,
+  updateSelectOptionsHandler,
   updateCartPricesAndRefresh,
-  delay = Math.random() * 20000,
+  delay = DISCOUNT_CONFIG.RECOMMENDATION.delay,
   config = DISCOUNT_CONFIG.RECOMMENDATION, // 기본값 추가
 }) => {
   createTimer(
     () =>
       recommendationCallback(
-        prodList,
-        onUpdateSelectOptions,
+        productList,
+        updateSelectOptionsHandler,
         updateCartPricesAndRefresh,
         config // config 전달
       ),

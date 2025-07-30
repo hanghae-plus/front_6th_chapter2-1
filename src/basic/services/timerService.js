@@ -21,14 +21,14 @@ export const initializeTimers = () => {
   // 번개할인 타이머 시작
   startLightningSaleTimer({
     productList,
-    onUpdateSelectOptions: updateSelectOptionsHandler,
+    updateSelectOptionsHandler,
     updateCartPricesAndRefresh,
   });
 
   // 추천할인 타이머 시작
   startRecommendationTimer({
     productList,
-    onUpdateSelectOptions: updateSelectOptionsHandler,
+    updateSelectOptionsHandler,
     updateCartPricesAndRefresh,
   });
 };
