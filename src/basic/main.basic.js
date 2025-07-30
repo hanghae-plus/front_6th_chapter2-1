@@ -1,10 +1,10 @@
 import { Header } from "./components/Header";
-import { renderNewCartItem } from "./render/renderNewCartItem";
-import { renderQuantity } from "./render/renderQuantity";
-import cartStore from "./store/cart";
+import { initAddButtonEvent } from "./events/addBtnEventHandler";
+import { initCartDOMEvent } from "./events/cartEventHandler";
+
 import productStore, { productIds } from "./store/product";
 import { calculateItemDiscount } from "./utils/cart/calculateItemDiscount";
-import { checkHasItem } from "./utils/cart/checkHasItem";
+
 import {
   startLightningSaleTimer,
   startRecommendationTimer,
@@ -309,7 +309,8 @@ function handleCalculateCartStuff() {
     // 전역 변수 업데이트
     itemCnt += q;
     subTot += itemTot;
-
+    // console.log("itemCnt", itemCnt);
+    // console.log("subTot", subTot);
     // UI 스타일 업데이트
     const priceElems = cartItem.querySelectorAll(".text-lg");
     priceElems.forEach((elem) => {
@@ -325,6 +326,15 @@ function handleCalculateCartStuff() {
     // 최종 가격 계산
     totalAmt += itemTot * (1 - disc);
   }
+  // itemCnt = cartStore.getCartTotalItemCount();
+  // subTot = cartStore.getCartTotalAmountWithDiscount();
+  // originalTotal = cartStore.getCartOriginalTotalAmount();
+  // totalAmt = cartStore.getCartTotalAmountWithDiscount();
+
+  // console.log("itemCnt", itemCnt);
+  // console.log("subTot", subTot);
+  // console.log("originalTotal", originalTotal);
+  // console.log("totalAmt", totalAmt);
 
   let discRate = 0;
   var originalTotal = subTot;
@@ -633,88 +643,6 @@ function doUpdatePricesInCart() {
   handleCalculateCartStuff();
 }
 main();
-addBtn.addEventListener("click", () => {
-  // 선택된 상품 ID 가져오기
-  const selectedItemId = sel.value;
-  if (!selectedItemId) return;
 
-  // 상품 목록에서 선택된 상품 찾기
-  const prodList = productStore.getState().products;
-  const itemToAdd = prodList.find((product) => product.id === selectedItemId);
-  if (!itemToAdd || itemToAdd.q <= 0) return;
-
-  // 장바구니에 이미 있는 상품인지 확인
-  const isExistInCart = cartStore.isExistInCart(itemToAdd.id);
-  const currentQty = cartStore.getItemQuantity(itemToAdd.id);
-  const newQty = currentQty + 1;
-
-  // 장바구니에 이미 있는 상품이면 수량 증가
-  if (isExistInCart && itemToAdd.q >= 1) {
-    renderQuantity(itemToAdd.id, newQty);
-  }
-
-  // 장바구니에 이미 있는 상품이 아니면 새로 추가
-  if (!isExistInCart) {
-    const newItemHTML = renderNewCartItem(itemToAdd);
-    cartDisp.insertAdjacentHTML("beforeend", newItemHTML);
-  }
-
-  // 재고 확인 후 재고가 부족하면 알림 후 종료
-  if (itemToAdd.q < 1) {
-    alert("재고가 부족합니다.");
-    return;
-  }
-
-  // Store - 재고 업데이트
-  cartStore.addCartItem(itemToAdd);
-  productStore.updateStock(itemToAdd.id, itemToAdd.q - 1);
-
-  // 장바구니 업데이트
-  handleCalculateCartStuff();
-
-  // 마지막 선택된 상품 ID 업데이트
-  lastSel = selectedItemId;
-});
-
-cartDisp.addEventListener("click", function (event) {
-  var tgt = event.target;
-  const prodList = productStore.getState().products;
-  if (
-    tgt.classList.contains("quantity-change") ||
-    tgt.classList.contains("remove-item")
-  ) {
-    var prodId = tgt.dataset.productId;
-    var itemElem = document.getElementById(prodId);
-    var prod = null;
-    for (var prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
-      if (prodList[prdIdx].id === prodId) {
-        prod = prodList[prdIdx];
-        break;
-      }
-    }
-    if (tgt.classList.contains("quantity-change")) {
-      var qtyChange = parseInt(tgt.dataset.change);
-      var qtyElem = itemElem.querySelector(".quantity-number");
-      var currentQty = parseInt(qtyElem.textContent);
-      var newQty = currentQty + qtyChange;
-      if (newQty > 0 && newQty <= prod.q + currentQty) {
-        qtyElem.textContent = newQty;
-        productStore.updateStock(prodId, prod.q - qtyChange);
-      } else if (newQty <= 0) {
-        productStore.updateStock(prodId, prod.q + currentQty);
-
-        itemElem.remove();
-      } else {
-        alert("재고가 부족합니다.");
-      }
-    } else if (tgt.classList.contains("remove-item")) {
-      var qtyElem = itemElem.querySelector(".quantity-number");
-      var remQty = parseInt(qtyElem.textContent);
-      productStore.updateStock(prodId, prod.q + remQty);
-      itemElem.remove();
-    }
-    if (prod && prod.q < 5) {
-    }
-    handleCalculateCartStuff();
-  }
-});
+initAddButtonEvent(addBtn, sel, cartDisp, handleCalculateCartStuff);
+initCartDOMEvent(cartDisp, handleCalculateCartStuff);

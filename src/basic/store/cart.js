@@ -1,4 +1,5 @@
 import { ACTION_TYPE, createStore } from ".";
+import { calculateItemDiscount } from "../utils/cart/calculateItemDiscount";
 
 export const cartState = {
   selectedProductId: null,
@@ -68,6 +69,32 @@ const cartActions = {
     return {
       type: ACTION_TYPE.QUERY,
       data: item ? true : false,
+    };
+  },
+
+  getCartTotalItemCount: (state) => {
+    return {
+      type: ACTION_TYPE.QUERY,
+      data: state.items.reduce((total, item) => total + item.quantity, 0),
+    };
+  },
+  getCartOriginalTotalAmount: (state) => {
+    return {
+      type: ACTION_TYPE.QUERY,
+      data: state.items.reduce(
+        (total, item) => total + item.quantity * item.val,
+        0
+      ),
+    };
+  },
+
+  getCartTotalAmountWithDiscount: (state) => {
+    return {
+      type: ACTION_TYPE.QUERY,
+      data: state.items.reduce((total, item) => {
+        const discountPercent = calculateItemDiscount(item.id, item.quantity);
+        return total + item.quantity * item.val * (1 - discountPercent);
+      }, 0),
     };
   },
 
