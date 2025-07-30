@@ -34,3 +34,13 @@ export const getProductStyle = status => {
 
   return styles[status];
 };
+
+/**
+ * 상품 ID로 상품 정보를 찾는 함수
+ * @param {string} productId - 상품 ID
+ * @param {Array} productList - 상품 목록
+ * @returns {Object|null} 상품 정보 또는 null
+ */
+export function findProductById(productId, productList) {
+  return productList.find(product => product.id === productId) || null;
+}
