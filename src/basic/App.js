@@ -11,13 +11,68 @@ import { StockStatus } from './components/StockStatus';
 import { LIGHTNING_DELAY, LIGHTNING_INTERVAL, SUGGEST_DELAY, SUGGEST_INTERVAL } from './constant';
 import { state, dispatch, subscribe, getCartSummary, getBonusPoints } from './store';
 
+const DOMElements = {};
+
 let lightningSaleTimerId = null;
 let suggestSaleTimerId = null;
 
-const elements = {};
+const renderInitialLayout = () => {
+  const root = document.getElementById('app');
+
+  root.innerHTML = `
+    ${Header()}
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
+      ${CartContainer()}
+      ${OrderSummary()}
+    </div>
+    ${Manual()}
+  `;
+};
+
+const cacheDOMElements = () => {
+  DOMElements.itemCount = document.getElementById('item-count');
+  DOMElements.productSelect = document.getElementById('product-select');
+  DOMElements.stockStatus = document.getElementById('stock-status');
+  DOMElements.cartItems = document.getElementById('cart-items');
+  DOMElements.addToCart = document.getElementById('add-to-cart');
+
+  DOMElements.summaryDetails = document.getElementById('summary-details');
+  DOMElements.discountInfo = document.getElementById('discount-info');
+  DOMElements.totalAmount = document.querySelector('#cart-total .text-2xl');
+  DOMElements.loyaltyPoints = document.getElementById('loyalty-points');
+  DOMElements.tuesdaySpecial = document.getElementById('tuesday-special');
+
+  DOMElements.manualToggle = document.getElementById('manual-toggle');
+  DOMElements.manualOverlay = document.getElementById('manual-overlay');
+  DOMElements.manualColumn = document.getElementById('manual-column');
+  DOMElements.manualCloseBtn = document.getElementById('manual-close-btn');
+};
+
+const attachEventListeners = () => {
+  const { addToCart, cartItems, manualToggle, manualOverlay, manualColumn, manualCloseBtn } =
+    DOMElements;
+
+  addToCart.addEventListener('click', handleAddItemToCart);
+  cartItems.addEventListener('click', handleCartItemActions);
+
+  const toggleManual = () => {
+    manualOverlay.classList.toggle('hidden');
+    manualColumn.classList.toggle('translate-x-full');
+  };
+
+  manualToggle.addEventListener('click', toggleManual);
+  manualCloseBtn.addEventListener('click', toggleManual);
+  manualOverlay.addEventListener('click', (event) => {
+    if (event.target === manualOverlay) {
+      toggleManual();
+    }
+  });
+
+  window.addEventListener('beforeunload', stopTimers);
+};
 
 function renderCartItems() {
-  const { cartItems } = elements;
+  const { cartItems } = DOMElements;
 
   state.cartList.forEach((cartItem) => {
     const product = state.products.find((p) => p.id === cartItem.productId);
@@ -44,61 +99,6 @@ function renderCartItems() {
   });
 }
 
-function renderInitialLayout() {
-  const root = document.getElementById('app');
-
-  root.innerHTML = `
-    ${Header()}
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
-      ${CartContainer()}
-      ${OrderSummary()}
-    </div>
-    ${Manual()}
-  `;
-}
-
-function attachEventListeners() {
-  const { addToCart, cartItems, manualToggle, manualOverlay, manualColumn, manualCloseBtn } =
-    elements;
-
-  addToCart.addEventListener('click', handleAddItemToCart);
-  cartItems.addEventListener('click', handleCartItemActions);
-
-  const toggleManual = () => {
-    manualOverlay.classList.toggle('hidden');
-    manualColumn.classList.toggle('translate-x-full');
-  };
-
-  manualToggle.addEventListener('click', toggleManual);
-  manualCloseBtn.addEventListener('click', toggleManual);
-  manualOverlay.addEventListener('click', (event) => {
-    if (event.target === manualOverlay) {
-      toggleManual();
-    }
-  });
-
-  window.addEventListener('beforeunload', stopTimers);
-}
-
-function cacheDOMElements() {
-  elements.itemCount = document.getElementById('item-count');
-  elements.productSelect = document.getElementById('product-select');
-  elements.stockStatus = document.getElementById('stock-status');
-  elements.cartItems = document.getElementById('cart-items');
-  elements.addToCart = document.getElementById('add-to-cart');
-
-  elements.summaryDetails = document.getElementById('summary-details');
-  elements.discountInfo = document.getElementById('discount-info');
-  elements.totalAmount = document.querySelector('#cart-total .text-2xl');
-  elements.loyaltyPoints = document.getElementById('loyalty-points');
-  elements.tuesdaySpecial = document.getElementById('tuesday-special');
-
-  elements.manualToggle = document.getElementById('manual-toggle');
-  elements.manualOverlay = document.getElementById('manual-overlay');
-  elements.manualColumn = document.getElementById('manual-column');
-  elements.manualCloseBtn = document.getElementById('manual-close-btn');
-}
-
 function render() {
   const {
     itemCount,
@@ -109,7 +109,7 @@ function render() {
     totalAmount,
     loyaltyPoints,
     tuesdaySpecial,
-  } = elements;
+  } = DOMElements;
   const summary = getCartSummary(state);
   const { bonusPoints, pointsDetail } = getBonusPoints(state, summary);
 
@@ -140,32 +140,8 @@ function render() {
   tuesdaySpecial.classList.toggle('hidden', !summary.isTuesday || summary.totalQuantity === 0);
 }
 
-const startTimers = () => {
-  setTimeout(() => {
-    lightningSaleTimerId = setInterval(startLightningSale, LIGHTNING_INTERVAL);
-  }, LIGHTNING_DELAY);
-
-  setTimeout(function () {
-    suggestSaleTimerId = setInterval(startSuggestSale, SUGGEST_INTERVAL);
-  }, SUGGEST_DELAY);
-};
-
-function stopTimers() {
-  clearInterval(lightningSaleTimerId);
-  clearInterval(suggestSaleTimerId);
-}
-
-const alertNotifications = () => {
-  if (state.notifications.length > 0) {
-    state.notifications.forEach((noti) => {
-      alert(noti.message);
-      dispatch({ type: 'REMOVE_NOTIFICATION', payload: { notificationId: noti.id } });
-    });
-  }
-};
-
 const handleAddItemToCart = () => {
-  const { productSelect } = elements;
+  const { productSelect } = DOMElements;
   const selectedId = productSelect.value;
   if (!selectedId) return;
 
@@ -198,6 +174,15 @@ const handleCartItemActions = (event) => {
   }
 };
 
+const alertNotifications = () => {
+  if (state.notifications.length > 0) {
+    state.notifications.forEach((noti) => {
+      alert(noti.message);
+      dispatch({ type: 'REMOVE_NOTIFICATION', payload: { notificationId: noti.id } });
+    });
+  }
+};
+
 const startLightningSale = () => {
   const luckyIdx = Math.floor(Math.random() * state.products.length);
   const luckyItem = state.products[luckyIdx];
@@ -217,12 +202,27 @@ const startSuggestSale = () => {
   }
 };
 
+const startTimers = () => {
+  setTimeout(() => {
+    lightningSaleTimerId = setInterval(startLightningSale, LIGHTNING_INTERVAL);
+  }, LIGHTNING_DELAY);
+
+  setTimeout(function () {
+    suggestSaleTimerId = setInterval(startSuggestSale, SUGGEST_INTERVAL);
+  }, SUGGEST_DELAY);
+};
+
+const stopTimers = () => {
+  clearInterval(lightningSaleTimerId);
+  clearInterval(suggestSaleTimerId);
+};
+
 function init() {
   renderInitialLayout();
   cacheDOMElements();
+  attachEventListeners();
   subscribe(render);
   render();
-  attachEventListeners();
   startTimers();
 }
 
