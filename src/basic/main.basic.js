@@ -12,15 +12,10 @@ const selector = document.createElement('select');
 const addButton = document.createElement('button');
 const cartContainerEl = document.createElement('div');
 
-const PRODUCT_ONE = 'p1';
-const p2 = 'p2';
-const product_3 = 'p3';
-const p4 = 'p4';
-const PRODUCT_5 = `p5`;
-
 const productList = [
   {
-    id: PRODUCT_ONE,
+    id: 'p1',
+    type: 'keyboard',
     name: '버그 없애는 키보드',
     value: 10000,
     originalValue: 10000,
@@ -29,7 +24,8 @@ const productList = [
     suggestSale: false,
   },
   {
-    id: p2,
+    id: 'p2',
+    type: 'mouse',
     name: '생산성 폭발 마우스',
     value: 20000,
     originalValue: 20000,
@@ -38,7 +34,8 @@ const productList = [
     suggestSale: false,
   },
   {
-    id: product_3,
+    id: 'p3',
+    type: 'monitorArm',
     name: '거북목 탈출 모니터암',
     value: 30000,
     originalValue: 30000,
@@ -47,7 +44,8 @@ const productList = [
     suggestSale: false,
   },
   {
-    id: p4,
+    id: 'p4',
+    type: 'pouch',
     name: '에러 방지 노트북 파우치',
     value: 15000,
     originalValue: 15000,
@@ -56,7 +54,8 @@ const productList = [
     suggestSale: false,
   },
   {
-    id: PRODUCT_5,
+    id: 'p5',
+    type: 'speaker',
     name: `코딩할 때 듣는 Lo-Fi 스피커`,
     value: 25000,
     originalValue: 25000,
@@ -65,6 +64,16 @@ const productList = [
     suggestSale: false,
   },
 ];
+
+/**
+ * @todo 자바스크립트라서 타입 추론이 되지 않는 문제가 있음
+ * @description 상품 타입에 대한 아이디 객체
+ */
+const productIds = productList.reduce((acc, product) => {
+  acc[product.type] = product.id;
+
+  return acc;
+}, {});
 
 function main() {
   const root = document.getElementById('app');
@@ -328,19 +337,19 @@ function handleCalculateCartStuff() {
       }
     });
     if (quantity >= 10) {
-      if (curItem.id === PRODUCT_ONE) {
+      if (curItem.id === productIds.keyboard) {
         discount = 10 / 100;
       } else {
-        if (curItem.id === p2) {
+        if (curItem.id === productIds.mouse) {
           discount = 15 / 100;
         } else {
-          if (curItem.id === product_3) {
+          if (curItem.id === productIds.monitorArm) {
             discount = 20 / 100;
           } else {
-            if (curItem.id === p4) {
+            if (curItem.id === productIds.pouch) {
               discount = 5 / 100;
             } else {
-              if (curItem.id === PRODUCT_5) {
+              if (curItem.id === productIds.speaker) {
                 discount = 25 / 100;
               }
             }
@@ -539,11 +548,11 @@ const doRenderBonusPoints = function () {
     }
 
     // 장바구니에 담긴 상품으로 상품선택 유무 상태 변경
-    if (cartProduct.id === PRODUCT_ONE) {
+    if (cartProduct.id === productIds.keyboard) {
       hasKeyboard = true;
-    } else if (cartProduct.id === p2) {
+    } else if (cartProduct.id === productIds.mouse) {
       hasMouse = true;
-    } else if (cartProduct.id === product_3) {
+    } else if (cartProduct.id === productIds.monitorArm) {
       hasMonitorArm = true;
     }
   }
