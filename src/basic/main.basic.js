@@ -214,9 +214,7 @@ function onUpdateSelectOptions() {
       const item = productManager.getProductAt(i);
       opt = document.createElement('option');
       opt.value = item.id;
-      discountText = '';
-      if (item.onSale) discountText += ' ⚡SALE';
-      if (item.suggestSale) discountText += ' 💝추천';
+
       if (item.quantity === 0) {
         opt.textContent = item.name + ' - ' + item.discountValue + '원 (품절)' + discountText;
         opt.disabled = true;
@@ -235,7 +233,7 @@ function onUpdateSelectOptions() {
             '💝' + item.name + ' - ' + item.originalVal + '원 → ' + item.discountValue + '원 (5% 추천할인!)';
           opt.className = 'text-blue-500 font-bold';
         } else {
-          opt.textContent = item.name + ' - ' + item.discountValue + '원' + discountText;
+          opt.textContent = item.name + ' - ' + item.discountValue + '원';
         }
       }
       productSelector.appendChild(opt);
