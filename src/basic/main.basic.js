@@ -454,20 +454,6 @@ function handleCalculateCartStuff() {
     }
   }
 
-  // 중복코드로 보임 제거 (handleStockInfoUpdate 함수에서도 같은 코드가 있음)
-  // stockMsg = "";
-  // for (var stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
-  //   var item = prodList[stockIdx];
-  //   if (item.q < 5) {
-  //     if (item.q > 0) {
-  //       stockMsg =
-  //         stockMsg + item.name + ": 재고 부족 (" + item.q + "개 남음)\n";
-  //     } else {
-  //       stockMsg = stockMsg + item.name + ": 품절\n";
-  //     }
-  //   }
-  // }
-  // stockInfo.textContent = stockMsg;
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
@@ -685,24 +671,21 @@ addBtn.addEventListener("click", () => {
     // 원본 로직: 새로운 수량이 (현재 재고 + 현재 장바구니 수량) 이하여야 함
     // if (latestItem && newQty <= latestItem.q + currentQty) {
     if (itemQuantity > 0) {
-      // 수량 업데이트
-      // qtyElem.textContent = newQty;
+      // UI - 수량 업데이트
       renderQuantity(itemToAdd.id, newQty);
-      // 재고 업데이트
+
+      // Store - 재고 업데이트
       cartStore.addCartItem(itemToAdd);
       productStore.updateStock(itemToAdd.id, itemQuantity - 1);
-
-      // 선택 옵션 업데이트
-      onUpdateSelectOptions();
     } else {
       alert("재고가 부족합니다.");
     }
   } else {
-    // 새로운 상품을 장바구니에 추가
+    // UI - 새로운 상품을 장바구니에 추가
     const newItemHTML = renderNewCartItem(itemToAdd);
     cartDisp.insertAdjacentHTML("beforeend", newItemHTML);
 
-    // 최신 재고 정보를 가져와서 업데이트
+    // Store - 최신 재고 정보를 가져와서 업데이트
     const latestProdList = productStore.getState().products;
     const latestItem = latestProdList.find(
       (product) => product.id === itemToAdd.id
@@ -710,7 +693,6 @@ addBtn.addEventListener("click", () => {
     if (latestItem) {
       cartStore.addCartItem(latestItem);
       productStore.updateStock(itemToAdd.id, latestItem.q - 1);
-      onUpdateSelectOptions();
     }
   }
   handleCalculateCartStuff();
@@ -741,10 +723,9 @@ cartDisp.addEventListener("click", function (event) {
       if (newQty > 0 && newQty <= prod.q + currentQty) {
         qtyElem.textContent = newQty;
         productStore.updateStock(prodId, prod.q - qtyChange);
-        onUpdateSelectOptions();
       } else if (newQty <= 0) {
         productStore.updateStock(prodId, prod.q + currentQty);
-        onUpdateSelectOptions();
+
         itemElem.remove();
       } else {
         alert("재고가 부족합니다.");
@@ -758,6 +739,5 @@ cartDisp.addEventListener("click", function (event) {
     if (prod && prod.q < 5) {
     }
     handleCalculateCartStuff();
-    onUpdateSelectOptions();
   }
 });
