@@ -20,6 +20,7 @@ import {
 } from './constants/config.js';
 
 import { Header, HelpModal, MainLayout } from './components/ui.js';
+import { SALE_ICONS } from './constants/styles.js';
 
 let bonusPoints = 0;
 let stockInfo;
@@ -257,6 +258,84 @@ let sum;
 
 function calculateTotalStock(products) {
   return products.reduce((total, product) => total + product.quantity, 0);
+}
+
+/**
+ * 1. 할인 상태 확인 -> 아이콘 변환
+ * 2. 할인 정보 텍스트 생성 (슈퍼세일~ 세일~ 추천할인~)
+ * 3. 상품 옵션의 클래스 결정
+ * 4. 품절 상품 옵션 텍스트 생성
+ * 5. 할인 상품 옵션 텍스트 생성
+ * 6. 일반 상품 옵션 텍스트 생성
+ * 7. 상품 옵션 텍스트 생성
+ * 8. 개별 상품 옵션 요소 생성
+ * 9. 상품 선택 드롭다운 렌더링
+ * 10. 재고 상태에 따른 ui 스타일 업데이트
+ * 11. 상품 선택 옵션 업데이트
+ */
+
+// 할인 상태 확인하여 아이콘으로 변환
+function getSaleIcon(product) {
+  if (product.onSale && product.suggestSale) return SALE_ICONS.SUPER_COMBO;
+
+  if (product.onSale) return SALE_ICONS.LIGHTNING;
+
+  if (product.suggestSale) return SALE_ICONS.SUGGESTION;
+
+  return '';
+}
+
+// 할인 정보 텍스트 생성 (슈퍼세일~ 세일~ 추천할인~)
+
+function getDiscountText() {
+  if (product.onSale && product.suggestSale)
+    return `${DISCOUNT_RATES.SUPER_SALE_COMBO * 100}% SUPER SALE!`;
+
+  if (product.onSale) return `${DISCOUNT_RATES.LIGHTNING_SALE * 100}% SALE!`;
+
+  if (product.suggestSale)
+    return `${DISCOUNT_RATES.SUGGESTION * 100}% 추천할인!`;
+
+  return '';
+}
+
+// 상품 옵션의 스타일 클래스 설정
+
+function getOptionStyle(product) {
+  if (product.quantity === 0) {
+    return PRODUCT_OPTION_STYLES.OUT_OF_STOCK;
+  }
+  if (product.onSale && product.suggestSale) {
+    return PRODUCT_OPTION_STYLES.SUPER_SALE;
+  }
+  if (product.onSale) {
+    return PRODUCT_OPTION_STYLES.LIGHTNING_SALE;
+  }
+  if (product.suggestSale) {
+    return PRODUCT_OPTION_STYLES.SUGGESTION_SALE;
+  }
+  return '';
+}
+
+// 품절 옵션 텍스트 생성
+function createOutOfStockOptionText(product) {
+  const saleIcon = getSaleIcon(product);
+  const additionalText = saleIcon ? ` ${saleIcon}` : '';
+  return `${product.name} - ${product.price}원 (품절)${additionalText}`;
+}
+
+// 할인 제품 옵션 텍스트 생성 (품절 x)
+function createDiscountOptionText(product) {
+  const saleIcon = getSaleIcon(product);
+  const discountText = getDiscountText(product);
+  const priceDisplay = `${product.originalPrice}원 → ${product.price}원`;
+
+  return `${saleIcon}${product.name} - ${priceDisplay} (${discountText})`;
+}
+
+// 일반 제품 텍스트 생성
+function createRegularOptionText(product) {
+  return `${product.name} - ${product.price}원`;
 }
 
 // 상품 선택 옵션 업데이트
