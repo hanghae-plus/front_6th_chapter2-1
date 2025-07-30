@@ -1,3 +1,4 @@
+import { BUSINESS_CONSTANTS, PRODUCT_IDS } from '../../shared/constants/index.js';
 import { findProductById, calculateTotalStock } from '../../shared/utils/product-utils.js';
 import { calculateCartSubtotal, calculateFinalDiscount, updateCartUI } from '../pricing/index.js';
 
@@ -54,7 +55,7 @@ export function onUpdateSelectOptions(appState) {
       appState.elements.productSelect.appendChild(opt);
     })();
   }
-  if (totalStock < appState.CONSTANTS.STOCK_WARNING_THRESHOLD) {
+  if (totalStock < BUSINESS_CONSTANTS.STOCK_WARNING_THRESHOLD) {
     appState.elements.productSelect.style.borderColor = 'orange';
   } else {
     appState.elements.productSelect.style.borderColor = '';
@@ -70,7 +71,7 @@ export function updateStockStatus(appState) {
 
   for (var stockIdx = 0; stockIdx < appState.products.length; stockIdx++) {
     var item = appState.products[stockIdx];
-    if (item.q < appState.CONSTANTS.LOW_STOCK_THRESHOLD) {
+    if (item.q < BUSINESS_CONSTANTS.LOW_STOCK_THRESHOLD) {
       if (item.q > 0) {
         stockMsg = stockMsg + item.name + ': 재고 부족 (' + item.q + '개 남음)\n';
       } else {
@@ -140,11 +141,11 @@ export function doRenderBonusPoints(appState) {
   for (const node of nodes) {
     var product = findProductById(appState.products, node.id);
     if (!product) continue;
-    if (product.id === appState.PRODUCT_IDS.KEYBOARD) {
+    if (product.id === PRODUCT_IDS.KEYBOARD) {
       hasKeyboard = true;
-    } else if (product.id === appState.PRODUCT_IDS.MOUSE) {
+    } else if (product.id === PRODUCT_IDS.MOUSE) {
       hasMouse = true;
-    } else if (product.id === appState.PRODUCT_IDS.MONITOR_ARM) {
+    } else if (product.id === PRODUCT_IDS.MONITOR_ARM) {
       hasMonitorArm = true;
     }
   }
