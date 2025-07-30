@@ -44,16 +44,18 @@ const lightningSaleCallback = (
 // 추천할인 로직
 const recommendationCallback = (
   prodList,
-  lastSel,
   onUpdateSelectOptions,
   updateCartPricesAndRefresh,
   config = DISCOUNT_CONFIG.RECOMMENDATION // 기본값 추가
 ) => {
-  if (!lastSel) return;
-
-  const suggest = prodList.find(
-    (item) => item.id !== lastSel && item.q > 0 && !item.suggestSale
+  const availableItems = prodList.filter(
+    (item) => item.q > 0 && !item.suggestSale
   );
+
+  if (availableItems.length === 0) return;
+
+  const randomIndex = Math.floor(Math.random() * availableItems.length);
+  const suggest = availableItems[randomIndex];
 
   if (suggest) {
     const discountMultiplier = (100 - config.DISCOUNT_RATE) / 100; // 설정값 사용
@@ -89,7 +91,6 @@ export const startLightningSaleTimer = ({
 // 추천할인 타이머
 export const startRecommendationTimer = ({
   prodList,
-  lastSel,
   onUpdateSelectOptions,
   updateCartPricesAndRefresh,
   delay = Math.random() * 20000,
@@ -99,7 +100,6 @@ export const startRecommendationTimer = ({
     () =>
       recommendationCallback(
         prodList,
-        lastSel,
         onUpdateSelectOptions,
         updateCartPricesAndRefresh,
         config // config 전달

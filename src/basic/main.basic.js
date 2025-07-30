@@ -2,12 +2,7 @@ import { renderHeader } from "./ui/renderHeader";
 import { initAddButtonEvent } from "./events/addBtnEventHandler";
 import { initCartDOMEvent } from "./events/cartEventHandler";
 
-import productStore, { productIds } from "./store/product";
-import cartStore from "./store/cart";
-
-import { calculateItemDiscount } from "./utils/cart/calculateItemDiscount";
-import { extractCartData } from "./utils/cart/extractCartData";
-import { calculateCartTotals } from "./utils/cart/calculateCartTotals";
+import productStore from "./store/product";
 
 import {
   startLightningSaleTimer,
@@ -15,28 +10,11 @@ import {
 } from "./utils/discountTimer";
 import { updateSelectOptions } from "./utils/select/selectUtils";
 
-import { renderCartSummary } from "./ui/render/renderCartSummary";
-import { renderDiscountInfo } from "./ui/render/renderDiscountInfo";
-import { renderLoyaltyPoints } from "./ui/render/renderLoyaltyPoints";
-import { updateCartUI } from "./ui/update/updateCart";
-import { updateCartItemStyles } from "./ui/update/updateCartItem";
-import { updateBonusPoints } from "./ui/update/updateBonusPoints";
-import { updateStockInfo } from "./ui/update/updateStockInfo";
 import { updateCartUIAfterCalculation } from "./ui/update/updateCartUIAfterCalculation";
 import { updateCartItemPrices } from "./ui/update/updateCartItemPrices";
 
 // 비즈니스 서비스들
-import {
-  calculateAndUpdateCart,
-  getCartState,
-  calculateAllBusinessLogic,
-} from "./services/cartCalculationService";
-import { calculateBonusPoints } from "./services/bonusPointsService";
-import { getLowStockItems } from "./services/stockService";
-
-// 전역 변수들
-var bonusPts = 0;
-var lastSel;
+import { calculateAllBusinessLogic } from "./services/cartCalculationService";
 
 //DOM 관련 변수
 var stockInfo;
@@ -46,7 +24,7 @@ var cartDisp;
 
 function main() {
   var root;
-  // var header;
+
   var gridContainer;
   var leftColumn;
   var selectorContainer;
@@ -54,10 +32,6 @@ function main() {
   var manualToggle;
   var manualOverlay;
   var manualColumn;
-  // var lightningDelay;
-  // totalAmt = 0;
-  // itemCnt = 0;
-  lastSel = null;
 
   var root = document.getElementById("app");
 
@@ -228,7 +202,6 @@ function main() {
   // 추천할인 타이머 시작
   startRecommendationTimer({
     prodList,
-    lastSel,
     onUpdateSelectOptions,
     updateCartPricesAndRefresh,
   });
