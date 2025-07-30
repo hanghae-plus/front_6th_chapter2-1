@@ -188,6 +188,26 @@ function handleProductSuggestion() {
   doUpdatePricesInCart();
 }
 
+// 번개 세일 타이머 설정 (setTimeout)
+
+function setupLightningSaleTimer() {
+  const initialDelay = Math.random() * LIGHTNING_SALE_MAX_DELAY;
+
+  setTimeout(() => {
+    setInterval(handleLightningSale, LIGHTNING_SALE_INTERVAL);
+  }, initialDelay);
+}
+
+// 추천 상품 세일 타이머 설정
+
+function setupSuggestionTimer() {
+  const initialDelay = Math.random() * SUGGESTION_INTERVAL;
+
+  setTimeout(() => {
+    setInterval(handleProductSuggestion, SUGGESTION_MAX_DELAY);
+  }, initialDelay);
+}
+
 function main() {
   // DOM 요소 변수들
 
