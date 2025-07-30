@@ -7,7 +7,6 @@ import {
 } from '../constants/productId.js';
 import {
   QUANTITY_THRESHOLDS,
-  DISCOUNT_RATES,
   POINT_RATES,
   STOCK_THRESHOLDS,
 } from '../constants/shopPolicy.js';
@@ -23,6 +22,8 @@ import {
 } from '../components/Layout.js';
 import { createCartDisplay } from '../components/CartDisplay/index.js';
 import { formatPrice } from '../utils/format.js';
+import { getQuantityFromElement, getProductDiscount, getBulkBonus } from '../utils/productUtils.js';
+import { calculateDiscounts } from '../utils/discountUtils.js';
 import { createPriceDisplay } from '../components/PriceDisplay.js';
 import { createProductOptions } from '../components/ProductOptions.js';
 import { createPointsDisplay } from '../components/PointsDisplay.js';
@@ -91,38 +92,8 @@ const lastSelectionState = {
 const findProductById = (productId) =>
   products.find((product) => product.id === productId);
 
-const getProductDiscount = (productId) => {
-  const discountMap = {
-    [KEYBOARD_ID]: DISCOUNT_RATES.PRODUCT.KEYBOARD,
-    [MOUSE_ID]: DISCOUNT_RATES.PRODUCT.MOUSE,
-    [MONITOR_ID]: DISCOUNT_RATES.PRODUCT.MONITOR_ARM,
-    [HEADPHONE_ID]: DISCOUNT_RATES.PRODUCT.LAPTOP_POUCH,
-    [SPEAKER_ID]: DISCOUNT_RATES.PRODUCT.SPEAKER,
-  };
-  return discountMap[productId] || 0;
-};
 
-const getBulkBonus = (itemCount) => {
-  if (itemCount >= QUANTITY_THRESHOLDS.BONUS_LARGE) {
-    return {
-      points: POINT_RATES.BULK_BONUS.LARGE,
-      threshold: QUANTITY_THRESHOLDS.BONUS_LARGE,
-    };
-  } else if (itemCount >= QUANTITY_THRESHOLDS.BONUS_MEDIUM) {
-    return {
-      points: POINT_RATES.BULK_BONUS.MEDIUM,
-      threshold: QUANTITY_THRESHOLDS.BONUS_MEDIUM,
-    };
-  } else if (itemCount >= QUANTITY_THRESHOLDS.BONUS_SMALL) {
-    return {
-      points: POINT_RATES.BULK_BONUS.SMALL,
-      threshold: QUANTITY_THRESHOLDS.BONUS_SMALL,
-    };
-  }
-  return null;
-};
 
-const getQuantityFromElement = (element) => parseInt(element.textContent) || 0;
 
 function main() {
   let root;
@@ -231,32 +202,6 @@ function calculateCartTotals(cartItems) {
   return result;
 }
 
-function calculateDiscounts(subTot, totalAmt, itemCnt) {
-  const originalTotal = subTot;
-  const isTuesday = new Date().getDay() === 2;
-
-  // 대량구매 할인 적용
-  const { finalTotal: bulkDiscountedTotal, discRate: bulkDiscRate } =
-    itemCnt >= QUANTITY_THRESHOLDS.BONUS_LARGE
-      ? {
-          finalTotal: subTot * (1 - DISCOUNT_RATES.BULK),
-          discRate: DISCOUNT_RATES.BULK,
-        }
-      : { finalTotal: totalAmt, discRate: (subTot - totalAmt) / subTot };
-
-  // 화요일 특가 추가 적용
-  const finalTotal =
-    isTuesday && bulkDiscountedTotal > 0
-      ? bulkDiscountedTotal * (1 - DISCOUNT_RATES.TUESDAY)
-      : bulkDiscountedTotal;
-
-  const discRate =
-    isTuesday && finalTotal !== bulkDiscountedTotal
-      ? 1 - finalTotal / originalTotal
-      : bulkDiscRate;
-
-  return { discRate, originalTotal, finalTotal, isTuesday };
-}
 
 function updateOrderSummary(cartData, discountData) {
   const { subTot, itemDiscounts, itemCnt, cartItems } = cartData;
