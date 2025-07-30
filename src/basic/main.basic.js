@@ -404,6 +404,15 @@ function ManualColumn() {
   `;
 }
 
+function findProductById(productId) {
+  return productList.find((product) => product.id === productId);
+}
+
+function isTuesday() {
+  const today = new Date();
+  return today.getDay() === TUESDAY;
+}
+
 function main() {
   let totalAmt = 0;
   let lastSel = null;
@@ -512,13 +521,7 @@ function main() {
 
     const cartItems = cartDisp.children;
     for (let i = 0; i < cartItems.length; i++) {
-      let curItem;
-      for (let j = 0; j < productList.length; j++) {
-        if (productList[j].id === cartItems[i].id) {
-          curItem = productList[j];
-          break;
-        }
-      }
+      const curItem = findProductById(cartItems[i].id);
       const qtyElem = cartItems[i].querySelector('.quantity-number');
       const q = parseInt(qtyElem.textContent);
       const itemTot = curItem.val * q;
@@ -567,10 +570,8 @@ function main() {
     } else {
       discRate = (subTot - totalAmt) / subTot;
     }
-    const today = new Date();
-    const isTuesday = today.getDay() === TUESDAY;
     const tuesdaySpecial = document.getElementById('tuesday-special');
-    if (isTuesday) {
+    if (isTuesday()) {
       if (totalAmt > 0) {
         totalAmt = (totalAmt * (100 - TUESDAY_SPECIAL_DISCOUNT)) / 100;
         discRate = 1 - totalAmt / originalTotal;
@@ -586,13 +587,7 @@ function main() {
     summaryDetails.innerHTML = '';
     if (subTot > 0) {
       for (let i = 0; i < cartItems.length; i++) {
-        let curItem;
-        for (let j = 0; j < productList.length; j++) {
-          if (productList[j].id === cartItems[i].id) {
-            curItem = productList[j];
-            break;
-          }
-        }
+        const curItem = findProductById(cartItems[i].id);
         const qtyElem = cartItems[i].querySelector('.quantity-number');
         const q = parseInt(qtyElem.textContent);
         const itemTotal = curItem.val * q;
@@ -649,17 +644,7 @@ function main() {
     if (totalDiv) {
       totalDiv.textContent = `₩${Math.round(totalAmt).toLocaleString()}`;
     }
-    const loyaltyPointsDiv = document.getElementById('loyalty-points');
-    if (loyaltyPointsDiv) {
-      const points = Math.floor(totalAmt / BASE_POINTS_RATE);
-      if (points > 0) {
-        loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
-        loyaltyPointsDiv.style.display = 'block';
-      } else {
-        loyaltyPointsDiv.textContent = '적립 포인트: 0p';
-        loyaltyPointsDiv.style.display = 'block';
-      }
-    }
+
     const discountInfoDiv = document.getElementById('discount-info');
     discountInfoDiv.innerHTML = '';
     if (discRate > 0 && totalAmt > 0) {
@@ -701,7 +686,7 @@ function main() {
       finalPoints = basePoints;
       pointsDetail.push(`기본: ${basePoints}p`);
     }
-    if (new Date().getDay() === TUESDAY) {
+    if (isTuesday()) {
       if (basePoints > 0) {
         finalPoints = basePoints * TUESDAY_POINTS_MULTIPLIER;
         pointsDetail.push('화요일 2배');
@@ -713,14 +698,9 @@ function main() {
 
     const nodes = cartDisp.children;
     for (const node of nodes) {
-      let product = null;
-      for (let pIdx = 0; pIdx < productList.length; pIdx++) {
-        if (productList[pIdx].id === node.id) {
-          product = productList[pIdx];
-          break;
-        }
-      }
+      const product = findProductById(node.id);
       if (!product) continue;
+
       if (product.id === KEYBOARD) {
         hasKeyboard = true;
       } else if (product.id === MOUSE) {
@@ -794,13 +774,7 @@ function main() {
     const cartItems = cartDisp.children;
     for (let i = 0; i < cartItems.length; i++) {
       const itemId = cartItems[i].id;
-      let product = null;
-      for (let productIdx = 0; productIdx < productList.length; productIdx++) {
-        if (productList[productIdx].id === itemId) {
-          product = productList[productIdx];
-          break;
-        }
-      }
+      const product = findProductById(itemId);
       if (product) {
         const priceDiv = cartItems[i].querySelector('.text-lg');
         const nameDiv = cartItems[i].querySelector('h3');
@@ -855,13 +829,9 @@ function main() {
     if (!selItem || !hasItem) {
       return;
     }
-    let itemToAdd = null;
-    for (let j = 0; j < productList.length; j++) {
-      if (productList[j].id === selItem) {
-        itemToAdd = productList[j];
-        break;
-      }
-    }
+
+    const itemToAdd = findProductById(selItem);
+
     if (itemToAdd && itemToAdd.q > 0) {
       const item = document.getElementById(itemToAdd['id']);
       if (item) {
@@ -949,13 +919,8 @@ function main() {
     if (tgt.classList.contains('quantity-change') || tgt.classList.contains('remove-item')) {
       const prodId = tgt.dataset.productId;
       const itemElem = document.getElementById(prodId);
-      let prod = null;
-      for (let prdIdx = 0; prdIdx < productList.length; prdIdx++) {
-        if (productList[prdIdx].id === prodId) {
-          prod = productList[prdIdx];
-          break;
-        }
-      }
+      const prod = findProductById(prodId);
+
       if (tgt.classList.contains('quantity-change')) {
         const qtyChange = parseInt(tgt.dataset.change);
         const qtyElem = itemElem.querySelector('.quantity-number');
