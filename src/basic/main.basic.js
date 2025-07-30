@@ -82,35 +82,55 @@ function bindDOMElements() {
   };
 }
 
+// 메뉴얼 토글 핸들러
+
+function createModalToggleHandler(manualOverlay) {
+  return function () {
+    if (!manualOverlay) return;
+
+    manualOverlay.classList.toggle('hidden');
+    const manualPanel = document.getElementById('manual-panel');
+    if (manualPanel) {
+      manualPanel.classList.toggle('translate-x-full');
+    }
+  };
+}
+
+// 매뉴얼 오버레이 클릭 핸들러
+
+function createModalOverlayHandler(manualOverlay) {
+  return function (event) {
+    if (event.target !== manualOverlay) return;
+
+    manualOverlay.classList.add('hidden');
+    const manualPanel = document.getElementById('manual-panel');
+    if (manualPanel) {
+      manualPanel.classList.add('translate-x-full');
+    }
+  };
+}
+
+// 모달 관련 이벤트
+
+function setupModalEventListeners() {
+  const { manualToggle, manualOverlay } = bindDOMElements();
+
+  if (manualToggle && manualOverlay) {
+    manualToggle.addEventListener(
+      'click',
+      createModalToggleHandler(manualToggle)
+    );
+    manualOverlay.addEventListener(
+      'click',
+      createModalOverlayHandler(manualOverlay)
+    );
+  }
+}
+
 function main() {
   // DOM 요소 변수들
 
   let lightningDelay;
-
-  // 이벤트 리스너 등록 (Template Literal 방식 이후)
-  if (manualToggle) {
-    manualToggle.addEventListener('click', function () {
-      if (manualOverlay) {
-        manualOverlay.classList.toggle('hidden');
-        const manualPanel = document.getElementById('manual-panel');
-        if (manualPanel) {
-          manualPanel.classList.toggle('translate-x-full');
-        }
-      }
-    });
-  }
-
-  if (manualOverlay) {
-    manualOverlay.addEventListener('click', function (e) {
-      if (e.target === manualOverlay) {
-        manualOverlay.classList.add('hidden');
-        const manualPanel = document.getElementById('manual-panel');
-        if (manualPanel) {
-          manualPanel.classList.add('translate-x-full');
-        }
-      }
-    });
-  }
 
   // 초기 재고 계산
   let initStock = 0;
