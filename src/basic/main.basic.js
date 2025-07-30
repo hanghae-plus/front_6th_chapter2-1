@@ -22,8 +22,8 @@ import {
   createRightColumn,
   createSelectorContainer,
   createStockInfo,
-} from './elements';
-import { applyItemDiscount, applyTotalDiscount } from './usecase/getCartDetails';
+} from './view';
+import { applyItemDiscount, applyTotalDiscount } from './usecase/discount';
 import { isTuesday } from './utils/dateUtil';
 
 let stockInfo;
