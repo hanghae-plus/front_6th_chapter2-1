@@ -47,7 +47,7 @@ export default function CartItem({
       id={id}
       className="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0"
     >
-      <div className="w-20 h-20 bg-gradient-black relative overflow-hidden">
+      <div className="w-20 h-20 bg-gradient-to-br from-gray-800 to-black relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
       </div>
       <div>
