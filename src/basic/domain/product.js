@@ -47,14 +47,16 @@ class ProductsManager {
   getTotalStock() {
     if (!this.#productList) throw Error();
 
-    return this.#productList.reduce((totalStock, currentProduct) => totalStock + currentProduct.q, 0);
+    return this.#productList.reduce((totalStock, currentProduct) => totalStock + currentProduct.quantity, 0);
   }
 
   getLowStockMessages() {
     return this.#productList
-      .filter((product) => product.q < LOW_STOCK_THRESHOLD)
+      .filter((product) => product.quantity < LOW_STOCK_THRESHOLD)
       .map((product) =>
-        product.q > OUT_OF_STOCK ? `${product.name}: 재고 부족 (${product.q}개 남음)` : `${product.name}: 품절`
+        product.quantity > OUT_OF_STOCK
+          ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
+          : `${product.name}: 품절`
       )
       .join('\n');
   }
