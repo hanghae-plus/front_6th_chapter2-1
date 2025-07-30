@@ -108,21 +108,8 @@ function main() {
   cartDisp.id = "cart-items";
 
   sum = rightColumn.querySelector("#cart-total");
-  manualToggle.onclick = function () {
-    manualOverlay.classList.toggle("hidden");
-    manualColumn.classList.toggle("translate-x-full");
-  };
 
-  manualOverlay = document.createElement("div");
-  manualOverlay.className =
-    "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
-  manualOverlay.onclick = function (e) {
-    if (e.target === manualOverlay) {
-      manualOverlay.classList.add("hidden");
-      manualColumn.classList.add("translate-x-full");
-    }
-  };
-
+  // 모든 요소가 DOM에 추가된 후 이벤트 설정
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
@@ -130,6 +117,15 @@ function main() {
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
+
+  // 이벤트 핸들러 설정 (요소 참조 직접 전달)
+  manualToggle.addEventListener("click", () =>
+    handleManualToggle(manualOverlay, manualColumn)
+  );
+  manualOverlay.addEventListener("click", (e) =>
+    handleManualOverlayClick(e, manualColumn)
+  );
+
   var initStock = 0;
   for (var i = 0; i < prodList.length; i++) {
     initStock += prodList[i].q;
@@ -655,6 +651,20 @@ function doUpdatePricesInCart() {
   }
   handleCalculateCartStuff();
 }
+function handleManualToggle(manualOverlay, manualColumn) {
+  if (manualOverlay && manualColumn) {
+    manualOverlay.classList.toggle("hidden");
+    manualColumn.classList.toggle("translate-x-full");
+  }
+}
+
+function handleManualOverlayClick(e, manualColumn) {
+  if (e.target === e.currentTarget && manualColumn) {
+    e.currentTarget.classList.add("hidden");
+    manualColumn.classList.add("translate-x-full");
+  }
+}
+
 main();
 addBtn.addEventListener("click", function () {
   var selItem = sel.value;
