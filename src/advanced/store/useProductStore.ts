@@ -12,13 +12,14 @@ interface ProductActions {
   setSelectedProduct: (product: Product) => void;
 }
 
-const useProductStore = create<ProductState & ProductActions>(set => ({
+const useProductStore = create<ProductState & ProductActions>((set, get) => ({
   products: [],
   selectedProduct: null,
 
   setSelectedProduct: (product: Product) => {
     set({ selectedProduct: product });
   },
+
   setProducts: (products: Product[]) => {
     set({ products });
   },
