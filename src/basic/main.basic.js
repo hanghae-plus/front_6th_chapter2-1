@@ -1,11 +1,35 @@
+// 상수 import
 // ================================================
-// 상품 ID 상수
-// ================================================
-const KEYBOARD = 'p1';
-const MOUSE = 'p2';
-const MONITOR_ARM = 'p3';
-const NOTEBOOK_CASE = 'p4';
-const SPEAKER = 'p5';
+import {
+  KEYBOARD,
+  MOUSE,
+  MONITOR_ARM,
+  NOTEBOOK_CASE,
+  SPEAKER,
+  LIGHTNING_SALE_DISCOUNT,
+  SUGGEST_SALE_DISCOUNT,
+  TUESDAY_SPECIAL_DISCOUNT,
+  BULK_PURCHASE_DISCOUNT,
+  PRODUCT_DISCOUNTS,
+  INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD,
+  BULK_PURCHASE_THRESHOLD,
+  TOTAL_STOCK_WARNING_THRESHOLD,
+  BONUS_POINTS_THRESHOLDS,
+  BASE_POINTS_RATE,
+  TUESDAY_POINTS_MULTIPLIER,
+  BONUS_POINTS,
+  SUGGEST_SALE_INTERVAL,
+} from './constants.js';
+import { cartState } from './states/cartState.js';
+import { productState } from './states/productState.js';
+import { stateActions, subscribeToState } from './states/state.js';
+import { uiState } from './states/uiState.js';
+import {
+  findProductById,
+  getProductDiscountIcon,
+  getProductDiscountStyle,
+} from './utils/product.js';
+import { generateStockWarningMessage, getLowStockProducts } from './utils/stock.js';
 
 // ================================================
 // 상품 데이터
@@ -59,57 +83,9 @@ const productList = [
 ];
 
 // ================================================
-// 할인 관련 상수
-// ================================================
-const LIGHTNING_SALE_DISCOUNT = 20; // 번개세일 할인율 (%)
-const SUGGEST_SALE_DISCOUNT = 5; // 추천세일 할인율 (%)
-const TUESDAY_SPECIAL_DISCOUNT = 10; // 화요일 특별 할인율 (%)
-const BULK_PURCHASE_DISCOUNT = 25; // 대량구매 할인율 (%)
-
-// 개별 상품 할인율
-const PRODUCT_DISCOUNTS = {
-  [KEYBOARD]: 10, // 키보드
-  [MOUSE]: 15, // 마우스
-  [MONITOR_ARM]: 20, // 모니터암
-  [NOTEBOOK_CASE]: 5, // 노트북 파우치
-  [SPEAKER]: 25, // 스피커
-};
-
-// ================================================
-// 수량 기준 상수
-// ================================================
-const INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD = 10; // 개별 상품 할인 시작 기준
-const BULK_PURCHASE_THRESHOLD = 30; // 대량구매 할인 시작 기준
-const LOW_STOCK_THRESHOLD = 5; // 재고 부족 경고 기준
-const TOTAL_STOCK_WARNING_THRESHOLD = 50; // 전체 재고 부족 경고 기준
-
-// 포인트 적립 기준 수량
-const BONUS_POINTS_THRESHOLDS = {
-  SMALL: 10, // 10개+ = +20p
-  MEDIUM: 20, // 20개+ = +50p
-  LARGE: 30, // 30개+ = +100p
-};
-
-// ================================================
-// 포인트 관련 상수
-// ================================================
-const BASE_POINTS_RATE = 1000; // 기본 포인트 적립 기준 (원)
-const TUESDAY_POINTS_MULTIPLIER = 2; // 화요일 포인트 배수
-const BONUS_POINTS = {
-  KEYBOARD_MOUSE_SET: 50, // 키보드+마우스 세트
-  FULL_SET: 100, // 풀세트
-  BULK_PURCHASE: {
-    SMALL: 20,
-    MEDIUM: 50,
-    LARGE: 100,
-  },
-};
-
-// ================================================
 // 타이머 관련 상수
 // ================================================
 const LIGHTNING_SALE_INTERVAL = 30000; // 번개세일 간격 (30초)
-const SUGGEST_SALE_INTERVAL = 60000; // 추천할인 간격 (60초)
 const LIGHTNING_DELAY_RANGE = 10000; // 번개세일 시작 지연 범위 (10초)
 const SUGGEST_DELAY_RANGE = 20000; // 추천할인 시작 지연 범위 (20초)
 
@@ -117,14 +93,6 @@ const SUGGEST_DELAY_RANGE = 20000; // 추천할인 시작 지연 범위 (20초)
 // 요일 관련 상수
 // ================================================
 const TUESDAY = 2; // 화요일 (0=일요일, 1=월요일, 2=화요일, ...)
-
-// ================================================
-// 상태 관리 import
-// ================================================
-import { cartState } from './states/cartState.js';
-import { productState } from './states/productState.js';
-import { stateActions, subscribeToState } from './states/state.js';
-import { uiState } from './states/uiState.js';
 
 /**
  * Header 컴포넌트
@@ -453,31 +421,17 @@ function ManualColumn() {
 function NewItem({ item }) {
   const { id, name, val, originalVal, onSale, suggestSale } = item;
 
-  // 할인 아이콘 결정
-  const getDiscountIcon = () => {
-    if (onSale && suggestSale) return '⚡💝';
-    if (onSale) return '⚡';
-    if (suggestSale) return '💝';
-    return '';
-  };
-
-  // 할인 스타일 결정
-  const getDiscountStyle = () => {
-    if (onSale && suggestSale) return 'text-purple-600';
-    if (onSale) return 'text-red-500';
-    if (suggestSale) return 'text-blue-500';
-    return '';
-  };
+  // 할인 아이콘과 스타일은 utils/product.js에서 가져옴
 
   // 가격 표시 렌더링
   const renderPrice = () => {
     if (onSale || suggestSale) {
       return `
-        <span class="line-through text-gray-400">₩${originalVal.toLocaleString()}</span>
-        <span class="${getDiscountStyle()}">₩${val.toLocaleString()}</span>
+        <span class="line-through text-gray-400">₩${originalVal}</span>
+        <span class="${getProductDiscountStyle({ onSale, suggestSale })}">₩${val}</span>
       `;
     }
-    return `₩${val.toLocaleString()}`;
+    return `₩${val}`;
   };
 
   return /* HTML */ `
@@ -491,7 +445,9 @@ function NewItem({ item }) {
         ></div>
       </div>
       <div>
-        <h3 class="text-base font-normal mb-1 tracking-tight">${getDiscountIcon()}${name}</h3>
+        <h3 class="text-base font-normal mb-1 tracking-tight">
+          ${getProductDiscountIcon({ onSale, suggestSale })}${name}
+        </h3>
         <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
         <p class="text-xs text-black mb-3">${renderPrice()}</p>
         <div class="flex items-center gap-4">
@@ -526,9 +482,7 @@ function NewItem({ item }) {
   `;
 }
 
-function findProductById(productId) {
-  return productList.find((product) => product.id === productId);
-}
+// findProductById는 utils/product.js에서 import됨
 
 function isTuesday() {
   const today = new Date();
@@ -632,7 +586,7 @@ function main() {
     const cartItems = cartDisp.children;
 
     for (let i = 0; i < cartItems.length; i++) {
-      const curItem = findProductById(cartItems[i].id);
+      const curItem = findProductById(productList, cartItems[i].id);
       const qtyElem = cartItems[i].querySelector('.quantity-number');
       const q = parseInt(qtyElem.textContent);
       const itemTot = curItem.val * q;
@@ -700,7 +654,7 @@ function main() {
     summaryDetails.innerHTML = '';
     if (subTot > 0) {
       for (let i = 0; i < cartItems.length; i++) {
-        const curItem = findProductById(cartItems[i].id);
+        const curItem = findProductById(productList, cartItems[i].id);
         const qtyElem = cartItems[i].querySelector('.quantity-number');
         const q = parseInt(qtyElem.textContent);
         const itemTotal = curItem.val * q;
@@ -818,7 +772,7 @@ function main() {
     const nodes = cartDisp.children;
 
     for (const node of nodes) {
-      const product = findProductById(node.id);
+      const product = findProductById(productList, node.id);
       if (!product) continue;
 
       if (product.id === KEYBOARD) {
@@ -887,19 +841,15 @@ function main() {
   }
 
   function handleStockInfoUpdate() {
-    stockInfo.textContent = productList
-      .filter((item) => item.q < LOW_STOCK_THRESHOLD)
-      .map((item) =>
-        item.q > 0 ? `${item.name}: 재고 부족 (${item.q}개 남음)\n` : `${item.name}: 품절\n`
-      )
-      .join('');
+    const lowStockProducts = getLowStockProducts(productList);
+    stockInfo.textContent = generateStockWarningMessage(lowStockProducts);
   }
 
   function doUpdatePricesInCart() {
     const cartItems = cartDisp.children;
     for (let i = 0; i < cartItems.length; i++) {
       const itemId = cartItems[i].id;
-      const product = findProductById(itemId);
+      const product = findProductById(productList, itemId);
       if (product) {
         const priceDiv = cartItems[i].querySelector('.text-lg');
         const nameDiv = cartItems[i].querySelector('h3');
@@ -950,7 +900,7 @@ function main() {
       return;
     }
 
-    const itemToAdd = findProductById(selItem);
+    const itemToAdd = findProductById(productList, selItem);
 
     if (itemToAdd && itemToAdd.q > 0) {
       const item = document.getElementById(itemToAdd.id);
@@ -978,7 +928,7 @@ function main() {
     if (tgt.classList.contains('quantity-change') || tgt.classList.contains('remove-item')) {
       const prodId = tgt.dataset.productId;
       const itemElem = document.getElementById(prodId);
-      const prod = findProductById(prodId);
+      const prod = findProductById(productList, prodId);
 
       if (tgt.classList.contains('quantity-change')) {
         const qtyChange = parseInt(tgt.dataset.change);
