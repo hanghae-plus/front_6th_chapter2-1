@@ -1,4 +1,4 @@
-export function createShoppingCartItemElement(itemToAdd) {
+export function ShoppingCartItemElement(itemToAdd) {
 	const newItem = document.createElement("div");
 	newItem.id = itemToAdd.id;
 	newItem.className =

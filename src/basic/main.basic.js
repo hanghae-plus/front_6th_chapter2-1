@@ -4,18 +4,18 @@ import { createAppState } from "./state/appState";
 import { onUpdateSelectOptions } from "./domains/product/productService";
 import { handleCalculateCartStuff, doUpdatePricesInCart } from "./domains/cart/cartService";
 import {
-	createProductDropdownSelect,
-	createCartAddButton,
-	createStockWarningMessage,
-	createProductSelectionPanel,
-	createCartItemsContainer,
-	createShoppingAreaColumn,
-	createOrderSummaryColumn,
-	createHelpModalToggleButton,
-	createHelpModalBackdrop,
-	createHelpContentPanel,
-	createMainLayoutGrid,
-	createShoppingCartItemElement
+	ProductDropdownSelect,
+	CartAddButton,
+	StockWarningMessage,
+	ProductSelectionPanel,
+	CartItemsContainer,
+	ShoppingAreaColumn,
+	OrderSummaryColumn,
+	HelpModalToggleButton,
+	HelpModalBackdrop,
+	HelpContentPanel,
+	MainLayoutGrid,
+	ShoppingCartItemElement
 } from "./components/ui";
 
 function main() {
@@ -24,25 +24,25 @@ function main() {
 	const root = document.getElementById("app");
 
 	// Create UI components using component functions
-	appState.sel = createProductDropdownSelect();
-	appState.addBtn = createCartAddButton();
-	appState.stockInfo = createStockWarningMessage();
+	appState.sel = ProductDropdownSelect();
+	appState.addBtn = CartAddButton();
+	appState.stockInfo = StockWarningMessage();
 	
-	const selectorContainer = createProductSelectionPanel(appState.sel, appState.addBtn, appState.stockInfo);
-	appState.cartDisp = createCartItemsContainer();
-	const leftColumn = createShoppingAreaColumn(selectorContainer, appState.cartDisp);
+	const selectorContainer = ProductSelectionPanel(appState.sel, appState.addBtn, appState.stockInfo);
+	appState.cartDisp = CartItemsContainer();
+	const leftColumn = ShoppingAreaColumn(selectorContainer, appState.cartDisp);
 
-	const rightColumn = createOrderSummaryColumn();
+	const rightColumn = OrderSummaryColumn();
 	appState.sum = rightColumn.querySelector("#cart-total");
 
 	// Create manual components
-	const manualColumn = createHelpContentPanel();
-	const manualOverlay = createHelpModalBackdrop(manualColumn);
-	const manualToggle = createHelpModalToggleButton(manualOverlay, manualColumn);
+	const manualColumn = HelpContentPanel();
+	const manualOverlay = HelpModalBackdrop(manualColumn);
+	const manualToggle = HelpModalToggleButton(manualOverlay, manualColumn);
 	
 	manualOverlay.appendChild(manualColumn);
 
-	const gridContainer = createMainLayoutGrid(leftColumn, rightColumn);
+	const gridContainer = MainLayoutGrid(leftColumn, rightColumn);
 
 	appState.totalAmt = 0;
 	appState.itemCnt = 0;
@@ -133,7 +133,7 @@ function main() {
 					alert("재고가 부족합니다.");
 				}
 			} else {
-				const newItem = createShoppingCartItemElement(itemToAdd);
+				const newItem = ShoppingCartItemElement(itemToAdd);
 				appState.cartDisp.appendChild(newItem);
 				itemToAdd.q--;
 			}

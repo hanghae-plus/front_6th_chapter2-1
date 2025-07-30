@@ -1,4 +1,4 @@
-export function createStockWarningMessage() {
+export function StockWarningMessage() {
 	const div = document.createElement("div");
 	div.id = "stock-status";
 	div.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
