@@ -5,7 +5,7 @@ import { initialProducts, LIGHTNING_DISCOUNT, OUT_OF_STOCK, SUGGEST_DISCOUNT } f
 import productManager from './domain/product';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/applyDiscount';
 import { isTuesday } from './utils/dateUtil';
-import { renderDiscountInfo } from './view/cartSummary';
+import { renderDiscountInfo, renderLoyaltyPoints } from './view/cartSummary';
 import { globalElements } from './view/globalElements';
 import { renderLayout } from './view/layout';
 
@@ -183,17 +183,7 @@ function calculateCart() {
     totalDiv.textContent = '₩' + Math.round(totalAmount).toLocaleString();
   }
 
-  loyaltyPointsDiv = document.getElementById('loyalty-points');
-  if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmount / 1000);
-    if (points > 0) {
-      loyaltyPointsDiv.textContent = '적립 포인트: ' + points + 'p';
-      loyaltyPointsDiv.style.display = 'block';
-    } else {
-      loyaltyPointsDiv.textContent = '적립 포인트: 0p';
-      loyaltyPointsDiv.style.display = 'block';
-    }
-  }
+  renderLoyaltyPoints({ totalAmount });
 
   renderDiscountInfo({ finalDiscountRate, originalTotal, totalAmount });
 

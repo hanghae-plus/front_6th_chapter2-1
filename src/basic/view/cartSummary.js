@@ -17,3 +17,15 @@ export const renderDiscountInfo = ({ finalDiscountRate, originalTotal, totalAmou
     `;
   }
 };
+
+export const renderLoyaltyPoints = ({ totalAmount }) => {
+  const totalDiv = globalElements.cartSummary.querySelector('.text-2xl');
+  if (totalDiv) totalDiv.textContent = '₩' + Math.round(totalAmount).toLocaleString();
+
+  const loyaltyPointsDiv = document.getElementById('loyalty-points');
+  if (loyaltyPointsDiv) {
+    const points = Math.floor(totalAmount / 1000);
+    loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
+    loyaltyPointsDiv.style.display = 'block';
+  }
+};
