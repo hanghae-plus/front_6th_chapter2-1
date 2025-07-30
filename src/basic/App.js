@@ -9,6 +9,7 @@ import { OrderSummary } from './components/OrderSummary';
 import { ProductSelectItem } from './components/ProductSelectItem';
 import { StockStatus } from './components/StockStatus';
 import { state, dispatch, subscribe, getCartSummary, getBonusPoints } from './store';
+import { handleSelectChange, handleAddItemToCart, handleCartItemActions } from './utils/handlers';
 import { startSaleTimers, stopSaleTimers } from './utils/saleTimers';
 
 const DOMElements = {};
@@ -46,24 +47,29 @@ const cacheDOMElements = () => {
 };
 
 const attachEventListeners = () => {
-  const { addToCart, cartItems, manualToggle, manualOverlay, manualColumn, manualCloseBtn } =
-    DOMElements;
-
-  addToCart.addEventListener('click', handleAddItemToCart);
-  cartItems.addEventListener('click', handleCartItemActions);
+  const {
+    productSelect,
+    addToCart,
+    cartItems,
+    manualToggle,
+    manualOverlay,
+    manualColumn,
+    manualCloseBtn,
+  } = DOMElements;
 
   const toggleManual = () => {
     manualOverlay.classList.toggle('hidden');
     manualColumn.classList.toggle('translate-x-full');
   };
 
+  productSelect.addEventListener('change', handleSelectChange);
+
+  addToCart.addEventListener('click', handleAddItemToCart);
+  cartItems.addEventListener('click', handleCartItemActions);
+
   manualToggle.addEventListener('click', toggleManual);
   manualCloseBtn.addEventListener('click', toggleManual);
-  manualOverlay.addEventListener('click', (event) => {
-    if (event.target === manualOverlay) {
-      toggleManual();
-    }
-  });
+  manualOverlay.addEventListener('click', toggleManual);
 
   window.addEventListener('beforeunload', stopSaleTimers);
 };
@@ -121,10 +127,8 @@ function render() {
     loyaltyPoints.style.display = 'block';
   }
 
-  // 선택값 유지
-  const currentSelection = productSelect.value;
   productSelect.innerHTML = state.products.map(ProductSelectItem).join('');
-  productSelect.value = currentSelection;
+  productSelect.value = state.selectedProductId;
 
   stockStatus.innerHTML = StockStatus(summary.stockMessages);
 
@@ -136,40 +140,6 @@ function render() {
 
   tuesdaySpecial.classList.toggle('hidden', !summary.isTuesday || summary.totalQuantity === 0);
 }
-
-const handleAddItemToCart = () => {
-  const { productSelect } = DOMElements;
-  const selectedId = productSelect.value;
-  if (!selectedId) return;
-
-  dispatch({ type: 'ADD_ITEM', payload: { productId: selectedId } });
-  dispatch({ type: 'SET_LAST_SELECTED', payload: { productId: selectedId } });
-};
-
-const handleCartItemActions = (event) => {
-  const button = event.target.closest('.quantity-change, .remove-item');
-
-  if (!button) {
-    return;
-  }
-
-  const { productId } = button.dataset;
-
-  if (!productId) return;
-
-  if (button.classList.contains('quantity-change')) {
-    const change = parseInt(button.dataset.change, 10);
-    if (change > 0) {
-      dispatch({ type: 'INCREASE_QUANTITY', payload: { productId } });
-    } else {
-      dispatch({ type: 'DECREASE_QUANTITY', payload: { productId } });
-    }
-  }
-
-  if (button.classList.contains('remove-item')) {
-    dispatch({ type: 'REMOVE_ITEM', payload: { productId } });
-  }
-};
 
 const alertNotifications = () => {
   if (state.notifications.length > 0) {
