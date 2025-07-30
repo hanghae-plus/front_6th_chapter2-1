@@ -87,7 +87,7 @@ export const doRenderBonusPoints = function (state) {
 	// Update state and display points
 	state.bonusPts = finalPoints;
 	const ptsTag = document.getElementById("loyalty-points");
-	
+
 	if (ptsTag) {
 		if (state.bonusPts > 0) {
 			ptsTag.innerHTML =

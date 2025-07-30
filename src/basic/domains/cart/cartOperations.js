@@ -1,6 +1,5 @@
-import { findProductById, productExists } from "../../utils/productUtils";
 import { ShoppingCartItemElement } from "../../components/ui";
-import { handleCalculateCartStuff } from "./cartService";
+import { findProductById, productExists } from "../../utils/productUtils";
 
 /**
  * Add product to cart or increase quantity if already exists
@@ -19,7 +18,7 @@ export function addProductToCart(productId, appState) {
 	}
 
 	const existingCartItem = document.getElementById(productToAdd.id);
-	
+
 	if (existingCartItem) {
 		return increaseExistingItemQuantity(existingCartItem, productToAdd);
 	} else {
@@ -37,7 +36,7 @@ function increaseExistingItemQuantity(cartItem, product) {
 	const qtyElem = cartItem.querySelector(".quantity-number");
 	const currentQty = parseInt(qtyElem.textContent);
 	const newQty = currentQty + 1;
-	
+
 	if (newQty <= product.q + currentQty) {
 		qtyElem.textContent = newQty;
 		product.q--;

@@ -1,25 +1,28 @@
-import { PRODUCT_IDS, products } from "./domains/product";
-import { Header } from "./shared/components";
-import { createAppState } from "./state/appState";
-import { onUpdateSelectOptions } from "./domains/product/productService";
+import {
+	CartAddButton,
+	CartItemsContainer,
+	HelpContentPanel,
+	HelpModalBackdrop,
+	HelpModalToggleButton,
+	MainLayoutGrid,
+	OrderSummaryColumn,
+	ProductDropdownSelect,
+	ProductSelectionPanel,
+	ShoppingAreaColumn,
+	StockWarningMessage
+} from "./components/ui";
+import {
+	addProductToCart,
+	changeCartItemQuantity,
+	removeCartItem
+} from "./domains/cart/cartOperations";
 import { handleCalculateCartStuff } from "./domains/cart/cartService";
-import { addProductToCart, changeCartItemQuantity, removeCartItem } from "./domains/cart/cartOperations";
+import { onUpdateSelectOptions } from "./domains/product/productService";
 import { initializeLightningSale } from "./domains/sales/lightningService";
 import { initializeSuggestSale } from "./domains/sales/suggestService";
+import { Header } from "./shared/components";
+import { createAppState } from "./state/appState";
 import { findProductById } from "./utils/productUtils";
-import {
-	ProductDropdownSelect,
-	CartAddButton,
-	StockWarningMessage,
-	ProductSelectionPanel,
-	CartItemsContainer,
-	ShoppingAreaColumn,
-	OrderSummaryColumn,
-	HelpModalToggleButton,
-	HelpModalBackdrop,
-	HelpContentPanel,
-	MainLayoutGrid
-} from "./components/ui";
 
 function main() {
 	// Initialize application state and get root element
@@ -30,8 +33,12 @@ function main() {
 	appState.sel = ProductDropdownSelect();
 	appState.addBtn = CartAddButton();
 	appState.stockInfo = StockWarningMessage();
-	
-	const selectorContainer = ProductSelectionPanel(appState.sel, appState.addBtn, appState.stockInfo);
+
+	const selectorContainer = ProductSelectionPanel(
+		appState.sel,
+		appState.addBtn,
+		appState.stockInfo
+	);
 	appState.cartDisp = CartItemsContainer();
 	const leftColumn = ShoppingAreaColumn(selectorContainer, appState.cartDisp);
 
@@ -42,7 +49,7 @@ function main() {
 	const manualColumn = HelpContentPanel();
 	const manualOverlay = HelpModalBackdrop(manualColumn);
 	const manualToggle = HelpModalToggleButton(manualOverlay, manualColumn);
-	
+
 	manualOverlay.appendChild(manualColumn);
 
 	const gridContainer = MainLayoutGrid(leftColumn, rightColumn);
@@ -77,7 +84,7 @@ function main() {
 function handleAddToCartClick(appState) {
 	return function () {
 		const selectedProductId = appState.sel.value;
-		
+
 		if (addProductToCart(selectedProductId, appState)) {
 			handleCalculateCartStuff(appState);
 			appState.lastSel = selectedProductId;
@@ -93,24 +100,27 @@ function handleAddToCartClick(appState) {
 function handleCartClick(appState) {
 	return function (event) {
 		const target = event.target;
-		
-		if (!target.classList.contains("quantity-change") && !target.classList.contains("remove-item")) {
+
+		if (
+			!target.classList.contains("quantity-change") &&
+			!target.classList.contains("remove-item")
+		) {
 			return;
 		}
-		
+
 		const productId = target.dataset.productId;
 		const itemElement = document.getElementById(productId);
 		const product = findProductById(productId);
-		
+
 		if (!product || !itemElement) return;
-		
+
 		if (target.classList.contains("quantity-change")) {
 			const quantityChange = parseInt(target.dataset.change);
 			changeCartItemQuantity(itemElement, product, quantityChange);
 		} else if (target.classList.contains("remove-item")) {
 			removeCartItem(itemElement, product);
 		}
-		
+
 		handleCalculateCartStuff(appState);
 		onUpdateSelectOptions(appState);
 	};

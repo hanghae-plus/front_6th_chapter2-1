@@ -1,5 +1,5 @@
-import { products } from "./data";
 import { STOCK_CONSTANTS } from "../../constants/discount";
+import { products } from "./data";
 
 export function onUpdateSelectOptions(state) {
 	// Clear existing options and calculate total stock
@@ -7,7 +7,7 @@ export function onUpdateSelectOptions(state) {
 	const totalStock = products.reduce((total, product) => total + product.q, 0);
 
 	// Create options for each product
-	products.forEach(product => {
+	products.forEach((product) => {
 		const option = createProductOption(product);
 		state.sel.appendChild(option);
 	});
@@ -57,15 +57,15 @@ function createProductOption(product) {
 export const handleStockInfoUpdate = function (state) {
 	// Generate stock warning messages using more functional approach
 	const stockWarnings = products
-		.filter(item => item.q < STOCK_CONSTANTS.LOW_STOCK_THRESHOLD)
-		.map(item => {
+		.filter((item) => item.q < STOCK_CONSTANTS.LOW_STOCK_THRESHOLD)
+		.map((item) => {
 			if (item.q > 0) {
 				return `${item.name}: 재고 부족 (${item.q}개 남음)`;
 			} else {
 				return `${item.name}: 품절`;
 			}
 		})
-		.join('\n');
+		.join("\n");
 
 	// Update stock info display
 	state.stockInfo.textContent = stockWarnings;

@@ -2,7 +2,7 @@
 export const DISCOUNT_CONSTANTS = {
 	BULK_DISCOUNT: {
 		KEYBOARD: 10, // 10% discount
-		MOUSE: 15, // 15% discount  
+		MOUSE: 15, // 15% discount
 		MONITOR_ARM: 20, // 20% discount
 		LAPTOP_POUCH: 5, // 5% discount
 		SPEAKER: 25, // 25% discount

@@ -1,7 +1,7 @@
+import { DISCOUNT_CONSTANTS, STOCK_CONSTANTS, UI_CONSTANTS } from "../../constants/discount";
+import { doRenderBonusPoints } from "../loyalty/loyaltyService";
 import { PRODUCT_IDS, products } from "../product";
 import { handleStockInfoUpdate } from "../product/productService";
-import { doRenderBonusPoints } from "../loyalty/loyaltyService";
-import { DISCOUNT_CONSTANTS, STOCK_CONSTANTS, UI_CONSTANTS } from "../../constants/discount";
 
 export function handleCalculateCartStuff(state) {
 	// Reset state values
@@ -42,7 +42,8 @@ export function handleCalculateCartStuff(state) {
 			// Update visual styling for bulk items
 			priceElems.forEach(function (elem) {
 				if (elem.classList.contains("text-lg")) {
-					elem.style.fontWeight = q >= DISCOUNT_CONSTANTS.BULK_DISCOUNT.MINIMUM_QUANTITY ? "bold" : "normal";
+					elem.style.fontWeight =
+						q >= DISCOUNT_CONSTANTS.BULK_DISCOUNT.MINIMUM_QUANTITY ? "bold" : "normal";
 				}
 			});
 

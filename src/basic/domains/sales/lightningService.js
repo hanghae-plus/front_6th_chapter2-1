@@ -1,14 +1,16 @@
-import { findRandomProductForSale } from "../../utils/productUtils";
-import { onUpdateSelectOptions } from "../product/productService";
-import { doUpdatePricesInCart } from "../cart/cartService";
 import { DISCOUNT_CONSTANTS, UI_CONSTANTS } from "../../constants/discount";
+import { findRandomProductForSale } from "../../utils/productUtils";
+import { doUpdatePricesInCart } from "../cart/cartService";
+import { onUpdateSelectOptions } from "../product/productService";
 
 /**
  * Apply lightning sale discount to a product
  * @param {Object} product - Product to apply sale to
  */
 function applyLightningSaleDiscount(product) {
-	product.val = Math.round((product.originalVal * DISCOUNT_CONSTANTS.LIGHTNING_SALE.FINAL_RATE) / 100);
+	product.val = Math.round(
+		(product.originalVal * DISCOUNT_CONSTANTS.LIGHTNING_SALE.FINAL_RATE) / 100
+	);
 	product.onSale = true;
 }
 
@@ -18,7 +20,7 @@ function applyLightningSaleDiscount(product) {
  */
 function triggerLightningSale(appState) {
 	const luckyItem = findRandomProductForSale();
-	
+
 	if (luckyItem) {
 		applyLightningSaleDiscount(luckyItem);
 		alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
@@ -33,7 +35,7 @@ function triggerLightningSale(appState) {
  */
 export function initializeLightningSale(appState) {
 	const lightningDelay = Math.random() * UI_CONSTANTS.TIMERS.LIGHTNING_SALE_MAX_DELAY;
-	
+
 	setTimeout(() => {
 		setInterval(() => {
 			triggerLightningSale(appState);

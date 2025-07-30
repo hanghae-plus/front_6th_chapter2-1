@@ -1,7 +1,7 @@
-import { findSuggestableProduct } from "../../utils/productUtils";
-import { onUpdateSelectOptions } from "../product/productService";
-import { doUpdatePricesInCart } from "../cart/cartService";
 import { DISCOUNT_CONSTANTS, UI_CONSTANTS } from "../../constants/discount";
+import { findSuggestableProduct } from "../../utils/productUtils";
+import { doUpdatePricesInCart } from "../cart/cartService";
+import { onUpdateSelectOptions } from "../product/productService";
 
 /**
  * Apply suggest sale discount to a product
@@ -18,9 +18,9 @@ function applySuggestSaleDiscount(product) {
  */
 function triggerSuggestSale(appState) {
 	if (!appState.lastSel) return;
-	
+
 	const suggestedProduct = findSuggestableProduct(appState.lastSel);
-	
+
 	if (suggestedProduct) {
 		alert(`💝 ${suggestedProduct.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
 		applySuggestSaleDiscount(suggestedProduct);
@@ -35,7 +35,7 @@ function triggerSuggestSale(appState) {
  */
 export function initializeSuggestSale(appState) {
 	const suggestDelay = Math.random() * UI_CONSTANTS.TIMERS.SUGGEST_SALE_MAX_DELAY;
-	
+
 	setTimeout(() => {
 		setInterval(() => {
 			triggerSuggestSale(appState);
