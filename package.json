@@ -32,5 +32,9 @@
     "prettier": "^3.6.2",
     "vite": "^7.0.5",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   }
 }
