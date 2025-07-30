@@ -1,5 +1,13 @@
 <html lang="en">
   <head>
+    <script type="module">
+      import { injectIntoGlobalHook } from '/@react-refresh';
+
+      injectIntoGlobalHook(window);
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => type => type;
+    </script>
+
     <script type="module" src="/@vite/client"></script>
 
     <meta charset="UTF-8" />
@@ -139,7 +147,7 @@
         --tw-contain-layout: ;
         --tw-contain-paint: ;
         --tw-contain-style: ;
-      } /* ! tailwindcss v3.4.16 | MIT License | https://tailwindcss.com */
+      } /* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */
       *,
       ::after,
       ::before {
@@ -357,6 +365,9 @@
       .absolute {
         position: absolute;
       }
+      .relative {
+        position: relative;
+      }
       .inset-0 {
         inset: 0px;
       }
@@ -372,6 +383,12 @@
       .top-4 {
         top: 1rem;
       }
+      .left-1\/2 {
+        left: 50%;
+      }
+      .top-1\/2 {
+        top: 50%;
+      }
       .z-40 {
         z-index: 40;
       }
@@ -381,6 +398,10 @@
       .mx-auto {
         margin-left: auto;
         margin-right: auto;
+      }
+      .my-3 {
+        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
       }
       .mb-1 {
         margin-bottom: 0.25rem;
@@ -418,6 +439,12 @@
       .mt-auto {
         margin-top: auto;
       }
+      .mb-0\.5 {
+        margin-bottom: 0.125rem;
+      }
+      .mt-1 {
+        margin-top: 0.25rem;
+      }
       .flex {
         display: flex;
       }
@@ -439,6 +466,12 @@
       .h-full {
         height: 100%;
       }
+      .h-20 {
+        height: 5rem;
+      }
+      .h-\[60\%\] {
+        height: 60%;
+      }
       .max-h-800 {
         max-height: 800px;
       }
@@ -454,6 +487,15 @@
       .w-full {
         width: 100%;
       }
+      .w-20 {
+        width: 5rem;
+      }
+      .w-\[60\%\] {
+        width: 60%;
+      }
+      .min-w-\[20px\] {
+        min-width: 20px;
+      }
       .max-w-screen-xl {
         max-width: 1280px;
       }
@@ -462,6 +504,24 @@
       }
       .translate-x-full {
         --tw-translate-x: 100%;
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
+          skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+          scaleY(var(--tw-scale-y));
+      }
+      .-translate-x-1\/2 {
+        --tw-translate-x: -50%;
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
+          skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+          scaleY(var(--tw-scale-y));
+      }
+      .-translate-y-1\/2 {
+        --tw-translate-y: -50%;
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
+          skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+          scaleY(var(--tw-scale-y));
+      }
+      .rotate-45 {
+        --tw-rotate: 45deg;
         transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
           skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
           scaleY(var(--tw-scale-y));
@@ -477,6 +537,9 @@
       .grid-cols-1 {
         grid-template-columns: repeat(1, minmax(0, 1fr));
       }
+      .grid-cols-\[80px_1fr_auto\] {
+        grid-template-columns: 80px 1fr auto;
+      }
       .flex-col {
         flex-direction: column;
       }
@@ -486,6 +549,9 @@
       .items-baseline {
         align-items: baseline;
       }
+      .justify-center {
+        justify-content: center;
+      }
       .justify-between {
         justify-content: space-between;
       }
@@ -494,6 +560,12 @@
       }
       .gap-6 {
         gap: 1.5rem;
+      }
+      .gap-4 {
+        gap: 1rem;
+      }
+      .gap-5 {
+        gap: 1.25rem;
       }
       .space-y-3 > :not([hidden]) ~ :not([hidden]) {
         --tw-space-y-reverse: 0;
@@ -535,6 +607,17 @@
       .border-white\/10 {
         border-color: rgb(255 255 255 / 0.1);
       }
+      .border-black {
+        --tw-border-opacity: 1;
+        border-color: rgb(0 0 0 / var(--tw-border-opacity, 1));
+      }
+      .border-gray-100 {
+        --tw-border-opacity: 1;
+        border-color: rgb(243 244 246 / var(--tw-border-opacity, 1));
+      }
+      .border-transparent {
+        border-color: transparent;
+      }
       .bg-gray-50 {
         --tw-bg-opacity: 1;
         background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1));
@@ -557,6 +640,9 @@
       .bg-white\/10 {
         background-color: rgb(255 255 255 / 0.1);
       }
+      .bg-gradient-black {
+        background-image: linear-gradient(135deg, #000 0%, #333 100%);
+      }
       .p-8 {
         padding: 2rem;
       }
@@ -573,6 +659,10 @@
       .py-4 {
         padding-top: 1rem;
         padding-bottom: 1rem;
+      }
+      .py-5 {
+        padding-top: 1.25rem;
+        padding-bottom: 1.25rem;
       }
       .pb-6 {
         padding-bottom: 1.5rem;
@@ -619,6 +709,10 @@
         font-size: 0.75rem;
         line-height: 1rem;
       }
+      .text-lg {
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+      }
       .font-bold {
         font-weight: 700;
       }
@@ -633,6 +727,11 @@
       }
       .uppercase {
         text-transform: uppercase;
+      }
+      .tabular-nums {
+        --tw-numeric-spacing: tabular-nums;
+        font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure)
+          var(--tw-numeric-spacing) var(--tw-numeric-fraction);
       }
       .leading-none {
         line-height: 1;
@@ -694,6 +793,9 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
+      .opacity-70 {
+        opacity: 0.7;
+      }
       .shadow-2xl {
         --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
         --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
@@ -740,11 +842,24 @@
       .duration-300 {
         transition-duration: 300ms;
       }
+      .first\:pt-0:first-child {
+        padding-top: 0px;
+      }
+      .last\:border-b-0:last-child {
+        border-bottom-width: 0px;
+      }
+      .last\:pb-0:last-child {
+        padding-bottom: 0px;
+      }
       .hover\:-translate-y-0\.5:hover {
         --tw-translate-y: -0.125rem;
         transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
           skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
           scaleY(var(--tw-scale-y));
+      }
+      .hover\:border-black:hover {
+        --tw-border-opacity: 1;
+        border-color: rgb(0 0 0 / var(--tw-border-opacity, 1));
       }
       .hover\:bg-gray-800:hover {
         --tw-bg-opacity: 1;
@@ -754,9 +869,17 @@
         --tw-bg-opacity: 1;
         background-color: rgb(17 24 39 / var(--tw-bg-opacity, 1));
       }
+      .hover\:bg-black:hover {
+        --tw-bg-opacity: 1;
+        background-color: rgb(0 0 0 / var(--tw-bg-opacity, 1));
+      }
       .hover\:text-black:hover {
         --tw-text-opacity: 1;
         color: rgb(0 0 0 / var(--tw-text-opacity, 1));
+      }
+      .hover\:text-white:hover {
+        --tw-text-opacity: 1;
+        color: rgb(255 255 255 / var(--tw-text-opacity, 1));
       }
       .hover\:shadow-lg:hover {
         --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -783,22 +906,16 @@
   >
     <div id="app" class="max-w-screen-xl h-screen max-h-800 mx-auto p-8 flex flex-col">
       <!-- Content will be dynamically generated here -->
-      <!-- 헤더 -->
       <div class="mb-8">
         <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">
           🛒 Hanghae Online Store
         </h1>
         <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-        <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
+        <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 11 items in cart</p>
       </div>
-
-      <!-- 메인 레이아웃 -->
       <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
-        <!-- 왼쪽 컬럼 -->
         <div class="bg-white border border-gray-200 p-8 overflow-y-auto">
-          <!-- 상품 선택 컨테이너 -->
           <div class="mb-6 pb-6 border-b border-gray-200">
-            <!-- 상품 선택 -->
             <select
               id="product-select"
               class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
@@ -809,42 +926,163 @@
               <option value="p4" disabled="" class="text-gray-400">
                 에러 방지 노트북 파우치 - 15000원 (품절)
               </option>
-              <option value="p5">코딩할 때 듣는 Lo-Fi 스피커 - 25000원</option>
-            </select>
-            <button
+              <option value="p5">코딩할 때 듣는 Lo-Fi 스피커 - 25000원</option></select
+            ><button
               id="add-to-cart"
               class="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all"
             >
               Add to Cart
             </button>
             <div id="stock-status" class="text-xs text-red-500 mt-3 whitespace-pre-line">
-              에러 방지 노트북 파우치: 품절
+              에러 방지 노트북 파우치: 품절 코딩할 때 듣는 Lo-Fi 스피커: 재고 부족 (3개 남음)
             </div>
           </div>
-          <div id="cart-items"></div>
+          <div id="cart-items">
+            <div
+              id="p5"
+              class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0"
+            >
+              <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
+                <div
+                  class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"
+                ></div>
+              </div>
+              <div>
+                <h3 class="text-base font-normal mb-1 tracking-tight">
+                  코딩할 때 듣는 Lo-Fi 스피커
+                </h3>
+                <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
+                <p class="text-xs text-black mb-3">₩25,000</p>
+                <div class="flex items-center gap-4">
+                  <button
+                    class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
+                    data-product-id="p5"
+                    data-change="-1"
+                  >
+                    −
+                  </button>
+                  <span
+                    class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums"
+                    >7</span
+                  >
+                  <button
+                    class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
+                    data-product-id="p5"
+                    data-change="1"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-lg mb-2 tracking-tight tabular-nums" style="font-weight: normal">
+                  ₩25,000
+                </div>
+                <a
+                  class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
+                  data-product-id="p5"
+                  >Remove</a
+                >
+              </div>
+            </div>
+            <div
+              id="p2"
+              class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0"
+            >
+              <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
+                <div
+                  class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"
+                ></div>
+              </div>
+              <div>
+                <h3 class="text-base font-normal mb-1 tracking-tight">생산성 폭발 마우스</h3>
+                <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
+                <p class="text-xs text-black mb-3">₩20,000</p>
+                <div class="flex items-center gap-4">
+                  <button
+                    class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
+                    data-product-id="p2"
+                    data-change="-1"
+                  >
+                    −
+                  </button>
+                  <span
+                    class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums"
+                    >4</span
+                  >
+                  <button
+                    class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
+                    data-product-id="p2"
+                    data-change="1"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-lg mb-2 tracking-tight tabular-nums" style="font-weight: normal">
+                  ₩20,000
+                </div>
+                <a
+                  class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
+                  data-product-id="p2"
+                  >Remove</a
+                >
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- 오른쪽 컬럼 -->
+        <!-- 주문 요약 내용 -->
         <div class="bg-black text-white p-8 flex flex-col">
-          <!-- 주문 요약 -->
+          <!-- 주문 요약 제목 -->
           <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
 
           <!-- 주문 요약 내용 -->
           <div class="flex-1 flex flex-col">
-            <div id="summary-details" class="space-y-3"></div>
+            <!-- 주문 요약 상세 -->
+            <div id="summary-details" class="space-y-3">
+              <div class="flex justify-between text-xs tracking-wide text-gray-400">
+                <span>코딩할 때 듣는 Lo-Fi 스피커 x 7</span>
+                <span>₩175,000</span>
+              </div>
+
+              <div class="flex justify-between text-xs tracking-wide text-gray-400">
+                <span>생산성 폭발 마우스 x 4</span>
+                <span>₩80,000</span>
+              </div>
+
+              <div class="border-t border-white/10 my-3"></div>
+
+              <div class="flex justify-between text-sm tracking-wide">
+                <span>Subtotal</span>
+                <span>₩255,000</span>
+              </div>
+
+              <div class="flex justify-between text-sm tracking-wide text-gray-400">
+                <span>Shipping</span>
+                <span>Free</span>
+              </div>
+            </div>
+
+            <!-- 주문 요약 하단 -->
             <div class="mt-auto">
+              <!-- 할인 정보 -->
               <div id="discount-info" class="mb-4"></div>
+
+              <!-- 총 주문 금액 -->
               <div id="cart-total" class="pt-5 border-t border-white/10">
                 <div class="flex justify-between items-baseline">
                   <span class="text-sm uppercase tracking-wider">Total</span>
-                  <div class="text-2xl tracking-tight">₩0</div>
+                  <div class="text-2xl tracking-tight">₩255,000</div>
                 </div>
                 <div
                   id="loyalty-points"
                   class="text-xs text-blue-400 mt-2 text-right"
-                  style="display: none"
+                  style="display: block"
                 >
-                  적립 포인트: 0p
+                  <div>적립 포인트: <span class="font-bold">275p</span></div>
+                  <div class="text-2xs opacity-70 mt-1">기본: 255p, 대량구매(10개+) +20p</div>
                 </div>
               </div>
               <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
@@ -855,6 +1093,7 @@
               </div>
             </div>
           </div>
+
           <button
             class="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30"
           >
@@ -866,8 +1105,6 @@
           </p>
         </div>
       </div>
-
-      <!-- 매뉴얼 토글 -->
       <button
         class="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50"
       >
@@ -880,8 +1117,6 @@
           ></path>
         </svg>
       </button>
-
-      <!-- 매뉴얼 오버레이 -->
       <div class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300">
         <div
           class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300"
