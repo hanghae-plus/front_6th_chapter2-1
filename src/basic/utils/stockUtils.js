@@ -19,7 +19,7 @@ export function generateStockWarningMessage(productList) {
 
   for (let stockIdx = 0; stockIdx < productList.length; stockIdx++) {
     const item = productList[stockIdx];
-    if (item.quantity < QUANTITY_THRESHOLDS.STOCK_DISPLAY_WARNING) {
+    if (item.quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING) {
       if (item.quantity > 0) {
         stockMsg += `${item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
       } else {
