@@ -1,55 +1,10 @@
-import { PRODUCT_IDS, DISCOUNT_RATES } from './constant';
+import { PRODUCT_IDS, DISCOUNT_RATES, INITIAL_PRODUCTS } from './constant';
 
 const state = {
-  lastSelectedId: null,
-  products: [
-    {
-      id: PRODUCT_IDS.P1,
-      name: '버그 없애는 키보드',
-      price: 10000,
-      originalPrice: 10000,
-      quantity: 50,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_IDS.P2,
-      name: '생산성 폭발 마우스',
-      price: 20000,
-      originalPrice: 20000,
-      quantity: 30,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_IDS.P3,
-      name: '거북목 탈출 모니터암',
-      price: 30000,
-      originalPrice: 30000,
-      quantity: 20,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_IDS.P4,
-      name: '에러 방지 노트북 파우치',
-      price: 15000,
-      originalPrice: 15000,
-      quantity: 0,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_IDS.P5,
-      name: `코딩할 때 듣는 Lo-Fi 스피커`,
-      price: 25000,
-      originalPrice: 25000,
-      quantity: 10,
-      onSale: false,
-      suggestSale: false,
-    },
-  ],
+  products: INITIAL_PRODUCTS,
   cartList: [],
+  lastSelectedId: null,
+  notifications: [],
 };
 
 const listeners = [];
@@ -75,7 +30,10 @@ const dispatch = (action) => {
         }
         product.quantity--;
       } else {
-        window.alert('재고가 부족합니다.');
+        state.notifications.push({
+          id: Date.now(),
+          message: '재고가 부족합니다.',
+        });
       }
       break;
     }
@@ -97,7 +55,10 @@ const dispatch = (action) => {
       const product = state.products.find((p) => p.id === productId);
 
       if (product.quantity <= 0) {
-        alert('재고가 부족합니다.');
+        state.notifications.push({
+          id: Date.now(),
+          message: '재고가 부족합니다.',
+        });
         break;
       }
 
@@ -134,6 +95,10 @@ const dispatch = (action) => {
       if (product) {
         product.price = Math.round((product.originalPrice * 80) / 100);
         product.onSale = true;
+        state.notifications.push({
+          id: Date.now(),
+          message: `⚡번개세일! ${product.name}이(가) 20% 할인 중입니다!`,
+        });
       }
       break;
     }
@@ -145,11 +110,21 @@ const dispatch = (action) => {
         product.price = Math.round((product.price * 95) / 100);
         product.suggestSale = true;
       }
+      state.notifications.push({
+        id: Date.now(),
+        message: `💝 ${luckyItem.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`,
+      });
       break;
     }
 
     case 'SET_LAST_SELECTED': {
       state.lastSelectedId = payload.productId;
+      break;
+    }
+
+    case 'REMOVE_NOTIFICATION': {
+      const { notificationId } = payload;
+      state.notifications = state.notifications.filter((n) => n.id !== notificationId);
       break;
     }
   }

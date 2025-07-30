@@ -113,6 +113,8 @@ function render() {
   const summary = getCartSummary(state);
   const { bonusPoints, pointsDetail } = getBonusPoints(state, summary);
 
+  alertNotifications();
+
   itemCount.textContent = `🛍️ ${summary.totalQuantity} items in cart`;
 
   loyaltyPoints.innerHTML = LoyaltyPoints(bonusPoints, pointsDetail);
@@ -153,6 +155,15 @@ function stopTimers() {
   clearInterval(suggestSaleTimerId);
 }
 
+const alertNotifications = () => {
+  if (state.notifications.length > 0) {
+    state.notifications.forEach((noti) => {
+      alert(noti.message);
+      dispatch({ type: 'REMOVE_NOTIFICATION', payload: { notificationId: noti.id } });
+    });
+  }
+};
+
 const handleAddItemToCart = () => {
   const { productSelect } = elements;
   const selectedId = productSelect.value;
@@ -191,7 +202,6 @@ const startLightningSale = () => {
   const luckyIdx = Math.floor(Math.random() * state.products.length);
   const luckyItem = state.products[luckyIdx];
   if (luckyItem) {
-    alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
     dispatch({ type: 'START_LIGHTNING_SALE', payload: { productId: luckyItem.id } });
   }
 };
@@ -203,7 +213,6 @@ const startSuggestSale = () => {
     (product) => product.id !== state.lastSelectedId && product.quantity && !product.suggestSale,
   );
   if (luckyItem) {
-    alert(`💝 ${luckyItem.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
     dispatch({ type: 'START_SUGGEST_SALE', payload: { productId: luckyItem.id } });
   }
 };
