@@ -1,7 +1,7 @@
-import { CartContainer } from './components/CartContainer';
-import { Header } from './components/Header';
-import { Manual } from './components/Manual';
-import { OrderSummary } from './components/OrderSummary';
+import { CartContainer } from './components/cart-section/CartContainer';
+import { Header } from './components/header/Header';
+import { Manual } from './components/manual/Manual';
+import { OrderSummary } from './components/order-summary/OrderSummary';
 import { state, dispatch, subscribe, getCartSummary, getBonusPoints } from './store';
 import { DOMElements, cacheDOMElements } from './utils/dom';
 import { handleSelectChange, handleAddItemToCart, handleCartItemActions } from './utils/handlers';
@@ -10,7 +10,7 @@ import {
   renderOrderSummary,
   renderProductSelector,
   renderTotalQuantity,
-} from './utils/renderHelper';
+} from './utils/renderHelpers';
 import { startSaleTimers, stopSaleTimers } from './utils/saleTimers';
 
 const renderInitialLayout = () => {

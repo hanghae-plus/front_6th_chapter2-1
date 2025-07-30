@@ -1,4 +1,4 @@
-export const OrderItemSummary = (summary) => {
+export const OrderContent = (summary) => {
   const itemsHTML = summary.cartItemsForDisplay
     .map(
       (item) => `

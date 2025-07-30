@@ -1,9 +1,9 @@
-import { CartProductItem } from '../components/CartProductItem';
-import { DiscountInfo } from '../components/DiscountInfo';
-import { LoyaltyPoints } from '../components/LoyaltyPoints';
-import { OrderItemSummary } from '../components/OrderItemSummary';
-import { ProductSelectItem } from '../components/ProductSelectItem';
-import { StockStatus } from '../components/StockStatus';
+import { CartProductItem } from '../components/cart-section/CartProductItem';
+import { DiscountInfo } from '../components/order-summary/DiscountInfo';
+import { LoyaltyPoints } from '../components/order-summary/LoyaltyPoints';
+import { OrderContent } from '../components/order-summary/OrderContent';
+import { ProductOption } from '../components/product-selector/ProductOption';
+import { StockStatus } from '../components/product-selector/StockStatus';
 import { state } from '../store';
 
 function renderTotalQuantity(DOMElements, summary) {
@@ -13,7 +13,7 @@ function renderTotalQuantity(DOMElements, summary) {
 function renderProductSelector(DOMElements) {
   const { productSelect } = DOMElements;
   const currentSelection = productSelect.value;
-  productSelect.innerHTML = state.products.map(ProductSelectItem).join('');
+  productSelect.innerHTML = state.products.map(ProductOption).join('');
   productSelect.value = state.selectedProductId || currentSelection;
 }
 
@@ -53,7 +53,7 @@ function renderCartItems(DOMElements) {
 function renderOrderSummary(DOMElements, summary, bonusPoints, pointsDetail) {
   const { summaryDetails, discountInfo, totalAmount, loyaltyPoints, tuesdaySpecial } = DOMElements;
 
-  summaryDetails.innerHTML = OrderItemSummary(summary);
+  summaryDetails.innerHTML = OrderContent(summary);
   discountInfo.innerHTML = DiscountInfo(summary);
   totalAmount.textContent = `₩${Math.round(summary.finalTotal).toLocaleString()}`;
 

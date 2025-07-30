@@ -1,4 +1,4 @@
-export const ProductSelectItem = (product) => {
+export const ProductOption = (product) => {
   // 품절 상품
   if (product.quantity === 0) {
     return `
