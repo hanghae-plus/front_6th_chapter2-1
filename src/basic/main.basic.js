@@ -174,6 +174,15 @@ const useProductData = {
   getTotalStock() {
     return this.products.reduce((total, product) => total + product.q);
   },
+
+  /**
+   * 상품 ID로 상품 찾기
+   * @param {string} id - 상품 ID
+   * @returns {Object|null} 찾은 상품 객체 또는 null
+   */
+  findProductById(id) {
+    return this.products.find((product) => product.id === id) || null;
+  },
 };
 
 let cartDisp;
@@ -458,6 +467,7 @@ function handleCalculateCartStuff() {
   let itemCountElement;
   let previousCount;
   let stockMsg;
+
   totalAmt = 0;
   itemCnt = 0;
   originalTotal = totalAmt;
@@ -467,7 +477,6 @@ function handleCalculateCartStuff() {
   lowStockItems = [];
 
   const products = useProductData.getProducts();
-
   for (idx = 0; idx < products.length; idx++) {
     if (products[idx].q < 5 && products[idx].q > 0) {
       lowStockItems.push(products[idx].name);
@@ -476,13 +485,9 @@ function handleCalculateCartStuff() {
 
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
-      let curItem;
-      for (let j = 0; j < products.length; j++) {
-        if (products[j].id === cartItems[i].id) {
-          curItem = products[j];
-          break;
-        }
-      }
+      const curItem = useProductData.findProductById(cartItems[i].id);
+
+      if (!curItem) return;
       const qtyElem = cartItems[i].querySelector(".quantity-number");
       let q;
       let itemTot;
@@ -496,7 +501,6 @@ function handleCalculateCartStuff() {
       const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
       priceElems.forEach(function (elem) {
         if (elem.classList.contains("text-lg")) {
-          // ✅ 상수 적용
           elem.style.fontWeight = q >= DISCOUNT_RULES.ITEM_DISCOUNT_THRESHOLD ? "bold" : "normal";
         }
       });
@@ -510,10 +514,10 @@ function handleCalculateCartStuff() {
       totalAmt += itemTot * (1 - disc);
     })();
   }
+
   let discRate = 0;
   var originalTotal = subTot;
 
-  // ✅ 상수 적용: 대량 할인
   if (itemCnt >= DISCOUNT_RULES.BULK_DISCOUNT_THRESHOLD) {
     totalAmt = subTot * (1 - DISCOUNT_RULES.BULK_DISCOUNT_RATE / 100);
     discRate = DISCOUNT_RULES.BULK_DISCOUNT_RATE / 100;
@@ -536,27 +540,25 @@ function handleCalculateCartStuff() {
   } else {
     tuesdaySpecial.classList.add("hidden");
   }
+
   document.getElementById("item-count").textContent = `🛍️ ${itemCnt} items in cart`;
   summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
+
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
-      var curItem;
-      for (let j = 0; j < products.length; j++) {
-        if (products[j].id === cartItems[i].id) {
-          curItem = products[j];
-          break;
-        }
-      }
-      const qtyElem = cartItems[i].querySelector(".quantity-number");
-      const q = parseInt(qtyElem.textContent);
-      const itemTotal = curItem.val * q;
-      summaryDetails.innerHTML += `
+      const curItem = useProductData.findProductById(cartItems[i].id);
+      if (curItem) {
+        const qtyElem = cartItems[i].querySelector(".quantity-number");
+        const q = parseInt(qtyElem.textContent);
+        const itemTotal = curItem.val * q;
+        summaryDetails.innerHTML += `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
           <span>${curItem.name} x ${q}</span>
           <span>₩${itemTotal.toLocaleString()}</span>
         </div>
       `;
+      }
     }
     summaryDetails.innerHTML += `
       <div class="border-t border-white/10 my-3"></div>
@@ -652,6 +654,7 @@ function handleCalculateCartStuff() {
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
+
 var doRenderBonusPoints = function () {
   let basePoints;
   let finalPoints;
@@ -660,10 +663,12 @@ var doRenderBonusPoints = function () {
   let hasMouse;
   let hasMonitorArm;
   let nodes;
+
   if (cartDisp.children.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
   }
+
   basePoints = Math.floor(totalAmt / POINTS_RULES.BASE_CALCULATION_UNIT);
   finalPoints = 0;
   pointsDetail = [];
@@ -686,22 +691,18 @@ var doRenderBonusPoints = function () {
   hasMouse = false;
   hasMonitorArm = false;
   nodes = cartDisp.children;
+
   for (const node of nodes) {
-    let product = null;
-    const products = useProductData.getProducts();
-    for (let pIdx = 0; pIdx < products.length; pIdx++) {
-      if (products[pIdx].id === node.id) {
-        product = products[pIdx];
-        break;
+    const product = useProductData.findProductById(node.id);
+
+    if (product) {
+      if (product.id === PRODUCT_IDS.KEYBOARD) {
+        hasKeyboard = true;
+      } else if (product.id === PRODUCT_IDS.MOUSE) {
+        hasMouse = true;
+      } else if (product.id === PRODUCT_IDS.MONITOR_ARM) {
+        hasMonitorArm = true;
       }
-    }
-    if (!product) continue;
-    if (product.id === PRODUCT_IDS.KEYBOARD) {
-      hasKeyboard = true;
-    } else if (product.id === PRODUCT_IDS.MOUSE) {
-      hasMouse = true;
-    } else if (product.id === PRODUCT_IDS.MONITOR_ARM) {
-      hasMonitorArm = true;
     }
   }
 
@@ -770,20 +771,17 @@ var handleStockInfoUpdate = function () {
 };
 function doUpdatePricesInCart() {
   const cartItems = cartDisp.children;
-  const products = useProductData.getProducts();
 
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
-    let product = null;
-    for (let productIdx = 0; productIdx < products.length; productIdx++) {
-      if (products[productIdx].id === itemId) {
-        product = products[productIdx];
-        break;
-      }
-    }
+
+    // ✅ findProductById로 교체
+    const product = useProductData.findProductById(itemId);
+
     if (product) {
       const priceDiv = cartItems[i].querySelector(".text-lg");
       const nameDiv = cartItems[i].querySelector("h3");
+
       if (product.onSale && product.suggestSale) {
         priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
         nameDiv.textContent = `⚡💝${product.name}`;
@@ -804,23 +802,12 @@ function doUpdatePricesInCart() {
 main();
 addBtn.addEventListener("click", function () {
   const selItem = sel.value;
-  let hasItem = false;
-  for (let idx = 0; idx < useProductData.products.length; idx++) {
-    if (useProductData.products[idx].id === selItem) {
-      hasItem = true;
-      break;
-    }
-  }
-  if (!selItem || !hasItem) {
+  const itemToAdd = useProductData.findProductById(selItem);
+
+  if (!selItem || !itemToAdd) {
     return;
   }
-  let itemToAdd = null;
-  for (let j = 0; j < useProductData.products.length; j++) {
-    if (useProductData.products[j].id === selItem) {
-      itemToAdd = useProductData.products[j];
-      break;
-    }
-  }
+
   if (itemToAdd && itemToAdd.q > 0) {
     const item = document.getElementById(itemToAdd.id);
     if (item) {
