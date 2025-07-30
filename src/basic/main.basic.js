@@ -762,84 +762,29 @@ function handleCalculateCartStuff() {
 function doRenderBonusPoints() {
   const totalAmount = useCartManager.getTotalAmount();
   const itemCount = useCartManager.getItemCount();
-  const basePoints = Math.floor(totalAmount / POINTS_RULES.BASE_CALCULATION_UNIT);
-  let finalPoints = 0;
-  const pointsDetail = [];
   const nodes = cartDisp.children;
 
   if (cartDisp.children.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
+    useBonusPointsManager.resetBonusPoints();
     return;
   }
 
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push(`기본: ${basePoints}p`);
-  }
+  // ✅ useBonusPointsManager로 모든 보너스 포인트 계산
+  const bonusResult = useBonusPointsManager.calculateAndUpdateBonusPoints(totalAmount, itemCount, nodes);
 
-  // ✅ 유연한 특별 포인트 날짜 체크
-  if (isSpecialPointsDay()) {
-    if (basePoints > 0) {
-      finalPoints = basePoints * POINTS_RULES.SPECIAL_POINTS_MULTIPLIER;
-      pointsDetail.push(
-        `${POINTS_RULES.SPECIAL_POINTS_DAYS.map(getKoreanDayName).join(", ")} ${POINTS_RULES.SPECIAL_POINTS_MULTIPLIER}배`,
-      );
-    }
-  }
+  const finalPoints = bonusResult.totalPoints;
+  const pointsDetail = bonusResult.details;
 
-  let hasKeyboard = false;
-  let hasMouse = false;
-  let hasMonitorArm = false;
-
-  // for...of 루프를 배열 메서드로 변경
-  Array.from(nodes).forEach((node) => {
-    const product = useProductData.findProductById(node.id);
-
-    if (product) {
-      if (product.id === PRODUCT_IDS.KEYBOARD) {
-        hasKeyboard = true;
-      } else if (product.id === PRODUCT_IDS.MOUSE) {
-        hasMouse = true;
-      } else if (product.id === PRODUCT_IDS.MONITOR_ARM) {
-        hasMonitorArm = true;
-      }
-    }
-  });
-
-  // ✅ 상수 적용: 세트 보너스
-  if (hasKeyboard && hasMouse) {
-    finalPoints += POINTS_RULES.COMBO_BONUS.KEYBOARD_MOUSE;
-    pointsDetail.push(`키보드+마우스 세트 +${POINTS_RULES.COMBO_BONUS.KEYBOARD_MOUSE}p`);
-  }
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints += POINTS_RULES.COMBO_BONUS.FULL_SET;
-    pointsDetail.push(`풀세트 구매 +${POINTS_RULES.COMBO_BONUS.FULL_SET}p`);
-  }
-
-  // ✅ 상수 적용: 수량별 보너스
-  if (itemCount >= POINTS_RULES.QUANTITY_BONUS.TIER_3.threshold) {
-    finalPoints += POINTS_RULES.QUANTITY_BONUS.TIER_3.bonus;
-    pointsDetail.push(
-      `대량구매(${POINTS_RULES.QUANTITY_BONUS.TIER_3.threshold}개+) +${POINTS_RULES.QUANTITY_BONUS.TIER_3.bonus}p`,
-    );
-  } else if (itemCount >= POINTS_RULES.QUANTITY_BONUS.TIER_2.threshold) {
-    finalPoints += POINTS_RULES.QUANTITY_BONUS.TIER_2.bonus;
-    pointsDetail.push(
-      `대량구매(${POINTS_RULES.QUANTITY_BONUS.TIER_2.threshold}개+) +${POINTS_RULES.QUANTITY_BONUS.TIER_2.bonus}p`,
-    );
-  } else if (itemCount >= POINTS_RULES.QUANTITY_BONUS.TIER_1.threshold) {
-    finalPoints += POINTS_RULES.QUANTITY_BONUS.TIER_1.bonus;
-    pointsDetail.push(
-      `대량구매(${POINTS_RULES.QUANTITY_BONUS.TIER_1.threshold}개+) +${POINTS_RULES.QUANTITY_BONUS.TIER_1.bonus}p`,
-    );
-  }
-
+  // bonusPts 전역 변수도 업데이트 (하위 호환성)
   bonusPts = finalPoints;
+
+  // UI 렌더링
   const ptsTag = document.getElementById("loyalty-points");
   if (ptsTag) {
-    if (bonusPts > 0) {
+    if (finalPoints > 0) {
       ptsTag.innerHTML =
-        `<div>적립 포인트: <span class="font-bold">${bonusPts}p</span></div>` +
+        `<div>적립 포인트: <span class="font-bold">${finalPoints}p</span></div>` +
         `<div class="text-2xs opacity-70 mt-1">${pointsDetail.join(", ")}</div>`;
       ptsTag.style.display = "block";
     } else {
