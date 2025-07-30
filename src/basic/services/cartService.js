@@ -1,4 +1,5 @@
 import CartStore from "../store/cartStore.js";
+import { uiEventBus } from "../core/eventBus.js";
 
 // 장바구니 서비스
 export class CartService {
@@ -85,9 +86,8 @@ export class CartService {
    * 장바구니 추가 요청을 처리합니다.
    * UI에서 호출되는 메서드로, 이벤트 발송을 담당합니다.
    */
-  async addToCart() {
+  addToCart() {
     // 이벤트 발송
-    const { uiEventBus } = await import("../core/eventBus.js");
     uiEventBus.emit("cart:add:requested");
   }
 

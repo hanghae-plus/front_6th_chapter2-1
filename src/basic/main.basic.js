@@ -6,6 +6,9 @@ import { createManualSystem } from "./components/Manual.js";
 import { createLayoutSystem } from "./components/Layout.js";
 import { createCartDisplay } from "./components/CartDisplay.js";
 
+// data
+import { PRODUCT_LIST } from "./data/product.js";
+
 // services
 import { CartService } from "./services/cartService.js";
 import { TimerService } from "./services/timerService.js";
@@ -51,8 +54,8 @@ async function main() {
     products: productService.getProducts(),
     discountInfos: calculateProductDiscountInfos(productService.getProducts()),
     onAddToCart: () => {
-      // Event Bus를 통해 장바구니 추가 요청
-      uiEventBus.emit("cart:add:requested");
+      // CartService를 통해 장바구니 추가 요청
+      cartService.addToCart();
     },
   });
 
