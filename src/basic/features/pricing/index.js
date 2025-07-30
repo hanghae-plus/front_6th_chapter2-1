@@ -32,9 +32,9 @@ function calculateIndividualDiscount(productId) {
  * @returns {Object} 계산 결과
  */
 export function calculateCartSubtotal(appState) {
-  var cartItems = appState.elements.cartDisplay.children;
-  var subTotal = 0;
-  var itemDiscounts = [];
+  const cartItems = appState.elements.cartDisplay.children;
+  let subTotal = 0;
+  const itemDiscounts = [];
 
   // AppState 값 초기화
   appState.totalAmount = 0;
@@ -46,12 +46,12 @@ export function calculateCartSubtotal(appState) {
 
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
-      var curItem = findProductById(appState.products, cartItems[i].id);
+      const curItem = findProductById(appState.products, cartItems[i].id);
 
-      var qtyElem = cartItems[i].querySelector('.quantity-number');
-      var quantity = parseInt(qtyElem.textContent);
-      var itemTotal = curItem.val * quantity;
-      var discount = 0;
+      const qtyElem = cartItems[i].querySelector('.quantity-number');
+      const quantity = parseInt(qtyElem.textContent);
+      const itemTotal = curItem.val * quantity;
+      let discount = 0;
 
       // AppState 업데이트
       appState.itemCount += quantity;
@@ -61,8 +61,8 @@ export function calculateCartSubtotal(appState) {
       subTotal += itemTotal;
 
       // DOM 스타일 업데이트
-      var itemDiv = cartItems[i];
-      var priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
+      const itemDiv = cartItems[i];
+      const priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
       priceElems.forEach(function (elem) {
         if (elem.classList.contains('text-lg')) {
           elem.style.fontWeight = quantity >= 10 ? 'bold' : 'normal';
@@ -77,7 +77,7 @@ export function calculateCartSubtotal(appState) {
         }
       }
 
-      var finalItemTotal = itemTotal * (1 - discount);
+      const finalItemTotal = itemTotal * (1 - discount);
       appState.totalAmount += finalItemTotal;
 
       // AppState 변수 업데이트
@@ -86,18 +86,21 @@ export function calculateCartSubtotal(appState) {
   }
 
   return {
-    subTotal: subTotal,
-    itemDiscounts: itemDiscounts,
+    subTotal,
+    itemDiscounts,
   };
 }
 
 /**
  * 대량구매 할인 적용
+ * @param {Object} appState - AppState 인스턴스
+ * @param {number} subTotal - 소계
+ * @returns {number} 적용된 할인율
  */
 function applyBulkDiscount(appState, subTotal) {
   if (appState.itemCount >= BUSINESS_CONSTANTS.BULK_QUANTITY_THRESHOLD) {
     appState.totalAmount = subTotal * (1 - BUSINESS_CONSTANTS.BULK_QUANTITY_DISCOUNT_RATE);
-    appState.totalAmt = appState.totalAmount;
+    appState.totalAmt = appState.totalAmount; // AppState 동기화
     return BUSINESS_CONSTANTS.BULK_QUANTITY_DISCOUNT_RATE;
   }
   return (subTotal - appState.totalAmount) / subTotal;
@@ -105,14 +108,19 @@ function applyBulkDiscount(appState, subTotal) {
 
 /**
  * 화요일 할인 적용
+ * @param {Object} appState - AppState 인스턴스
+ * @param {number} originalTotal - 원래 총액
+ * @returns {boolean} 화요일 할인 적용 여부
  */
 function applyTuesdayDiscount(appState, originalTotal) {
   const today = new Date();
   const isTuesday = today.getDay() === BUSINESS_CONSTANTS.TUESDAY_DAY_OF_WEEK;
+
   if (isTuesday) {
     appState.totalAmount = appState.totalAmount * (1 - BUSINESS_CONSTANTS.TUESDAY_DISCOUNT_RATE);
-    appState.totalAmt = appState.totalAmount;
+    appState.totalAmt = appState.totalAmount; // AppState 동기화
   }
+
   return isTuesday;
 }
 
@@ -123,37 +131,30 @@ function applyTuesdayDiscount(appState, originalTotal) {
  * @returns {Object} 할인 정보
  */
 export function calculateFinalDiscount(appState, subTotal) {
-  var discountRate = 0;
-  var originalTotal = subTotal;
+  const originalTotal = subTotal;
 
-  // 대량구매 할인
-  if (appState.itemCount >= BUSINESS_CONSTANTS.BULK_QUANTITY_THRESHOLD) {
-    appState.totalAmount = subTotal * (1 - BUSINESS_CONSTANTS.BULK_QUANTITY_DISCOUNT_RATE);
-    appState.totalAmt = appState.totalAmount; // AppState 동기화
-    discountRate = BUSINESS_CONSTANTS.BULK_QUANTITY_DISCOUNT_RATE;
-  } else {
-    discountRate = (subTotal - appState.totalAmount) / subTotal;
-  }
+  // 대량구매 할인 적용
+  let discountRate = applyBulkDiscount(appState, subTotal);
 
-  // 화요일 할인
-  var today = new Date();
-  var isTuesday = today.getDay() === BUSINESS_CONSTANTS.TUESDAY_DAY_OF_WEEK;
+  // 화요일 할인 적용
+  const isTuesday = applyTuesdayDiscount(appState, originalTotal);
+
+  // 최종 할인율 계산
   if (isTuesday) {
-    appState.totalAmount = appState.totalAmount * (1 - BUSINESS_CONSTANTS.TUESDAY_DISCOUNT_RATE);
-    appState.totalAmt = appState.totalAmount; // AppState 동기화
-    // 화요일 할인율을 기존 할인율에 추가
     discountRate = 1 - appState.totalAmount / originalTotal;
   }
 
   return {
-    discountRate: discountRate,
-    isTuesday: isTuesday,
-    originalTotal: originalTotal,
+    discountRate,
+    isTuesday,
+    originalTotal,
   };
 }
 
 /**
  * 포인트 계산
+ * @param {number} totalAmount - 총 결제 금액
+ * @returns {number} 적립 포인트
  */
 function calculatePoints(totalAmount) {
   return Math.round(totalAmount * BUSINESS_CONSTANTS.POINTS_RATE);
@@ -226,22 +227,22 @@ function createSummaryHTML(appState, subTotal, itemDiscounts, discountInfo) {
  * @param {Object} discountInfo - 할인 정보
  */
 export function updateCartUI(appState, subTotal, itemDiscounts, discountInfo) {
-  var cartItems = appState.elements.cartDisplay.children;
+  const cartItems = appState.elements.cartDisplay.children;
 
   // 아이템 개수 업데이트 (AppState 사용)
   document.getElementById('item-count').textContent = '🛍️ ' + appState.itemCount + ' items in cart';
 
   // 요약 정보 업데이트
-  var summaryDetails = document.getElementById('summary-details');
+  const summaryDetails = document.getElementById('summary-details');
   summaryDetails.innerHTML = '';
 
   if (subTotal > 0) {
     // 개별 아이템 표시
     for (let i = 0; i < cartItems.length; i++) {
-      var curItem = findProductById(appState.products, cartItems[i].id);
-      var qtyElem = cartItems[i].querySelector('.quantity-number');
-      var q = parseInt(qtyElem.textContent);
-      var itemTotal = curItem.val * q;
+      const curItem = findProductById(appState.products, cartItems[i].id);
+      const qtyElem = cartItems[i].querySelector('.quantity-number');
+      const q = parseInt(qtyElem.textContent);
+      const itemTotal = curItem.val * q;
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
           <span>${curItem.name} x ${q}</span>
@@ -300,15 +301,15 @@ export function updateCartUI(appState, subTotal, itemDiscounts, discountInfo) {
   }
 
   // 총액 업데이트 (AppState 사용)
-  var totalDiv = appState.elements.sum.querySelector('.text-2xl');
+  const totalDiv = appState.elements.sum.querySelector('.text-2xl');
   if (totalDiv) {
     totalDiv.textContent = '₩' + Math.round(appState.totalAmount).toLocaleString();
   }
 
   // 기본 포인트 표시 업데이트 (AppState 사용)
-  var loyaltyPointsDiv = document.getElementById('loyalty-points');
+  const loyaltyPointsDiv = document.getElementById('loyalty-points');
   if (loyaltyPointsDiv) {
-    var points = Math.round(appState.totalAmount * BUSINESS_CONSTANTS.POINTS_RATE);
+    const points = calculatePoints(appState.totalAmount);
     if (points > 0) {
       loyaltyPointsDiv.textContent = '적립 포인트: ' + points + 'p';
       loyaltyPointsDiv.style.display = 'block';
@@ -319,11 +320,11 @@ export function updateCartUI(appState, subTotal, itemDiscounts, discountInfo) {
   }
 
   // 할인 정보 표시
-  var discountInfoDiv = document.getElementById('discount-info');
+  const discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
 
   if (discountInfo.discountRate > 0 && appState.totalAmount > 0) {
-    var savedAmount = discountInfo.originalTotal - appState.totalAmount;
+    const savedAmount = discountInfo.originalTotal - appState.totalAmount;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -336,7 +337,7 @@ export function updateCartUI(appState, subTotal, itemDiscounts, discountInfo) {
   }
 
   // 화요일 할인 배너 표시
-  var tuesdayBanner = document.getElementById('tuesday-special');
+  const tuesdayBanner = document.getElementById('tuesday-special');
   if (tuesdayBanner) {
     if (discountInfo.isTuesday) {
       tuesdayBanner.classList.remove('hidden');
@@ -346,9 +347,9 @@ export function updateCartUI(appState, subTotal, itemDiscounts, discountInfo) {
   }
 
   // 아이템 카운트 변경 표시 (AppState 사용)
-  var itemCountElement = document.getElementById('item-count');
+  const itemCountElement = document.getElementById('item-count');
   if (itemCountElement) {
-    var previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
     itemCountElement.textContent = '🛍️ ' + appState.itemCount + ' items in cart';
     if (previousCount !== appState.itemCount) {
       itemCountElement.setAttribute('data-changed', 'true');
