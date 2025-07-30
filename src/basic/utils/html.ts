@@ -1,4 +1,4 @@
-export function html(strings, ...expressions) {
+export function html(strings: TemplateStringsArray, ...expressions: unknown[]) {
   const result = [];
 
   for (let i = 0; i < strings.length; i++) {
