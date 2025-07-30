@@ -12,7 +12,8 @@ import {
 import {
   initializeApplication,
   initializeUIState,
-} from "./services/initializationService";
+  initializeTimers,
+} from "./services";
 
 function main() {
   // HTML 렌더링으로 DOM 생성
