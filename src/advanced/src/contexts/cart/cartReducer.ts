@@ -61,7 +61,6 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
       const product = productMap[productId];
 
       const existingItem = state.items.find((item) => item.id === productId);
-
       let updatedItems: CartItem[];
       if (existingItem) {
         // 기존 상품 수량 증가
@@ -74,7 +73,30 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
         // 새 상품 추가
         updatedItems = [...state.items, { ...product, quantity }];
       }
+      return {
+        items: updatedItems,
+        ...calculateCartTotals(updatedItems),
+      };
+    }
 
+    case 'ADJUST_QUANTITY': {
+      const { productId, quantity } = action.payload;
+      const updatedItems = state.items
+        .map((item) =>
+          item.id === productId
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        )
+        .filter((item) => item.quantity > 0); // 수량이 0 이하가 되면 제거
+      return {
+        items: updatedItems,
+        ...calculateCartTotals(updatedItems),
+      };
+    }
+
+    case 'REMOVE_ITEM': {
+      const { productId } = action.payload;
+      const updatedItems = state.items.filter((item) => item.id !== productId);
       return {
         items: updatedItems,
         ...calculateCartTotals(updatedItems),

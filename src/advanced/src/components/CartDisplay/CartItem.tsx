@@ -1,3 +1,5 @@
+import { useCart } from '../../hooks/useCart';
+
 interface CartItemProps {
   id: string;
   name: string;
@@ -15,6 +17,8 @@ export default function CartItem({
   quantity,
   saleIcon = '',
 }: CartItemProps) {
+  const { dispatch } = useCart();
+
   const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
 
   const getPriceColor = (originalPrice: number, price: number) => {
@@ -22,6 +26,20 @@ export default function CartItem({
     if (discount >= 20) return 'text-purple-600';
     if (discount >= 15) return 'text-red-500';
     return 'text-blue-500';
+  };
+
+  const handleQuantityChange = (change: number) => {
+    dispatch({
+      type: 'ADJUST_QUANTITY',
+      payload: { productId: id, quantity: change },
+    });
+  };
+
+  const handleRemoveItem = () => {
+    dispatch({
+      type: 'REMOVE_ITEM',
+      payload: { productId: id, quantity: 0 },
+    });
   };
 
   return (
@@ -49,8 +67,7 @@ export default function CartItem({
         <div className="flex items-center gap-4">
           <button
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-            data-product-id={id}
-            data-change="-1"
+            onClick={() => handleQuantityChange(-1)}
           >
             −
           </button>
@@ -59,8 +76,7 @@ export default function CartItem({
           </span>
           <button
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-            data-product-id={id}
-            data-change="1"
+            onClick={() => handleQuantityChange(1)}
           >
             +
           </button>
@@ -78,12 +94,12 @@ export default function CartItem({
             {formatPrice(price)}
           </span>
         </div>
-        <a
+        <button
           className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
-          data-product-id={id}
+          onClick={handleRemoveItem}
         >
           Remove
-        </a>
+        </button>
       </div>
     </div>
   );

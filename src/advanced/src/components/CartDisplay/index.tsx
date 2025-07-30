@@ -1,13 +1,9 @@
-import { useContext } from 'react';
 import AddToCartForm from './AddToCartForm';
 import CartItem from './CartItem';
-import { CartContext } from '../../contexts/cart/CartContext';
+import { useCart } from '../../hooks/useCart';
 
 export default function CartDisplay() {
-  const cart = useContext(CartContext);
-  if (!cart) return;
-
-  const { state } = cart;
+  const { state } = useCart();
 
   return (
     <div className="bg-white border border-gray-200 p-8 overflow-y-auto">

@@ -1,16 +1,15 @@
-import { useContext, useRef } from 'react';
-import { CartContext } from '../../contexts/cart/CartContext';
+import { useRef } from 'react';
+import { useCart } from '../../hooks/useCart';
 
 export default function AddToCartForm() {
-  const cart = useContext(CartContext);
+  const { dispatch } = useCart();
   const selectRef = useRef<HTMLSelectElement>(null);
-  if (!cart) return;
 
   const handleAddToCart = () => {
     const selected = selectRef.current?.value;
     if (!selected) return;
 
-    cart.dispatch({
+    dispatch({
       type: 'ADD_ITEM',
       payload: {
         productId: selected,

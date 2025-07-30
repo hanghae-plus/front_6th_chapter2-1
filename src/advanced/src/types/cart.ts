@@ -14,7 +14,7 @@ export interface Cart {
 }
 
 export interface CartAction {
-  type: 'ADD_ITEM';
+  type: 'ADD_ITEM' | 'ADJUST_QUANTITY' | 'REMOVE_ITEM';
   payload: {
     productId: string;
     quantity: number;
