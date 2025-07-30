@@ -131,11 +131,9 @@ export function createInitialProducts(): Product[] {
   ];
 }
 
-export function calculateTotalStock(products: Product[]): number {
-  return products.reduce((total: number, product: Product) => total + product.quantity, 0);
-}
+export const calculateTotalStock = (products: Product[]): number => products.reduce((total: number, product: Product) => total + product.quantity, 0)
 
-export function getStockInfo(products: Product[]): StockInfo {
+export const getStockInfo = (products: Product[]): StockInfo => {
   const totalStock = calculateTotalStock(products);
   const lowStockItems = products
     .filter((item: Product) => item.quantity < DISCOUNT_THRESHOLDS.LOW_STOCK)
@@ -150,7 +148,7 @@ export function getStockInfo(products: Product[]): StockInfo {
 }
 
 // Discount Calculations
-export function calculateItemDiscount(productId: string, quantity: number): number {
+export const calculateItemDiscount = (productId: string, quantity: number): number => {
   if (quantity < DISCOUNT_THRESHOLDS.ITEM_DISCOUNT) return 0;
   
   switch(productId) {
@@ -163,23 +161,21 @@ export function calculateItemDiscount(productId: string, quantity: number): numb
   }
 }
 
-export function isTuesday(date: Date): boolean {
-  return date.getDay() === 2;
-}
+export const isTuesday = (date: Date): boolean => date.getDay() === 2
 
-export function applyTuesdayDiscount(amount: number, isToday: boolean): number {
+export const applyTuesdayDiscount = (amount: number, isToday: boolean): number => {
   if (isToday && amount > 0) {
     return amount * (1 - DISCOUNT_RATES.TUESDAY);
   }
   return amount;
 }
 
-export function calculateDiscountRate(originalTotal: number, finalTotal: number): number {
+export const calculateDiscountRate = (originalTotal: number, finalTotal: number): number => {
   if (originalTotal === 0) return 0;
   return 1 - (finalTotal / originalTotal);
 }
 
-export function applyBulkDiscount(subtotal: number, itemCount: number): BulkDiscountResult {
+export const applyBulkDiscount = (subtotal: number, itemCount: number): BulkDiscountResult => {
   if (itemCount >= DISCOUNT_THRESHOLDS.BULK_DISCOUNT) {
     return {
       amount: subtotal * (1 - DISCOUNT_RATES.BULK),
@@ -194,7 +190,7 @@ export function applyBulkDiscount(subtotal: number, itemCount: number): BulkDisc
 }
 
 // Cart Calculations
-export function calculateCartData(cart: Cart, products: Product[], currentDate: Date = new Date()): CartData {
+export const calculateCartData = (cart: Cart, products: Product[], currentDate: Date = new Date()): CartData => {
   const result: CartData = {
     totalAmount: 0,
     itemCount: 0,
@@ -269,7 +265,7 @@ export function calculateCartData(cart: Cart, products: Product[], currentDate: 
 }
 
 // Points Calculations
-export function calculatePoints(cartData: CartData, cart: Cart, currentDate: Date = new Date()): PointsData {
+export const calculatePoints = (cartData: CartData, cart: Cart, currentDate: Date = new Date()): PointsData => {
   const result: PointsData = {
     basePoints: 0,
     finalPoints: 0,
@@ -326,54 +322,46 @@ export function calculatePoints(cartData: CartData, cart: Cart, currentDate: Dat
 }
 
 // Sale Management (setState를 통해 상태 업데이트)
-export function applyLightningSale(products: Product[], productId: string): Product[] {
-  return products.map(function(product: Product) {
-    if (product.id === productId && product.quantity > 0 && !product.onSale) {
-      return {
-        ...product,
-        val: Math.round(product.originalVal * (1 - DISCOUNT_RATES.LIGHTNING)),
-        onSale: true
-      };
-    }
-    return product;
-  });
-}
+export const applyLightningSale = (products: Product[], productId: string): Product[] => products.map(function (product: Product) {
+  if (product.id === productId && product.quantity > 0 && !product.onSale) {
+    return {
+      ...product,
+      val: Math.round(product.originalVal * (1 - DISCOUNT_RATES.LIGHTNING)),
+      onSale: true
+    };
+  }
+  return product;
+})
 
-export function applySuggestionSale(products: Product[], productId: string, excludeId: string): Product[] {
-  return products.map(function(product: Product) {
-    if (product.id === productId && product.id !== excludeId && product.quantity > 0 && !product.suggestSale) {
-      return {
-        ...product,
-        val: Math.round(product.val * (1 - DISCOUNT_RATES.SUGGESTION)),
-        suggestSale: true
-      };
-    }
-    return product;
-  });
-}
+export const applySuggestionSale = (products: Product[], productId: string, excludeId: string): Product[] => products.map(function (product: Product) {
+  if (product.id === productId && product.id !== excludeId && product.quantity > 0 && !product.suggestSale) {
+    return {
+      ...product,
+      val: Math.round(product.val * (1 - DISCOUNT_RATES.SUGGESTION)),
+      suggestSale: true
+    };
+  }
+  return product;
+})
 
 // Stock Management
-export function updateProductStock(products: Product[], productId: string, quantityChange: number): Product[] {
-  return products.map(function(product: Product) {
-    if (product.id === productId) {
-      return {
-        ...product,
-        quantity: product.quantity + quantityChange
-      };
-    }
-    return product;
-  });
-}
+export const updateProductStock = (products: Product[], productId: string, quantityChange: number): Product[] => products.map(function (product: Product) {
+  if (product.id === productId) {
+    return {
+      ...product,
+      quantity: product.quantity + quantityChange
+    };
+  }
+  return product;
+})
 
 // Cart Operations
-export function addToCart(cart: Cart, productId: string, quantity: number = 1): Cart {
-  return {
-    ...cart,
-    [productId]: (cart[productId] || 0) + quantity
-  };
-}
+export const addToCart = (cart: Cart, productId: string, quantity: number = 1): Cart => ({
+  ...cart,
+  [productId]: (cart[productId] || 0) + quantity
+})
 
-export function updateCartQuantity(cart: Cart, productId: string, newQuantity: number): Cart {
+export const updateCartQuantity = (cart: Cart, productId: string, newQuantity: number): Cart => {
   if (newQuantity <= 0) {
     const newCart = { ...cart };
     delete newCart[productId];
@@ -385,18 +373,16 @@ export function updateCartQuantity(cart: Cart, productId: string, newQuantity: n
   };
 }
 
-export function removeFromCart(cart: Cart, productId: string): Cart {
+export const removeFromCart = (cart: Cart, productId: string): Cart => {
   const newCart = { ...cart };
   delete newCart[productId];
   return newCart;
 }
 
 // Validation
-export function canAddToCart(product: Product, currentCartQuantity: number, requestedQuantity: number): boolean {
+export const canAddToCart = (product: Product, currentCartQuantity: number, requestedQuantity: number): boolean => {
   const totalRequestedQuantity = currentCartQuantity + requestedQuantity;
   return product.quantity >= requestedQuantity && totalRequestedQuantity <= product.quantity + currentCartQuantity;
 }
 
-export function getAvailableStock(product: Product, currentCartQuantity: number): number {
-  return product.quantity + currentCartQuantity;
-}
+export const getAvailableStock = (product: Product, currentCartQuantity: number): number => product.quantity + currentCartQuantity
