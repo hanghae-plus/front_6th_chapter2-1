@@ -34,25 +34,33 @@ let cartDisplay;
 // ==========================================
 // 메인 초기화 함수
 // ==========================================
-function main() {
-  // DOM 요소 변수들
-  let manualToggle;
-  let manualOverlay;
-  let lightningDelay;
 
-  // 초기값 설정
+// 애플리케이션 상태를 초기화합니다
+function initializeAppState() {
   totalAmount = 0;
   itemCount = 0;
   lastSelectedProduct = null;
+}
 
-  // 루트 컨테이너 및 헤더 생성 (Template Literal 방식)
+// UI를 렌더링 합니다
+function renderInitialUI() {
   const root = document.getElementById('app');
-  // root.insertAdjacentHTML('beforeend', Header());
+  if (!root) {
+    throw new Error('Root 요소를 찾을 수 없습니다.');
+  }
+
   root.innerHTML = `
     ${Header()}
     ${MainLayout(PRODUCT_LIST)}
     ${HelpModal()}
   `;
+}
+
+function main() {
+  // DOM 요소 변수들
+  let manualToggle;
+  let manualOverlay;
+  let lightningDelay;
 
   // DOM 요소 참조 (Template Literal 방식 이후)
   productSelect = document.getElementById('product-select');
