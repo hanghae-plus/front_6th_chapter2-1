@@ -3,13 +3,12 @@ import { renderProductSelectOptions } from './features/product/render';
 let itemCount;
 let lastSelector;
 let sum;
-let bonusPoints = 0;
 let totalAmount = 0;
 
 const stockInfo = document.createElement('div');
 const selector = document.createElement('select');
 const addButton = document.createElement('button');
-const cartDisp = document.createElement('div');
+const cartContainerEl = document.createElement('div');
 
 const PRODUCT_ONE = 'p1';
 const p2 = 'p2';
@@ -107,8 +106,8 @@ function main() {
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
 
-  leftColumn.appendChild(cartDisp);
-  cartDisp.id = 'cart-items';
+  leftColumn.appendChild(cartContainerEl);
+  cartContainerEl.id = 'cart-items';
 
   rightColumn.className = 'bg-black text-white p-8 flex flex-col';
   rightColumn.innerHTML = `
@@ -279,7 +278,7 @@ function main() {
 // 장바구니 목록 UI, 주문요약 UI에 관여
 function handleCalculateCartStuff() {
   // 현재 장바구니 상품 목록
-  const cartItemsEl = cartDisp.children;
+  const cartItemsEl = cartContainerEl.children;
 
   // 추가 할인 적용전 총액
   let subTotal = 0;
@@ -486,58 +485,80 @@ function handleCalculateCartStuff() {
   doRenderBonusPoints();
 }
 
+// 추가 포인트 UI를 렌더링
 const doRenderBonusPoints = function () {
+  // 판매금액의 0.1% 기본포인트
   const basePoints = Math.floor(totalAmount / 1000);
+  // 최종포인트
   let finalPoints = 0;
+  // 포인트 상세 정보
   const pointsDetail = [];
-  let hasKeyboard;
-  let hasMouse;
-  let hasMonitorArm;
-  const nodes = cartDisp.children;
-  if (cartDisp.children.length === 0) {
+
+  // 키보드유무
+  let hasKeyboard = false;
+  // 마우스유무
+  let hasMouse = false;
+  // 모니터암유무
+  let hasMonitorArm = false;
+
+  // 장바구니에 담긴 상품 요소들
+  const cartProductEls = cartContainerEl.children;
+
+  // 장바구니에 상품이 없으면 loyalty-points 요소 숨김
+  if (cartProductEls.length === 0) {
     document.getElementById('loyalty-points').style.display = 'none';
     return;
   }
 
+  // 기본 포인트가 0보다 크면 기본 포인트 문구 추가, 최종 포인트 업데이트
   if (basePoints > 0) {
     finalPoints = basePoints;
     pointsDetail.push('기본: ' + basePoints + 'p');
   }
-  if (new Date().getDay() === 2) {
-    if (basePoints > 0) {
-      finalPoints = basePoints * 2;
-      pointsDetail.push('화요일 2배');
-    }
-  }
-  hasKeyboard = false;
-  hasMouse = false;
-  hasMonitorArm = false;
 
-  for (const node of nodes) {
-    let product = null;
-    for (let productIdx = 0; productIdx < productList.length; productIdx++) {
-      if (productList[productIdx].id === node.id) {
-        product = productList[productIdx];
+  // 기본 포인트가 0보다 크고 화요일인 경우 문구 추가, 최종 포인트 2배로 업데이트
+  if (new Date().getDay() === 2 && basePoints > 0) {
+    finalPoints = basePoints * 2;
+    pointsDetail.push('화요일 2배');
+  }
+
+  // 장바구니를 순회하여 현재 선택한 상품이 있는지 없는지 업데이트
+  for (const cartProductEl of cartProductEls) {
+    let cartProduct = null;
+
+    // 장바구니상품요소의 id를 통해 상품 정보 조회
+    for (let i = 0; i < productList.length; i++) {
+      if (productList[i].id === cartProductEl.id) {
+        cartProduct = productList[i];
         break;
       }
     }
-    if (!product) continue;
-    if (product.id === PRODUCT_ONE) {
+    // 장바구니상품이 없을 경우 다음 반복문으로 이동
+    if (!cartProduct) {
+      continue;
+    }
+
+    // 장바구니에 담긴 상품으로 상품선택 유무 상태 변경
+    if (cartProduct.id === PRODUCT_ONE) {
       hasKeyboard = true;
-    } else if (product.id === p2) {
+    } else if (cartProduct.id === p2) {
       hasMouse = true;
-    } else if (product.id === product_3) {
+    } else if (cartProduct.id === product_3) {
       hasMonitorArm = true;
     }
   }
+
+  // 선택 상품에 따라 포인트 문구 추가, 최종포인트 업데이트
   if (hasKeyboard && hasMouse) {
     finalPoints = finalPoints + 50;
     pointsDetail.push('키보드+마우스 세트 +50p');
   }
+
   if (hasKeyboard && hasMouse && hasMonitorArm) {
     finalPoints = finalPoints + 100;
     pointsDetail.push('풀세트 구매 +100p');
   }
+
   if (itemCount >= 30) {
     finalPoints = finalPoints + 100;
     pointsDetail.push('대량구매(30개+) +100p');
@@ -553,14 +574,14 @@ const doRenderBonusPoints = function () {
     }
   }
 
-  bonusPoints = finalPoints;
-
+  // 포인트 문구 표시 UI
   const pointsTag = document.getElementById('loyalty-points');
+
   if (pointsTag) {
-    if (bonusPoints > 0) {
+    if (finalPoints > 0) {
       pointsTag.innerHTML =
         '<div>적립 포인트: <span class="font-bold">' +
-        bonusPoints +
+        finalPoints +
         'p</span></div>' +
         '<div class="text-2xs opacity-70 mt-1">' +
         pointsDetail.join(', ') +
@@ -589,7 +610,7 @@ const handleStockInfoUpdate = function () {
 };
 
 function doUpdatePricesInCart() {
-  const cartItems = cartDisp.children;
+  const cartItems = cartContainerEl.children;
 
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
@@ -692,7 +713,7 @@ addButton.addEventListener('click', function () {
           <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemToAdd.id}">Remove</a>
         </div>
       `;
-      cartDisp.appendChild(newItem);
+      cartContainerEl.appendChild(newItem);
       itemToAdd.quantity--;
     }
     handleCalculateCartStuff();
@@ -700,7 +721,7 @@ addButton.addEventListener('click', function () {
   }
 });
 
-cartDisp.addEventListener('click', function (event) {
+cartContainerEl.addEventListener('click', function (event) {
   const target = event.target;
   if (target.classList.contains('quantity-change') || target.classList.contains('remove-item')) {
     const productId = target.dataset.productId;
