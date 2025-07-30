@@ -48,6 +48,14 @@ class ProductsManager {
     return this.#productList.length;
   }
 
+  getProductById(id) {
+    const targetProduct = this.#productList.find((product) => product.id === id);
+
+    if (!targetProduct) throw Error('해당하는 상품이 없습니다.');
+
+    return targetProduct;
+  }
+
   getProductAt(index) {
     if (index < 0 || index >= this.#productList.length) {
       throw new RangeError(`index ${index} is out of bounds (0 ~ ${this.#productList.length - 1})`);

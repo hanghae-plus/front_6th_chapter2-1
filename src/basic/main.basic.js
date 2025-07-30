@@ -702,38 +702,39 @@ cartDisplay.addEventListener('click', function (event) {
   const target = event.target;
 
   if (target.classList.contains('quantity-change') || target.classList.contains('remove-item')) {
-    const prodId = target.dataset.productId;
-    const itemElem = document.getElementById(prodId);
-    let prod = null;
-    for (let prdIdx = 0; prdIdx < productManager.getProductCount(); prdIdx++) {
-      const currentProduct = productManager.getProductAt(prdIdx);
-      if (currentProduct.id === prodId) {
-        prod = currentProduct;
-        break;
-      }
-    }
+    const targetProductId = target.dataset.productId;
+    const itemElement = document.getElementById(targetProductId);
+    const quantityElement = itemElement.querySelector('.quantity-number');
+
+    const targetProduct = productManager.getProductById(targetProductId);
+
     if (target.classList.contains('quantity-change')) {
-      const qtyChange = parseInt(target.dataset.change);
-      var qtyElem = itemElem.querySelector('.quantity-number');
-      const currentQty = parseInt(qtyElem.textContent);
-      const newQty = currentQty + qtyChange;
-      if (newQty > 0 && newQty <= prod.quantity + currentQty) {
-        qtyElem.textContent = newQty;
-        prod.quantity -= qtyChange;
-      } else if (newQty <= 0) {
-        prod.quantity += currentQty;
-        itemElem.remove();
+      const quantityChange = parseInt(target.dataset.change);
+
+      const currentQuantity = cartManager.getQuantityByProductId(targetProductId);
+
+      const newQuantity = currentQuantity + quantityChange;
+      // 총 수량보다 클 순 없으니..
+      if (newQuantity > 0 && newQuantity <= targetProduct.quantity + currentQuantity) {
+        quantityElement.textContent = newQuantity;
+
+        cartManager.changeQuantity(targetProductId, +1);
+        productManager.changeQuantity(targetProductId, -1);
+      } else if (newQuantity <= 0) {
+        itemElement.remove();
+
+        cartManager.removeItem(targetProductId);
+        productManager.changeQuantity(targetProductId, currentQuantity);
       } else {
         alert('재고가 부족합니다.');
       }
     } else if (target.classList.contains('remove-item')) {
-      var qtyElem = itemElem.querySelector('.quantity-number');
-      const remQty = parseInt(qtyElem.textContent);
-      prod.quantity += remQty;
-      itemElem.remove();
+      const removedQuantity = cartManager.getQuantityByProductId(targetProductId);
+      productManager.changeQuantity(targetProductId, removedQuantity);
+      itemElement.remove();
     }
-    if (prod && prod.quantity < 5) {
-    }
+    // if (targetProduct && targetProduct.quantity < 5) {
+    // }
     calculateCart();
     updateSelectOptions();
   }
