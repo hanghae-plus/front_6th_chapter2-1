@@ -10,97 +10,31 @@ import {
 import productManager from './domain/product';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/discount';
 import { isTuesday } from './utils/dateUtil';
-import {
-  createAddCartButton,
-  createCartDisplay,
-  createGridContainer,
-  createHeader,
-  createLeftColumn,
-  createManualColumn,
-  createManualOverlay,
-  createManualToggle,
-  createProductSelector,
-  createProductSelectorOption,
-  createRightColumn,
-  createSelectorContainer,
-  createStockInfo,
-} from './view/elements';
+import { createProductSelectorOption } from './view/elements';
+import { renderLayout } from './view/layout';
 
 let totalAmount = 0;
 
-/** 다 UI 요소들. 여러군데서 사용해서 전역 컴포넌트로,,  */
+/** UI 요소들. 전역으로 저장중 */
 let productSelector;
 let addCartButton;
 let cartDisplay;
 let stockInfo;
-
-/**
- * 페이지 초기화. DOM 요소 생성 및 초기 렌더링, 버튼 및 이벤트 등록, 세일/추천 세일 주기적 발생 설정.
- * 전체 UI 구성
- * productList 초기화
- * onUpdateSelectOptions, handleCalculateCartStuff 호출
- * 번개세일/추천세일 setInterval 등록
- *  */
+let cartSummary;
 
 const initProducts = () => {
   productManager.setProducts(initialProducts);
 };
 
 function main() {
-  /**  ==================== elements 시작 ================================ */
-  const root = document.getElementById('app');
-
-  const header = createHeader();
-  const gridContainer = createGridContainer();
-  const selectorContainer = createSelectorContainer();
-  const leftColumn = createLeftColumn();
-  const rightColumn = createRightColumn();
-
-  const manualToggle = createManualToggle();
-  manualToggle.onclick = function () {
-    manualOverlay.classList.toggle('hidden');
-    manualColumn.classList.toggle('translate-x-full');
-  };
-
-  const manualOverlay = createManualOverlay();
-  manualOverlay.onclick = function (e) {
-    if (e.target === manualOverlay) {
-      manualOverlay.classList.add('hidden');
-      manualColumn.classList.add('translate-x-full');
-    }
-  };
-
-  const manualColumn = createManualColumn();
-
-  /**  ==================== elements 끝 ================================ */
-
   const lightningDelay = Math.random() * 10000;
 
-  productSelector = createProductSelector();
-
-  addCartButton = createAddCartButton();
-
-  stockInfo = createStockInfo();
-
-  cartDisplay = createCartDisplay();
-
-  selectorContainer.appendChild(productSelector);
-  selectorContainer.appendChild(addCartButton);
-  selectorContainer.appendChild(stockInfo);
-
-  leftColumn.appendChild(selectorContainer);
-  leftColumn.appendChild(cartDisplay);
-
-  sum = rightColumn.querySelector('#cart-total');
-
-  gridContainer.appendChild(leftColumn);
-  gridContainer.appendChild(rightColumn);
-  manualOverlay.appendChild(manualColumn);
-
-  root.appendChild(header);
-  root.appendChild(gridContainer);
-  root.appendChild(manualToggle);
-  root.appendChild(manualOverlay);
+  const layoutNodes = renderLayout();
+  productSelector = layoutNodes.productSelector;
+  addCartButton = layoutNodes.addCartButton;
+  cartDisplay = layoutNodes.cartDisplay;
+  stockInfo = layoutNodes.stockInfo;
+  cartSummary = layoutNodes.cartSummary;
 
   /* 데이터 준비 */
   initProducts();
@@ -145,8 +79,6 @@ function main() {
     }, 60000);
   }, Math.random() * 20000);
 }
-
-let sum;
 
 /* 상품 셀렉트 박스(selectedItem)의 옵션을 현재 상품 상태에 맞게 갱신 */
 function updateSelectOptions() {
@@ -278,7 +210,7 @@ function calculateCart() {
     `;
   }
 
-  totalDiv = sum.querySelector('.text-2xl');
+  totalDiv = cartSummary.querySelector('.text-2xl');
   if (totalDiv) {
     totalDiv.textContent = '₩' + Math.round(totalAmount).toLocaleString();
   }
