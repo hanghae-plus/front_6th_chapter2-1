@@ -1,12 +1,10 @@
 import { cartManager } from './domain/cart';
+import { calculateBonusPoints, renderBonusPoints } from './domain/point';
 import {
   initialProducts,
   LIGHTNING_DISCOUNT,
   LOW_TOTAL_STOCK_THRESHOLD,
   OUT_OF_STOCK,
-  PRODUCT_ONE,
-  PRODUCT_THREE,
-  PRODUCT_TWO,
   SUGGEST_DISCOUNT,
 } from './domain/product';
 import productManager from './domain/product';
@@ -30,7 +28,6 @@ import { isTuesday } from './utils/dateUtil';
 
 let stockInfo;
 
-let bonusPoints = 0;
 let totalAmount = 0;
 
 let productSelector;
@@ -336,103 +333,18 @@ function calculateCart() {
   stockInfo.textContent = stockMsg;
 
   handleStockUpdate();
-  doRenderBonusPoints();
+  updateBonusPoints();
 }
 
-/**
- * 역할: 적립 포인트 계산 및 렌더링
- * - 기본: 구매액의 0.1%
- * - 화요일이면 2배
- * - 키보드+마우스 → +50p
- * - 키보드+마우스+모니터암 → +100p
- * - 대량구매 보너스 (10/20/30개 기준)
- */
-const doRenderBonusPoints = function () {
-  let basePoints;
-  let finalPoints;
-  let pointsDetail;
-  let hasKeyboard;
-  let hasMouse;
-  let hasMonitorArm;
-  let nodes;
+const updateBonusPoints = () => {
   if (cartDisplay.children.length === 0) {
     document.getElementById('loyalty-points').style.display = 'none';
     return;
   }
-  basePoints = Math.floor(totalAmount / 1000);
-  finalPoints = 0;
-  pointsDetail = [];
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push('기본: ' + basePoints + 'p');
-  }
-  if (new Date().getDay() === 2) {
-    if (basePoints > 0) {
-      finalPoints = basePoints * 2;
-      pointsDetail.push('화요일 2배');
-    }
-  }
-  hasKeyboard = false;
-  hasMouse = false;
-  hasMonitorArm = false;
-  nodes = cartDisplay.children;
-  for (const node of nodes) {
-    let product = null;
-    for (let pIdx = 0; pIdx < productManager.getProductCount(); pIdx++) {
-      const currentProduct = productManager.getProductAt(pIdx);
-      if (currentProduct.id === node.id) {
-        product = currentProduct;
-        break;
-      }
-    }
-    if (!product) continue;
-    if (product.id === PRODUCT_ONE) {
-      hasKeyboard = true;
-    } else if (product.id === PRODUCT_TWO) {
-      hasMouse = true;
-    } else if (product.id === PRODUCT_THREE) {
-      hasMonitorArm = true;
-    }
-  }
-  if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push('키보드+마우스 세트 +50p');
-  }
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('풀세트 구매 +100p');
-  }
-  if (cartManager.getTotalItem() >= 30) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('대량구매(30개+) +100p');
-  } else {
-    if (cartManager.getTotalItem() >= 20) {
-      finalPoints = finalPoints + 50;
-      pointsDetail.push('대량구매(20개+) +50p');
-    } else {
-      if (cartManager.getTotalItem() >= 10) {
-        finalPoints = finalPoints + 20;
-        pointsDetail.push('대량구매(10개+) +20p');
-      }
-    }
-  }
-  bonusPoints = finalPoints;
-  const ptsTag = document.getElementById('loyalty-points');
-  if (ptsTag) {
-    if (bonusPoints > 0) {
-      ptsTag.innerHTML =
-        '<div>적립 포인트: <span class="font-bold">' +
-        bonusPoints +
-        'p</span></div>' +
-        '<div class="text-2xs opacity-70 mt-1">' +
-        pointsDetail.join(', ') +
-        '</div>';
-      ptsTag.style.display = 'block';
-    } else {
-      ptsTag.textContent = '적립 포인트: 0p';
-      ptsTag.style.display = 'block';
-    }
-  }
+
+  const { total, detail } = calculateBonusPoints(cartManager.getItems(), totalAmount);
+
+  renderBonusPoints(total, detail);
 };
 
 /**  재고 부족/품절 상품의 메시지를 stockInfo에 표시 */
