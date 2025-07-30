@@ -29,42 +29,49 @@ function main() {
 	const appState = createAppState();
 	const root = document.getElementById("app");
 
-	// Create UI elements separately from business state
-	const uiElements = {
-		sel: ProductDropdownSelect(),
-		addBtn: CartAddButton(),
-		stockInfo: StockWarningMessage(),
-		cartDisp: CartItemsContainer(),
-		sum: null // Will be set after creating rightColumn
-	};
+	// Create HTML strings for UI elements
+	const selectorHTML = ProductDropdownSelect();
+	const addButtonHTML = CartAddButton();
+	const stockInfoHTML = StockWarningMessage();
+	const cartDisplayHTML = CartItemsContainer();
 
-	const selectorContainer = ProductSelectionPanel(
-		uiElements.sel,
-		uiElements.addBtn,
-		uiElements.stockInfo
+	const selectorContainerHTML = ProductSelectionPanel(
+		selectorHTML,
+		addButtonHTML,
+		stockInfoHTML
 	);
-	const leftColumn = ShoppingAreaColumn(selectorContainer, uiElements.cartDisp);
+	const leftColumnHTML = ShoppingAreaColumn(selectorContainerHTML, cartDisplayHTML);
 
-	const rightColumn = OrderSummaryColumn();
-	uiElements.sum = rightColumn.querySelector("#cart-total");
+	const rightColumnHTML = OrderSummaryColumn();
 
-	// Create manual components
-	const manualColumn = HelpContentPanel();
-	const manualOverlay = HelpModalBackdrop(manualColumn);
-	const manualToggle = HelpModalToggleButton(manualOverlay, manualColumn);
+	// Create manual component HTML strings
+	const manualColumnHTML = HelpContentPanel();
+	const manualOverlayHTML = HelpModalBackdrop();
+	const manualToggleHTML = HelpModalToggleButton();
 
-	manualOverlay.appendChild(manualColumn);
-
-	const gridContainer = MainLayoutGrid(leftColumn, rightColumn);
+	const gridContainerHTML = MainLayoutGrid(leftColumnHTML, rightColumnHTML);
 
 	appState.totalAmt = 0;
 	appState.itemCnt = 0;
 	appState.lastSel = null;
 
-	root.innerHTML = Header();
-	root.appendChild(gridContainer);
-	root.appendChild(manualToggle);
-	root.appendChild(manualOverlay);
+	// Combine all HTML and set innerHTML
+	root.innerHTML = `
+		${Header()}
+		${gridContainerHTML}
+		${manualToggleHTML}
+		${manualOverlayHTML}
+		${manualColumnHTML}
+	`;
+
+	// Get UI elements after innerHTML
+	const uiElements = {
+		sel: document.getElementById("product-select"),
+		addBtn: document.getElementById("add-to-cart"),
+		stockInfo: document.getElementById("stock-status"),
+		cartDisp: document.getElementById("cart-items"),
+		sum: document.getElementById("cart-total")
+	};
 
 	onUpdateSelectOptions(appState, uiElements);
 	handleCalculateCartStuff(appState, uiElements);
@@ -75,8 +82,24 @@ function main() {
 
 	// Event listeners with improved separation of concerns
 	uiElements.addBtn.addEventListener("click", handleAddToCartClick(appState, uiElements));
-
 	uiElements.cartDisp.addEventListener("click", handleCartClick(appState, uiElements));
+
+	// Add event listeners for help modal
+	const helpToggle = document.getElementById("help-modal-toggle");
+	const helpBackdrop = document.getElementById("help-modal-backdrop");
+	const helpPanel = document.getElementById("help-content-panel");
+
+	helpToggle.addEventListener("click", function () {
+		helpBackdrop.classList.toggle("hidden");
+		helpPanel.classList.toggle("translate-x-full");
+	});
+
+	helpBackdrop.addEventListener("click", function (e) {
+		if (e.target === helpBackdrop) {
+			helpBackdrop.classList.add("hidden");
+			helpPanel.classList.add("translate-x-full");
+		}
+	});
 }
 
 /**

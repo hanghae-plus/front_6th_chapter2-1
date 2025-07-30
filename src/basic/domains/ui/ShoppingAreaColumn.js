@@ -1,7 +1,8 @@
-export function ShoppingAreaColumn(selectorContainer, cartDisplay) {
-	const leftColumn = document.createElement("div");
-	leftColumn["className"] = "bg-white border border-gray-200 p-8 overflow-y-auto";
-	leftColumn.appendChild(selectorContainer);
-	leftColumn.appendChild(cartDisplay);
-	return leftColumn;
+export function ShoppingAreaColumn(selectorContainerHTML, cartDisplayHTML) {
+	return /* HTML */ `
+		<div class="bg-white border border-gray-200 p-8 overflow-y-auto">
+			${selectorContainerHTML}
+			${cartDisplayHTML}
+		</div>
+	`;
 }
