@@ -42,10 +42,13 @@ export class CartEventListeners {
           updateCartItemPriceStyle(existingCartItem, newQuantity);
         } else {
           // 새 아이템 생성
-          const discountInfo = this.calculateProductDiscountInfo(data.product);
+          const discountInfo = this.discountService.calculateProductDiscountRate(data.product);
           const newCartItem = this.createCartItemElement({
             product: data.product,
-            discountInfo,
+            discountInfo: {
+              rate: discountInfo,
+              status: this.discountService.getProductDiscountStatus(data.product),
+            },
             onQuantityChange: (productId, change) => {
               // Event Bus를 통해 이벤트 발생
               this.uiEventBus.emit("cart:quantity:change:requested", {
@@ -237,13 +240,6 @@ export class CartEventListeners {
 
   // 헬퍼 메서드들 추가
   // getCartItemQuantity는 domUtils에서 import하여 사용
-
-  calculateProductDiscountInfo(product) {
-    return {
-      rate: this.discountService.calculateProductDiscountRate(product),
-      status: this.discountService.getProductDiscountStatus(product),
-    };
-  }
 
   calculateProductDiscountInfos(products) {
     return products.map(product => ({

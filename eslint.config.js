@@ -13,6 +13,8 @@ export default [
         alert: "readonly",
         setTimeout: "readonly",
         setInterval: "readonly",
+        clearTimeout: "readonly",
+        clearInterval: "readonly",
         process: "readonly",
         describe: "readonly",
         test: "readonly",

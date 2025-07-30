@@ -128,10 +128,4 @@ export class ProductStore {
   getLowStockProducts(threshold) {
     return this.products.filter(product => product.quantity < threshold && product.quantity > 0);
   }
-
-  // 상품 상태 초기화
-  reset() {
-    this.products = [...PRODUCT_LIST];
-    this.notifySubscribers();
-  }
 }

@@ -1,4 +1,4 @@
-import { DISCOUNT_RATES, PRODUCT_DISCOUNTS, QUANTITY_THRESHOLDS } from "../constants/index.js";
+import { discountService } from "../services/discountService.js";
 
 export class CartStore {
   constructor() {
@@ -81,80 +81,24 @@ export class CartStore {
     return this.cartItems.find(item => item.id === productId) || null;
   }
 
-  // 개별 상품 할인 계산
-  calculateIndividualDiscount(cartItem) {
-    const discount = PRODUCT_DISCOUNTS[cartItem.id];
-    return cartItem.quantity >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT ? discount : 0;
-  }
-
-  // 벌크 할인 계산
-  calculateBulkDiscount(totalQuantity) {
-    if (totalQuantity >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
-      return DISCOUNT_RATES.BULK_PURCHASE;
-    }
-    return 0;
-  }
-
-  // 화요일 할인 적용
-  applyTuesdayDiscount(amount) {
-    const today = new Date().getDay();
-    return today === 2 ? amount * DISCOUNT_RATES.TUESDAY_SPECIAL : amount;
-  }
-
-  // 장바구니 총액과 할인 계산
+  // 장바구니 총액과 할인 계산 (discountService 사용)
   updateCartTotals() {
-    let subtotal = 0;
-    let totalAmount = 0;
-    let totalQuantity = 0;
-    const itemDiscounts = [];
+    // discountService를 사용하여 할인 계산
+    const discountResult = discountService.applyAllDiscounts(this.cartItems, []);
 
-    // 개별 상품 계산
-    for (const cartItem of this.cartItems) {
-      const itemTotal = cartItem.price * cartItem.quantity;
-      subtotal += itemTotal;
-      totalQuantity += cartItem.quantity;
-    }
-
-    // 전체 수량 할인 확인
-    const bulkDiscount = this.calculateBulkDiscount(totalQuantity);
-
-    if (bulkDiscount > 0) {
-      // 전체 수량 할인이 있으면 개별 할인 무시
-      totalAmount = subtotal * bulkDiscount;
-    } else {
-      // 개별 상품 할인 적용
-      for (const cartItem of this.cartItems) {
-        const itemTotal = cartItem.price * cartItem.quantity;
-        const individualDiscount = this.calculateIndividualDiscount(cartItem);
-
-        if (individualDiscount > 0) {
-          itemDiscounts.push({
-            name: cartItem.name,
-            discount: individualDiscount * 100,
-          });
-        }
-
-        totalAmount += itemTotal * (1 - individualDiscount);
-      }
-    }
-
-    // 화요일 할인 적용
-    totalAmount = this.applyTuesdayDiscount(totalAmount);
-
-    // 최종 계산
-    this.totalAmount = totalAmount;
-    this.itemCount = totalQuantity;
-    this.discountRate = subtotal > 0 ? (subtotal - totalAmount) / subtotal : 0;
-    this.savedAmount = subtotal - totalAmount;
+    this.totalAmount = discountResult.finalAmount;
+    this.itemCount = this.cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    this.discountRate = discountResult.originalAmount > 0 ? (discountResult.originalAmount - discountResult.finalAmount) / discountResult.originalAmount : 0;
+    this.savedAmount = discountResult.savedAmount;
 
     return {
-      subtotal,
+      subtotal: discountResult.originalAmount,
       totalAmount: this.totalAmount,
       itemCount: this.itemCount,
       discountRate: this.discountRate,
       savedAmount: this.savedAmount,
-      itemDiscounts,
-      isTuesday: new Date().getDay() === 2,
+      itemDiscounts: discountResult.individualDiscounts,
+      isTuesday: discountResult.tuesdayDiscount.applied,
     };
   }
 

@@ -49,20 +49,6 @@ export class OrderService {
       isTuesday,
     };
   }
-
-  /**
-   * 주문 상태를 구독합니다.
-   */
-  subscribeToChanges(callback) {
-    return this.orderStore.subscribe(callback);
-  }
-
-  /**
-   * 현재 주문 상태를 반환합니다.
-   */
-  getOrderState() {
-    return this.orderStore.getState();
-  }
 }
 
 export const orderService = new OrderService();
