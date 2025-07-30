@@ -39,7 +39,7 @@ let addBtn = AddButton({
     prodList.find((item) => item.id === productSelector.value),
 });
 let stockInfo = StockInfoText();
-let cartItemBox = CartItemBox();
+let cartItemBox = CartItemBox({ onClick: (e) => handleCartItemClick(e) });
 
 const initRender = () => {
   let root = document.getElementById("app");
@@ -320,7 +320,7 @@ const handleAddToCart = ({ itemToAdd }) => {
   lastSel = itemToAdd.id;
 };
 
-cartItemBox.addEventListener("click", (event) => {
+const handleCartItemClick = (event) => {
   const tgt = event.target;
   if (
     tgt.classList.contains("quantity-change") ||
@@ -358,4 +358,4 @@ cartItemBox.addEventListener("click", (event) => {
     handleCalculateCartStuff();
     onUpdateSelectOptions();
   }
-});
+};
