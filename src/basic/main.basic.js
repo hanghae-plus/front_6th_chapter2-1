@@ -1,11 +1,9 @@
-import { CART_TOTAL_BENEFIT_THRESHOLD, PER_ITEM_DISCOUNT_THRESHOLD } from './const/discount';
 import { handleUpdateProductSelectOptions } from './controller/handleProductSelector';
 import { cartManager } from './domain/cart';
 import { calculateBonusPoints, renderBonusPoints } from './domain/point';
 import { initialProducts, LIGHTNING_DISCOUNT, OUT_OF_STOCK, SUGGEST_DISCOUNT } from './domain/product';
 import productManager from './domain/product';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/applyDiscount';
-import { isTuesday } from './utils/dateUtil';
 import {
   renderDiscountInfo,
   renderFinalPrice,
@@ -87,12 +85,7 @@ function main() {
  * doRenderBonusPoints, handleStockInfoUpdate 호출 중
  */
 function calculateCart() {
-  const cartItems = globalElements.cartDisplay.children;
-
   let originalTotal;
-
-  let summaryDetails;
-  let stockMsg;
 
   const { subTotal, totalAfterItemDiscount, appliedItemDiscounts } = applyItemDiscount();
   totalAmount = totalAfterItemDiscount;
@@ -124,19 +117,6 @@ function calculateCart() {
   renderDiscountInfo({ finalDiscountRate, originalTotal, totalAmount });
 
   renderItemTotalCount({ totalCount: cartManager.getTotalItem() });
-
-  stockMsg = '';
-  for (let stockIdx = 0; stockIdx < productManager.getProductCount(); stockIdx++) {
-    const item = productManager.getProductAt(stockIdx);
-    if (item.quantity < 5) {
-      if (item.quantity > 0) {
-        stockMsg = stockMsg + item.name + ': 재고 부족 (' + item.quantity + '개 남음)\n';
-      } else {
-        stockMsg = stockMsg + item.name + ': 품절\n';
-      }
-    }
-  }
-  globalElements.stockInfo.textContent = stockMsg;
 
   updateStockMessage();
   updateBonusPoint();
@@ -311,3 +291,4 @@ globalElements.cartDisplay.addEventListener('click', function (event) {
     handleUpdateProductSelectOptions();
   }
 });
+// 남 는 시 간 에 하 셈.
