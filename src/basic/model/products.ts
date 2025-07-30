@@ -5,11 +5,6 @@ const SALE_EVENT = {
   ALL: 0x3,
 };
 
-const NONE_SALE_RATE = 0;
-const LIGHTNING_SALE_RATE = 0.2;
-const SUGGEST_SALE_RATE = 0.05;
-const ALL_SALE_RATE = 0.25;
-
 export interface Product {
   id: string;
   name: string;
@@ -123,6 +118,11 @@ export function saleEmoji(saleEvent: number) {
 }
 
 function getSaleRate(saleEvent: number): number {
+  const NONE_SALE_RATE = 0;
+  const LIGHTNING_SALE_RATE = 0.2;
+  const SUGGEST_SALE_RATE = 0.05;
+  const ALL_SALE_RATE = 0.25;
+
   if (isAllSale(saleEvent)) {
     return ALL_SALE_RATE;
   }
