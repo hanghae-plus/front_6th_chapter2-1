@@ -111,41 +111,50 @@ const main = () => {
   onUpdateSelectOptions();
   handleCalculateCartStuff();
 
-  setTimeout(() => {
-    setInterval(() => {
-      const luckyIdx = Math.floor(Math.random() * prodList.length);
-      const luckyItem = prodList[luckyIdx];
+  const startFlashSaleWithDelay = (
+    delay = randomBaseDelay,
+    interval = 30000,
+    applyFlashSaleFn
+  ) => {
+    setTimeout(() => {
+      setInterval(applyFlashSaleFn, interval);
+    }, delay);
+  };
 
-      if (luckyItem.quantity > 0 && !luckyItem.onSale) {
-        luckyItem.price = Math.round((luckyItem.originalPrice * 80) / 100);
-        luckyItem.onSale = true;
-        alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
+  const applyLuckySaleAlert = () => {
+    const luckyIdx = Math.floor(Math.random() * prodList.length);
+    const luckyItem = prodList[luckyIdx];
+
+    if (luckyItem.quantity > 0 && !luckyItem.onSale) {
+      luckyItem.price = Math.round((luckyItem.originalPrice * 80) / 100);
+      luckyItem.onSale = true;
+      alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
+      onUpdateSelectOptions();
+      doUpdatePricesInCart();
+      handleCalculateCartStuff();
+    }
+  };
+
+  const applySuggestSaleAlert = () => {
+    if (lastSel) {
+      let suggest = prodList.find(
+        (item) => item.id !== lastSel && item.quantity > 0 && !item.suggestSale
+      );
+      if (suggest) {
+        alert(
+          `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`
+        );
+        suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
+        suggest.suggestSale = true;
         onUpdateSelectOptions();
         doUpdatePricesInCart();
         handleCalculateCartStuff();
       }
-    }, 30000);
-  }, randomBaseDelay);
-  setTimeout(() => {
-    setInterval(() => {
-      if (lastSel) {
-        let suggest = prodList.find(
-          (item) =>
-            item.id !== lastSel && item.quantity > 0 && !item.suggestSale
-        );
-        if (suggest) {
-          alert(
-            `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`
-          );
-          suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
-          suggest.suggestSale = true;
-          onUpdateSelectOptions();
-          doUpdatePricesInCart();
-          handleCalculateCartStuff();
-        }
-      }
-    }, 60000);
-  }, randomBaseDelay * 2);
+    }
+  };
+
+  startFlashSaleWithDelay(randomBaseDelay, 30000, applyLuckySaleAlert);
+  startFlashSaleWithDelay(randomBaseDelay * 2, 60000, applySuggestSaleAlert);
 };
 
 const onUpdateSelectOptions = () => {
