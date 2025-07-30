@@ -283,15 +283,17 @@ function onUpdateSelectOptions() {
   const totalStock = getTotalStock(productList);
   selector.style.borderColor = totalStock < 50 ? 'orange' : '';
 
-  productList.forEach((product) => {
+  const options = productList.map((product) => {
     const option = document.createElement('option');
     option.value = product.id;
     option.textContent = getSalesInfoText(product);
     option.className = getProductOptionStyle(product);
     option.disabled = isOutOfStock(product);
 
-    selector.appendChild(option);
+    return option;
   });
+
+  selector.append(...options);
 }
 
 // TODO: doRenderBonusPoints 리팩토링 후 개선 예정
