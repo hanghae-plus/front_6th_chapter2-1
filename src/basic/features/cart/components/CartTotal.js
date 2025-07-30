@@ -1,4 +1,5 @@
 import { ELEMENT_IDS } from '../../../shared/constants/element-ids.js';
+import { setInnerHTML } from '../../../shared/core/domUtils.js';
 
 /**
  * CartTotal Component - Pure HTML Template
@@ -30,8 +31,10 @@ const CartTotal = ({ amount, discountRate, point }) => {
 export default CartTotal;
 
 /**
- * Render CartTotal to DOM - Only update the total amount, preserve loyalty-points
+ * Render CartTotal to DOM - Only update the total amount, preserve loyalty-points (선언적)
  * @param {object} props - Component props
+ * @param {number} props.amount - Total amount
+ * @param {number} props.discountRate - Discount rate (0-1)
  */
 export const renderCartTotal = ({ amount, discountRate }) => {
   const cartTotal = document.getElementById(ELEMENT_IDS.CART_TOTAL);
@@ -39,12 +42,13 @@ export const renderCartTotal = ({ amount, discountRate }) => {
 
   const totalAmountDiv = cartTotal.querySelector('.text-2xl');
   if (totalAmountDiv) {
-    totalAmountDiv.innerHTML = `₩${Math.round(amount).toLocaleString()}${
+    const totalHTML = `₩${Math.round(amount).toLocaleString()}${
       discountRate > 0
         ? `<span class="text-green-500 ml-2 text-sm">(${(
             discountRate * 100
           ).toFixed(1)}% 할인 적용)</span>`
         : ''
     }`;
+    setInnerHTML(totalAmountDiv, totalHTML);
   }
 };

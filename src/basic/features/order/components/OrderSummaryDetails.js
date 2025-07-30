@@ -1,5 +1,5 @@
 import { ELEMENT_IDS } from '../../../shared/constants/element-ids.js';
-import { htmlToElement } from '../../../shared/utils/dom.js';
+import { setInnerHTML } from '../../../shared/core/domUtils.js';
 
 /**
  * OrderSummaryDetails Component - Pure HTML Template
@@ -71,7 +71,7 @@ const getCartItemsFromDOM = () => {
 };
 
 /**
- * Render OrderSummaryDetails to DOM
+ * Render OrderSummaryDetails to DOM (선언적)
  */
 export const renderOrderSummaryDetails = () => {
   const cartItems = getCartItemsFromDOM();
@@ -80,5 +80,5 @@ export const renderOrderSummaryDetails = () => {
   const summaryDetailsContainer = document.getElementById(
     ELEMENT_IDS.SUMMARY_DETAILS,
   );
-  summaryDetailsContainer.innerHTML = orderSummaryHtml;
+  setInnerHTML(summaryDetailsContainer, orderSummaryHtml);
 };
