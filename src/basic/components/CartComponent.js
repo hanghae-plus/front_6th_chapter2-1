@@ -109,13 +109,13 @@ function renderCartItem(product, quantity, isFirst, isLast) {
     <div class="flex items-center justify-between ${topMargin} ${bottomBorder}">
       <div class="flex-1">
         <h3 class="text-sm font-medium text-gray-900">${product.name}</h3>
-        <p class="text-sm text-gray-500">₩${product.val.toLocaleString()}</p>
+        <p class="text-sm text-gray-500">${product.val.toLocaleString()}원</p>
       </div>
       <div class="flex items-center space-x-2">
         <button class="quantity-btn minus" data-product-id="${product.id}">-</button>
         <span class="quantity-number w-8 text-center">${quantity}</span>
         <button class="quantity-btn plus" data-product-id="${product.id}">+</button>
-        <span class="text-sm font-medium">₩${itemTotal.toLocaleString()}</span>
+        <span class="text-sm font-medium">${itemTotal.toLocaleString()}원</span>
         <button class="remove-btn text-red-500 hover:text-red-700" data-product-id="${product.id}">
           Remove
         </button>

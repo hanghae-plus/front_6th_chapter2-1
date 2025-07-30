@@ -2,10 +2,10 @@
 // 앱 상태 관리 Custom Hook
 // ==========================================
 
-import { 
-  PRODUCT_PRICES, 
-  INITIAL_STOCK, 
-  UI_CONSTANTS 
+import {
+  PRODUCT_PRICES,
+  INITIAL_STOCK,
+  UI_CONSTANTS,
 } from '../constant/index.js';
 
 /**
@@ -22,10 +22,11 @@ class StateManager {
   }
 
   setState(updater) {
-    const newState = typeof updater === 'function' 
-      ? updater(this._state) 
-      : { ...this._state, ...updater };
-    
+    const newState =
+      typeof updater === 'function'
+        ? updater(this._state)
+        : { ...this._state, ...updater };
+
     this._state = newState;
     this._listeners.forEach(listener => listener(newState));
     return newState;
@@ -108,40 +109,44 @@ export function useAppState() {
 
   // React useState 스타일의 액션들
   const actions = {
-    updateProducts: (updater) => 
+    updateProducts: updater =>
       stateManager.setState(state => ({
         ...state,
-        products: typeof updater === 'function' ? updater(state.products) : updater
+        products:
+          typeof updater === 'function' ? updater(state.products) : updater,
       })),
 
-    updateCart: (updater) => 
+    updateCart: updater =>
       stateManager.setState(state => ({
         ...state,
-        cart: typeof updater === 'function' ? updater(state.cart) : { ...state.cart, ...updater }
+        cart:
+          typeof updater === 'function'
+            ? updater(state.cart)
+            : { ...state.cart, ...updater },
       })),
 
-    setLastSelected: (productId) => 
+    setLastSelected: productId =>
       stateManager.setState(state => ({
         ...state,
-        lastSelected: productId
+        lastSelected: productId,
       })),
 
     // 불변성을 지키는 상품 업데이트
-    updateProduct: (productId, updates) => 
+    updateProduct: (productId, updates) =>
       stateManager.setState(state => ({
         ...state,
-        products: state.products.map(product => 
-          product.id === productId 
-            ? { ...product, ...updates }
-            : product
-        )
+        products: state.products.map(product =>
+          product.id === productId ? { ...product, ...updates } : product,
+        ),
       })),
 
     // 장바구니 아이템 추가/수정
-    updateCartItem: (productId, quantity) => {
+    updateCartItem: productId => {
       const state = stateManager.getState();
       const product = state.products.find(p => p.id === productId);
-      if (!product) return state;
+      if (!product) {
+        return state;
+      }
 
       // 실제 장바구니 로직은 여기서 구현
       return stateManager.setState(currentState => ({
@@ -149,15 +154,15 @@ export function useAppState() {
         cart: {
           ...currentState.cart,
           // 장바구니 업데이트 로직
-        }
+        },
       }));
-    }
+    },
   };
 
   return {
     getState: () => stateManager.getState(),
-    subscribe: (listener) => stateManager.subscribe(listener),
-    actions
+    subscribe: listener => stateManager.subscribe(listener),
+    actions,
   };
 }
 
@@ -175,7 +180,7 @@ export function useEffect(effectFn, dependencies = []) {
         prevDeps = [...dependencies];
         hasChanged = false;
       }
-    }
+    },
   };
 }
 
@@ -184,7 +189,9 @@ export function useEffect(effectFn, dependencies = []) {
  */
 export function useProduct(appState, productId) {
   return {
-    getProduct: () => appState.getState().products.find(p => p.id === productId),
-    updateProduct: (updates) => appState.actions.updateProduct(productId, updates)
+    getProduct: () =>
+      appState.getState().products.find(p => p.id === productId),
+    updateProduct: updates =>
+      appState.actions.updateProduct(productId, updates),
   };
 }

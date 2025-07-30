@@ -23,7 +23,6 @@ import { hasBothDiscounts } from '../main.basic.js';
  * - productSelect 요소의 innerHTML 수정
  * - productSelect 요소의 style.borderColor 수정
  */
-
 export function updateProductSelectUI(products, totalStock) {
   const productSelect = document.getElementById('product-select');
   if (!productSelect) {

@@ -110,7 +110,6 @@ describe('basic 테스트', () => {
               discount: 25,
             },
           ];
-
           expect(sel.options.length).toBe(5);
 
           expectedProducts.forEach((product, index) => {

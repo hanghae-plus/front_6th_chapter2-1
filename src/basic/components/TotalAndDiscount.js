@@ -16,7 +16,7 @@ export function updateTotalAndDiscountUI(
   const cartTotal = document.getElementById('cart-total');
   const totalDiv = cartTotal?.querySelector('.text-2xl');
   if (totalDiv) {
-    totalDiv.textContent = `₩${finalAmount.toLocaleString()}`;
+    totalDiv.textContent = `₩${finalAmount.toLocaleString()}원`;
   }
 
   const loyaltyPointsDiv = document.getElementById('loyalty-points');

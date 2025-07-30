@@ -134,10 +134,10 @@ export const getDiscountedPriceHTML = product => {
 
   const discountColor = getDiscountColor();
   if (discountColor) {
-    return `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="${discountColor}">₩${product.val.toLocaleString()}</span>`;
+    return `<span class="line-through text-gray-400">${product.originalVal.toLocaleString()}</span>원 <span class="${discountColor}">${product.val.toLocaleString()}</span>원`;
   }
 
-  return `₩${product.val.toLocaleString()}`;
+  return `${product.val.toLocaleString()}원`;
 };
 
 // ==========================================

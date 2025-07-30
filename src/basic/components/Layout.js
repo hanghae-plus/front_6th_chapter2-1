@@ -24,20 +24,3 @@ export function Layout() {
     selectorContainer,
   };
 }
-
-/**
- * Layout 렌더링 함수
- *
- * @description 레이아웃 HTML 문자열을 생성
- *
- * @returns {string} 레이아웃 HTML 문자열
- */
-export const renderLayout = () => {
-  return `
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
-      <div class="bg-white border border-gray-200 p-8 overflow-y-auto">
-        <div class="mb-6 pb-6 border-b border-gray-200"></div>
-      </div>
-    </div>
-  `;
-};

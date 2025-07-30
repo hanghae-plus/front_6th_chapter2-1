@@ -32,7 +32,7 @@ export const renderOrderSummary = () => {
         <div id="cart-total" class="pt-5 border-t border-white/10">
           <div class="flex justify-between items-baseline">
             <span class="text-sm uppercase tracking-wider">Total</span>
-            <div class="text-2xl tracking-tight">₩0</div>
+            <div class="text-2xl tracking-tight">0원</div>
           </div>
           <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
         </div>
@@ -92,7 +92,7 @@ export function updateOrderSummaryUI(
     summaryDetails.innerHTML += `
       <div class="flex justify-between text-xs tracking-wide text-gray-400">
         <span>${product.name} x ${quantity}</span>
-        <span>₩${itemTotal.toLocaleString()}</span>
+        <span>${itemTotal.toLocaleString()}원</span>
       </div>
     `;
   });
@@ -101,7 +101,7 @@ export function updateOrderSummaryUI(
     <div class="border-t border-white/10 my-3"></div>
     <div class="flex justify-between text-sm tracking-wide">
       <span>Subtotal</span>
-      <span>₩${subTotal.toLocaleString()}</span>
+      <span>${subTotal.toLocaleString()}원</span>
     </div>
   `;
 
