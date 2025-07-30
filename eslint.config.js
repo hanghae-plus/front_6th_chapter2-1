@@ -1,7 +1,9 @@
 import js from "@eslint/js";
-import prettier from "eslint-plugin-prettier";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsparser from "@typescript-eslint/parser";
 import prettierConfig from "eslint-config-prettier";
 import importPlugin from "eslint-plugin-import";
+import prettier from "eslint-plugin-prettier";
 
 export default [
   js.configs.recommended,
@@ -130,7 +132,11 @@ export default [
         "error",
         {
           groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
-          "newlines-between": "never",
+          "newlines-between": "always",
+          alphabetize: {
+            order: "asc",
+            caseInsensitive: true,
+          },
         },
       ],
 
@@ -175,7 +181,204 @@ export default [
     },
   },
   {
-    files: ["**/*.test.js"],
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: "module",
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        console: "readonly",
+        document: "readonly",
+        window: "readonly",
+        alert: "readonly",
+        setTimeout: "readonly",
+        setInterval: "readonly",
+        Math: "readonly",
+        Date: "readonly",
+        parseInt: "readonly",
+        location: "readonly",
+      },
+    },
+    plugins: {
+      prettier,
+      import: importPlugin,
+      "@typescript-eslint": tseslint,
+    },
+    rules: {
+      // Prettier 규칙
+      "prettier/prettier": "error",
+
+      // TypeScript 관련
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          vars: "all",
+          args: "after-used",
+          ignoreRestSiblings: true,
+          argsIgnorePattern: "^_",
+        },
+      ],
+
+      // Import/Export 관련 - 내부/외부 라이브러리 분리 및 알파벳 순 정렬
+      "import/no-unresolved": "off",
+      "import/prefer-default-export": "off",
+      "import/no-default-export": "off",
+      "import/order": [
+        "error",
+        {
+          groups: [
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+            "object",
+            "type",
+          ],
+          pathGroups: [
+            {
+              pattern: "react",
+              group: "external",
+              position: "before",
+            },
+            {
+              pattern: "react-*",
+              group: "external",
+              position: "after",
+            },
+            {
+              pattern: "@/**",
+              group: "internal",
+              position: "after",
+            },
+            {
+              pattern: "@/lib/**",
+              group: "internal",
+              position: "after",
+            },
+            {
+              pattern: "@/components/**",
+              group: "internal",
+              position: "after",
+            },
+            {
+              pattern: "@/store/**",
+              group: "internal",
+              position: "after",
+            },
+            {
+              pattern: "@/types/**",
+              group: "internal",
+              position: "after",
+            },
+            {
+              pattern: "@/data/**",
+              group: "internal",
+              position: "after",
+            },
+            {
+              pattern: "@/utils/**",
+              group: "internal",
+              position: "after",
+            },
+            {
+              pattern: "@/hooks/**",
+              group: "internal",
+              position: "after",
+            },
+          ],
+          pathGroupsExcludedImportTypes: ["react"],
+          "newlines-between": "always",
+          alphabetize: {
+            order: "asc",
+            caseInsensitive: true,
+          },
+        },
+      ],
+
+      // 기타 규칙들
+      "no-var": "error",
+      "prefer-const": "error",
+      "no-redeclare": "error",
+      "no-shadow": "error",
+      "no-undef": "error",
+      "no-console": "warn",
+      "no-alert": "error",
+      "no-debugger": "error",
+      "no-empty": "error",
+      "no-eval": "error",
+      "no-implied-eval": "error",
+      "no-new-func": "error",
+      "no-script-url": "error",
+      "object-shorthand": ["error", "always"],
+      "prefer-template": "error",
+      "template-curly-spacing": "error",
+      "no-useless-concat": "error",
+      curly: ["error", "all"],
+      "no-else-return": ["error", { allowElseIf: false }],
+      "no-lonely-if": "error",
+      "no-unneeded-ternary": ["error", { defaultAssignment: false }],
+      "no-nested-ternary": "error",
+      "space-before-function-paren": [
+        "error",
+        {
+          anonymous: "always",
+          named: "never",
+          asyncArrow: "always",
+        },
+      ],
+      "keyword-spacing": [
+        "error",
+        {
+          before: true,
+          after: true,
+        },
+      ],
+      "max-len": [
+        "warn",
+        {
+          code: 120,
+          ignoreUrls: true,
+          ignoreStrings: true,
+          ignoreTemplateLiterals: true,
+          ignoreComments: true,
+        },
+      ],
+      "max-lines-per-function": ["warn", { max: 80 }],
+      complexity: ["warn", { max: 12 }],
+      "max-depth": ["warn", { max: 4 }],
+      "max-params": ["warn", { max: 4 }],
+      "consistent-return": "error",
+      "default-case": "error",
+      "no-case-declarations": "error",
+      "no-fallthrough": "error",
+      "no-param-reassign": ["error", { props: false }],
+      "no-return-assign": ["error", "always"],
+      "no-sequences": "error",
+      "no-throw-literal": "error",
+      "no-unused-expressions": [
+        "error",
+        {
+          allowShortCircuit: false,
+          allowTernary: false,
+          allowTaggedTemplates: false,
+        },
+      ],
+      "no-useless-call": "error",
+      "no-useless-return": "error",
+      "prefer-promise-reject-errors": ["error", { allowEmptyReject: true }],
+      radix: "error",
+      yoda: "error",
+    },
+  },
+  {
+    files: ["**/*.test.js", "**/*.test.ts", "**/*.test.tsx"],
     languageOptions: {
       globals: {
         describe: "readonly",
