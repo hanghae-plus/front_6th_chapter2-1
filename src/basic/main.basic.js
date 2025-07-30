@@ -470,11 +470,8 @@ const startSuggestSale = () => {
   const luckyItem = state.products.find(
     (product) => product.id !== state.lastSelectedId && product.quantity && !product.suggestSale,
   );
-
   if (luckyItem) {
     alert(`💝 ${luckyItem.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
-    luckyItem.price = Math.round((luckyItem.price * (100 - 5)) / 100);
-    luckyItem.suggestSale = true;
     dispatch({ type: 'START_SUGGEST_SALE', payload: { productId: luckyItem.id } });
   }
 };
