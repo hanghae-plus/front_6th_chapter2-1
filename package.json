@@ -34,6 +34,8 @@
     "jsdom": "^26.1.0",
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
     "typescript-eslint": "^8.38.0",
     "vite": "^7.0.5",
     "vitest": "^3.2.4"
