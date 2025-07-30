@@ -4,7 +4,7 @@ let itemCnt;
 let lastSel;
 let sel;
 let addBtn;
-let totalAmt = 0;
+const totalAmt = 0;
 
 const PRODUCT_IDS = {
   KEYBOARD: "p1",
@@ -424,11 +424,8 @@ function onUpdateSelectOptions() {
 
 function handleCalculateCartStuff() {
   const cartItems = cartDisp.children;
-  let subTot;
-  const itemDiscounts = [];
   const lowStockItems = [];
   let idx;
-  let originalTotal;
   let savedAmount;
   const summaryDetails = document.getElementById("summary-details");
   const totalDiv = sum.querySelector(".text-2xl");
@@ -438,10 +435,10 @@ function handleCalculateCartStuff() {
   const itemCountElement = document.getElementById("item-count");
   let previousCount;
 
-  totalAmt = 0;
-  itemCnt = 0;
-  originalTotal = totalAmt;
-  subTot = 0;
+  // ✅ useCartManager로 장바구니 계산 처리
+  const calculation = useCartManager.updateCartCalculation(cartItems);
+  const { subtotal, itemCount, totalAmount, discountRate, originalTotal, isSpecialDiscount, itemDiscounts } =
+    calculation;
 
   const products = useProductData.getProducts();
   for (idx = 0; idx < products.length; idx += 1) {
@@ -450,6 +447,7 @@ function handleCalculateCartStuff() {
     }
   }
 
+  // UI 스타일 업데이트 (할인 표시)
   for (let i = 0; i < cartItems.length; i += 1) {
     (function () {
       const curItem = useProductData.findProductById(cartItems[i].id);
@@ -457,10 +455,6 @@ function handleCalculateCartStuff() {
       if (!curItem) return;
       const qtyElem = cartItems[i].querySelector(".quantity-number");
       const q = parseInt(qtyElem.textContent, 10);
-      const itemTot = curItem.val * q;
-      let disc = 0;
-      itemCnt += q;
-      subTot += itemTot;
       const itemDiv = cartItems[i];
       const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
       priceElems.forEach(function (elem) {
@@ -472,35 +466,13 @@ function handleCalculateCartStuff() {
           }
         }
       });
-
-      if (q >= DISCOUNT_RULES.ITEM_DISCOUNT_THRESHOLD) {
-        disc = (DISCOUNT_RULES.ITEM_DISCOUNT_RATES[curItem.id] || 0) / 100;
-        if (disc > 0) {
-          itemDiscounts.push({ name: curItem.name, discount: DISCOUNT_RULES.ITEM_DISCOUNT_RATES[curItem.id] });
-        }
-      }
-      totalAmt += itemTot * (1 - disc);
     })();
   }
 
-  let discRate = 0;
-  originalTotal = subTot;
-
-  if (itemCnt >= DISCOUNT_RULES.BULK_DISCOUNT_THRESHOLD) {
-    totalAmt = subTot * (1 - DISCOUNT_RULES.BULK_DISCOUNT_RATE / 100);
-    discRate = DISCOUNT_RULES.BULK_DISCOUNT_RATE / 100;
-  } else {
-    discRate = (subTot - totalAmt) / subTot;
-  }
-
-  const today = new Date();
-  const isSpecialDiscount = isSpecialDiscountDay(today);
+  // 화요일 특별 할인 UI 표시
   const tuesdaySpecial = document.getElementById("tuesday-special");
-
   if (isSpecialDiscount) {
-    if (totalAmt > 0) {
-      totalAmt *= 1 - DISCOUNT_RULES.SPECIAL_DISCOUNT_RATE / 100;
-      discRate = 1 - totalAmt / originalTotal;
+    if (totalAmount > 0) {
       tuesdaySpecial.classList.remove("hidden");
     } else {
       tuesdaySpecial.classList.add("hidden");
@@ -509,10 +481,11 @@ function handleCalculateCartStuff() {
     tuesdaySpecial.classList.add("hidden");
   }
 
-  document.getElementById("item-count").textContent = `🛍️ ${itemCnt} items in cart`;
+  // 상품 개수 표시 업데이트
+  document.getElementById("item-count").textContent = `🛍️ ${itemCount} items in cart`;
   summaryDetails.innerHTML = "";
 
-  if (subTot > 0) {
+  if (subtotal > 0) {
     for (let i = 0; i < cartItems.length; i += 1) {
       const curItem = useProductData.findProductById(cartItems[i].id);
       if (curItem) {
@@ -531,11 +504,11 @@ function handleCalculateCartStuff() {
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
         <span>Subtotal</span>
-        <span>₩${subTot.toLocaleString()}</span>
+        <span>₩${subtotal.toLocaleString()}</span>
       </div>
     `;
     // ✅ 상수 적용: 대량 할인 표시
-    if (itemCnt >= DISCOUNT_RULES.BULK_DISCOUNT_THRESHOLD) {
+    if (itemCount >= DISCOUNT_RULES.BULK_DISCOUNT_THRESHOLD) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (${DISCOUNT_RULES.BULK_DISCOUNT_THRESHOLD}개 이상)</span>
@@ -553,7 +526,7 @@ function handleCalculateCartStuff() {
       });
     }
     if (isSpecialDiscount) {
-      if (totalAmt > 0) {
+      if (totalAmount > 0) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-purple-400">
             <span class="text-xs">🌟 ${DISCOUNT_RULES.SPECIAL_DISCOUNT_DAYS.map(getKoreanDayName).join(", ")} 추가 할인</span>
@@ -570,10 +543,10 @@ function handleCalculateCartStuff() {
     `;
   }
   if (totalDiv) {
-    totalDiv.textContent = `₩${Math.round(totalAmt).toLocaleString()}`;
+    totalDiv.textContent = `₩${totalAmount.toLocaleString()}`;
   }
   if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmt / POINTS_RULES.BASE_CALCULATION_UNIT);
+    points = Math.floor(totalAmount / POINTS_RULES.BASE_CALCULATION_UNIT);
     if (points > 0) {
       loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
       loyaltyPointsDiv.style.display = "block";
@@ -583,13 +556,13 @@ function handleCalculateCartStuff() {
     }
   }
   discountInfoDiv.innerHTML = "";
-  if (discRate > 0 && totalAmt > 0) {
-    savedAmount = originalTotal - totalAmt;
+  if (discountRate > 0 && totalAmount > 0) {
+    savedAmount = originalTotal - totalAmount;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
           <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(discRate * 100).toFixed(1)}%</span>
+          <span class="text-sm font-medium text-green-400">${(discountRate * 100).toFixed(1)}%</span>
         </div>
         <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
       </div>
@@ -597,8 +570,8 @@ function handleCalculateCartStuff() {
   }
   if (itemCountElement) {
     previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || [0], 10);
-    itemCountElement.textContent = `🛍️ ${itemCnt} items in cart`;
-    if (previousCount !== itemCnt) {
+    itemCountElement.textContent = `🛍️ ${itemCount} items in cart`;
+    if (previousCount !== itemCount) {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
@@ -608,7 +581,9 @@ function handleCalculateCartStuff() {
 }
 
 function doRenderBonusPoints() {
-  const basePoints = Math.floor(totalAmt / POINTS_RULES.BASE_CALCULATION_UNIT);
+  const totalAmount = useCartManager.getTotalAmount();
+  const itemCount = useCartManager.getItemCount();
+  const basePoints = Math.floor(totalAmount / POINTS_RULES.BASE_CALCULATION_UNIT);
   let finalPoints = 0;
   const pointsDetail = [];
   const nodes = cartDisp.children;
@@ -663,17 +638,17 @@ function doRenderBonusPoints() {
   }
 
   // ✅ 상수 적용: 수량별 보너스
-  if (itemCnt >= POINTS_RULES.QUANTITY_BONUS.TIER_3.threshold) {
+  if (itemCount >= POINTS_RULES.QUANTITY_BONUS.TIER_3.threshold) {
     finalPoints += POINTS_RULES.QUANTITY_BONUS.TIER_3.bonus;
     pointsDetail.push(
       `대량구매(${POINTS_RULES.QUANTITY_BONUS.TIER_3.threshold}개+) +${POINTS_RULES.QUANTITY_BONUS.TIER_3.bonus}p`,
     );
-  } else if (itemCnt >= POINTS_RULES.QUANTITY_BONUS.TIER_2.threshold) {
+  } else if (itemCount >= POINTS_RULES.QUANTITY_BONUS.TIER_2.threshold) {
     finalPoints += POINTS_RULES.QUANTITY_BONUS.TIER_2.bonus;
     pointsDetail.push(
       `대량구매(${POINTS_RULES.QUANTITY_BONUS.TIER_2.threshold}개+) +${POINTS_RULES.QUANTITY_BONUS.TIER_2.bonus}p`,
     );
-  } else if (itemCnt >= POINTS_RULES.QUANTITY_BONUS.TIER_1.threshold) {
+  } else if (itemCount >= POINTS_RULES.QUANTITY_BONUS.TIER_1.threshold) {
     finalPoints += POINTS_RULES.QUANTITY_BONUS.TIER_1.bonus;
     pointsDetail.push(
       `대량구매(${POINTS_RULES.QUANTITY_BONUS.TIER_1.threshold}개+) +${POINTS_RULES.QUANTITY_BONUS.TIER_1.bonus}p`,
@@ -734,8 +709,6 @@ function main() {
   let rightColumn;
   let manualOverlay;
   let manualColumn;
-  totalAmt = 0;
-  itemCnt = 0;
   lastSel = null;
 
   // 장바구니 상태 초기화
