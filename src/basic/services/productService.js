@@ -78,20 +78,6 @@ export class ProductService {
     return this.productStore.getTotalStock();
   }
 
-  // 초기화 메서드
-  async initializeUI() {
-    const products = this.productStore.getProducts();
-    const discountInfos = this.calculateProductDiscountInfos(products);
-
-    // 이벤트 발송
-    const { uiEventBus } = await import("../core/eventBus.js");
-    uiEventBus.emit("product:options:updated", {
-      products,
-      discountInfos,
-      success: true,
-    });
-  }
-
   // 할인 정보 계산
   calculateProductDiscountInfos(products) {
     return products.map(product => ({

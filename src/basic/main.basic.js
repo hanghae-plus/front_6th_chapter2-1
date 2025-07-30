@@ -12,7 +12,7 @@ import { TimerService } from "./services/timerService.js";
 import { ProductService } from "./services/productService.js";
 import { OrderService } from "./services/orderService.js";
 import { discountService } from "./services/discountService.js";
-import { ServiceManager } from "./services/serviceManager.js";
+import { ServiceManager } from "./core/serviceManager.js";
 
 // events
 import { uiEventBus } from "./core/eventBus.js";
@@ -23,19 +23,19 @@ import { OrderEventListeners } from "./events/listeners/orderListeners.js";
 // Event Bus 이벤트 리스너 초기화
 function initEventBusListeners(serviceManager) {
   const { productService, cartService, orderService } = serviceManager.getAllServices();
-  
+
   // 각 컴포넌트별 이벤트 리스너 초기화
   new CartEventListeners(uiEventBus, cartService, discountService);
   new ProductEventListeners(uiEventBus, productService);
   new OrderEventListeners(uiEventBus, orderService);
 }
 
-async function main() {
+function main() {
   const root = document.getElementById("app");
 
   // Service Manager 초기화
   const serviceManager = new ServiceManager();
-  
+
   // Service 등록
   serviceManager.register("product", new ProductService());
   serviceManager.register("cart", new CartService());
@@ -79,9 +79,6 @@ async function main() {
 
   // Event Bus 이벤트 리스너 등록
   initEventBusListeners(serviceManager);
-
-  // Service 초기화
-  await serviceManager.initializeAll();
 
   // 타이머 서비스 초기화 및 시작
   const timerService = new TimerService(productService, cartDisplay);

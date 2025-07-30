@@ -90,14 +90,4 @@ export class CartService {
     // 이벤트 발송
     uiEventBus.emit("cart:add:requested");
   }
-
-  // 초기화 메서드
-  async initializeUI() {
-    // 이벤트 발송
-    const { uiEventBus } = await import("../core/eventBus.js");
-    uiEventBus.emit("cart:summary:calculation:requested", {
-      cartItems: [],
-      success: true,
-    });
-  }
 }
