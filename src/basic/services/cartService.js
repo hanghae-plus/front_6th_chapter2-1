@@ -40,6 +40,7 @@ export class CartService {
    */
   addProductToCart(product, quantity = 1) {
     if (!this.validateStock(product, quantity)) {
+      alert("재고가 부족합니다.");
       return false;
     }
 

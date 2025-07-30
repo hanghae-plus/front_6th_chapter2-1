@@ -11,7 +11,7 @@ import { CartService } from "./services/cartService.js";
 import { TimerService } from "./services/timerService.js";
 import { ProductService } from "./services/productService.js";
 import { OrderService } from "./services/orderService.js";
-import { discountService } from "./services/discountService.js";
+import { DiscountService } from "./services/discountService.js";
 import { ServiceManager } from "./core/serviceManager.js";
 
 // events
@@ -22,7 +22,7 @@ import { OrderEventListeners } from "./events/listeners/orderListeners.js";
 
 // Event Bus 이벤트 리스너 초기화
 function initEventBusListeners(serviceManager) {
-  const { productService, cartService, orderService } = serviceManager.getAllServices();
+  const { productService, cartService, orderService, discountService } = serviceManager.getAllServices();
 
   // 각 컴포넌트별 이벤트 리스너 초기화
   new CartEventListeners(uiEventBus, cartService, discountService);
@@ -36,13 +36,16 @@ function main() {
   // Service Manager 초기화
   const serviceManager = new ServiceManager();
 
-  // Service 등록
+  // Service 등록 (의존성 순서 고려)
   serviceManager.register("product", new ProductService());
   serviceManager.register("cart", new CartService());
-  serviceManager.register("order", new OrderService());
-  serviceManager.register("discount", discountService);
+  serviceManager.register("discount", new DiscountService());
 
-  const { productService, cartService } = serviceManager.getAllServices();
+  // OrderService 생성 시 discountService 주입
+  const discountService = serviceManager.get("discount");
+  serviceManager.register("order", new OrderService(discountService));
+
+  const { productService } = serviceManager.getAllServices();
 
   const header = createHeader({ itemCount: 0 });
 
@@ -53,9 +56,8 @@ function main() {
   // ProductSelector 컴포넌트 생성
   const selectorContainer = createProductSelector({
     products: productService.getProducts(),
-    discountInfos: calculateProductDiscountInfos(productService.getProducts()),
+    discountInfos: [],
     onAddToCart: () => {
-      // 이벤트 버스를 통해 장바구니 추가 요청
       uiEventBus.emit("cart:add:requested");
     },
   });
@@ -81,18 +83,9 @@ function main() {
   initEventBusListeners(serviceManager);
 
   // 타이머 서비스 초기화 및 시작
-  const timerService = new TimerService(productService, cartDisplay);
+  const timerService = new TimerService(productService);
   timerService.startLightningSaleTimer();
   timerService.startSuggestSaleTimer();
-}
-
-// 헬퍼 함수
-function calculateProductDiscountInfos(products) {
-  return products.map(product => ({
-    productId: product.id,
-    rate: discountService.calculateProductDiscountRate(product),
-    status: discountService.getProductDiscountStatus(product),
-  }));
 }
 
 main();

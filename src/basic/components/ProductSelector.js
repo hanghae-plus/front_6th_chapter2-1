@@ -122,6 +122,9 @@ export function updateProductOptions(products, discountInfos) {
   const productSelect = document.querySelector("#product-select");
   if (!productSelect) return;
 
+  // 현재 선택된 값 저장
+  const currentSelectedValue = productSelect.value;
+
   productSelect.innerHTML = "";
 
   products.forEach(product => {
@@ -129,6 +132,12 @@ export function updateProductOptions(products, discountInfos) {
     const option = createProductOption(product, discountInfo);
     productSelect.appendChild(option);
   });
+
+  // 저장된 값이 여전히 유효한 옵션인지 확인하고 설정
+  const optionExists = Array.from(productSelect.options).some(option => option.value === currentSelectedValue);
+  if (optionExists) {
+    productSelect.value = currentSelectedValue;
+  }
 
   const totalStock = products.reduce((stockSum, product) => stockSum + product.quantity, DEFAULT_REDUCE_INITIAL_VALUE);
   productSelect.style.borderColor = totalStock < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING ? "orange" : "";

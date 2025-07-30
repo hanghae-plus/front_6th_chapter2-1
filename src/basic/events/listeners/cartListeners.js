@@ -166,7 +166,7 @@ export class CartEventListeners {
     // 장바구니 요약 계산 완료 이벤트 처리
     this.uiEventBus.on("cart:summary:calculated", data => {
       if (data.success) {
-        this.updateCartUI(data.cartItems, data.discountResult, data.itemCount);
+        this.renderCartUI(data.cartItems, data.discountResult, data.itemCount);
       }
     });
 
@@ -180,19 +180,19 @@ export class CartEventListeners {
     // 헤더 아이템 카운트 업데이트 이벤트
     this.uiEventBus.on("header:item:count:updated", data => {
       if (data.success) {
-        this.updateHeaderItemCount(data.itemCount);
+        this.renderHeaderItemCount(data.itemCount);
       }
     });
 
     // 아이템 카운트 디스플레이 업데이트 이벤트
     this.uiEventBus.on("item:count:display:updated", data => {
       if (data.success) {
-        this.updateItemCountDisplay(data.itemCount);
+        this.renderItemCountDisplay(data.itemCount);
       }
     });
   }
 
-  updateCartUI(cartItems, discountResult, itemCount) {
+  renderCartUI(cartItems, discountResult, itemCount) {
     // 장바구니 아이템 스타일 업데이트
     this.uiEventBus.emit("cart:item:styles:updated", {
       cartItems,
@@ -253,11 +253,11 @@ export class CartEventListeners {
     return createCartItem({ product, discountInfo, onQuantityChange, onRemove });
   }
 
-  updateHeaderItemCount(itemCount) {
+  renderHeaderItemCount(itemCount) {
     updateHeaderItemCount(itemCount);
   }
 
-  updateItemCountDisplay(itemCount) {
+  renderItemCountDisplay(itemCount) {
     const itemCountElement = document.getElementById("item-count");
     if (itemCountElement) {
       const previousCount = extractNumberFromText(itemCountElement.textContent);
@@ -296,10 +296,7 @@ export class CartEventListeners {
     // 2단계: 상태 변경 (DOM 조작 없음)
     const success = this.cartService.addProductToCart(targetProduct, 1);
 
-    if (!success) {
-      alert("재고가 부족합니다.");
-      return;
-    }
+    if (!success) return;
 
     // 3단계: 단일 이벤트로 모든 UI 업데이트 트리거
     this.uiEventBus.emit("cart:item:added", {

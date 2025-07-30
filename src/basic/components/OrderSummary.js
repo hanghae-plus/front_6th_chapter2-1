@@ -200,9 +200,9 @@ function updateTuesdaySpecial(isTuesday, totalAmount) {
 
 // OrderSummary의 모든 정보를 한 번에 업데이트합니다.
 export function updateOrderSummary(orderState) {
-  const { subtotal, totalAmount, discountRate, savedAmount, itemCount, itemDiscounts, isTuesday, totalPoints, pointsDetails } = orderState;
+  const { cartItems = [], subtotal, totalAmount, discountRate, savedAmount, itemCount, itemDiscounts, isTuesday, totalPoints, pointsDetails } = orderState;
 
-  updateSummaryDetails([], subtotal, itemCount, itemDiscounts, isTuesday);
+  updateSummaryDetails(cartItems, subtotal, itemCount, itemDiscounts, isTuesday);
   updateDiscountInfo(discountRate, savedAmount);
   updateTotalAmount(totalAmount);
   updateLoyaltyPoints(totalPoints, pointsDetails);

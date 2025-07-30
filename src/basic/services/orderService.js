@@ -1,10 +1,10 @@
 import { OrderStore } from "../store/orderStore.js";
-import { discountService } from "./discountService.js";
 import { pointService } from "./pointService.js";
 
 export class OrderService {
-  constructor() {
+  constructor(discountService) {
     this.orderStore = new OrderStore();
+    this.discountService = discountService;
   }
 
   /**
@@ -41,8 +41,8 @@ export class OrderService {
    * 주문 데이터를 계산합니다.
    */
   calculateOrderData(cartItems, productList) {
-    // DiscountService를 사용하여 할인 계산
-    const discountResult = discountService.applyAllDiscounts(cartItems, productList);
+    // 주입받은 discountService를 사용하여 할인 계산
+    const discountResult = this.discountService.applyAllDiscounts(cartItems, productList);
 
     const today = new Date().getDay();
     const isTuesday = today === 2;
@@ -62,5 +62,3 @@ export class OrderService {
     };
   }
 }
-
-export const orderService = new OrderService();

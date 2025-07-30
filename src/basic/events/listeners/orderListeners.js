@@ -1,11 +1,11 @@
-import { orderService } from "../../services/orderService.js";
 import { PRODUCT_LIST } from "../../data/product.js";
 import { updateOrderSummary } from "../../components/OrderSummary.js";
 
 // 주문 관련 이벤트 리스너
 export class OrderEventListeners {
-  constructor(uiEventBus) {
+  constructor(uiEventBus, orderService) {
     this.uiEventBus = uiEventBus;
+    this.orderService = orderService;
     this.initOrderEventListeners();
   }
 
@@ -28,10 +28,10 @@ export class OrderEventListeners {
   // 공통 계산 로직
   calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount) {
     // 주문 요약 계산
-    const orderSummary = orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
+    const orderSummary = this.orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
 
     // 포인트 계산
-    const pointsResult = orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
+    const pointsResult = this.orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
 
     return { orderSummary, pointsResult };
   }
@@ -54,19 +54,20 @@ export class OrderEventListeners {
     });
 
     // UI 업데이트 직접 처리
-    this.updateOrderSummaryUI(orderSummary, pointsResult);
+    this.renderOrderSummary(orderSummary, pointsResult);
   }
 
   handleOrderCalculation(cartItems, totalAmount, isTuesday, itemCount) {
     const { orderSummary, pointsResult } = this.calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount);
 
     // UI 업데이트 직접 처리
-    this.updateOrderSummaryUI(orderSummary, pointsResult);
+    this.renderOrderSummary(orderSummary, pointsResult);
   }
 
-  updateOrderSummaryUI(orderSummary, pointsResult) {
+  renderOrderSummary(orderSummary, pointsResult) {
     const orderState = {
       ...orderSummary,
+      cartItems: orderSummary.cartItems || [],
       totalPoints: pointsResult.totalPoints,
       pointsDetails: pointsResult.details,
     };

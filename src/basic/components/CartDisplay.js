@@ -16,21 +16,21 @@ export function updateCartDisplay(cartDisplay, cartItems) {
 
   cartDisplay.innerHTML = "";
 
-  cartItems.forEach(item => {
-    const cartItem = createSimpleCartItem(item);
+  cartItems.forEach(product => {
+    const cartItem = createSimpleCartItem(product);
     cartDisplay.appendChild(cartItem);
   });
 }
 
-function createSimpleCartItem(item) {
+function createSimpleCartItem(product) {
   const cartItem = document.createElement("div");
   cartItem.className = "cart-item";
-  cartItem.dataset.productId = item.id;
+  cartItem.dataset.productId = product.id;
 
   cartItem.innerHTML = `
-    <span class="product-name">${item.name}</span>
-    <span class="quantity">${item.quantity}</span>
-    <span class="price">${item.price}</span>
+    <span class="product-name">${product.name}</span>
+    <span class="quantity">${product.quantity}</span>
+    <span class="price">${product.price}</span>
   `;
 
   return cartItem;

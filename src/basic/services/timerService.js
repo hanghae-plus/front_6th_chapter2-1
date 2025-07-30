@@ -2,9 +2,8 @@ import { uiEventBus } from "../core/eventBus.js";
 import { discountService } from "./discountService.js";
 
 export class TimerService {
-  constructor(productService, cartDisplay) {
+  constructor(productService) {
     this.productService = productService;
-    this.cartDisplay = cartDisplay;
     this.lightningSaleTimer = null;
     this.suggestSaleTimer = null;
   }
@@ -13,20 +12,21 @@ export class TimerService {
   startLightningSaleTimer() {
     this.lightningSaleTimer = setInterval(() => {
       this.applyLightningSale();
-    }, 30000); // 30초마다 실행
+    }, 3000); // 30초마다 실행
   }
 
   // 추천세일 타이머 시작
   startSuggestSaleTimer() {
     this.suggestSaleTimer = setInterval(() => {
       this.applySuggestSale();
-    }, 45000); // 45초마다 실행
+    }, 5000); // 45초마다 실행
   }
 
   // 번개세일 적용 (ProductService의 비즈니스 로직 사용)
   applyLightningSale() {
     const result = this.productService.applyLightningSale();
     if (result.success) {
+      console.log("⚡번개세일! " + result.product.name + "이(가) 20% 할인 중입니다!");
       this.updateUI();
       console.log(result.message);
     }
@@ -36,8 +36,9 @@ export class TimerService {
   applySuggestSale() {
     const lastSelectedProduct = this.getLastSelectedProduct();
     const result = this.productService.applySuggestSale(lastSelectedProduct?.id);
-    
+
     if (result.success) {
+      console.log("💝 " + result.product.name + "은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!");
       this.updateUI();
       console.log(result.message);
     }
@@ -116,4 +117,3 @@ export class TimerService {
     }
   }
 }
-

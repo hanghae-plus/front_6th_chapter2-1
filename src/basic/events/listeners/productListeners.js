@@ -15,14 +15,14 @@ export class ProductEventListeners {
     this.uiEventBus.on("product:options:updated", data => {
       console.log("Product options updated:", data);
       if (data.success) {
-        this.updateProductOptions(data.products);
+        this.renderProductOptions(data.products);
       }
     });
 
     // 상품 재고 업데이트 이벤트
     this.uiEventBus.on("product:stock:updated", data => {
       if (data.success) {
-        this.updateStockInfo(data.products, data.stockMessage);
+        this.renderStockInfo(data.products, data.stockMessage);
       }
     });
 
@@ -30,7 +30,7 @@ export class ProductEventListeners {
     this.uiEventBus.on("product:prices:updated", data => {
       console.log("Product prices updated:", data);
       if (data.success) {
-        this.updatePricesInCart(data.itemsToUpdate);
+        this.renderPricesInCart(data.itemsToUpdate);
       }
     });
 
@@ -57,13 +57,13 @@ export class ProductEventListeners {
     });
   }
 
-  updateProductOptions(products) {
+  renderProductOptions(products) {
     // ProductSelector 컴포넌트 업데이트
     updateProductOptions(products);
     updateStockInfo(products);
   }
 
-  updateStockInfo(products, stockMessage) {
+  renderStockInfo(products, stockMessage) {
     // 재고 정보 업데이트
     updateStockInfo(products);
 
@@ -74,7 +74,7 @@ export class ProductEventListeners {
     }
   }
 
-  updatePricesInCart(itemsToUpdate) {
+  renderPricesInCart(itemsToUpdate) {
     // 장바구니 내 가격 업데이트
     itemsToUpdate.forEach(({ cartItem, product }) => {
       updateCartItemPrice(cartItem, product);
