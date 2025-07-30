@@ -65,39 +65,46 @@ const cartState = {
 };
 
 const renderSelectOption = (product) => {
-  const option = document.createElement("option");
-  option.value = product.id;
-
+  // 품절 상품 처리
   if (product.quantity.equals(new Quantity(0))) {
-    option.textContent = `${
-      product.name
-    } - ${product.price.getAmount()}원 (품절)`;
-    option.disabled = true;
-    option.className = "text-gray-400";
-  } else {
-    if (product.onSale && product.suggestSale) {
-      option.textContent = `⚡💝${product.name} - ${
-        product.originalVal
-      }원 → ${product.price.getAmount()}원 (${
-        LIGHTNING_SALE_DISCOUNT_RATE + SUGGESTION_DISCOUNT_RATE
-      }% SUPER SALE!)`;
-      option.className = "text-purple-600 font-bold";
-    } else if (product.onSale) {
-      option.textContent = `⚡${product.name} - ${
-        product.originalVal
-      }원 → ${product.price.getAmount()}원 (${LIGHTNING_SALE_DISCOUNT_RATE}% SALE!)`;
-      option.className = "text-red-500 font-bold";
-    } else if (product.suggestSale) {
-      option.textContent = `💝${product.name} - ${
-        product.originalVal
-      }원 → ${product.price.getAmount()}원 (${SUGGESTION_DISCOUNT_RATE}% 추천할인!)`;
-      option.className = "text-blue-500 font-bold";
-    } else {
-      option.textContent = `${product.name} - ${product.price.getAmount()}원`;
-    }
+    return createElementFromHTML(`
+      <option value="${product.id}" disabled class="text-gray-400">
+        ${product.name} - ${product.price.getAmount()}원 (품절)
+      </option>
+    `);
   }
 
-  return option;
+  // 할인 상품 처리
+  if (product.onSale && product.suggestSale) {
+    return createElementFromHTML(`
+      <option value="${product.id}" class="text-purple-600 font-bold">
+        ⚡💝${product.name} - ${product.originalVal}원 → ${product.price.getAmount()}원 (${LIGHTNING_SALE_DISCOUNT_RATE + SUGGESTION_DISCOUNT_RATE}% SUPER SALE!)
+      </option>
+    `);
+  }
+  
+  if (product.onSale) {
+    return createElementFromHTML(`
+      <option value="${product.id}" class="text-red-500 font-bold">
+        ⚡${product.name} - ${product.originalVal}원 → ${product.price.getAmount()}원 (${LIGHTNING_SALE_DISCOUNT_RATE}% SALE!)
+      </option>
+    `);
+  }
+  
+  if (product.suggestSale) {
+    return createElementFromHTML(`
+      <option value="${product.id}" class="text-blue-500 font-bold">
+        💝${product.name} - ${product.originalVal}원 → ${product.price.getAmount()}원 (${SUGGESTION_DISCOUNT_RATE}% 추천할인!)
+      </option>
+    `);
+  }
+
+  // 일반 상품
+  return createElementFromHTML(`
+    <option value="${product.id}">
+      ${product.name} - ${product.price.getAmount()}원
+    </option>
+  `);
 };
 
 let sel;
