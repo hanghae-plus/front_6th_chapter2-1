@@ -25,12 +25,19 @@ export class OrderEventListeners {
     });
   }
 
-  handleOrderSummaryUpdate(cartItems, totalAmount, isTuesday, itemCount) {
+  // 공통 계산 로직
+  calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount) {
     // 주문 요약 계산
     const orderSummary = orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
 
     // 포인트 계산
     const pointsResult = orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
+
+    return { orderSummary, pointsResult };
+  }
+
+  handleOrderSummaryUpdate(cartItems, totalAmount, isTuesday, itemCount) {
+    const { orderSummary, pointsResult } = this.calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount);
 
     // 계산 결과를 이벤트로 emit
     this.uiEventBus.emit("order:summary:calculated", {
@@ -51,11 +58,7 @@ export class OrderEventListeners {
   }
 
   handleOrderCalculation(cartItems, totalAmount, isTuesday, itemCount) {
-    // 주문 요약 계산
-    const orderSummary = orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
-
-    // 포인트 계산
-    const pointsResult = orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
+    const { orderSummary, pointsResult } = this.calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount);
 
     // UI 업데이트 직접 처리
     this.updateOrderSummaryUI(orderSummary, pointsResult);
