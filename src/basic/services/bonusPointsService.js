@@ -3,7 +3,7 @@ import {
   BULK_PURCHASE_BONUS_RULES,
   POINT_RULES,
 } from "../constants/points.constant";
-import { productIds } from "../constants/product.constant";
+import { PRODUCT_IDS } from "../constants/product.constant";
 
 /**
  * 보너스 포인트 계산
@@ -59,9 +59,9 @@ export const calculateProductCombinationBonus = (items) => {
   let hasMonitorArm = false;
 
   items.forEach((item) => {
-    if (item.id === productIds.p1) hasKeyboard = true;
-    else if (item.id === productIds.p2) hasMouse = true;
-    else if (item.id === productIds.p3) hasMonitorArm = true;
+    if (item.id === PRODUCT_IDS.p1) hasKeyboard = true;
+    else if (item.id === PRODUCT_IDS.p2) hasMouse = true;
+    else if (item.id === PRODUCT_IDS.p3) hasMonitorArm = true;
   });
 
   if (hasKeyboard && hasMouse) {

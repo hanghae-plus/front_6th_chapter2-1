@@ -1,3 +1,4 @@
+import { STOCK_THRESHOLD } from "../constants/stock.constant";
 import productStore from "../store/product";
 
 /**
@@ -15,7 +16,7 @@ export const getLowStockItems = () => {
   productList.forEach((product) => {
     const currentStock = product.quantity;
 
-    if (currentStock < 5) {
+    if (currentStock < STOCK_THRESHOLD) {
       if (currentStock > 0) {
         lowStockItems.push({
           name: product.name,

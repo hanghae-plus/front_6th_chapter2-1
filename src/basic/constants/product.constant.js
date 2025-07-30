@@ -1,4 +1,4 @@
-const productIds = {
+const PRODUCT_IDS = {
   p1: "p1",
   p2: "p2",
   p3: "p3",
@@ -6,9 +6,9 @@ const productIds = {
   p5: "p5",
 };
 
-const products = [
+const PRODUCTS = [
   {
-    id: productIds.p1,
+    id: PRODUCT_IDS.p1,
     name: "버그 없애는 키보드",
     val: 10000,
     originalVal: 10000,
@@ -17,7 +17,7 @@ const products = [
     suggestSale: false,
   },
   {
-    id: productIds.p2,
+    id: PRODUCT_IDS.p2,
     name: "생산성 폭발 마우스",
     val: 20000,
     originalVal: 20000,
@@ -26,7 +26,7 @@ const products = [
     suggestSale: false,
   },
   {
-    id: productIds.p3,
+    id: PRODUCT_IDS.p3,
     name: "거북목 탈출 모니터암",
     val: 30000,
     originalVal: 30000,
@@ -35,7 +35,7 @@ const products = [
     suggestSale: false,
   },
   {
-    id: productIds.p4,
+    id: PRODUCT_IDS.p4,
     name: "에러 방지 노트북 파우치",
     val: 15000,
     originalVal: 15000,
@@ -44,7 +44,7 @@ const products = [
     suggestSale: false,
   },
   {
-    id: productIds.p5,
+    id: PRODUCT_IDS.p5,
     name: "코딩할 때 듣는 Lo-Fi 스피커",
     val: 25000,
     originalVal: 25000,
@@ -54,4 +54,4 @@ const products = [
   },
 ];
 
-export { productIds, products };
+export { PRODUCT_IDS, PRODUCTS };

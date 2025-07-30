@@ -1,9 +1,9 @@
 import { createStore } from ".";
-import { productIds, products } from "../constants/product.constant";
+import { PRODUCTS, PRODUCT_IDS } from "../constants/product.constant";
 
 const initialProductState = {
-  products,
-  productIds,
+  products: PRODUCTS,
+  productIds: PRODUCT_IDS,
 };
 
 const productActions = {
