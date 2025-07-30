@@ -33,20 +33,4 @@ export class DiscountStore {
   getState() {
     return this.state;
   }
-
-  // 구독자 관리 (필요한 경우)
-  subscribe(callback) {
-    this.subscribers.push(callback);
-    return () => {
-      const index = this.subscribers.indexOf(callback);
-      if (index > -1) {
-        this.subscribers.splice(index, 1);
-      }
-    };
-  }
-
-  // 구독자들에게 상태 변경 알림
-  notify() {
-    this.subscribers.forEach(callback => callback(this.state));
-  }
 }

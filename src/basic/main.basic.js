@@ -55,8 +55,8 @@ function main() {
     products: productService.getProducts(),
     discountInfos: calculateProductDiscountInfos(productService.getProducts()),
     onAddToCart: () => {
-      // CartService를 통해 장바구니 추가 요청
-      cartService.addToCart();
+      // 이벤트 버스를 통해 장바구니 추가 요청
+      uiEventBus.emit("cart:add:requested");
     },
   });
 

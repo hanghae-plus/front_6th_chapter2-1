@@ -37,18 +37,18 @@ export class ProductService {
     const randomProduct = this.selectRandomProduct();
     if (randomProduct && !randomProduct.onSale) {
       const { products } = this.productStore.getState();
-      const updatedProducts = products.map(product => 
-        product.id === randomProduct.id 
-          ? { 
-              ...product, 
+      const updatedProducts = products.map(product =>
+        product.id === randomProduct.id
+          ? {
+              ...product,
               price: Math.round(product.originalPrice * DISCOUNT_RATES.LIGHTNING_SALE),
-              onSale: true 
+              onSale: true,
             }
           : product
       );
-      
+
       this.productStore.setState({ products: updatedProducts });
-      
+
       return {
         success: true,
         product: { ...randomProduct, price: Math.round(randomProduct.originalPrice * DISCOUNT_RATES.LIGHTNING_SALE), onSale: true },
@@ -63,18 +63,18 @@ export class ProductService {
     const suggestionProduct = this.findSuggestionProduct(lastSelectedProductId);
     if (suggestionProduct) {
       const { products } = this.productStore.getState();
-      const updatedProducts = products.map(product => 
-        product.id === suggestionProduct.id 
-          ? { 
-              ...product, 
+      const updatedProducts = products.map(product =>
+        product.id === suggestionProduct.id
+          ? {
+              ...product,
               price: Math.round(product.price * DISCOUNT_RATES.SUGGEST_SALE),
-              suggestSale: true 
+              suggestSale: true,
             }
           : product
       );
-      
+
       this.productStore.setState({ products: updatedProducts });
-      
+
       return {
         success: true,
         product: { ...suggestionProduct, price: Math.round(suggestionProduct.price * DISCOUNT_RATES.SUGGEST_SALE), suggestSale: true },
@@ -87,9 +87,7 @@ export class ProductService {
   // 재고 경고 메시지 생성 (비즈니스 로직)
   generateStockWarningMessage() {
     const { products } = this.productStore.getState();
-    const lowStockProducts = products.filter(product => 
-      product.quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING && product.quantity > 0
-    );
+    const lowStockProducts = products.filter(product => product.quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING && product.quantity > 0);
 
     if (lowStockProducts.length === 0) {
       return "모든 상품이 충분한 재고를 보유하고 있습니다.";
@@ -137,12 +135,8 @@ export class ProductService {
 
   updateStock(productId, quantity) {
     const { products } = this.productStore.getState();
-    const updatedProducts = products.map(product => 
-      product.id === productId 
-        ? { ...product, quantity: Math.max(0, product.quantity + quantity) }
-        : product
-    );
-    
+    const updatedProducts = products.map(product => (product.id === productId ? { ...product, quantity: Math.max(0, product.quantity + quantity) } : product));
+
     this.productStore.setState({ products: updatedProducts });
     return true;
   }
@@ -156,17 +150,17 @@ export class ProductService {
   // 원래 가격으로 복원
   resetPrice(productId) {
     const { products } = this.productStore.getState();
-    const updatedProducts = products.map(product => 
-      product.id === productId 
-        ? { 
-            ...product, 
+    const updatedProducts = products.map(product =>
+      product.id === productId
+        ? {
+            ...product,
             price: product.originalPrice,
             onSale: false,
-            suggestSale: false 
+            suggestSale: false,
           }
         : product
     );
-    
+
     this.productStore.setState({ products: updatedProducts });
     return true;
   }
@@ -180,7 +174,7 @@ export class ProductService {
       onSale: false,
       suggestSale: false,
     }));
-    
+
     this.productStore.setState({ products: updatedProducts });
   }
 
@@ -193,12 +187,8 @@ export class ProductService {
   // 가격 업데이트
   updatePrice(productId, newPrice) {
     const { products } = this.productStore.getState();
-    const updatedProducts = products.map(product => 
-      product.id === productId 
-        ? { ...product, price: newPrice }
-        : product
-    );
-    
+    const updatedProducts = products.map(product => (product.id === productId ? { ...product, price: newPrice } : product));
+
     this.productStore.setState({ products: updatedProducts });
     return true;
   }

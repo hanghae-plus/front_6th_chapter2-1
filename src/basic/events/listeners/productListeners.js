@@ -1,6 +1,5 @@
 import { updateProductOptions, updateStockInfo } from "../../components/ProductSelector.js";
 import { updateCartItemPrice } from "../../components/CartItem.js";
-import { discountService } from "../../services/discountService.js";
 import { generateStockWarningMessage } from "../../utils/stockUtils.js";
 
 // Product 관련 이벤트 리스너
@@ -16,7 +15,7 @@ export class ProductEventListeners {
     this.uiEventBus.on("product:options:updated", data => {
       console.log("Product options updated:", data);
       if (data.success) {
-        this.updateProductOptions(data.products, data.discountInfos);
+        this.updateProductOptions(data.products);
       }
     });
 
@@ -38,11 +37,9 @@ export class ProductEventListeners {
     // 상품 데이터 직접 조회가 필요한 경우를 위한 이벤트
     this.uiEventBus.on("product:refresh:requested", () => {
       const products = this.productService.getProducts();
-      const discountInfos = this.calculateProductDiscountInfos(products);
 
       this.uiEventBus.emit("product:options:updated", {
         products,
-        discountInfos,
         success: true,
       });
     });
@@ -60,9 +57,9 @@ export class ProductEventListeners {
     });
   }
 
-  updateProductOptions(products, discountInfos) {
+  updateProductOptions(products) {
     // ProductSelector 컴포넌트 업데이트
-    updateProductOptions(products, discountInfos);
+    updateProductOptions(products);
     updateStockInfo(products);
   }
 
@@ -79,16 +76,8 @@ export class ProductEventListeners {
 
   updatePricesInCart(itemsToUpdate) {
     // 장바구니 내 가격 업데이트
-    itemsToUpdate.forEach(({ cartItem, product, discountInfo }) => {
-      updateCartItemPrice(cartItem, product, discountInfo);
+    itemsToUpdate.forEach(({ cartItem, product }) => {
+      updateCartItemPrice(cartItem, product);
     });
-  }
-
-  calculateProductDiscountInfos(products) {
-    return products.map(product => ({
-      productId: product.id,
-      rate: discountService.calculateProductDiscountRate(product),
-      status: discountService.getProductDiscountStatus(product),
-    }));
   }
 }
