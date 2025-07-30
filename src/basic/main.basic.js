@@ -5,6 +5,9 @@ const LIGHTNING_INTERVAL = 30000;
 const SUGGEST_DELAY = Math.random() * 20000;
 const SUGGEST_INTERVAL = 60000;
 
+let lightningSaleTimerId = null;
+let suggestSaleTimerId = null;
+
 const elements = {};
 
 const ProductSelectItem = (product) => {
@@ -411,14 +414,22 @@ function main() {
   subscribe(render);
   render();
   attachEventListeners();
+  startTimers();
+}
 
+const startTimers = () => {
   setTimeout(() => {
-    setInterval(startLightningSale, LIGHTNING_INTERVAL);
+    lightningSaleTimerId = setInterval(startLightningSale, LIGHTNING_INTERVAL);
   }, LIGHTNING_DELAY);
 
   setTimeout(function () {
-    setInterval(startSuggestSale, SUGGEST_INTERVAL);
+    suggestSaleTimerId = setInterval(startSuggestSale, SUGGEST_INTERVAL);
   }, SUGGEST_DELAY);
+};
+
+function stopTimers() {
+  clearInterval(lightningSaleTimerId);
+  clearInterval(suggestSaleTimerId);
 }
 
 const handleAddItemToCart = () => {
@@ -475,5 +486,7 @@ const startSuggestSale = () => {
     dispatch({ type: 'START_SUGGEST_SALE', payload: { productId: luckyItem.id } });
   }
 };
+
+window.addEventListener('beforeunload', stopTimers);
 
 main();
