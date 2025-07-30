@@ -31,7 +31,7 @@ const lightningSaleCallback = (
   const luckyIndex = Math.floor(Math.random() * prodList.length);
   const luckyItem = prodList[luckyIndex];
 
-  if (luckyItem.q > 0 && !luckyItem.onSale) {
+  if (luckyItem.quantity > 0 && !luckyItem.onSale) {
     const discountMultiplier = (100 - config.DISCOUNT_RATE) / 100; // 설정값 사용
     luckyItem.val = Math.round(luckyItem.originalVal * discountMultiplier);
     luckyItem.onSale = true;
@@ -49,7 +49,7 @@ const recommendationCallback = (
   config = DISCOUNT_CONFIG.RECOMMENDATION // 기본값 추가
 ) => {
   const availableItems = prodList.filter(
-    (item) => item.q > 0 && !item.suggestSale
+    (item) => item.quantity > 0 && !item.suggestSale
   );
 
   if (availableItems.length === 0) return;

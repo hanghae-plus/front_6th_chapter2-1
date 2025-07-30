@@ -4,5 +4,5 @@
  * @returns 총 재고 수량
  */
 export const calculateTotalStock = (prodList) => {
-  return prodList.reduce((total, product) => total + product.q, 0);
+  return prodList.reduce((total, product) => total + product.quantity, 0);
 };

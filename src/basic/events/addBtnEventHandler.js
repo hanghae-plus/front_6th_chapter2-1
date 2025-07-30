@@ -20,7 +20,7 @@ export const initAddButtonEvent = () => {
 
     const productList = productStore.getState().products;
     const selectedProduct = productList.find((p) => p.id === selectedItemId);
-    if (!selectedProduct || selectedProduct.q <= 0) {
+    if (!selectedProduct || selectedProduct.quantity <= 0) {
       alert("재고가 부족하거나 잘못된 상품입니다.");
       return;
     }

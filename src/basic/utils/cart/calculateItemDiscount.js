@@ -1,4 +1,4 @@
-import { productIds } from "../../store/product";
+import { productIds } from "../../constants/product.constant";
 
 export const calculateItemDiscount = (
   productId,

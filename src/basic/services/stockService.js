@@ -13,7 +13,7 @@ export const getLowStockItems = () => {
   const lowStockItems = [];
 
   productList.forEach((product) => {
-    const currentStock = product.q;
+    const currentStock = product.quantity;
 
     if (currentStock < 5) {
       if (currentStock > 0) {
@@ -54,5 +54,5 @@ export const checkStockAvailability = (productId, requestedQuantity) => {
   const product = productStore
     .getState()
     .products.find((p) => p.id === productId);
-  return product && product.q >= requestedQuantity;
+  return product && product.quantity >= requestedQuantity;
 };

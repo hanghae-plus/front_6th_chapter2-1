@@ -3,7 +3,7 @@ import { calculateItemDiscount } from "../utils/cart/calculateItemDiscount";
 
 const isTuesday = new Date().getDay() === 2;
 
-export const cartState = {
+const initialCartState = {
   selectedProductId: null,
   items: [],
   totalAmount: 0,
@@ -143,6 +143,6 @@ const cartActions = {
   }),
 };
 
-const cartStore = createStore(cartState, cartActions);
+const cartStore = createStore(initialCartState, cartActions);
 
 export default cartStore;

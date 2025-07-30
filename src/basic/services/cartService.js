@@ -23,13 +23,16 @@ export const updateCartItem = (
   const newQuantity = currentQuantity + quantityChangeValue;
 
   // 재고 확인 (수량이 증가하는 경우에만)
-  if (quantityChangeValue > 0 && newQuantity > product.q + currentQuantity) {
+  if (
+    quantityChangeValue > 0 &&
+    newQuantity > product.quantity + currentQuantity
+  ) {
     alert("재고가 부족합니다.");
     return;
   }
 
   // 재고 업데이트
-  productStore.updateStock(productId, product.q - quantityChangeValue);
+  productStore.updateStock(productId, product.quantity - quantityChangeValue);
 
   // cartStore 업데이트
   if (quantityChangeValue > 0) {

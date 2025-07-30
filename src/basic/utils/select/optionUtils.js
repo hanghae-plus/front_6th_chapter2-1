@@ -1,5 +1,5 @@
 export const createOption = (item) => {
-  if (item.q === 0) {
+  if (item.quantity === 0) {
     return {
       text: `${item.name} - ${item.val}원 (품절)`,
       disabled: true,

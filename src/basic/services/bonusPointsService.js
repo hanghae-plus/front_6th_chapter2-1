@@ -1,4 +1,4 @@
-import { productIds } from "../store/product";
+import { productIds } from "../constants/product.constant";
 
 /**
  * 보너스 포인트 계산
