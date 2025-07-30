@@ -926,67 +926,89 @@ const handleStockInfoUpdate = function () {
   stockInfo.textContent = lowStockItems.join('\n');
 };
 
-// ==========================================
-// 장바구니 가격 업데이트
-// ==========================================
+// 세일 상태별 UI 설정 맵
+const SALE_STATE_UI_CONFIG = {
+  super: {
+    priceClass: 'text-purple-600',
+    icon: '⚡💝',
+  },
+  lightning: {
+    priceClass: 'text-red-500',
+    icon: '⚡',
+  },
+  suggestion: {
+    priceClass: 'text-blue-500',
+    icon: '💝',
+  },
+  regular: {
+    priceClass: '',
+    icon: '',
+  },
+};
 
-// 장바구니 내 상품 가격 업데이트 (세일 적용)
-function doUpdatePricesInCart() {
-  let totalCount = 0,
-    j = 0;
-  let cartItems;
+// 상품의 세일 상태 결정
+function determineSaleState(product) {
+  if (product.onSale && product.suggestSale) return 'super';
+  if (product.onSale) return 'lightning';
+  if (product.suggestSale) return 'suggestion';
+  return 'regular';
+}
 
-  // 총 수량 계산 (중복 코드)
-  while (cartDisplay.children[j]) {
-    const qty = cartDisplay.children[j].querySelector('.quantity-number');
-    totalCount += qty ? parseInt(qty.textContent) : 0;
-    j++;
+// 세일 가격 HTML 생성
+function createSalePriceHTML(product, saleState) {
+  const config = SALE_STATE_UI_CONFIG[saleState];
+
+  if (saleState === 'regular') {
+    return `₩${product.price.toLocaleString()}`;
   }
 
-  totalCount = 0;
-  for (j = 0; j < cartDisplay.children.length; j++) {
-    totalCount += parseInt(
-      cartDisplay.children[j].querySelector('.quantity-number').textContent
-    );
-  }
+  const originalPriceSpan = `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span>`;
+  const salePriceSpan = `<span class="${config.priceClass}">₩${product.price.toLocaleString()}</span>`;
 
-  // 각 장바구니 아이템 가격 업데이트
-  cartItems = cartDisplay.children;
-  for (let i = 0; i < cartItems.length; i++) {
-    const itemId = cartItems[i].id;
-    let product = null;
+  return `${originalPriceSpan} ${salePriceSpan}`;
+}
 
-    // 상품 정보 찾기
-    for (let productIdx = 0; productIdx < PRODUCT_LIST.length; productIdx++) {
-      if (PRODUCT_LIST[productIdx].id === itemId) {
-        product = PRODUCT_LIST[productIdx];
-        break;
-      }
-    }
+// 상품 이름 with 아이콘 생성
+function createProductNameWithIcon(product, saleState) {
+  const config = SALE_STATE_UI_CONFIG[saleState];
+  return `${config.icon}${product.name}`;
+}
+
+// 개별 장바구니 아이템 UI 업데이트
+function updateCartItemUI(cartElement, product) {
+  const priceElement = cartElement.querySelector('.text-lg');
+  const nameElement = cartElement.querySelector('h3');
+
+  if (!priceElement || !nameElement) return;
+
+  const saleState = determineSaleState(product);
+
+  priceElement.innerHTML = createSalePriceHTML(product, saleState);
+
+  nameElement.textContent = createProductNameWithIcon(product, saleState);
+}
+
+// 모든 장바구니 아이템 가격 업데이트
+function updateAllCartItemPrices() {
+  const cartItems = Array.from(cartDisplay.children);
+
+  cartItems.forEach((cartElement) => {
+    const product = PRODUCT_LIST.find((p) => p.id === cartElement.id);
 
     if (product) {
-      const priceDiv = cartItems[i].querySelector('.text-lg');
-      const nameDiv = cartItems[i].querySelector('h3');
-
-      // 세일 상태에 따른 가격 표시
-      if (product.onSale && product.suggestSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-purple-600">₩${product.price.toLocaleString()}</span>`;
-        nameDiv.textContent = `⚡💝${product.name}`;
-      } else if (product.onSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-red-500">₩${product.price.toLocaleString()}</span>`;
-        nameDiv.textContent = `⚡${product.name}`;
-      } else if (product.suggestSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="text-blue-500">₩${product.price.toLocaleString()}</span>`;
-        nameDiv.textContent = `💝${product.name}`;
-      } else {
-        priceDiv.textContent = `₩${product.price.toLocaleString()}`;
-        nameDiv.textContent = product.name;
-      }
+      updateCartItemUI(cartElement, product);
     }
-  }
+  });
+}
 
-  // 장바구니 계산 재실행
-  handleCalculateCartStuff();
+function doUpdatePricesInCart() {
+  try {
+    updateAllCartItemPrices();
+    handleCalculateCartStuff();
+  } catch (error) {
+    console.error('🚨 장바구니 가격 업데이트 중 오류:', error);
+    handleCalculateCartStuff();
+  }
 }
 
 // ==========================================
