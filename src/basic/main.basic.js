@@ -1,11 +1,12 @@
+// 📦 Imports (알파벳 순)
 import { CartDisplay } from './components/Cart';
 import { Header, Layout } from './components/Layout';
 import { ManualGuide } from './components/ManualGuide';
 import {
-  DiscountInfo,
-  SummaryDetails,
-  TotalDisplay,
-  TuesdaySpecial,
+  OrderSummaryDetails,
+  OrderSummaryDiscountInfo,
+  OrderSummaryTotalDisplay,
+  OrderSummaryTuesdaySpecial,
 } from './components/OrderSummary';
 import { AddToCartButton, ProductSelect, StockInfo } from './components/Product';
 import { addItemToCart } from './services/cartService';
@@ -15,14 +16,20 @@ import { updateUI } from './utils/updateUI';
 export function App() {
   const root = document.getElementById('app');
 
-  const header = Header();
-  const { container, leftColumn, rightColumn } = Layout();
+  // 🧱 Layout 구성
+  const headerComp = Header();
+  const layoutComp = Layout();
+  const manualGuideComp = ManualGuide();
+
+  // 🛍️ 상품 선택 관련 요소
+  let selectedProductId = null;
 
   const productSelectComp = ProductSelect((productId) => {
     selectedProductId = productId;
     stockInfoComp.updateStockInfo();
   });
-  let selectedProductId = productSelectComp.element.value;
+  // 초기 선택 상품 ID 설정
+  selectedProductId = productSelectComp.element.value;
 
   const stockInfoComp = StockInfo();
   const addToCartButtonComp = AddToCartButton(() => {
@@ -34,59 +41,64 @@ export function App() {
       alert(result.message);
     }
   });
-
-  const selectorContainer = document.createElement('div');
-  selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
-  selectorContainer.appendChild(productSelectComp.element);
-  selectorContainer.appendChild(addToCartButtonComp);
-  selectorContainer.appendChild(stockInfoComp.element);
-  leftColumn.appendChild(selectorContainer);
-
   const cartDisplayComp = CartDisplay(() => updateAll());
-  leftColumn.appendChild(cartDisplayComp.element);
 
-  const summaryDetailsComp = SummaryDetails();
-  const discountInfoComp = DiscountInfo();
-  const totalDisplayComp = TotalDisplay();
-  const tuesdaySpecialComp = TuesdaySpecial();
+  // 주문 요약 관련 컴포넌트들
+  const summaryDetailsComp = OrderSummaryDetails();
+  const discountInfoComp = OrderSummaryDiscountInfo();
+  const totalDisplayComp = OrderSummaryTotalDisplay();
+  const tuesdaySpecialComp = OrderSummaryTuesdaySpecial();
 
-  const orderSummaryContainer = rightColumn.querySelector('.flex-1.flex.flex-col');
+  // --- 2. DOM 구조 조립 (컴포넌트들을 적절한 위치에 추가) ---
+
+  // 왼쪽 컬럼에 상품 선택/추가 섹션 배치
+  const productSelectionSection = document.createElement('div');
+  productSelectionSection.className = 'mb-6 pb-6 border-b border-gray-200';
+  productSelectionSection.appendChild(productSelectComp.element);
+  productSelectionSection.appendChild(addToCartButtonComp);
+  productSelectionSection.appendChild(stockInfoComp.element);
+  layoutComp.leftColumn.appendChild(productSelectionSection);
+
+  // 왼쪽 컬럼에 장바구니 디스플레이 배치
+  layoutComp.leftColumn.appendChild(cartDisplayComp.element);
+
+  // 오른쪽 컬럼 (주문 요약)에 각 섹션 배치
+  const orderSummaryContainer = layoutComp.rightColumn.querySelector('.flex-1.flex.flex-col');
   orderSummaryContainer.insertBefore(tuesdaySpecialComp.element, orderSummaryContainer.children[0]);
   orderSummaryContainer.insertBefore(totalDisplayComp.element, orderSummaryContainer.children[1]);
   orderSummaryContainer.insertBefore(discountInfoComp.element, orderSummaryContainer.children[1]);
-  orderSummaryContainer.insertBefore(summaryDetailsComp.element, orderSummaryContainer.children[1]);
+  orderSummaryContainer.insertBefore(summaryDetailsComp.element, orderSummaryContainer.children[1]); //
 
-  const { toggleButton, overlay } = ManualGuide();
+  // --- 3. 최상위 DOM (`#app`)에 모든 주요 컴포넌트 추가 ---
+  root.appendChild(headerComp);
+  root.appendChild(layoutComp.container);
+  root.appendChild(manualGuideComp.toggleButton);
+  root.appendChild(manualGuideComp.overlay);
 
-  container.appendChild(leftColumn);
-  container.appendChild(rightColumn);
-  overlay.appendChild(toggleButton);
-  root.appendChild(header);
-  root.appendChild(container);
-  root.appendChild(toggleButton);
-  root.appendChild(overlay);
+  // --- 4. 전체 UI 업데이트를 위한 헬퍼 함수 정의 ---
+  // 모든 컴포넌트의 update 함수를 한 곳에서 호출하여 UI를 갱신합니다.
+  const allComponentsForUpdate = {
+    productSelectComp,
+    cartDisplayComp,
+    stockInfoComp,
+    summaryDetailsComp,
+    discountInfoComp,
+    totalDisplayComp,
+    tuesdaySpecialComp,
+  };
+  const updateAll = () => updateUI(allComponentsForUpdate);
 
-  const updateAll = () =>
-    updateUI({
-      productSelectComp,
-      cartDisplayComp,
-      stockInfoComp,
-      summaryDetailsComp,
-      discountInfoComp,
-      totalDisplayComp,
-      tuesdaySpecialComp,
-    });
-
+  // --- 5. 애플리케이션 초기 상태 렌더링 ---
   updateAll();
 
-  // 번개세일/추천할인 타이머 세팅
+  // ⏱️ 타이머 세팅
   const updateLastSelectedProductId = setupTimers(updateAll);
 
-  // AddToCartButton 클릭 시 추천대상 ID 업데이트
+  // 🖱️ Add 버튼 클릭 시 추천상품 상태 업데이트
   addToCartButtonComp.addEventListener('click', () => {
     updateLastSelectedProductId(selectedProductId);
   });
 }
 
-// DOMContentLoaded 이벤트 발생 시 App 함수를 실행하여 애플리케이션 시작
+// 🚀 앱 시작
 document.addEventListener('DOMContentLoaded', App);
