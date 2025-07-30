@@ -13,6 +13,15 @@ export interface Cart {
   itemCount: number;
 }
 
+export interface CartAction {
+  type: 'ADD_ITEM';
+  payload: {
+    productId: string;
+    quantity: number;
+  };
+}
+
 export interface CartContextType {
   state: Cart;
+  dispatch: (action: CartAction) => void;
 }

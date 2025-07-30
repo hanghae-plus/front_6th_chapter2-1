@@ -1,9 +1,30 @@
+import { useContext, useRef } from 'react';
+import { CartContext } from '../../contexts/cart/CartContext';
+
 export default function AddToCartForm() {
+  const cart = useContext(CartContext);
+  const selectRef = useRef<HTMLSelectElement>(null);
+  if (!cart) return;
+
+  const handleAddToCart = () => {
+    const selected = selectRef.current?.value;
+    if (!selected) return;
+
+    cart.dispatch({
+      type: 'ADD_ITEM',
+      payload: {
+        productId: selected,
+        quantity: 1,
+      },
+    });
+  };
+
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">
       <select
         id="product-select"
         className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
+        ref={selectRef}
       >
         <option value="p1" className="text-red-500 font-bold">
           ⚡버그 없애는 키보드 - 10000원 → 8000원 (20% SALE!)
@@ -24,6 +45,7 @@ export default function AddToCartForm() {
       <button
         id="add-to-cart"
         className="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all"
+        onClick={handleAddToCart}
       >
         Add to Cart
       </button>

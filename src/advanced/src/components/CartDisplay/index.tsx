@@ -1,39 +1,19 @@
-import AddToCartSection from '../AddToCartSection';
+import { useContext } from 'react';
+import AddToCartForm from './AddToCartForm';
 import CartItem from './CartItem';
-
-interface CartItemData {
-  id: string;
-  name: string;
-  originalPrice: number;
-  price: number;
-  quantity: number;
-  saleIcon?: string;
-}
-const mockCartItems: CartItemData[] = [
-  {
-    id: 'p2',
-    name: '생산성 폭발 마우스',
-    originalPrice: 20000,
-    price: 15200,
-    quantity: 5,
-    saleIcon: '⚡💝',
-  },
-  {
-    id: 'p1',
-    name: '버그 없애는 키보드',
-    originalPrice: 10000,
-    price: 8000,
-    quantity: 1,
-    saleIcon: '⚡',
-  },
-];
+import { CartContext } from '../../contexts/cart/CartContext';
 
 export default function CartDisplay() {
+  const cart = useContext(CartContext);
+  if (!cart) return;
+
+  const { state } = cart;
+
   return (
     <div className="bg-white border border-gray-200 p-8 overflow-y-auto">
-      <AddToCartSection />
+      <AddToCartForm />
       <div id="cart-items">
-        {mockCartItems.map((item) => (
+        {state.items.map((item) => (
           <CartItem
             key={item.id}
             id={item.id}
