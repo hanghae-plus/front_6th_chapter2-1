@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { useCart } from '../../hooks/useCart';
-import { getProducts, setProductUpdateCallback, type Product } from '../../services/saleService';
+import { getProducts, setProductUpdateCallback, setSelectedProduct, type Product } from '../../services/saleService';
 
 export default function AddToCartForm() {
   const { dispatch } = useCart();
@@ -41,12 +41,20 @@ export default function AddToCartForm() {
     return `${product.name} - ₩${product.price.toLocaleString()}`;
   };
 
+  const handleSelectChange = () => {
+    const selected = selectRef.current?.value;
+    if (selected) {
+      setSelectedProduct(selected);
+    }
+  };
+
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">
       <select
         id="product-select"
         className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
         ref={selectRef}
+        onChange={handleSelectChange}
       >
         {products.map((product) => (
           <option

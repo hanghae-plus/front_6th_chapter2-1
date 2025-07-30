@@ -42,14 +42,14 @@ export function calculateCartTotals(
   const amountAfterBaseDiscount = cartOriginalAmount - selectedBaseDiscount.amount;
   const tuesdayDiscountResult = calculateTuesdayDiscount(amountAfterBaseDiscount);
 
-  // 최종 할인 정보 조합
-  const finalDiscountAmount = selectedBaseDiscount.amount + tuesdayDiscountResult.discountAmount;
+  // 수량 관련 할인 정보 (할인율 표시용)
+  const quantityDiscountAmount = selectedBaseDiscount.amount + tuesdayDiscountResult.discountAmount;
   const finalAppliedDiscounts = [
     ...selectedBaseDiscount.descriptions,
     ...(tuesdayDiscountResult.applied ? ['화요일 특가 10% 추가 할인'] : [])
   ];
 
-  const finalTotalAmount = cartOriginalAmount - finalDiscountAmount;
+  const finalTotalAmount = cartOriginalAmount - quantityDiscountAmount;
 
   // 포인트 계산 (최종 결제 금액 기준)
   const { loyaltyPoints, pointsBreakdown } = calculateLoyaltyPoints(items, finalTotalAmount);
@@ -58,7 +58,7 @@ export function calculateCartTotals(
     totalAmount: Math.max(0, finalTotalAmount),
     originalAmount: cartOriginalAmount,
     realOriginalAmount: cartRealOriginalAmount,
-    discountAmount: finalDiscountAmount,
+    discountAmount: quantityDiscountAmount, // 수량 관련 할인만
     itemCount: cartItemCount,
     appliedDiscounts: finalAppliedDiscounts,
     loyaltyPoints,

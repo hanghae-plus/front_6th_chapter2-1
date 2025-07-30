@@ -7,7 +7,7 @@ import OrderSummary from './components/OrderSummary';
 import InfoButton from './components/ManualButton';
 import ManualModal from './components/ManualModal';
 import { CartProvider } from './contexts/cart/CartProvider';
-import { startLightningSale } from './services/saleService';
+import { startLightningSale, startSuggestSale } from './services/saleService';
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,6 +17,7 @@ function App() {
 
   useEffect(() => {
     startLightningSale();
+    startSuggestSale();
   }, []);
 
   return (

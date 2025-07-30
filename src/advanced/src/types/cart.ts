@@ -14,7 +14,7 @@ export interface Cart {
   totalAmount: number; // 최종 결제 금액
   originalAmount: number; // 현재 가격 합계 (번개세일 포함)
   realOriginalAmount: number; // 실제 원가 합계 (할인율 계산용)
-  discountAmount: number; // 할인 금액
+  discountAmount: number; // 수량 관련 할인 금액만 (할인율 표시용)
   itemCount: number;
   appliedDiscounts: string[];
   loyaltyPoints: number; // 적립 포인트

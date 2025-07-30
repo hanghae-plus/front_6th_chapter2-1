@@ -58,9 +58,18 @@ const products: Product[] = [
 ];
 
 let updateProductCallback: ProductUpdateCallback | null = null;
+let selectedProductId: string | null = null;
 
 export function setProductUpdateCallback(callback: ProductUpdateCallback) {
   updateProductCallback = callback;
+}
+
+export function setSelectedProduct(productId: string) {
+  selectedProductId = productId;
+}
+
+export function getSelectedProduct(): string | null {
+  return selectedProductId;
 }
 
 function updateProduct(productId: string, updates: Partial<Product>) {
@@ -100,6 +109,35 @@ export function startLightningSale() {
       }
     }, TIMER_DELAYS.LIGHTNING.INTERVAL);
   }, lightningDelay);
+}
+
+export function startSuggestSale() {
+  const suggestDelay = Math.random() * TIMER_DELAYS.SUGGEST.DELAY_MAX;
+
+  setTimeout(() => {
+    setInterval(() => {
+      if (selectedProductId) {
+        // 선택된 상품이 아닌 다른 상품 중에서 추천 대상 찾기
+        const suggestCandidate = products.find(product => 
+          product.id !== selectedProductId &&
+          product.quantity > 0 &&
+          !product.isSuggestSale
+        );
+
+        if (suggestCandidate) {
+          const newPrice = Math.round(suggestCandidate.price * (1 - DISCOUNT_RATES.SUGGEST));
+          
+          updateProduct(suggestCandidate.id, {
+            price: newPrice,
+            isSuggestSale: true,
+            saleIcon: suggestCandidate.saleIcon + '💝'
+          });
+          
+          alert(`💝 ${suggestCandidate.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
+        }
+      }
+    }, TIMER_DELAYS.SUGGEST.INTERVAL);
+  }, suggestDelay);
 }
 
 export function getProducts() {

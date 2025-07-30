@@ -58,7 +58,7 @@ export default function OrderSummary() {
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
                 <span className="text-sm font-medium text-green-400">
-                  {((state.discountAmount / state.realOriginalAmount) * 100).toFixed(1)}%
+                  {((state.discountAmount / state.originalAmount) * 100).toFixed(1)}%
                 </span>
               </div>
               <div className="text-2xs text-gray-300">
