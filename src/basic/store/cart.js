@@ -1,11 +1,24 @@
 import { ACTION_TYPE, createStore } from ".";
 import { calculateItemDiscount } from "../utils/cart/calculateItemDiscount";
 
+const isTuesday = new Date().getDay() === 2;
+
 export const cartState = {
   selectedProductId: null,
   items: [],
   totalAmount: 0,
   itemCount: 0,
+  totals: {
+    subTotal: 0,
+    totalAmount: 0,
+    totalQty: 0,
+    itemDiscounts: [],
+    bulkDiscount: 0,
+    tuesdayDiscount: 0,
+    isTuesday,
+    totalDiscountRate: 0,
+    savedAmount: 0,
+  },
 };
 
 const cartActions = {
@@ -97,6 +110,11 @@ const cartActions = {
       }, 0),
     };
   },
+
+  updateTotals: (state, totals) => ({
+    ...state,
+    totals: { ...state.totals, ...totals },
+  }),
 
   reset: (state) => ({
     ...state,

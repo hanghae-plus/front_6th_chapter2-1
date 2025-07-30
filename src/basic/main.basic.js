@@ -19,6 +19,7 @@ import { renderDiscountInfo } from "./ui/render/renderDiscountInfo";
 import { renderLoyaltyPoints } from "./ui/render/renderLoyaltyPoints";
 import { updateCartUI } from "./ui/update/updateCart";
 import { updateCartItemStyles } from "./ui/update/updateCartItem";
+import cartStore from "./store/cart";
 
 // const prodList = productStore.getAllProducts();
 // const productIds = productStore.getState().productIds;
@@ -44,8 +45,8 @@ function main() {
   var manualOverlay;
   var manualColumn;
   // var lightningDelay;
-  totalAmt = 0;
-  itemCnt = 0;
+  // totalAmt = 0;
+  // itemCnt = 0;
   lastSel = null;
 
   var root = document.getElementById("app");
@@ -251,100 +252,92 @@ const onUpdateSelectOptions = () => {
 
 /**
  * 장바구니 계산 및 렌더링을 담당하는 함수
- * 계산과 렌더링을 분리하여 가독성과 유지보수성을 향상시킴
  */
-function handleCalculateCartStuff() {
-  // ===== 1단계: 데이터 추출 =====
-  const prodList = productStore.getState().products;
-  const cartItems = extractCartData(cartDisp, prodList);
+const handleCalculateCartStuff = () => {
+  // store에서 cartItems 가져오기
+  const cartItems = cartStore.getState().items;
 
-  // 값 계산 및 스토어 업데이트
+  // 총 금액 계산 (할인 포함)
   const totals = calculateCartTotals(cartItems);
 
-  // ===== 3단계: 전역 변수 업데이트 =====
-  totalAmt = totals.totalAmount;
-  itemCnt = totals.totalQty;
+  // 계산금액 스토어 업데이트
+  cartStore.updateTotals(totals);
 
   // UI 업데이트
   updateCartItemStyles(cartItems);
   updateCartUI({ items: cartItems, totals });
 
-  // ===== 6단계: 추가 업데이트 =====
+  // 추가 업데이트
   handleStockInfoUpdate();
   doRenderBonusPoints();
-}
+};
 
-var doRenderBonusPoints = function () {
-  var basePoints;
-  var finalPoints;
-  var pointsDetail;
-  var hasKeyboard;
-  var hasMouse;
-  var hasMonitorArm;
-  var nodes;
-  const prodList = productStore.getState().products;
-  if (cartDisp.children.length === 0) {
+const doRenderBonusPoints = () => {
+  // Store에서 데이터 가져오기
+  const cartState = cartStore.getState();
+  const { items, totals } = cartState;
+  const { totalAmount, totalQty } = totals;
+
+  if (items.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
   }
-  basePoints = Math.floor(totalAmt / 1000);
-  finalPoints = 0;
-  pointsDetail = [];
+
+  const basePoints = Math.floor(totalAmount / 1000);
+  let finalPoints = 0;
+  const pointsDetail = [];
+
   if (basePoints > 0) {
     finalPoints = basePoints;
     pointsDetail.push("기본: " + basePoints + "p");
   }
-  if (new Date().getDay() === 2) {
-    if (basePoints > 0) {
-      finalPoints = basePoints * 2;
-      pointsDetail.push("화요일 2배");
-    }
+
+  // 화요일 2배 포인트
+  if (totals.isTuesday && basePoints > 0) {
+    finalPoints = basePoints * 2;
+    pointsDetail.push("화요일 2배");
   }
-  hasKeyboard = false;
-  hasMouse = false;
-  hasMonitorArm = false;
-  nodes = cartDisp.children;
-  for (const node of nodes) {
-    var product = null;
-    for (var pIdx = 0; pIdx < prodList.length; pIdx++) {
-      if (prodList[pIdx].id === node.id) {
-        product = prodList[pIdx];
-        break;
-      }
-    }
-    if (!product) continue;
-    if (product.id === productIds.p1) {
+
+  // 상품 조합 보너스 포인트
+  let hasKeyboard = false;
+  let hasMouse = false;
+  let hasMonitorArm = false;
+
+  items.forEach((item) => {
+    if (item.id === productIds.p1) {
       hasKeyboard = true;
-    } else if (product.id === productIds.p2) {
+    } else if (item.id === productIds.p2) {
       hasMouse = true;
-    } else if (product.id === productIds.p3) {
+    } else if (item.id === productIds.p3) {
       hasMonitorArm = true;
     }
-  }
+  });
+
   if (hasKeyboard && hasMouse) {
     finalPoints = finalPoints + 50;
     pointsDetail.push("키보드+마우스 세트 +50p");
   }
+
   if (hasKeyboard && hasMouse && hasMonitorArm) {
     finalPoints = finalPoints + 100;
     pointsDetail.push("풀세트 구매 +100p");
   }
-  if (itemCnt >= 30) {
+
+  // 대량구매 보너스 포인트
+  if (totalQty >= 30) {
     finalPoints = finalPoints + 100;
     pointsDetail.push("대량구매(30개+) +100p");
-  } else {
-    if (itemCnt >= 20) {
-      finalPoints = finalPoints + 50;
-      pointsDetail.push("대량구매(20개+) +50p");
-    } else {
-      if (itemCnt >= 10) {
-        finalPoints = finalPoints + 20;
-        pointsDetail.push("대량구매(10개+) +20p");
-      }
-    }
+  } else if (totalQty >= 20) {
+    finalPoints = finalPoints + 50;
+    pointsDetail.push("대량구매(20개+) +50p");
+  } else if (totalQty >= 10) {
+    finalPoints = finalPoints + 20;
+    pointsDetail.push("대량구매(10개+) +20p");
   }
+
   bonusPts = finalPoints;
-  var ptsTag = document.getElementById("loyalty-points");
+  const ptsTag = document.getElementById("loyalty-points");
+
   if (ptsTag) {
     if (bonusPts > 0) {
       ptsTag.innerHTML =
