@@ -223,7 +223,6 @@ function main() {
   }, Math.random() * 20000);
 }
 
-// TODO: doRenderBonusPoints 리팩토링 후 개선 예정
 // 장바구니 목록 UI, 주문요약 UI에 관여
 function handleCalculateCartStuff() {
   // 현재 장바구니 상품 목록
@@ -235,8 +234,6 @@ function handleCalculateCartStuff() {
   let originalTotal;
   // 할인된금액
   let savedAmount;
-  // 재고상태문구
-  let stockMessage;
 
   const itemDiscounts = [];
 
@@ -415,19 +412,6 @@ function handleCalculateCartStuff() {
     }
   }
 
-  stockMessage = '';
-
-  for (let stockIdx = 0; stockIdx < productList.length; stockIdx++) {
-    const product = productList[stockIdx];
-    if (product.quantity < 5) {
-      if (product.quantity > 0) {
-        stockMessage = stockMessage + product.name + ': 재고 부족 (' + product.quantity + '개 남음)\n';
-      } else {
-        stockMessage = stockMessage + product.name + ': 품절\n';
-      }
-    }
-  }
-  stockInfo.textContent = stockMessage;
   renderStockInfo(stockInfo, productList);
   renderBonusPoints();
 }
