@@ -7,7 +7,7 @@
  * @param {number} totalAmount - 총 결제 금액
  * @returns {number} 기본 포인트
  */
-export const calculateBasePoints = (totalAmount) => {
+export const calculateBasePoints = totalAmount => {
   return Math.floor(totalAmount / 1000);
 };
 
@@ -30,7 +30,7 @@ export const getProductIdsFromCart = (cartElements, products) => {
   const productIds = [];
 
   for (const cartElement of cartElements) {
-    const product = products.find((p) => p.id === cartElement.id);
+    const product = products.find(p => p.id === cartElement.id);
     if (product) {
       productIds.push(product.id);
     }

@@ -6,13 +6,13 @@
  * 상품 ID로 상품 찾기 (현재 productService.js의 productUtils.findById 기반)
  */
 export const findProductById = (productId, products) => {
-  return products.find((p) => p.id === productId);
+  return products.find(p => p.id === productId);
 };
 
 /**
  * 총 재고 수량 계산 (현재 updateProductSelector에서 사용중)
  */
-export const getTotalStock = (products) => {
+export const getTotalStock = products => {
   return products.reduce((sum, product) => sum + product.q, 0);
 };
 
@@ -20,9 +20,9 @@ export const getTotalStock = (products) => {
  * 재고 상태 메시지 생성 (현재 updateStockInfo에서 사용중인 로직)
  */
 export const generateStockStatusMessage = (products, threshold = 5) => {
-  let infoMsg = "";
+  let infoMsg = '';
 
-  products.forEach((item) => {
+  products.forEach(item => {
     if (item.q < threshold) {
       if (item.q > 0) {
         infoMsg += `${item.name}: 재고 부족 (${item.q}개 남음)\n`;

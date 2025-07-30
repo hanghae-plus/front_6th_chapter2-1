@@ -3,21 +3,21 @@
  * 리액트 친화적인 순수 함수들로 구성
  */
 
-import { calculateItemDiscountRate } from "../utils/discountUtils.js";
+import { calculateItemDiscountRate } from '../utils/discountUtils.js';
 
 /**
  * 장바구니 총 계산 (메인 함수)
  * @param {HTMLCollection} cartElements - DOM cart elements
  * @param {Array} products - Product list
- * @param {Object} constants - Business constants
- * @param {Object} productIds - Product ID mappings
- * @returns {Object} Calculation results
+ * @param {object} constants - Business constants
+ * @param {object} productIds - Product ID mappings
+ * @returns {object} Calculation results
  */
 export const calculateCart = (
   cartElements,
   products,
   constants,
-  productIds
+  productIds,
 ) => {
   const cartItems = Array.from(cartElements);
 
@@ -29,7 +29,7 @@ export const calculateCart = (
     cartItems,
     products,
     constants,
-    productIds
+    productIds,
   );
 
   let finalAmount = afterItemDiscount;
@@ -68,11 +68,11 @@ const calculateSubtotal = (cartItems, products) => {
   let subtotal = 0;
   let totalItemCount = 0;
 
-  cartItems.forEach((cartItem) => {
+  cartItems.forEach(cartItem => {
     const product = findProductById(cartItem.id, products);
     if (!product) return;
 
-    const qtyElem = cartItem.querySelector(".quantity-number");
+    const qtyElem = cartItem.querySelector('.quantity-number');
     const quantity = parseInt(qtyElem.textContent) || 0;
     const itemTotal = product.val * quantity;
 
@@ -90,11 +90,11 @@ const applyItemDiscounts = (cartItems, products, constants, productIds) => {
   let totalAmount = 0;
   const itemDiscounts = [];
 
-  cartItems.forEach((cartItem) => {
+  cartItems.forEach(cartItem => {
     const product = findProductById(cartItem.id, products);
     if (!product) return;
 
-    const qtyElem = cartItem.querySelector(".quantity-number");
+    const qtyElem = cartItem.querySelector('.quantity-number');
     const quantity = parseInt(qtyElem.textContent) || 0;
     const itemTotal = product.val * quantity;
 
@@ -102,7 +102,7 @@ const applyItemDiscounts = (cartItems, products, constants, productIds) => {
       product.id,
       quantity,
       constants,
-      productIds
+      productIds,
     );
 
     if (discount > 0) {
@@ -123,20 +123,20 @@ const applyItemDiscounts = (cartItems, products, constants, productIds) => {
  * 할인 가능 아이템 하이라이트
  */
 const highlightDiscountableItems = (cartItems, products, constants) => {
-  cartItems.forEach((cartItem) => {
+  cartItems.forEach(cartItem => {
     const product = findProductById(cartItem.id, products);
     if (!product) return;
 
-    const qtyElem = cartItem.querySelector(".quantity-number");
+    const qtyElem = cartItem.querySelector('.quantity-number');
     const quantity = parseInt(qtyElem.textContent) || 0;
 
-    const priceElems = cartItem.querySelectorAll(".text-lg, .text-xs");
-    priceElems.forEach((elem) => {
-      if (elem.classList.contains("text-lg")) {
+    const priceElems = cartItem.querySelectorAll('.text-lg, .text-xs');
+    priceElems.forEach(elem => {
+      if (elem.classList.contains('text-lg')) {
         elem.style.fontWeight =
           quantity >= constants.DISCOUNT.ITEM_DISCOUNT_MIN_QUANTITY
-            ? "bold"
-            : "normal";
+            ? 'bold'
+            : 'normal';
       }
     });
   });
@@ -146,5 +146,5 @@ const highlightDiscountableItems = (cartItems, products, constants) => {
  * 상품 찾기 헬퍼
  */
 const findProductById = (productId, products) => {
-  return products.find((p) => p.id === productId);
+  return products.find(p => p.id === productId);
 };

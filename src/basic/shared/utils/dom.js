@@ -5,7 +5,7 @@
 /**
  * Create DOM element with properties
  * @param {string} tag - HTML tag name
- * @param {Object} props - Element properties
+ * @param {object} props - Element properties
  * @param {string} props.className - CSS class names
  * @param {string} props.id - Element ID
  * @param {string} props.textContent - Text content
@@ -15,9 +15,9 @@ export const createElement = (tag, props = {}) => {
   const element = document.createElement(tag);
 
   Object.entries(props).forEach(([key, value]) => {
-    if (key === "className") {
+    if (key === 'className') {
       element.className = value;
-    } else if (key === "textContent") {
+    } else if (key === 'textContent') {
       element.textContent = value;
     } else {
       element[key] = value;
@@ -32,8 +32,8 @@ export const createElement = (tag, props = {}) => {
  * @param {string} html - HTML string
  * @returns {HTMLElement} DOM element
  */
-export const htmlToElement = (html) => {
-  const template = document.createElement("template");
+export const htmlToElement = html => {
+  const template = document.createElement('template');
   template.innerHTML = html.trim();
   return template.content.firstChild;
 };
@@ -45,4 +45,12 @@ export const htmlToElement = (html) => {
  */
 export const replaceElement = (oldElement, newElement) => {
   oldElement.parentNode.replaceChild(newElement, oldElement);
+};
+
+/**
+ * Get cart total element
+ * @returns {HTMLElement|null} Cart total element
+ */
+export const getCartTotalElement = () => {
+  return document.getElementById('cart-total');
 };

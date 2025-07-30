@@ -4,13 +4,13 @@
 
 export const handleCartClick = (
   event,
-  { cartUtils, productUtils, onCalculate, onUpdateOptions }
+  { cartUtils, productUtils, onCalculate, onUpdateOptions },
 ) => {
   const target = event.target;
 
   if (
-    !target.classList.contains("quantity-change") &&
-    !target.classList.contains("remove-item")
+    !target.classList.contains('quantity-change') &&
+    !target.classList.contains('remove-item')
   ) {
     return;
   }
@@ -23,10 +23,10 @@ export const handleCartClick = (
 
   if (!product || !itemElement) return;
 
-  if (target.classList.contains("quantity-change")) {
+  if (target.classList.contains('quantity-change')) {
     const quantityChange = parseInt(target.dataset.change);
     cartUtils.changeItemQuantity(product, itemElement, quantityChange);
-  } else if (target.classList.contains("remove-item")) {
+  } else if (target.classList.contains('remove-item')) {
     cartUtils.removeItem(product, itemElement);
   }
 

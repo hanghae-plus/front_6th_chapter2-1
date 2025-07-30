@@ -3,12 +3,12 @@
  * 리액트 친화적인 순수 함수들로 구성
  */
 
-import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
+import { ELEMENT_IDS } from '../../../shared/constants/element-ids.js';
 import {
   calculateBasePoints,
   isTuesday,
   getProductIdsFromCart,
-} from "../utils/pointsUtils.js";
+} from '../utils/pointsUtils.js';
 
 /**
  * 포인트 계산 및 렌더링 (메인 함수)
@@ -16,9 +16,9 @@ import {
  * @param {number} totalItemCount - Total item count
  * @param {HTMLCollection} cartElements - DOM cart elements
  * @param {Array} productList - Product list
- * @param {Object} constants - Business constants
- * @param {Object} productIds - Product ID mappings
- * @returns {Object} Points calculation result
+ * @param {object} constants - Business constants
+ * @param {object} productIds - Product ID mappings
+ * @returns {object} Points calculation result
  */
 export const calculateAndRenderPoints = (
   totalAmount,
@@ -26,7 +26,7 @@ export const calculateAndRenderPoints = (
   cartElements,
   productList,
   constants,
-  productIds
+  productIds,
 ) => {
   const cartItems = Array.from(cartElements);
 
@@ -49,7 +49,7 @@ export const calculateAndRenderPoints = (
   const todayIsTuesday = isTuesday();
   if (todayIsTuesday && finalPoints > 0) {
     finalPoints = basePoints * 2;
-    pointsDetail.push("화요일 2배");
+    pointsDetail.push('화요일 2배');
   }
 
   // 3. 세트 보너스 계산
@@ -57,7 +57,7 @@ export const calculateAndRenderPoints = (
     cartItems,
     productList,
     constants,
-    productIds
+    productIds,
   );
   finalPoints += setBonusResult.points;
   pointsDetail.push(...setBonusResult.details);
@@ -92,7 +92,7 @@ const calculateSetBonuses = (cartItems, productList, constants, productIds) => {
   if (hasKeyboard && hasMouse) {
     bonusPoints += constants.POINTS.KEYBOARD_MOUSE_BONUS;
     bonusDetails.push(
-      `키보드+마우스 세트 +${constants.POINTS.KEYBOARD_MOUSE_BONUS}p`
+      `키보드+마우스 세트 +${constants.POINTS.KEYBOARD_MOUSE_BONUS}p`,
     );
   }
 
@@ -142,12 +142,12 @@ const renderPointsToDOM = (finalPoints, pointsDetail) => {
   if (finalPoints > 0) {
     ptsTag.innerHTML = `
       <div>적립 포인트: <span class="font-bold">${finalPoints}p</span></div>
-      <div class="text-2xs opacity-70 mt-1">${pointsDetail.join(", ")}</div>
+      <div class="text-2xs opacity-70 mt-1">${pointsDetail.join(', ')}</div>
     `;
-    ptsTag.style.display = "block";
+    ptsTag.style.display = 'block';
   } else {
-    ptsTag.textContent = "적립 포인트: 0p";
-    ptsTag.style.display = "block";
+    ptsTag.textContent = '적립 포인트: 0p';
+    ptsTag.style.display = 'block';
   }
 };
 
@@ -157,6 +157,6 @@ const renderPointsToDOM = (finalPoints, pointsDetail) => {
 const hidePointsDisplay = () => {
   const ptsTag = document.getElementById(ELEMENT_IDS.LOYALTY_POINTS);
   if (ptsTag) {
-    ptsTag.style.display = "none";
+    ptsTag.style.display = 'none';
   }
 };

@@ -1,5 +1,5 @@
-import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
-import { htmlToElement } from "../../../shared/utils/dom.js";
+import { ELEMENT_IDS } from '../../../shared/constants/element-ids.js';
+import { htmlToElement } from '../../../shared/utils/dom.js';
 
 /**
  * OrderSummaryDetails Component - Pure HTML Template
@@ -16,16 +16,16 @@ const OrderSummaryDetails = (cartItems = []) => {
 
   return cartItems
     .map(
-      (item) => /* html */ `
+      item => /* html */ `
         <div class="flex justify-between text-sm">
           <span class="text-gray-200">${item.name} × ${item.quantity}</span>
           <span class="text-white">₩${(
             item.price * item.quantity
           ).toLocaleString()}</span>
         </div>
-      `
+      `,
     )
-    .join("");
+    .join('');
 };
 
 export default OrderSummaryDetails;
@@ -36,20 +36,20 @@ export default OrderSummaryDetails;
  */
 const getCartItemsFromDOM = () => {
   const cartContainer = document.getElementById(ELEMENT_IDS.CART_ITEMS);
-  const cartElements = cartContainer.querySelectorAll("article[id]");
+  const cartElements = cartContainer.querySelectorAll('article[id]');
 
-  return Array.from(cartElements).map((element) => {
+  return Array.from(cartElements).map(element => {
     const productId = element.id;
-    const nameElement = element.querySelector("h3");
-    const quantityElement = element.querySelector(".quantity-number");
-    const priceElement = element.querySelector(".text-lg");
+    const nameElement = element.querySelector('h3');
+    const quantityElement = element.querySelector('.quantity-number');
+    const priceElement = element.querySelector('.text-lg');
 
     // Extract product name (remove icons)
-    const fullName = nameElement?.textContent || "";
-    const name = fullName.replace(/^[⚡💝]+/, "").trim();
+    const fullName = nameElement?.textContent || '';
+    const name = fullName.replace(/^[⚡💝]+/u, '').trim();
 
     // Extract quantity
-    const quantity = parseInt(quantityElement?.textContent || "0");
+    const quantity = parseInt(quantityElement?.textContent || '0');
 
     // Extract price from the right column
     let price = 0;
@@ -57,7 +57,7 @@ const getCartItemsFromDOM = () => {
       const priceText = priceElement.textContent;
       const match = priceText.match(/₩([\d,]+)/);
       if (match) {
-        price = parseInt(match[1].replace(/,/g, ""));
+        price = parseInt(match[1].replace(/,/g, ''));
       }
     }
 
@@ -78,7 +78,7 @@ export const renderOrderSummaryDetails = () => {
   const orderSummaryHtml = OrderSummaryDetails(cartItems);
 
   const summaryDetailsContainer = document.getElementById(
-    ELEMENT_IDS.SUMMARY_DETAILS
+    ELEMENT_IDS.SUMMARY_DETAILS,
   );
   summaryDetailsContainer.innerHTML = orderSummaryHtml;
 };

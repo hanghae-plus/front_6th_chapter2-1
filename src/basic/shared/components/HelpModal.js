@@ -1,8 +1,8 @@
-import { htmlToElement } from "../utils/dom.js";
+import { htmlToElement } from '../utils/dom.js';
 
 /**
  * Pure HelpModal Component - JSX-like Template
- * @returns {Object} Help modal elements and handlers
+ * @returns {object} Help modal elements and handlers
  */
 const HelpModal = () => {
   const toggleButtonHTML = /* html */ `
@@ -80,7 +80,7 @@ const HelpModal = () => {
 
   const toggleButton = htmlToElement(toggleButtonHTML);
   const overlay = htmlToElement(overlayHTML);
-  const modalPanel = overlay.querySelector(".fixed.right-0");
+  const modalPanel = overlay.querySelector('.fixed.right-0');
 
   // Modal state management
   let isOpen = false;
@@ -88,18 +88,18 @@ const HelpModal = () => {
   const handleToggle = () => {
     isOpen = !isOpen;
     if (isOpen) {
-      overlay.classList.remove("hidden");
-      modalPanel.classList.remove("translate-x-full");
+      overlay.classList.remove('hidden');
+      modalPanel.classList.remove('translate-x-full');
     } else {
-      overlay.classList.add("hidden");
-      modalPanel.classList.add("translate-x-full");
+      overlay.classList.add('hidden');
+      modalPanel.classList.add('translate-x-full');
     }
   };
 
   const handleClose = () => {
     isOpen = false;
-    overlay.classList.add("hidden");
-    modalPanel.classList.add("translate-x-full");
+    overlay.classList.add('hidden');
+    modalPanel.classList.add('translate-x-full');
   };
 
   // Note: Event handling is managed by event delegation in main.basic.js

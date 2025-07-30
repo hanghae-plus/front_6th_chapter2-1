@@ -1,8 +1,8 @@
-import { htmlToElement } from "../../../shared/utils/dom.js";
+import { htmlToElement } from '../../../shared/utils/dom.js';
 
 /**
  * CartItem Component - Pure HTML Template
- * @param {Object} props - Component props
+ * @param {object} props - Component props
  * @param {string} props.id - Product ID
  * @param {string} props.name - Product name
  * @param {number} props.val - Product price
@@ -31,22 +31,22 @@ const CartItem = ({
       <div>
         <h3 class="text-base font-normal mb-1 tracking-tight">${
           onSale && suggestSale
-            ? "⚡💝"
+            ? '⚡💝'
             : onSale
-            ? "⚡"
-            : suggestSale
-            ? "💝"
-            : ""
+              ? '⚡'
+              : suggestSale
+                ? '💝'
+                : ''
         }${name}</h3>
         <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
         <p class="text-xs text-black mb-3">${
           onSale || suggestSale
             ? `<span class="line-through text-gray-400">₩${originalVal.toLocaleString()}</span> <span class="${
                 onSale && suggestSale
-                  ? "text-purple-600"
+                  ? 'text-purple-600'
                   : onSale
-                  ? "text-red-500"
-                  : "text-blue-500"
+                    ? 'text-red-500'
+                    : 'text-blue-500'
               }">₩${val.toLocaleString()}</span>`
             : `₩${val.toLocaleString()}`
         }</p>
@@ -71,10 +71,10 @@ const CartItem = ({
                 originalVal * quantity
               ).toLocaleString()}</span> <span class="${
                 onSale && suggestSale
-                  ? "text-purple-600"
+                  ? 'text-purple-600'
                   : onSale
-                  ? "text-red-500"
-                  : "text-blue-500"
+                    ? 'text-red-500'
+                    : 'text-blue-500'
               }">₩${(val * quantity).toLocaleString()}</span>`
             : `₩${(val * quantity).toLocaleString()}`
         }</div>
@@ -91,9 +91,9 @@ export default CartItem;
 
 /**
  * Render CartItem to DOM
- * @param {Object} props - Product data with all required properties
+ * @param {object} props - Product data with all required properties
  */
-export const renderCartItem = (props) => {
+export const renderCartItem = props => {
   const cartItemHtml = CartItem(props);
   const cartItemElement = htmlToElement(cartItemHtml);
   return cartItemElement;

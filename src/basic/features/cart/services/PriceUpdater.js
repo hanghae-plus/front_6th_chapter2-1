@@ -12,7 +12,7 @@
 export const updatePricesInCart = (
   cartDisplayElement,
   productList,
-  onCalculate
+  onCalculate,
 ) => {
   if (!cartDisplayElement || !cartDisplayElement.children) {
     return;
@@ -21,7 +21,7 @@ export const updatePricesInCart = (
   const cartItems = Array.from(cartDisplayElement.children);
 
   // 각 장바구니 아이템의 가격 디스플레이 업데이트
-  cartItems.forEach((cartItem) => {
+  cartItems.forEach(cartItem => {
     updateCartItemPrice(cartItem, productList);
   });
 
@@ -42,8 +42,8 @@ const updateCartItemPrice = (cartItem, productList) => {
 
   if (!product) return;
 
-  const priceDiv = cartItem.querySelector(".text-lg");
-  const nameDiv = cartItem.querySelector("h3");
+  const priceDiv = cartItem.querySelector('.text-lg');
+  const nameDiv = cartItem.querySelector('h3');
 
   if (!priceDiv || !nameDiv) return;
 
@@ -57,7 +57,7 @@ const updateCartItemPrice = (cartItem, productList) => {
 /**
  * 세일 포맷팅으로 가격 디스플레이 업데이트
  * @param {HTMLElement} priceDiv - Price display element
- * @param {Object} product - Product data
+ * @param {object} product - Product data
  */
 const updatePriceDisplay = (priceDiv, product) => {
   if (product.onSale && product.suggestSale) {
@@ -84,7 +84,7 @@ const updatePriceDisplay = (priceDiv, product) => {
 /**
  * 세일 인디케이터로 이름 디스플레이 업데이트
  * @param {HTMLElement} nameDiv - Name display element
- * @param {Object} product - Product data
+ * @param {object} product - Product data
  */
 const updateNameDisplay = (nameDiv, product) => {
   let displayName = product.name;
@@ -146,8 +146,8 @@ export const applySuggestSale = (productId, discountRate, productList) => {
  * 모든 상품의 세일 리셋
  * @param {Array} productList - Product list
  */
-export const resetAllSales = (productList) => {
-  productList.forEach((product) => {
+export const resetAllSales = productList => {
+  productList.forEach(product => {
     product.val = product.originalVal;
     product.onSale = false;
     product.suggestSale = false;
@@ -157,14 +157,12 @@ export const resetAllSales = (productList) => {
 /**
  * 현재 세일 상태 가져오기
  * @param {Array} productList - Product list
- * @returns {Object} Sale status information
+ * @returns {object} Sale status information
  */
-export const getSaleStatus = (productList) => {
-  const flashSaleProducts = productList.filter((p) => p.onSale);
-  const suggestSaleProducts = productList.filter((p) => p.suggestSale);
-  const comboSaleProducts = productList.filter(
-    (p) => p.onSale && p.suggestSale
-  );
+export const getSaleStatus = productList => {
+  const flashSaleProducts = productList.filter(p => p.onSale);
+  const suggestSaleProducts = productList.filter(p => p.suggestSale);
+  const comboSaleProducts = productList.filter(p => p.onSale && p.suggestSale);
 
   return {
     flashSaleProducts,
@@ -178,8 +176,8 @@ export const getSaleStatus = (productList) => {
  * 상품 찾기 헬퍼
  * @param {string} productId - Product ID
  * @param {Array} productList - Product list
- * @returns {Object|undefined} Product or undefined
+ * @returns {object | undefined} Product or undefined
  */
 const findProductById = (productId, productList) => {
-  return productList.find((p) => p.id === productId);
+  return productList.find(p => p.id === productId);
 };

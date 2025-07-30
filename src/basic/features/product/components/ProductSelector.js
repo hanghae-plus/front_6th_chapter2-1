@@ -1,8 +1,8 @@
-import { htmlToElement } from "../../../shared/utils/dom.js";
+import { htmlToElement } from '../../../shared/utils/dom.js';
 
 /**
  * Pure ProductSelector Component - JSX-like Template
- * @param {Object} props - Component props
+ * @param {object} props - Component props
  * @param {Array} props.products - Product list
  * @param {string} props.selectedProductId - Currently selected product ID
  * @param {Function} props.onSelectionChange - Callback when selection changes
@@ -10,14 +10,14 @@ import { htmlToElement } from "../../../shared/utils/dom.js";
  */
 const ProductSelector = ({
   products = [],
-  selectedProductId = "",
+  selectedProductId = '',
   onSelectionChange,
 }) => {
   const renderOptions = () => {
     return products
-      .map((product) => {
+      .map(product => {
         let optionText = `${product.name} - ${product.val}원`;
-        let optionClass = "";
+        let optionClass = '';
 
         if (product.q === 0) {
           optionText = `${product.name} - ${product.val}원 (품절)`;
@@ -35,7 +35,7 @@ const ProductSelector = ({
           }
         }
 
-        const disabled = product.q === 0 ? "disabled" : "";
+        const disabled = product.q === 0 ? 'disabled' : '';
 
         return /* html */ `
         <option value="${product.id}" ${optionClass} ${disabled}>
@@ -43,7 +43,7 @@ const ProductSelector = ({
         </option>
       `;
       })
-      .join("");
+      .join('');
   };
 
   const selectorHTML = /* html */ `
@@ -63,7 +63,7 @@ const ProductSelector = ({
   }
 
   // Add event listener
-  selector.addEventListener("change", (e) => {
+  selector.addEventListener('change', e => {
     if (onSelectionChange) {
       onSelectionChange(e.target.value);
     }
@@ -73,9 +73,9 @@ const ProductSelector = ({
   selector.updateProducts = (newProducts, newSelectedId) => {
     // Re-render options
     const newOptionsHTML = newProducts
-      .map((product) => {
+      .map(product => {
         let optionText = `${product.name} - ${product.val}원`;
-        let optionClass = "";
+        let optionClass = '';
 
         if (product.q === 0) {
           optionText = `${product.name} - ${product.val}원 (품절)`;
@@ -93,7 +93,7 @@ const ProductSelector = ({
           }
         }
 
-        const disabled = product.q === 0 ? "disabled" : "";
+        const disabled = product.q === 0 ? 'disabled' : '';
 
         return /* html */ `
         <option value="${product.id}" ${optionClass} ${disabled}>
@@ -101,7 +101,7 @@ const ProductSelector = ({
         </option>
       `;
       })
-      .join("");
+      .join('');
 
     selector.innerHTML = newOptionsHTML;
 

@@ -1,33 +1,31 @@
-import { App } from "./shared/components/App.js";
-import { initialProducts } from "./features/product/constants/productConstants.js";
-
-import { setProductState } from "./features/product/store/ProductStore.js";
-
+import { registerCartEvents } from './features/cart/events/cartEventHandler.js';
 import {
   initializeCartService,
   calculateCartTotals,
   updateCartUI,
   renderCartTotalComponent,
-} from "./features/cart/services/cartService.js";
-import {
-  initializePointService,
-  calculateAndRenderPoints,
-} from "./features/point/services/pointService.js";
-import {
-  initializeProductService,
-  updateProductSelector,
-  updateStockInfo,
-} from "./features/product/services/productService.js";
-import { updateOrderSummary } from "./features/order/services/orderService.js";
+} from './features/cart/services/cartService.js';
 import {
   initializeCartPromotion,
   setupFlashSaleTimer,
   setupRecommendationTimer,
-} from "./features/cart/services/promotionService.js";
-import { registerCartEvents } from "./features/cart/events/cartEventHandler.js";
+} from './features/cart/services/promotionService.js';
+import { updateOrderSummary } from './features/order/services/orderService.js';
+import {
+  initializePointService,
+  calculateAndRenderPoints,
+} from './features/point/services/pointService.js';
+import { initialProducts } from './features/product/constants/productConstants.js';
+import {
+  initializeProductService,
+  updateProductSelector,
+  updateStockInfo,
+} from './features/product/services/productService.js';
+import { setProductState } from './features/product/store/ProductStore.js';
+import { App } from './shared/components/App.js';
 
-const main = (callbackFn) => {
-  const root = document.getElementById("app");
+const main = callbackFn => {
+  const root = document.getElementById('app');
 
   setProductState({
     products: initialProducts,
@@ -46,18 +44,18 @@ const main = (callbackFn) => {
   root.appendChild(app.helpModal.toggleButton);
   root.appendChild(app.helpModal.overlay);
 
-  document.addEventListener("click", (event) => {
+  document.addEventListener('click', event => {
     const target = event.target;
 
-    if (target.closest(".help-toggle")) {
+    if (target.closest('.help-toggle')) {
       app.helpModal.handleToggle();
       return;
     }
 
     if (
-      target.closest(".help-close") ||
-      (target.closest(".help-overlay") &&
-        event.target.classList.contains("help-overlay"))
+      target.closest('.help-close') ||
+      (target.closest('.help-overlay') &&
+        event.target.classList.contains('help-overlay'))
     ) {
       app.helpModal.handleClose();
       return;
@@ -67,7 +65,7 @@ const main = (callbackFn) => {
   callbackFn(app.helpModal);
 };
 
-const calculateCart = (callback) => {
+const calculateCart = callback => {
   const cartResults = calculateCartTotals();
   updateCartUI(cartResults);
   const pointsResults = calculateAndRenderPoints(cartResults);
@@ -93,7 +91,7 @@ main(() => {
 
   registerCartEvents(calculateCart, updateProductSelector);
 
-  window.addEventListener("cart-updated", () => {
+  window.addEventListener('cart-updated', () => {
     calculateCart();
   });
 });

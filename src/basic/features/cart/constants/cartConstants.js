@@ -19,8 +19,8 @@ export const CART_CONSTANTS = {
 
 // Cart related DOM element IDs
 export const CART_ELEMENT_IDS = {
-  CART_ITEMS: "cart-items",
-  CART_TOTAL: "cart-total",
-  DISCOUNT_INFO: "discount-info",
-  TUESDAY_SPECIAL: "tuesday-special",
+  CART_ITEMS: 'cart-items',
+  CART_TOTAL: 'cart-total',
+  DISCOUNT_INFO: 'discount-info',
+  TUESDAY_SPECIAL: 'tuesday-special',
 };

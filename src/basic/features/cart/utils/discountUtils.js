@@ -6,15 +6,15 @@
  * 개별 상품 할인율 계산 (CartCalculator.calculateItemDiscount 기반)
  * @param {string} productId - 상품 ID
  * @param {number} quantity - 수량
- * @param {Object} constants - 비즈니스 상수
- * @param {Object} products - 상품 ID 맵
+ * @param {object} constants - 비즈니스 상수
+ * @param {object} products - 상품 ID 맵
  * @returns {number} 할인율 (0~1)
  */
 export const calculateItemDiscountRate = (
   productId,
   quantity,
   constants,
-  products
+  products,
 ) => {
   if (quantity < constants.DISCOUNT.ITEM_DISCOUNT_MIN_QUANTITY) {
     return 0;

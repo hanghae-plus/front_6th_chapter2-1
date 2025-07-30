@@ -1,13 +1,14 @@
-import { ProductSelector } from "./ProductSelector.js";
-import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
-import { htmlToElement } from "../../../shared/utils/dom.js";
-import { productState, setProductState } from "../store/ProductStore.js";
+import { ELEMENT_IDS } from '../../../shared/constants/element-ids.js';
+import { htmlToElement } from '../../../shared/utils/dom.js';
+import { productState, setProductState } from '../store/ProductStore.js';
+
+import { ProductSelector } from './ProductSelector.js';
 
 export const ProductSection = () => {
   const productSelectorElement = ProductSelector({
     products: productState.products,
     selectedProductId: productState.lastSelectedProduct,
-    onSelectionChange: (productId) => {
+    onSelectionChange: productId => {
       setProductState({
         ...productState,
         lastSelectedProduct: productId,
@@ -29,10 +30,10 @@ export const ProductSection = () => {
   `;
 
   const leftColumn = htmlToElement(leftColumnHTML);
-  const selectorContainer = leftColumn.querySelector(".border-b");
+  const selectorContainer = leftColumn.querySelector('.border-b');
   selectorContainer.insertBefore(
     productSelectorElement,
-    selectorContainer.firstChild
+    selectorContainer.firstChild,
   );
 
   return {

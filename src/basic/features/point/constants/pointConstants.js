@@ -13,6 +13,6 @@ export const POINT_CONSTANTS = {
 
 // Point related DOM element IDs
 export const POINT_ELEMENT_IDS = {
-  LOYALTY_POINTS: "loyalty-points",
-  POINTS_NOTICE: "points-notice",
+  LOYALTY_POINTS: 'loyalty-points',
+  POINTS_NOTICE: 'points-notice',
 };

@@ -8,7 +8,7 @@ export let cartState = {
   totalItemCount: 0,
 };
 
-export const setCartState = (updates) => {
+export const setCartState = updates => {
   cartState = { ...cartState, ...updates };
 };
 

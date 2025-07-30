@@ -1,8 +1,9 @@
 // 리액트처럼 간단한 state import
-import { productState } from "../../product/store/ProductStore.js";
-import { BUSINESS_CONSTANTS } from "../../../shared/constants/business.js";
-import { applyFlashSale, applySuggestSale } from "./PriceUpdater.js";
-import { updateProductSelector } from "../../product/services/productService.js";
+import { BUSINESS_CONSTANTS } from '../../../shared/constants/business.js';
+import { updateProductSelector } from '../../product/services/productService.js';
+import { productState } from '../../product/store/ProductStore.js';
+
+import { applyFlashSale, applySuggestSale } from './PriceUpdater.js';
 
 // PriceUpdater 클래스 제거하고 순수 함수 사용
 export const initializeCartPromotion = () => {
@@ -13,7 +14,7 @@ export const setupFlashSaleTimer = () => {
   const lightningDelay = Math.random() * BUSINESS_CONSTANTS.TIMERS.RANDOM_DELAY;
 
   setTimeout(() => {
-    setInterval(function () {
+    setInterval(() => {
       const products = productState.products;
       const luckyIdx = Math.floor(Math.random() * products.length);
       const luckyItem = products[luckyIdx];
@@ -22,26 +23,26 @@ export const setupFlashSaleTimer = () => {
       const saleApplied = applyFlashSale(
         luckyItem.id,
         BUSINESS_CONSTANTS.DISCOUNT.FLASH_SALE_DISCOUNT_RATE,
-        products
+        products,
       );
 
       if (saleApplied) {
         const discountPercent =
           BUSINESS_CONSTANTS.DISCOUNT.FLASH_SALE_DISCOUNT_RATE * 100;
         alert(
-          `⚡번개세일! ${luckyItem.name}이(가) ${discountPercent}% 할인 중입니다!`
+          `⚡번개세일! ${luckyItem.name}이(가) ${discountPercent}% 할인 중입니다!`,
         );
         updateProductSelector();
-        window.dispatchEvent(new CustomEvent("cart-updated"));
+        window.dispatchEvent(new CustomEvent('cart-updated'));
       }
     }, BUSINESS_CONSTANTS.TIMERS.FLASH_SALE_INTERVAL);
   }, lightningDelay);
 };
 
 export const setupRecommendationTimer = () => {
-  setTimeout(function () {
-    setInterval(function () {
-      const cartDisplayElement = document.getElementById("cart-items");
+  setTimeout(() => {
+    setInterval(() => {
+      const cartDisplayElement = document.getElementById('cart-items');
       if (cartDisplayElement.children.length === 0) {
         return;
       }
@@ -67,17 +68,17 @@ export const setupRecommendationTimer = () => {
           const saleApplied = applySuggestSale(
             suggest.id,
             BUSINESS_CONSTANTS.DISCOUNT.SUGGEST_DISCOUNT_RATE,
-            products
+            products,
           );
 
           if (saleApplied) {
             const discountPercent =
               BUSINESS_CONSTANTS.DISCOUNT.SUGGEST_DISCOUNT_RATE * 100;
             alert(
-              `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 ${discountPercent}% 추가 할인!`
+              `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 ${discountPercent}% 추가 할인!`,
             );
             updateProductSelector();
-            window.dispatchEvent(new CustomEvent("cart-updated"));
+            window.dispatchEvent(new CustomEvent('cart-updated'));
           }
         }
       }

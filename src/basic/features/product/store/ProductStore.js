@@ -10,6 +10,6 @@ export let productState = {
   products: [],
 };
 
-export const setProductState = (updates) => {
+export const setProductState = updates => {
   productState = { ...productState, ...updates };
 };

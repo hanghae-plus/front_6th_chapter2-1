@@ -1,4 +1,4 @@
-import { htmlToElement } from "../../../shared/utils/dom.js";
+import { htmlToElement } from '../../../shared/utils/dom.js';
 
 export const OrderSection = () => {
   const rightColumnHTML = /* html */ `

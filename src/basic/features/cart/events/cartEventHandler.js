@@ -1,17 +1,17 @@
-import { renderCartItem } from "../components/CartItem.js";
-import { findProductById } from "../../product/utils/productUtils.js";
-import { productState } from "../../product/store/ProductStore.js";
+import { productState } from '../../product/store/ProductStore.js';
+import { findProductById } from '../../product/utils/productUtils.js';
+import { renderCartItem } from '../components/CartItem.js';
 
 // Cart click handlers (moved from clickDelegates.js)
 const handleCartClick = (
   event,
-  { cartUtils, onCalculate, onUpdateOptions }
+  { cartUtils, onCalculate, onUpdateOptions },
 ) => {
   const target = event.target;
 
   if (
-    !target.classList.contains("quantity-change") &&
-    !target.classList.contains("remove-item")
+    !target.classList.contains('quantity-change') &&
+    !target.classList.contains('remove-item')
   ) {
     return;
   }
@@ -24,10 +24,10 @@ const handleCartClick = (
 
   if (!product || !itemElement) return;
 
-  if (target.classList.contains("quantity-change")) {
+  if (target.classList.contains('quantity-change')) {
     const quantityChange = parseInt(target.dataset.change);
     cartUtils.changeItemQuantity(product, itemElement, quantityChange);
-  } else if (target.classList.contains("remove-item")) {
+  } else if (target.classList.contains('remove-item')) {
     cartUtils.removeItem(product, itemElement);
   }
 
@@ -46,7 +46,7 @@ const handleAddToCartClick = (event, { onAddToCart }) => {
 // Cart utilities
 const cartUtils = {
   updateItemQuantity: (product, existingItem) => {
-    const qtyElement = existingItem.querySelector(".quantity-number");
+    const qtyElement = existingItem.querySelector('.quantity-number');
     const currentQty = parseInt(qtyElement.textContent);
     const newQty = currentQty + 1;
 
@@ -55,14 +55,14 @@ const cartUtils = {
       product.q--;
       return true;
     } else {
-      alert("재고가 부족합니다.");
+      alert('재고가 부족합니다.');
       return false;
     }
   },
 
-  addNewItem: (product) => {
+  addNewItem: product => {
     if (product.q <= 0) {
-      alert("재고가 부족합니다.");
+      alert('재고가 부족합니다.');
       return false;
     }
 
@@ -76,7 +76,7 @@ const cartUtils = {
       suggestSale: product.suggestSale || false,
     });
 
-    const cartContainer = document.getElementById("cart-items");
+    const cartContainer = document.getElementById('cart-items');
     cartContainer.appendChild(cartItem);
 
     product.q--;
@@ -84,7 +84,7 @@ const cartUtils = {
   },
 
   changeItemQuantity: (product, itemElement, change) => {
-    const qtyElement = itemElement.querySelector(".quantity-number");
+    const qtyElement = itemElement.querySelector('.quantity-number');
     const currentQty = parseInt(qtyElement.textContent);
     const newQty = currentQty + change;
 
@@ -94,7 +94,7 @@ const cartUtils = {
     }
 
     if (change > 0 && product.q < change) {
-      alert("재고가 부족합니다.");
+      alert('재고가 부족합니다.');
       return;
     }
 
@@ -103,7 +103,7 @@ const cartUtils = {
   },
 
   removeItem: (product, itemElement) => {
-    const qtyElement = itemElement.querySelector(".quantity-number");
+    const qtyElement = itemElement.querySelector('.quantity-number');
     const quantity = parseInt(qtyElement.textContent);
     product.q += quantity;
     itemElement.remove();
@@ -112,7 +112,7 @@ const cartUtils = {
 
 // Main cart event handler
 const handleAddToCart = () => {
-  const productSelector = document.getElementById("product-select");
+  const productSelector = document.getElementById('product-select');
   const selectedProductId = productSelector.value;
   const product = findProductById(selectedProductId, productState.products);
 
@@ -128,24 +128,24 @@ const handleAddToCart = () => {
   }
 
   if (success) {
-    window.dispatchEvent(new CustomEvent("cart-updated"));
+    window.dispatchEvent(new CustomEvent('cart-updated'));
   }
 };
 
 // Register cart events
 export const registerCartEvents = (onCalculate, onUpdateOptions) => {
   // Register Add to Cart button
-  const addToCartButton = document.getElementById("add-to-cart");
+  const addToCartButton = document.getElementById('add-to-cart');
   if (addToCartButton) {
-    addToCartButton.addEventListener("click", (event) => {
+    addToCartButton.addEventListener('click', event => {
       handleAddToCartClick(event, { onAddToCart: handleAddToCart });
     });
   }
 
   // Register cart item events (delegation)
-  const cartContainer = document.getElementById("cart-items");
+  const cartContainer = document.getElementById('cart-items');
   if (cartContainer) {
-    cartContainer.addEventListener("click", (event) => {
+    cartContainer.addEventListener('click', event => {
       handleCartClick(event, {
         cartUtils,
         onCalculate,

@@ -1,23 +1,23 @@
-import { Header } from "./Header.js";
-import { HelpModal } from "./HelpModal.js";
-import { ProductSelector } from "../../features/product/components/ProductSelector.js";
-import { ELEMENT_IDS } from "../constants/element-ids.js";
-import { htmlToElement } from "../utils/dom.js";
-
+import { ProductSelector } from '../../features/product/components/ProductSelector.js';
 import {
   productState,
   setProductState,
-} from "../../features/product/store/ProductStore.js";
+} from '../../features/product/store/ProductStore.js';
+import { ELEMENT_IDS } from '../constants/element-ids.js';
+import { htmlToElement } from '../utils/dom.js';
+
+import { Header } from './Header.js';
+import { HelpModal } from './HelpModal.js';
 
 /**
  * Main App Component - JSX-like Template
- * @returns {Object} App elements and references
+ * @returns {object} App elements and references
  */
 export const App = () => {
   const productSelectorElement = ProductSelector({
     products: productState.products,
     selectedProductId: productState.lastSelectedProduct,
-    onSelectionChange: (productId) => {
+    onSelectionChange: productId => {
       setProductState({
         ...productState,
         lastSelectedProduct: productId,
@@ -86,13 +86,13 @@ export const App = () => {
   const appElement = htmlToElement(appHTML);
 
   appElement
-    .querySelector(".max-w-md")
-    .insertBefore(header, appElement.querySelector(".grid"));
+    .querySelector('.max-w-md')
+    .insertBefore(header, appElement.querySelector('.grid'));
 
-  const selectorContainer = appElement.querySelector(".border-b");
+  const selectorContainer = appElement.querySelector('.border-b');
   selectorContainer.insertBefore(
     productSelectorElement,
-    selectorContainer.firstChild
+    selectorContainer.firstChild,
   );
 
   return {

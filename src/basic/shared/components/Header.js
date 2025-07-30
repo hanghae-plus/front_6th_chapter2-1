@@ -1,8 +1,8 @@
-import { htmlToElement } from "../utils/dom.js";
+import { htmlToElement } from '../utils/dom.js';
 
 /**
  * Pure Header Component - JSX-like Template
- * @param {Object} props - Component props
+ * @param {object} props - Component props
  * @param {number} props.itemCount - Current item count in cart
  * @returns {HTMLElement} Header element
  */

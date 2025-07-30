@@ -1,36 +1,34 @@
 // 리액트처럼 간단한 state import
-import { productState, setProductState } from "../store/ProductStore.js";
-import { ELEMENT_IDS } from "../../../shared/constants/element-ids.js";
+import { productState, setProductState } from '../store/ProductStore.js';
 import {
-  findProductById,
   getTotalStock,
   generateStockStatusMessage,
-} from "../utils/productUtils.js";
+} from '../utils/productUtils.js';
 
 export const initializeProductService = () => {
   // 초기화 로직이 필요하면 여기에
 };
 
 export const updateProductSelector = () => {
-  const productSelector = document.getElementById("product-select");
+  const productSelector = document.getElementById('product-select');
   if (!productSelector) return;
 
   productSelector.updateProducts(
     productState.products,
-    productState.lastSelectedProduct
+    productState.lastSelectedProduct,
   );
 
   const totalStock = getTotalStock(productState.products);
 
   if (totalStock < 50) {
-    productSelector.style.borderColor = "orange";
+    productSelector.style.borderColor = 'orange';
   } else {
-    productSelector.style.borderColor = "";
+    productSelector.style.borderColor = '';
   }
 };
 
 export const updateStockInfo = () => {
-  const stockInfoElement = document.getElementById(ELEMENT_IDS.STOCK_STATUS);
+  const stockInfoElement = document.getElementById('stock-status');
   if (!stockInfoElement) return;
 
   const infoMsg = generateStockStatusMessage(productState.products, 5);
