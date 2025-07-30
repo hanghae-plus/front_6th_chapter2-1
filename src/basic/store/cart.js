@@ -1,4 +1,4 @@
-import { createStore } from ".";
+import { createStore, QUERY } from ".";
 import { products } from "./product";
 
 export const cartState = {
@@ -50,7 +50,10 @@ const cartActions = {
 
   getItemQuantity: (state, productId) => {
     const item = state.items.find((item) => item.id === productId);
-    return item ? item.quantity : 0;
+    return {
+      type: QUERY,
+      data: item ? item.quantity : 0,
+    };
   },
 
   reset: (state) => ({

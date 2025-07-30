@@ -649,29 +649,15 @@ addBtn.addEventListener("click", () => {
     // const qtyElem = item.querySelector(".quantity-number");
 
     // 현재 수량
-    // const currentQty = parseInt(qtyElem.textContent);
     const currentQty = cartStore.getItemQuantity(itemToAdd.id);
-
-    console.log("currentQty", currentQty);
-    console.log("cartStore", cartStore.getState());
 
     // 새로운 수량
     const newQty = currentQty + 1;
 
-    // 최신 재고 정보 가져오기
-    const latestProdList = productStore.getState().products;
-
-    // 최신 재고 정보 찾기
-    // const latestItem = latestProdList.find(
-    //   (product) => product.id === itemToAdd.id
-    // );
+    // 최신 재고
     const itemQuantity = itemToAdd.q;
-    console.log("최신재고", itemQuantity);
-
-    // 원본 로직: 새로운 수량이 (현재 재고 + 현재 장바구니 수량) 이하여야 함
-    // if (latestItem && newQty <= latestItem.q + currentQty) {
     if (itemQuantity > 0) {
-      // UI - 수량 업데이트
+      // UI - 최신 재고로 수량 업데이트
       renderQuantity(itemToAdd.id, newQty);
 
       // Store - 재고 업데이트

@@ -1,3 +1,5 @@
+export const QUERY = "QUERY";
+
 export const createStore = (initialState, actions = {}) => {
   let state = initialState;
   const listeners = [];
@@ -22,11 +24,13 @@ export const createStore = (initialState, actions = {}) => {
     boundActions[actionName] = (...args) => {
       const result = actions[actionName](state, ...args);
 
+      if (!result) return;
+
       // 모든 액션은 상태 변경을 위한 것이므로 결과를 새로운 state로 설정
-      if (result && typeof result === "object") {
-        store.setState(result);
-        return result;
+      if (typeof result === "object" && result.type === "QUERY") {
+        return result.data;
       }
+      store.setState(result);
       return result;
     };
   });
