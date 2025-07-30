@@ -278,11 +278,6 @@ function DiscountInfo(summary) {
   `;
 }
 
-function renderProductSelectOptions() {
-  const select = document.getElementById('product-select');
-  select.innerHTML = state.products.map(ProductSelectItem).join('');
-}
-
 function renderCartItems() {
   const cartItemsEl = document.getElementById('cart-items');
 
@@ -402,8 +397,6 @@ function main() {
   renderInitialLayout();
   attachEventListeners();
   render();
-
-  renderProductSelectOptions();
 
   setTimeout(() => {
     setInterval(function () {
