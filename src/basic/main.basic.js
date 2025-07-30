@@ -6,6 +6,7 @@ import { ManualOverlay } from "../components/ManualOverlay";
 import { ManualToggle } from "../components/ManualToggle";
 import { RightColumn } from "../components/RightColumn";
 import { SelectContainer } from "../components/SelectContainer";
+
 var prodList;
 var bonusPts = 0;
 var stockInfo;
@@ -20,6 +21,7 @@ var product_3 = "p3";
 var p4 = "p4";
 var PRODUCT_5 = `p5`;
 var cartDisp;
+
 function main() {
   var root;
   let header = Header();
@@ -178,6 +180,7 @@ function main() {
   }, Math.random() * 20000);
 }
 var sum;
+
 function onUpdateSelectOptions() {
   var totalStock;
   var opt;
@@ -245,6 +248,7 @@ function onUpdateSelectOptions() {
     sel.style.borderColor = "";
   }
 }
+
 function handleCalculateCartStuff() {
   var cartItems;
   var subTot;
@@ -475,6 +479,7 @@ function handleCalculateCartStuff() {
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
+
 var doRenderBonusPoints = function () {
   var basePoints;
   var finalPoints;
@@ -561,6 +566,7 @@ var doRenderBonusPoints = function () {
     }
   }
 };
+
 function onGetStockTotal() {
   var sum;
   var i;
@@ -651,6 +657,7 @@ function doUpdatePricesInCart() {
   }
   handleCalculateCartStuff();
 }
+
 function handleManualToggle(manualOverlay, manualColumn) {
   if (manualOverlay && manualColumn) {
     manualOverlay.classList.toggle("hidden");
@@ -665,8 +672,7 @@ function handleManualOverlayClick(e, manualColumn) {
   }
 }
 
-main();
-addBtn.addEventListener("click", function () {
+function handleAddToCart() {
   var selItem = sel.value;
   var hasItem = false;
   for (var idx = 0; idx < prodList.length; idx++) {
@@ -768,8 +774,9 @@ addBtn.addEventListener("click", function () {
     handleCalculateCartStuff();
     lastSel = selItem;
   }
-});
-cartDisp.addEventListener("click", function (event) {
+}
+
+function handleCartDispClick(event) {
   var tgt = event.target;
   if (
     tgt.classList.contains("quantity-change") ||
@@ -809,4 +816,8 @@ cartDisp.addEventListener("click", function (event) {
     handleCalculateCartStuff();
     onUpdateSelectOptions();
   }
-});
+}
+
+main();
+addBtn.addEventListener("click", handleAddToCart);
+cartDisp.addEventListener("click", handleCartDispClick);
