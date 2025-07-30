@@ -3,8 +3,9 @@ import { PRODUCT_IDS, DISCOUNT_RATES, INITIAL_PRODUCTS } from './constant';
 const state = {
   products: INITIAL_PRODUCTS,
   cartList: [],
-  lastSelectedId: null,
   notifications: [],
+  selectedProductId: 'p1',
+  lastSelectedId: null,
 };
 
 const listeners = [];
@@ -114,6 +115,11 @@ const dispatch = (action) => {
         id: Date.now(),
         message: `💝 ${luckyItem.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`,
       });
+      break;
+    }
+
+    case 'SET_SELECTED_PRODUCT': {
+      state.selectedProductId = payload.productId;
       break;
     }
 
