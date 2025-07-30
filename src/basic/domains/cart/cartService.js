@@ -4,25 +4,14 @@ import { doRenderBonusPoints } from "../loyalty/loyaltyService";
 import { DISCOUNT_CONSTANTS, STOCK_CONSTANTS, UI_CONSTANTS } from "../../constants/discount";
 
 export function handleCalculateCartStuff(state) {
-	// Get DOM elements
-	const cartItems = state.cartDisp.children;
-	const itemDiscounts = [];
-	const summaryDetails = document.getElementById("summary-details");
-	const totalDiv = state.sum.querySelector(".text-2xl");
-	const loyaltyPointsDiv = document.getElementById("loyalty-points");
-	const discountInfoDiv = document.getElementById("discount-info");
-	const itemCountElement = document.getElementById("item-count");
-
-	// Initialize calculation variables
-	let subTot = 0;
-	let savedAmount;
-	let points;
-	let previousCount;
-	let stockMsg;
-
 	// Reset state values
 	state.totalAmt = 0;
 	state.itemCnt = 0;
+
+	// Get cart items and initialize calculation variables
+	const cartItems = state.cartDisp.children;
+	const itemDiscounts = [];
+	let subTot = 0;
 
 	// Calculate totals and discounts for each cart item
 	for (let i = 0; i < cartItems.length; i++) {
@@ -100,8 +89,7 @@ export function handleCalculateCartStuff(state) {
 	}
 
 	// Apply Tuesday special discount
-	const today = new Date();
-	const isTuesday = today.getDay() === UI_CONSTANTS.DAYS.TUESDAY;
+	const isTuesday = new Date().getDay() === UI_CONSTANTS.DAYS.TUESDAY;
 	const tuesdaySpecial = document.getElementById("tuesday-special");
 
 	if (isTuesday) {
@@ -117,6 +105,7 @@ export function handleCalculateCartStuff(state) {
 	}
 
 	// Update UI elements
+	const summaryDetails = document.getElementById("summary-details");
 	document.getElementById("item-count").textContent = `🛍️ ${state.itemCnt} items in cart`;
 	summaryDetails.innerHTML = "";
 
@@ -196,13 +185,15 @@ export function handleCalculateCartStuff(state) {
 	}
 
 	// Update total amount display
+	const totalDiv = state.sum.querySelector(".text-2xl");
 	if (totalDiv) {
 		totalDiv.textContent = `₩${Math.round(state.totalAmt).toLocaleString()}`;
 	}
 
 	// Update loyalty points display
+	const loyaltyPointsDiv = document.getElementById("loyalty-points");
 	if (loyaltyPointsDiv) {
-		points = Math.floor(state.totalAmt / UI_CONSTANTS.LOYALTY_POINTS_RATIO);
+		const points = Math.floor(state.totalAmt / UI_CONSTANTS.LOYALTY_POINTS_RATIO);
 		if (points > 0) {
 			loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
 			loyaltyPointsDiv.style.display = "block";
@@ -213,9 +204,10 @@ export function handleCalculateCartStuff(state) {
 	}
 
 	// Update discount information display
+	const discountInfoDiv = document.getElementById("discount-info");
 	discountInfoDiv.innerHTML = "";
 	if (discRate > 0 && state.totalAmt > 0) {
-		savedAmount = originalTotal - state.totalAmt;
+		const savedAmount = originalTotal - state.totalAmt;
 		discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -228,16 +220,17 @@ export function handleCalculateCartStuff(state) {
 	}
 
 	// Update item count with animation trigger
+	const itemCountElement = document.getElementById("item-count");
 	if (itemCountElement) {
-		previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+		const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
 		itemCountElement.textContent = `🛍️ ${state.itemCnt} items in cart`;
 		if (previousCount !== state.itemCnt) {
 			itemCountElement.setAttribute("data-changed", "true");
 		}
 	}
 
-	// Generate stock warning messages
-	stockMsg = "";
+	// Generate and update stock warning messages
+	let stockMsg = "";
 	for (let stockIdx = 0; stockIdx < products.length; stockIdx++) {
 		const item = products[stockIdx];
 		if (item.q < STOCK_CONSTANTS.LOW_STOCK_THRESHOLD) {
@@ -248,8 +241,6 @@ export function handleCalculateCartStuff(state) {
 			}
 		}
 	}
-
-	// Update related UI components
 	state.stockInfo.textContent = stockMsg;
 	handleStockInfoUpdate(state);
 	doRenderBonusPoints(state);

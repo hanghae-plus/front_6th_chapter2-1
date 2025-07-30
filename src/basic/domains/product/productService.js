@@ -2,56 +2,15 @@ import { products } from "./data";
 import { STOCK_CONSTANTS } from "../../constants/discount";
 
 export function onUpdateSelectOptions(state) {
-	let totalStock;
-	let opt;
-	let discountText;
-
-	// Clear existing options
+	// Clear existing options and calculate total stock
 	state.sel.innerHTML = "";
-	totalStock = 0;
-
-	// Calculate total stock
-	for (let idx = 0; idx < products.length; idx++) {
-		const _p = products[idx];
-		totalStock = totalStock + _p.q;
-	}
+	const totalStock = products.reduce((total, product) => total + product.q, 0);
 
 	// Create options for each product
-	for (let i = 0; i < products.length; i++) {
-		(function () {
-			const item = products[i];
-
-			opt = document.createElement("option");
-			opt.value = item.id;
-			discountText = "";
-
-			// Add sale indicators
-			if (item.onSale) discountText += " ⚡SALE";
-			if (item.suggestSale) discountText += " 💝추천";
-
-			// Handle out of stock items
-			if (item.q === 0) {
-				opt.textContent = `${item.name} - ${item.val}원 (품절)${discountText}`;
-				opt.disabled = true;
-				opt.className = "text-gray-400";
-			} else {
-				// Handle different sale combinations
-				if (item.onSale && item.suggestSale) {
-					opt.textContent = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)`;
-					opt.className = "text-purple-600 font-bold";
-				} else if (item.onSale) {
-					opt.textContent = `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)`;
-					opt.className = "text-red-500 font-bold";
-				} else if (item.suggestSale) {
-					opt.textContent = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)`;
-					opt.className = "text-blue-500 font-bold";
-				} else {
-					opt.textContent = `${item.name} - ${item.val}원${discountText}`;
-				}
-			}
-			state.sel.appendChild(opt);
-		})();
-	}
+	products.forEach(product => {
+		const option = createProductOption(product);
+		state.sel.appendChild(option);
+	});
 
 	// Update border color based on stock level
 	if (totalStock < STOCK_CONSTANTS.CRITICAL_STOCK_THRESHOLD) {
@@ -61,20 +20,53 @@ export function onUpdateSelectOptions(state) {
 	}
 }
 
-export const handleStockInfoUpdate = function (state) {
-	let infoMsg = "";
+/**
+ * Create option element for product
+ * @param {Object} product - Product data
+ * @returns {HTMLOptionElement} - Created option element
+ */
+function createProductOption(product) {
+	const option = document.createElement("option");
+	option.value = product.id;
 
-	// Generate stock warning messages
-	products.forEach(function (item) {
-		if (item.q < STOCK_CONSTANTS.LOW_STOCK_THRESHOLD) {
+	// Handle out of stock items
+	if (product.q === 0) {
+		option.textContent = `${product.name} - ${product.val}원 (품절)`;
+		option.disabled = true;
+		option.className = "text-gray-400";
+		return option;
+	}
+
+	// Handle different sale combinations
+	if (product.onSale && product.suggestSale) {
+		option.textContent = `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`;
+		option.className = "text-purple-600 font-bold";
+	} else if (product.onSale) {
+		option.textContent = `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`;
+		option.className = "text-red-500 font-bold";
+	} else if (product.suggestSale) {
+		option.textContent = `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`;
+		option.className = "text-blue-500 font-bold";
+	} else {
+		option.textContent = `${product.name} - ${product.val}원`;
+	}
+
+	return option;
+}
+
+export const handleStockInfoUpdate = function (state) {
+	// Generate stock warning messages using more functional approach
+	const stockWarnings = products
+		.filter(item => item.q < STOCK_CONSTANTS.LOW_STOCK_THRESHOLD)
+		.map(item => {
 			if (item.q > 0) {
-				infoMsg = `${infoMsg + item.name}: 재고 부족 (${item.q}개 남음)\n`;
+				return `${item.name}: 재고 부족 (${item.q}개 남음)`;
 			} else {
-				infoMsg = `${infoMsg + item.name}: 품절\n`;
+				return `${item.name}: 품절`;
 			}
-		}
-	});
+		})
+		.join('\n');
 
 	// Update stock info display
-	state.stockInfo.textContent = infoMsg;
+	state.stockInfo.textContent = stockWarnings;
 };

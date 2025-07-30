@@ -37,7 +37,13 @@ export const STOCK_CONSTANTS = {
 
 export const UI_CONSTANTS = {
 	LOYALTY_POINTS_RATIO: 1000, // 1 point per 1000 won
-	DAYS: { TUESDAY: 2 }
+	DAYS: { TUESDAY: 2 },
+	TIMERS: {
+		LIGHTNING_SALE_INTERVAL: 30000, // 30 seconds
+		SUGGEST_SALE_INTERVAL: 60000, // 60 seconds
+		LIGHTNING_SALE_MAX_DELAY: 10000, // Max 10 seconds
+		SUGGEST_SALE_MAX_DELAY: 20000 // Max 20 seconds
+	}
 };
 
 // Point constants from features
