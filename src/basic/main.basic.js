@@ -10,9 +10,6 @@ import { setupPromotionTimers } from './features/promotion/index.js';
 import { onUpdateSelectOptions, handleCalculateCartStuff } from './features/events/index.js';
 import { setupCartEventHandlers } from './features/cart-management/index.js';
 
-// AppState 참조
-const AppState = appState;
-
 // 애플리케이션 인스턴스
 let app = null;
 
@@ -21,9 +18,9 @@ let app = null;
  */
 function initializeUI() {
   try {
-    var initStock = calculateTotalStock(AppState.products);
-    onUpdateSelectOptions(AppState);
-    handleCalculateCartStuff(AppState);
+    calculateTotalStock(appState.products);
+    onUpdateSelectOptions(appState);
+    handleCalculateCartStuff(appState);
     console.log('✅ UI 초기화 완료');
   } catch (error) {
     console.error('❌ UI 초기화 실패:', error);
@@ -40,14 +37,14 @@ function main() {
     console.log('🚀 모듈화된 쇼핑카트 애플리케이션 시작');
 
     // 애플리케이션 초기화
-    initializeApplication(AppState);
-    initializeProductData(AppState);
-    createDOMElements(AppState);
-    setupPromotionTimers(AppState);
+    initializeApplication(appState);
+    initializeProductData(appState);
+    createDOMElements(appState);
+    setupPromotionTimers(appState);
     initializeUI();
-    setupCartEventHandlers(AppState);
+    setupCartEventHandlers(appState);
 
-    app = AppState;
+    app = appState;
 
     console.log('✅ 애플리케이션 초기화 완료');
     console.log('📦 7개 모듈로 구성된 클린 아키텍처 로드됨');

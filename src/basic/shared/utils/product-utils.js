@@ -44,4 +44,4 @@ export function calculateTotalStock(products) {
     total += products[i].q;
   }
   return total;
-} 
+}
