@@ -1,4 +1,4 @@
-import { LOW_TOTAL_STOCK_THRESHOLD, OUT_OF_STOCK } from './domain/product';
+import { LIGHTNING_DISCOUNT, LOW_TOTAL_STOCK_THRESHOLD, OUT_OF_STOCK } from './domain/product';
 import productManager from './domain/product';
 import {
   createAddCartButton,
@@ -124,8 +124,6 @@ function main() {
   itemCount = 0;
   lastSelectedItem = null;
 
-  initProducts();
-
   productSelector = createProductSelector();
 
   addCartButton = createAddCartButton();
@@ -152,23 +150,30 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
+  /* 데이터 준비 */
+  initProducts();
   updateSelectOptions();
   handleCalculateCartStuff();
 
+  /* 번개 세일 */
   setTimeout(() => {
     setInterval(() => {
-      const luckyIdx = Math.floor(Math.random() * productManager.getProductCount());
-      const luckyItem = productManager.getProductAt(luckyIdx);
-      if (luckyItem.quantity > 0 && !luckyItem.onSale) {
-        luckyItem.discountValue = Math.round((luckyItem.originalVal * 80) / 100);
-        luckyItem.onSale = true;
-        alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
+      const randomIndex = Math.floor(Math.random() * productManager.getProductCount());
+
+      const randomItem = productManager.getProductAt(randomIndex);
+
+      if (randomItem.quantity > OUT_OF_STOCK && !randomItem.onSale) {
+        randomItem.discountValue = Math.round(randomItem.originalVal * (1 - LIGHTNING_DISCOUNT));
+        randomItem.onSale = true;
+        alert(`⚡번개세일! ${randomItem.name}이(가) 20% 할인 중입니다!`);
+
         updateSelectOptions();
         doUpdatePricesInCart();
       }
     }, 30000);
   }, lightningDelay);
 
+  /* 추천 세일 */
   setTimeout(() => {
     setInterval(() => {
       if (lastSelectedItem) {
