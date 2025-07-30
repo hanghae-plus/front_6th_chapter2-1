@@ -18,7 +18,11 @@ export const renderCartItemPrice = (product) => {
       <span class="text-purple-600">₩${val.toLocaleString()}</span>
     `;
     displayName = "⚡💝" + name;
-  } else if (onSale) {
+    return { priceHTML, displayName };
+  }
+
+  // 번개할인 상태에 따른 가격 렌더링
+  if (onSale) {
     priceHTML = /* HTML */ `
       <span class="line-through text-gray-400"
         >₩${originalVal.toLocaleString()}</span
@@ -26,7 +30,11 @@ export const renderCartItemPrice = (product) => {
       <span class="text-red-500">₩${val.toLocaleString()}</span>
     `;
     displayName = "⚡" + name;
-  } else if (suggestSale) {
+    return { priceHTML, displayName };
+  }
+
+  // 추천할인 상태에 따른 가격 렌더링
+  if (suggestSale) {
     priceHTML = /* HTML */ `
       <span class="line-through text-gray-400"
         >₩${originalVal.toLocaleString()}</span
@@ -34,10 +42,12 @@ export const renderCartItemPrice = (product) => {
       <span class="text-blue-500">₩${val.toLocaleString()}</span>
     `;
     displayName = "💝" + name;
-  } else {
-    priceHTML = /* HTML */ `₩${val.toLocaleString()}`;
-    displayName = name;
+    return { priceHTML, displayName };
   }
+
+  // 할인 상태가 아닌 경우 가격 렌더링
+  priceHTML = /* HTML */ `₩${val.toLocaleString()}`;
+  displayName = name;
 
   return {
     priceHTML,

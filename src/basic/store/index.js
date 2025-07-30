@@ -2,10 +2,17 @@ export const ACTION_TYPE = {
   QUERY: "QUERY",
 };
 
+/**
+ * 스토어 생성
+ * @param {Object} initialState - 초기 상태
+ * @param {Object} actions - 액션 함수들
+ * @returns {Object} 스토어 객체
+ */
 export const createStore = (initialState, actions = {}) => {
   let state = initialState;
   const listeners = [];
 
+  // 스토어 객체 생성
   const store = {
     getState: () => state,
     setState: (newState) => {

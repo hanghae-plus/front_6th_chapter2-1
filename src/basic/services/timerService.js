@@ -9,7 +9,6 @@ import { updateCartPricesAndRefresh } from "./priceUpdateService";
 
 /**
  * 타이머 서비스
- * 애플리케이션의 모든 타이머를 관리합니다.
  */
 export const initializeTimers = () => {
   const productList = productStore.getState().products;

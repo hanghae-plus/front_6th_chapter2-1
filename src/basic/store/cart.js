@@ -22,22 +22,26 @@ const initialCartState = {
 };
 
 const cartActions = {
+  // 상품 선택
   setSelectedProduct: (state, productId) => ({
     ...state,
     selectedProductId: productId,
   }),
 
+  // 장바구니 아이템 업데이트
   updateItems: (state, cartData) => ({
     ...state,
     items: [...cartData],
     itemCount: cartData.reduce((total, item) => total + item.quantity, 0),
   }),
 
+  // 총 금액 업데이트
   setTotalAmount: (state, amount) => ({
     ...state,
     totalAmount: amount,
   }),
 
+  // 장바구니 아이템 추가
   addCartItem: (state, productItem) => {
     // 장바구니에 이미 있는 상품인지 확인
     const isExistItem = state.items.find((item) => item.id === productItem.id);
@@ -61,6 +65,7 @@ const cartActions = {
     };
   },
 
+  // 장바구니 아이템 수량 업데이트
   updateItemQuantity: (state, productId, newQuantity) => {
     if (newQuantity <= 0) {
       // 수량이 0 이하면 아이템 제거
@@ -79,6 +84,7 @@ const cartActions = {
     };
   },
 
+  // 장바구니 아이템 수량 조회
   getItemQuantity: (state, productId) => {
     const item = state.items.find((item) => item.id === productId);
     return {
@@ -87,6 +93,7 @@ const cartActions = {
     };
   },
 
+  // 장바구니 아이템 조회
   getCartItemByProductId: (state, productId) => {
     const item = state.items.find((item) => item.id === productId);
     return {
@@ -95,6 +102,7 @@ const cartActions = {
     };
   },
 
+  // 장바구니 아이템 존재 체크
   isExistInCart: (state, productId) => {
     const item = state.items.find((item) => item.id === productId);
     return {
@@ -103,12 +111,15 @@ const cartActions = {
     };
   },
 
+  // 장바구니 아이템 수량 조회
   getCartTotalItemCount: (state) => {
     return {
       type: ACTION_TYPE.QUERY,
       data: state.items.reduce((total, item) => total + item.quantity, 0),
     };
   },
+
+  // 장바구니 아이템 총 금액 조회
   getCartOriginalTotalAmount: (state) => {
     return {
       type: ACTION_TYPE.QUERY,
@@ -119,6 +130,7 @@ const cartActions = {
     };
   },
 
+  // 장바구니 아이템 총 금액 조회
   getCartTotalAmountWithDiscount: (state) => {
     return {
       type: ACTION_TYPE.QUERY,
@@ -129,11 +141,13 @@ const cartActions = {
     };
   },
 
+  // 장바구니 아이템 총 금액 조회
   updateTotals: (state, totals) => ({
     ...state,
     totals: { ...state.totals, ...totals },
   }),
 
+  // 장바구니 초기화
   reset: (state) => ({
     ...state,
     selectedProductId: null,

@@ -7,6 +7,7 @@ const initialProductState = {
 };
 
 const productActions = {
+  // 상품 재고 업데이트
   updateStock: (state, productId, newQuantity) => {
     return {
       ...state,

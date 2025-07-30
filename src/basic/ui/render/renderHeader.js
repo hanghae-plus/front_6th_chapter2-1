@@ -1,3 +1,7 @@
+/**
+ * 헤더 렌더링 함수
+ * @returns {string} 렌더링된 HTML
+ */
 export const renderHeader = () => {
   return /* HTML */ `
     <div class="mb-8">

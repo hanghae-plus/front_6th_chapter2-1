@@ -1,4 +1,11 @@
+/**
+ * 새로운 장바구니 아이템 렌더링 함수
+ * @param {Object} product - 상품 정보
+ * @param {number} quantity - 수량
+ * @returns {string} 렌더링된 HTML
+ */
 export const renderNewCartItem = (product, quantity = 1) => {
+  // 가격 렌더링
   const priceString =
     product.onSale || product.suggestSale
       ? /* HTML */ `<span class="line-through text-gray-400"
@@ -8,20 +15,21 @@ export const renderNewCartItem = (product, quantity = 1) => {
             class="${product.onSale && product.suggestSale
               ? "text-purple-600"
               : product.onSale
-              ? "text-red-500"
-              : "text-blue-500"}"
+                ? "text-red-500"
+                : "text-blue-500"}"
             >₩${product.val.toLocaleString()}</span
           >`
       : /* HTML */ `₩${product.val.toLocaleString()}`;
 
+  // 할인 접두사 렌더링
   const salePrefix =
     product.onSale && product.suggestSale
       ? "⚡💝"
       : product.onSale
-      ? "⚡"
-      : product.suggestSale
-      ? "💝"
-      : "";
+        ? "⚡"
+        : product.suggestSale
+          ? "💝"
+          : "";
 
   return /* HTML */ `
     <div

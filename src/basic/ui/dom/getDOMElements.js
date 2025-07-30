@@ -1,8 +1,4 @@
 /**
- * DOM 요소들을 가져오는 함수들
- */
-
-/**
  * 상품 선택 dropdown 요소 가져오기
  * @returns {HTMLSelectElement} 상품 선택 dropdown
  */

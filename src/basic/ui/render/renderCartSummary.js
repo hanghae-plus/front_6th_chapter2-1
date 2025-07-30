@@ -7,17 +7,8 @@
  */
 export const renderCartSummary = (cartData) => {
   const { items, totals } = cartData;
-  const {
-    subTotal,
-    totalAmount,
-    totalQty,
-    itemDiscounts,
-    bulkDiscount,
-    tuesdayDiscount,
-    isTuesday,
-    totalDiscountRate,
-    savedAmount,
-  } = totals;
+  const { subTotal, itemDiscounts, bulkDiscount, tuesdayDiscount, isTuesday } =
+    totals;
 
   let html = "";
 
@@ -50,7 +41,10 @@ export const renderCartSummary = (cartData) => {
           <span class="text-xs">-${bulkDiscount}%</span>
         </div>
       `;
-    } else if (itemDiscounts.length > 0) {
+    }
+
+    // 아이템별 할인 정보
+    if (itemDiscounts.length > 0) {
       itemDiscounts.forEach((item) => {
         html += /* HTML */ `
           <div
@@ -63,6 +57,7 @@ export const renderCartSummary = (cartData) => {
       });
     }
 
+    // 화요일 할인 정보
     if (isTuesday && tuesdayDiscount > 0) {
       html += /* HTML */ `
         <div class="flex justify-between text-sm tracking-wide text-purple-400">
