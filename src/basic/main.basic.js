@@ -489,14 +489,14 @@ function doUpdatePricesInCart(state) {
 }
 
 // Component creation functions
-function createProductSelector() {
+function createProductDropdownSelect() {
 	const select = document.createElement("select");
 	select.id = "product-select";
 	select.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
 	return select;
 }
 
-function createAddToCartButton() {
+function createCartAddButton() {
 	const button = document.createElement("button");
 	button.id = "add-to-cart";
 	button.innerHTML = "Add to Cart";
@@ -505,14 +505,14 @@ function createAddToCartButton() {
 	return button;
 }
 
-function createStockInfoDisplay() {
+function createStockWarningMessage() {
 	const div = document.createElement("div");
 	div.id = "stock-status";
 	div.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
 	return div;
 }
 
-function createSelectorContainer(selector, addButton, stockInfo) {
+function createProductSelectionPanel(selector, addButton, stockInfo) {
 	const container = document.createElement("div");
 	container.className = "mb-6 pb-6 border-b border-gray-200";
 	
@@ -523,13 +523,13 @@ function createSelectorContainer(selector, addButton, stockInfo) {
 	return container;
 }
 
-function createCartDisplay() {
+function createCartItemsContainer() {
 	const div = document.createElement("div");
 	div.id = "cart-items";
 	return div;
 }
 
-function createLeftColumn(selectorContainer, cartDisplay) {
+function createShoppingAreaColumn(selectorContainer, cartDisplay) {
 	const leftColumn = document.createElement("div");
 	leftColumn["className"] = "bg-white border border-gray-200 p-8 overflow-y-auto";
 	leftColumn.appendChild(selectorContainer);
@@ -537,7 +537,7 @@ function createLeftColumn(selectorContainer, cartDisplay) {
 	return leftColumn;
 }
 
-function createRightColumn() {
+function createOrderSummaryColumn() {
 	const rightColumn = document.createElement("div");
 	rightColumn.className = "bg-black text-white p-8 flex flex-col";
 	rightColumn.innerHTML = /* HTML */ `
@@ -576,7 +576,7 @@ function createRightColumn() {
 	return rightColumn;
 }
 
-function createManualToggleButton(manualOverlay, manualColumn) {
+function createHelpModalToggleButton(manualOverlay, manualColumn) {
 	const manualToggle = document.createElement("button");
 	manualToggle.onclick = function () {
 		manualOverlay.classList.toggle("hidden");
@@ -588,7 +588,7 @@ function createManualToggleButton(manualOverlay, manualColumn) {
 	return manualToggle;
 }
 
-function createManualOverlay(manualColumn) {
+function createHelpModalBackdrop(manualColumn) {
 	const manualOverlay = document.createElement("div");
 	manualOverlay.className = "fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300";
 	manualOverlay.onclick = function (e) {
@@ -600,7 +600,7 @@ function createManualOverlay(manualColumn) {
 	return manualOverlay;
 }
 
-function createManualColumn() {
+function createHelpContentPanel() {
 	const manualColumn = document.createElement("div");
 	manualColumn.className =
 		"fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300";
@@ -668,7 +668,7 @@ function createManualColumn() {
 	return manualColumn;
 }
 
-function createGridContainer(leftColumn, rightColumn) {
+function createMainLayoutGrid(leftColumn, rightColumn) {
 	const gridContainer = document.createElement("div");
 	gridContainer.className =
 		"grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
@@ -677,7 +677,7 @@ function createGridContainer(leftColumn, rightColumn) {
 	return gridContainer;
 }
 
-function createCartItem(itemToAdd) {
+function createShoppingCartItemElement(itemToAdd) {
 	const newItem = document.createElement("div");
 	newItem.id = itemToAdd.id;
 	newItem.className =
@@ -710,25 +710,25 @@ function main() {
 	const root = document.getElementById("app");
 
 	// Create UI components using component functions
-	appState.sel = createProductSelector();
-	appState.addBtn = createAddToCartButton();
-	appState.stockInfo = createStockInfoDisplay();
+	appState.sel = createProductDropdownSelect();
+	appState.addBtn = createCartAddButton();
+	appState.stockInfo = createStockWarningMessage();
 	
-	const selectorContainer = createSelectorContainer(appState.sel, appState.addBtn, appState.stockInfo);
-	appState.cartDisp = createCartDisplay();
-	const leftColumn = createLeftColumn(selectorContainer, appState.cartDisp);
+	const selectorContainer = createProductSelectionPanel(appState.sel, appState.addBtn, appState.stockInfo);
+	appState.cartDisp = createCartItemsContainer();
+	const leftColumn = createShoppingAreaColumn(selectorContainer, appState.cartDisp);
 
-	const rightColumn = createRightColumn();
+	const rightColumn = createOrderSummaryColumn();
 	appState.sum = rightColumn.querySelector("#cart-total");
 
 	// Create manual components
-	const manualColumn = createManualColumn();
-	const manualOverlay = createManualOverlay(manualColumn);
-	const manualToggle = createManualToggleButton(manualOverlay, manualColumn);
+	const manualColumn = createHelpContentPanel();
+	const manualOverlay = createHelpModalBackdrop(manualColumn);
+	const manualToggle = createHelpModalToggleButton(manualOverlay, manualColumn);
 	
 	manualOverlay.appendChild(manualColumn);
 
-	const gridContainer = createGridContainer(leftColumn, rightColumn);
+	const gridContainer = createMainLayoutGrid(leftColumn, rightColumn);
 
 	appState.totalAmt = 0;
 	appState.itemCnt = 0;
@@ -819,7 +819,7 @@ function main() {
 					alert("재고가 부족합니다.");
 				}
 			} else {
-				const newItem = createCartItem(itemToAdd);
+				const newItem = createShoppingCartItemElement(itemToAdd);
 				appState.cartDisp.appendChild(newItem);
 				itemToAdd.q--;
 			}
