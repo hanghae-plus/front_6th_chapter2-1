@@ -1,10 +1,11 @@
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
-import userEvent from "@testing-library/user-event";
+import userEvent from '@testing-library/user-event';
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 
 describe('basic 테스트', () => {
   // 공통 헬퍼 함수
   const addItemsToCart = (sel, addBtn, productId, count) => {
     sel.value = productId;
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
     for (let i = 0; i < count; i++) {
       addBtn.click();
     }
@@ -28,8 +29,8 @@ describe('basic 테스트', () => {
   };
 
   describe.each([
-    { type: 'origin', loadFile: () => import('../../main.original.js'), },
-    { type: 'basic', loadFile: () => import('../main.basic.js'), },
+    { type: 'origin', loadFile: () => import('../../main.original.js') },
+    { type: 'basic', loadFile: () => import('../main.basic.js') },
   ])('$type 장바구니 상세 기능 테스트', ({ loadFile }) => {
     let sel, addBtn, cartDisp, sum, stockInfo, itemCount, loyaltyPoints, discountInfo;
 
@@ -39,7 +40,6 @@ describe('basic 테스트', () => {
 
       // 전체 DOM 재초기화
       document.body.innerHTML = '<div id="app"></div>';
-      
       // 모듈 캐시 클리어 및 재로드
       vi.resetModules();
       await loadFile();
@@ -68,7 +68,13 @@ describe('basic 테스트', () => {
             { id: 'p2', name: '생산성 폭발 마우스', price: '20000원', stock: 30, discount: 15 },
             { id: 'p3', name: '거북목 탈출 모니터암', price: '30000원', stock: 20, discount: 20 },
             { id: 'p4', name: '에러 방지 노트북 파우치', price: '15000원', stock: 0, discount: 5 },
-            { id: 'p5', name: '코딩할 때 듣는 Lo-Fi 스피커', price: '25000원', stock: 10, discount: 25 }
+            {
+              id: 'p5',
+              name: '코딩할 때 듣는 Lo-Fi 스피커',
+              price: '25000원',
+              stock: 10,
+              discount: 25,
+            },
           ];
 
           expect(sel.options.length).toBe(5);
@@ -153,8 +159,7 @@ describe('basic 테스트', () => {
             vi.useFakeTimers();
             vi.setSystemTime(tuesday);
 
-            sel.value = 'p1';
-            addBtn.click();
+            addItemsToCart(sel, addBtn, 'p1', 1);
 
             // 10,000원 -> 9,000원 (10% 할인)
             expect(sum.textContent).toContain('₩9,000');
@@ -202,8 +207,7 @@ describe('basic 테스트', () => {
           it.skip('마지막 선택한 상품과 다른 상품 추천 및 5% 할인', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
             vi.useFakeTimers();
-            sel.value = 'p1';
-            addBtn.click();
+            addItemsToCart(sel, addBtn, 'p1', 1);
             await vi.advanceTimersByTimeAsync(80000);
             vi.useRealTimers();
           });
@@ -211,8 +215,7 @@ describe('basic 테스트', () => {
           it.skip('추천할인 상품은 드롭다운에 💝 아이콘 표시', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
             vi.useFakeTimers();
-            sel.value = 'p1';
-            addBtn.click();
+            addItemsToCart(sel, addBtn, 'p1', 1);
             await vi.advanceTimersByTimeAsync(80000);
             vi.useRealTimers();
           });
@@ -223,8 +226,7 @@ describe('basic 테스트', () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
             vi.useFakeTimers();
             await vi.advanceTimersByTimeAsync(40000);
-            sel.value = 'p1';
-            addBtn.click();
+            addItemsToCart(sel, addBtn, 'p1', 1);
             await vi.advanceTimersByTimeAsync(80000);
             vi.useRealTimers();
           });
@@ -236,8 +238,7 @@ describe('basic 테스트', () => {
     describe('4. 포인트 적립 시스템', () => {
       describe('4.1 기본 적립', () => {
         it('최종 결제 금액의 0.1% 포인트 적립', () => {
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
 
           // 10,000원 -> 10포인트
           expect(loyaltyPoints.textContent).toContain('10p');
@@ -250,8 +251,7 @@ describe('basic 테스트', () => {
           vi.useFakeTimers();
           vi.setSystemTime(tuesday);
 
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
 
           // 9,000원 (화요일 10% 할인) -> 9포인트 * 2 = 18포인트
           expect(loyaltyPoints.textContent).toContain('18p');
@@ -261,11 +261,9 @@ describe('basic 테스트', () => {
         });
 
         it('키보드+마우스 세트 구매 시 +50p', () => {
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
 
-          sel.value = 'p2';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p2', 1);
 
           // 30,000원 -> 30포인트 + 50포인트 = 80포인트
           expect(loyaltyPoints.textContent).toContain('80p');
@@ -273,14 +271,9 @@ describe('basic 테스트', () => {
         });
 
         it('풀세트(키보드+마우스+모니터암) 구매 시 +100p', () => {
-          sel.value = 'p1';
-          addBtn.click();
-
-          sel.value = 'p2';
-          addBtn.click();
-
-          sel.value = 'p3';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
+          addItemsToCart(sel, addBtn, 'p2', 1);
+          addItemsToCart(sel, addBtn, 'p3', 1);
 
           // 60,000원 -> 60포인트 + 50포인트(세트) + 100포인트(풀세트) = 210포인트
           expect(loyaltyPoints.textContent).toContain('210p');
@@ -314,11 +307,9 @@ describe('basic 테스트', () => {
 
       describe('4.3 포인트 표시', () => {
         it('포인트 적립 내역 상세 표시', () => {
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
 
-          sel.value = 'p2';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p2', 1);
 
           const pointsText = loyaltyPoints.textContent;
           expect(pointsText).toContain('기본:');
@@ -353,9 +344,9 @@ describe('basic 테스트', () => {
         it('할인 중인 상품 강조 표시 확인', async () => {
           // 현재 화요일 테스트 또는 일반 상황에서의 강조 표시만 확인
           const options = Array.from(sel.options);
-          
+
           // 품절 상품이 비활성화되어 있는지 확인
-          const disabledOption = options.find(opt => opt.disabled);
+          const disabledOption = options.find((opt) => opt.disabled);
           if (disabledOption) {
             expect(disabledOption.textContent).toContain('품절');
           }
@@ -364,9 +355,7 @@ describe('basic 테스트', () => {
 
       describe('5.3 장바구니 영역', () => {
         it('장바구니 아이템 카드 형식 확인', () => {
-          sel.value = 'p1';
-          addBtn.click();
-
+          addItemsToCart(sel, addBtn, 'p1', 1);
           const cartItem = cartDisp.querySelector('#p1');
 
           // 상품 이미지
@@ -384,16 +373,14 @@ describe('basic 테스트', () => {
         });
 
         it('첫 번째 상품은 상단 여백 없음', () => {
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
 
           const firstItem = cartDisp.firstElementChild;
           expect(firstItem.className).toContain('first:pt-0');
         });
 
         it('마지막 상품은 하단 테두리 없음', () => {
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
 
           const lastItem = cartDisp.lastElementChild;
           expect(lastItem.className).toContain('last:border-b-0');
@@ -436,17 +423,14 @@ describe('basic 테스트', () => {
     describe('6. 기능 요구사항', () => {
       describe('6.1 상품 추가', () => {
         it('선택한 상품을 장바구니에 추가', () => {
-          sel.value = 'p2';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p2', 1);
 
           expect(cartDisp.children.length).toBe(1);
           expect(cartDisp.querySelector('#p2')).toBeTruthy();
         });
 
         it('이미 있는 상품은 수량 증가', () => {
-          sel.value = 'p3';
-          addBtn.click();
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p3', 2);
 
           expect(cartDisp.children.length).toBe(1);
           const qty = cartDisp.querySelector('.quantity-number').textContent;
@@ -456,15 +440,14 @@ describe('basic 테스트', () => {
         it('재고 초과 시 알림 표시', () => {
           // 재고가 10개인 상품5를 11개 추가 시도
           addItemsToCart(sel, addBtn, 'p5', 11);
-          
+
           // 장바구니에는 10개만 있어야 함
           const qty = getCartItemQuantity(cartDisp, 'p5');
           expect(qty).toBeLessThanOrEqual(10);
         });
 
         it('품절 상품은 선택 불가', () => {
-          sel.value = 'p4';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p4', 1);
 
           expect(cartDisp.children.length).toBe(0);
         });
@@ -472,8 +455,7 @@ describe('basic 테스트', () => {
 
       describe('6.2 수량 변경', () => {
         it('+/- 버튼으로 수량 조절', async () => {
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
 
           const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
           const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
@@ -493,16 +475,15 @@ describe('basic 테스트', () => {
 
           const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
           const qtyBefore = getCartItemQuantity(cartDisp, 'p5');
-          
+
           await userEvent.click(increaseBtn);
-          
+
           const qtyAfter = getCartItemQuantity(cartDisp, 'p5');
           expect(qtyAfter).toBe(qtyBefore); // 수량이 증가하지 않아야 함
         });
 
         it('수량 0이 되면 자동 제거', async () => {
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
 
           const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
           await userEvent.click(decreaseBtn);
@@ -513,8 +494,7 @@ describe('basic 테스트', () => {
 
       describe('6.3 상품 제거', () => {
         it('Remove 버튼 클릭 시 즉시 제거', async () => {
-          sel.value = 'p2';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p2', 1);
 
           const removeBtn = cartDisp.querySelector('.remove-item');
           await userEvent.click(removeBtn);
@@ -528,15 +508,14 @@ describe('basic 테스트', () => {
 
           const removeBtn = cartDisp.querySelector('.remove-item');
           await userEvent.click(removeBtn);
-          
+
           // 재고가 복구되어야 하지만 원본 코드에서는 제대로 업데이트되지 않음
         });
       });
 
       describe('6.4 실시간 계산', () => {
         it('수량 변경 시 즉시 재계산', async () => {
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
 
           expect(sum.textContent).toContain('₩10,000');
 
@@ -554,8 +533,7 @@ describe('basic 테스트', () => {
         });
 
         it('포인트 실시간 업데이트', async () => {
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
 
           expect(loyaltyPoints.textContent).toContain('10p');
 
@@ -594,7 +572,7 @@ describe('basic 테스트', () => {
         it('장바구니 추가 시 재고 확인', () => {
           // 재고 10개인 상품을 11개 추가 시도
           addItemsToCart(sel, addBtn, 'p5', 11);
-          
+
           // 장바구니에는 최대 재고 수량만큼만 담김
           const qty = getCartItemQuantity(cartDisp, 'p5');
           expect(qty).toBeLessThanOrEqual(10);
@@ -627,8 +605,7 @@ describe('basic 테스트', () => {
           // 원본 코드의 타이머 구현 문제로 인해 스킵
           vi.useFakeTimers();
           await vi.advanceTimersByTimeAsync(40000);
-          sel.value = 'p1';
-          addBtn.click();
+          addItemsToCart(sel, addBtn, 'p1', 1);
           await vi.advanceTimersByTimeAsync(80000);
           vi.useRealTimers();
         });
@@ -663,8 +640,7 @@ describe('basic 테스트', () => {
         vi.setSystemTime(tuesday);
 
         await vi.advanceTimersByTimeAsync(40000);
-        sel.value = 'p1';
-        addBtn.click();
+        addItemsToCart(sel, addBtn, 'p1', 1);
         await vi.advanceTimersByTimeAsync(80000);
 
         vi.useRealTimers();
