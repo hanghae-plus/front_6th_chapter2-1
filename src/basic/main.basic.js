@@ -57,6 +57,7 @@ const AppState = {
     cartDisplay: null,
     totalElement: null,
     stockInfo: null,
+    isModalOpen: false,
   },
   init() {
     this.products = [
@@ -120,9 +121,11 @@ function initializeApp() {
   window.bonusPoints = AppState.cart.bonusPoints;
   window.totalAmount = AppState.cart.totalAmount;
   window.itemCount = AppState.cart.itemCount;
+  window.AppState = AppState;
+  window.renderApp = renderApp;
 }
 
-function createHeader(props = {}) {
+function Header(props = {}) {
   const { itemCount = 0 } = props;
 
   return `
@@ -134,7 +137,7 @@ function createHeader(props = {}) {
   `;
 }
 
-function createProductSelector() {
+function ProductSelector() {
   const options = AppState.products
     .map((product) => {
       let discountText = '';
@@ -170,11 +173,11 @@ function createProductSelector() {
   `;
 }
 
-function createCartDisplay() {
+function CartDisplay() {
   return `<div id="cart-items"></div>`;
 }
 
-function createOrderSummary() {
+function OrderSummary() {
   return `
     <div class="bg-black text-white p-8 flex flex-col">
       <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
@@ -208,16 +211,20 @@ function createOrderSummary() {
   `;
 }
 
-function createHelpModal() {
+function ManualModal() {
+  const isOpen = AppState.ui.isModalOpen;
+  const overlayHidden = isOpen ? '' : 'hidden';
+  const columnTransform = isOpen ? '' : 'translate-x-full';
+
   return `
     <button id="manual-toggle" class="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
     </button>
-    <div id="manual-overlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
-    <div id="manual-column" class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300">
-      <button class="absolute top-4 right-4 text-gray-500 hover:text-black" onclick="document.querySelector('.fixed.inset-0').classList.add('hidden'); this.parentElement.classList.add('translate-x-full')">
+    <div id="manual-overlay" class="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${overlayHidden}"></div>
+    <div id="manual-column" class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transition-transform duration-300 ${columnTransform}">
+      <button class="absolute top-4 right-4 text-gray-500 hover:text-black">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
@@ -286,15 +293,15 @@ function createHelpModal() {
 
 function createUI() {
   return `
-    ${createHeader({ itemCount: AppState.cart.itemCount })}
+    ${Header({ itemCount: AppState.cart.itemCount })}
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
       <div class="bg-white border border-gray-200 p-8 overflow-y-auto">
-        ${createProductSelector()}
-        ${createCartDisplay()}
+        ${ProductSelector()}
+        ${CartDisplay()}
       </div>
-      ${createOrderSummary()}
+      ${OrderSummary()}
     </div>
-    ${createHelpModal()}
+    ${ManualModal()}
   `;
 }
 
@@ -312,25 +319,52 @@ function renderApp() {
 
 // 이벤트 핸들러 함수들
 
-function setupModalEvents() {
+// 이벤트 핸들러 함수들
+
+function setupModalEventListeners() {
   const manualToggle = document.getElementById('manual-toggle');
   const manualOverlay = document.getElementById('manual-overlay');
   const manualColumn = document.getElementById('manual-column');
 
   if (manualToggle) {
     manualToggle.onclick = function () {
-      manualOverlay.classList.toggle('hidden');
-      manualColumn.classList.toggle('translate-x-full');
+      AppState.ui.isModalOpen = !AppState.ui.isModalOpen;
+      updateModalVisibility();
     };
   }
 
   if (manualOverlay) {
     manualOverlay.onclick = function (e) {
       if (e.target === manualOverlay) {
-        manualOverlay.classList.add('hidden');
-        manualColumn.classList.add('translate-x-full');
+        AppState.ui.isModalOpen = false;
+        updateModalVisibility();
       }
     };
+  }
+
+  if (manualColumn) {
+    const closeButton = manualColumn.querySelector('button');
+    if (closeButton) {
+      closeButton.onclick = function () {
+        AppState.ui.isModalOpen = false;
+        updateModalVisibility();
+      };
+    }
+  }
+}
+
+function updateModalVisibility() {
+  const overlay = document.getElementById('manual-overlay');
+  const column = document.getElementById('manual-column');
+
+  if (overlay && column) {
+    if (AppState.ui.isModalOpen) {
+      overlay.classList.remove('hidden');
+      column.classList.remove('translate-x-full');
+    } else {
+      overlay.classList.add('hidden');
+      column.classList.add('translate-x-full');
+    }
   }
 }
 
@@ -399,7 +433,7 @@ function main() {
 
   // 3. 이벤트 리스너 설정
   setupCartEventListeners();
-  setupModalEvents();
+  setupModalEventListeners();
 
   // 4. 초기화
   onUpdateSelectOptions();
@@ -596,72 +630,99 @@ function updateTotalDisplay(totalAmount) {
   }
 }
 
+// 주문 요약 컴포넌트들
+function CartItemSummaryComponent(cartItem) {
+  const currentProduct = findProductByElement(cartItem);
+  const quantityElement = cartItem.querySelector('.quantity-number');
+  const quantity = parseInt(quantityElement.textContent);
+  const itemTotal = currentProduct.value * quantity;
+
+  return `
+    <div class="flex justify-between text-xs tracking-wide text-gray-400">
+      <span>${currentProduct.name} x ${quantity}</span>
+      <span>${formatPrice(itemTotal)}</span>
+    </div>
+  `;
+}
+
+function SubtotalComponent(subtotal) {
+  return `
+    <div class="border-t border-white/10 my-3"></div>
+    <div class="flex justify-between text-sm tracking-wide">
+      <span>Subtotal</span>
+      <span>${formatPrice(subtotal)}</span>
+    </div>
+  `;
+}
+
+function BulkDiscountComponent() {
+  return `
+    <div class="flex justify-between text-sm tracking-wide text-green-400">
+      <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
+      <span class="text-xs">-25%</span>
+    </div>
+  `;
+}
+
+function IndividualDiscountComponent(item) {
+  return `
+    <div class="flex justify-between text-sm tracking-wide text-green-400">
+      <span class="text-xs">${item.name} (10개↑)</span>
+      <span class="text-xs">-${item.discount}%</span>
+    </div>
+  `;
+}
+
+function TuesdayDiscountComponent() {
+  return `
+    <div class="flex justify-between text-sm tracking-wide text-purple-400">
+      <span class="text-xs">🌟 화요일 추가 할인</span>
+      <span class="text-xs">-10%</span>
+    </div>
+  `;
+}
+
+function ShippingInfoComponent() {
+  return `
+    <div class="flex justify-between text-sm tracking-wide text-gray-400">
+      <span>Shipping</span>
+      <span>Free</span>
+    </div>
+  `;
+}
+
+function SummaryDetailsComponent(cartItems, subtotal, itemCount, itemDiscounts, totalAmount) {
+  if (subtotal <= 0) return '';
+
+  const cartItemSummaries = Array.from(cartItems)
+    .map((cartItem) => CartItemSummaryComponent(cartItem))
+    .join('');
+
+  const discountComponents =
+    itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE
+      ? BulkDiscountComponent()
+      : itemDiscounts.map((item) => IndividualDiscountComponent(item)).join('');
+
+  const tuesdayDiscount = isTuesday() && totalAmount > 0 ? TuesdayDiscountComponent() : '';
+
+  return `
+    ${cartItemSummaries}
+    ${SubtotalComponent(subtotal)}
+    ${discountComponents}
+    ${tuesdayDiscount}
+    ${ShippingInfoComponent()}
+  `;
+}
+
 function updateSummaryDetails(cartItems, subtotal, itemCount, itemDiscounts, totalAmount) {
   const summaryDetails = document.getElementById('summary-details');
-  summaryDetails.innerHTML = '';
-
-  if (subtotal > 0) {
-    // 상품별 상세 정보
-    Array.from(cartItems).forEach((cartItem) => {
-      const currentProduct = findProductByElement(cartItem);
-      const quantityElement = cartItem.querySelector('.quantity-number');
-      const quantity = parseInt(quantityElement.textContent);
-      const itemTotal = currentProduct.value * quantity;
-
-      summaryDetails.innerHTML += `
-      <div class="flex justify-between text-xs tracking-wide text-gray-400">
-        <span>${currentProduct.name} x ${quantity}</span>
-        <span>${formatPrice(itemTotal)}</span>
-      </div>
-    `;
-    });
-
-    // 소계
-    summaryDetails.innerHTML += `
-      <div class="border-t border-white/10 my-3"></div>
-      <div class="flex justify-between text-sm tracking-wide">
-        <span>Subtotal</span>
-        <span>${formatPrice(subtotal)}</span>
-      </div>
-    `;
-
-    // 할인 정보
-    if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-          <span class="text-xs">-25%</span>
-        </div>
-      `;
-    } else if (itemDiscounts.length > 0) {
-      itemDiscounts.forEach((item) => {
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-green-400">
-            <span class="text-xs">${item.name} (10개↑)</span>
-            <span class="text-xs">-${item.discount}%</span>
-          </div>
-        `;
-      });
-    }
-
-    // 화요일 할인
-    if (isTuesday() && totalAmount > 0) {
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-purple-400">
-          <span class="text-xs">🌟 화요일 추가 할인</span>
-          <span class="text-xs">-10%</span>
-        </div>
-      `;
-    }
-
-    // 배송비
-    summaryDetails.innerHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-gray-400">
-        <span>Shipping</span>
-        <span>Free</span>
-      </div>
-    `;
-  }
+  summaryDetails.innerHTML = SummaryDetailsComponent(
+    cartItems,
+    subtotal,
+    itemCount,
+    itemDiscounts,
+    totalAmount,
+  );
 }
 
 function updateDiscountInfo(discountRate, originalTotal, totalAmount) {
@@ -871,12 +932,7 @@ function doUpdatePricesInCart() {
 }
 
 // 장바구니 아이템 생성 함수
-function createCartItemElement(product) {
-  const newItem = document.createElement('div');
-  newItem.id = product.id;
-  newItem.className =
-    'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
-
+function CartItemElement(product) {
   const saleIcon =
     product.onSale && product.suggestSale
       ? '⚡💝'
@@ -891,27 +947,27 @@ function createCartItemElement(product) {
       ? `<span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span> <span class="${product.onSale && product.suggestSale ? 'text-purple-600' : product.onSale ? 'text-red-500' : 'text-blue-500'}">₩${product.value.toLocaleString()}</span>`
       : `₩${product.value.toLocaleString()}`;
 
-  newItem.innerHTML = `
-    <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-      <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-    </div>
-    <div>
-      <h3 class="text-base font-normal mb-1 tracking-tight">${saleIcon}${product.name}</h3>
-      <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-      <p class="text-xs text-black mb-3">${priceDisplay}</p>
-      <div class="flex items-center gap-4">
-        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="-1">−</button>
-        <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="1">+</button>
+  return `
+    <div id="${product.id}" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
+      <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+      </div>
+      <div>
+        <h3 class="text-base font-normal mb-1 tracking-tight">${saleIcon}${product.name}</h3>
+        <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
+        <p class="text-xs text-black mb-3">${priceDisplay}</p>
+        <div class="flex items-center gap-4">
+          <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="-1">−</button>
+          <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
+          <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="1">+</button>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-lg mb-2 tracking-tight tabular-nums">${priceDisplay}</div>
+        <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${product.id}">Remove</a>
       </div>
     </div>
-    <div class="text-right">
-      <div class="text-lg mb-2 tracking-tight tabular-nums">${priceDisplay}</div>
-      <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${product.id}">Remove</a>
-    </div>
   `;
-
-  return newItem;
 }
 
 // 상태 변경 함수들 (비즈니스 로직)
@@ -938,8 +994,8 @@ function addItemToCart(productId) {
   }
 
   // 새 아이템 추가
-  const newItem = createCartItemElement(product);
-  AppState.ui.cartDisplay.appendChild(newItem);
+  const newItemHTML = CartItemElement(product);
+  AppState.ui.cartDisplay.insertAdjacentHTML('beforeend', newItemHTML);
   product.quantity--;
   return true;
 }
