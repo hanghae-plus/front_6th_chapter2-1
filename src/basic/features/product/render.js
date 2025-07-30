@@ -1,0 +1,27 @@
+import { getProductOptionStyle, getSalesInfoText, getTotalStock, isOutOfStock } from './service';
+
+/**
+ * @description 상품 셀렉 요소의 옵션을 렌더링
+ * @param {HTMLSelectElement} selector - select 요소
+ * @param {Product} products - 상품목록
+ */
+export const renderProductSelectOptions = (selector, products) => {
+  // 함수 재호출 시 셀렉 옵션 초기화
+  // 초기화하지 않을 시 옵션이 계속해서 추가됨
+  selector.innerHTML = '';
+
+  const totalStock = getTotalStock(products);
+  selector.style.borderColor = totalStock < 50 ? 'orange' : '';
+
+  const options = products.map((product) => {
+    const option = document.createElement('option');
+    option.value = product.id;
+    option.textContent = getSalesInfoText(product);
+    option.className = getProductOptionStyle(product);
+    option.disabled = isOutOfStock(product);
+
+    return option;
+  });
+
+  selector.append(...options);
+};
