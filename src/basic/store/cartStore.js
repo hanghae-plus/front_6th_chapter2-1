@@ -89,8 +89,8 @@ export class CartStore {
 
   // 벌크 할인 계산
   calculateBulkDiscount(totalQuantity) {
-    if (totalQuantity >= QUANTITY_THRESHOLDS.BULK_DISCOUNT) {
-      return DISCOUNT_RATES.BULK_DISCOUNT;
+    if (totalQuantity >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
+      return DISCOUNT_RATES.BULK_PURCHASE;
     }
     return 0;
   }
@@ -98,7 +98,7 @@ export class CartStore {
   // 화요일 할인 적용
   applyTuesdayDiscount(amount) {
     const today = new Date().getDay();
-    return today === 2 ? amount * DISCOUNT_RATES.TUESDAY_DISCOUNT : amount;
+    return today === 2 ? amount * DISCOUNT_RATES.TUESDAY_SPECIAL : amount;
   }
 
   // 장바구니 총액과 할인 계산

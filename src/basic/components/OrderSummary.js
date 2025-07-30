@@ -1,3 +1,88 @@
+import { QUANTITY_THRESHOLDS, DISCOUNT_RATES } from "../constants/index.js";
+
+// 장바구니 아이템 데이터를 추출합니다.
+function extractCartItemData(cartItem) {
+  const quantity = parseInt(cartItem.querySelector(".quantity-number").textContent);
+  const productName = cartItem.querySelector("h3").textContent;
+  const itemTotal = parseInt(cartItem.querySelector(".text-lg").textContent.replace(/[₩,]/g, ""));
+
+  return { quantity, productName, itemTotal };
+}
+
+// 장바구니 아이템 HTML을 생성합니다.
+function createCartItemRow(productName, quantity, itemTotal) {
+  return `
+    <div class="flex justify-between text-xs tracking-wide text-gray-400">
+      <span>${productName} x ${quantity}</span>
+      <span>₩${itemTotal.toLocaleString()}</span>
+    </div>
+  `;
+}
+
+// 장바구니 아이템들 HTML을 생성합니다.
+function createCartItemsHTML(cartItems) {
+  return cartItems
+    .map(item => {
+      const { quantity, productName, itemTotal } = extractCartItemData(item);
+      return createCartItemRow(productName, quantity, itemTotal);
+    })
+    .join("");
+}
+
+// 할인 정보 HTML을 생성합니다.
+function createDiscountHTML(itemCount, itemDiscounts, isTuesday, bulkPurchaseThreshold, bulkDiscountRate) {
+  let discountHTML = "";
+
+  if (itemCount >= bulkPurchaseThreshold) {
+    discountHTML = `
+      <div class="flex justify-between text-sm tracking-wide text-green-400">
+        <span class="text-xs">🎉 대량구매 할인 (${bulkPurchaseThreshold}개 이상)</span>
+        <span class="text-xs">-${(1 - bulkDiscountRate) * 100}%</span>
+      </div>
+    `;
+  } else if (itemDiscounts.length > 0) {
+    discountHTML = itemDiscounts
+      .map(
+        item => `
+      <div class="flex justify-between text-sm tracking-wide text-green-400">
+        <span class="text-xs">${item.name} (${QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑)</span>
+        <span class="text-xs">-${item.discount}%</span>
+      </div>
+    `
+      )
+      .join("");
+  }
+
+  // 화요일 할인 정보
+  if (isTuesday) {
+    discountHTML += `
+      <div class="flex justify-between text-sm tracking-wide text-purple-400">
+        <span class="text-xs">🌟 화요일 추가 할인</span>
+        <span class="text-xs">-10%</span>
+      </div>
+    `;
+  }
+
+  return discountHTML;
+}
+
+// 주문 요약 HTML을 생성합니다.
+function createSummaryHTML(itemsHTML, subtotal, discountHTML) {
+  return /* HTML */ `
+    ${itemsHTML}
+    <div class="border-t border-white/10 my-3"></div>
+    <div class="flex justify-between text-sm tracking-wide">
+      <span>Subtotal</span>
+      <span>₩${subtotal.toLocaleString()}</span>
+    </div>
+    ${discountHTML}
+    <div class="flex justify-between text-sm tracking-wide text-gray-400">
+      <span>Shipping</span>
+      <span>Free</span>
+    </div>
+  `;
+}
+
 // OrderSummary 컴포넌트
 export function createOrderSummary() {
   const orderSummaryContainer = document.createElement("div");
@@ -14,7 +99,7 @@ export function createOrderSummary() {
         <div id="cart-total" class="pt-5 border-t border-white/10">
           <div class="flex justify-between items-baseline">
             <span class="text-sm uppercase tracking-wider">Total</span>
-            <div class="text-2xl tracking-tight">₩0</div>
+            <div id="total-amount" class="text-2xl tracking-tight">₩0</div>
           </div>
           <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
         </div>
@@ -38,21 +123,9 @@ export function createOrderSummary() {
   return orderSummaryContainer;
 }
 
-/**
- * 주문 요약 세부 정보를 업데이트합니다.
- *
- * @param {HTMLElement} orderSummaryElement - OrderSummary DOM 요소
- * @param {Array} cartItems - 장바구니 아이템들
- * @param {number} subtotal - 소계
- * @param {number} itemCount - 총 아이템 수량
- * @param {Array} itemDiscounts - 아이템 할인 정보
- * @param {boolean} isTuesday - 화요일 여부
- * @param {Object} options - 추가 옵션
- * @param {number} options.bulkPurchaseThreshold - 대량구매 임계값 (기본값: 30)
- * @param {number} options.bulkDiscountRate - 대량구매 할인율 (기본값: 0.75)
- */
+// 주문 요약 세부 정보를 업데이트합니다.
 export function updateSummaryDetails(cartItems, subtotal, itemCount, itemDiscounts, isTuesday, options = {}) {
-  const { bulkPurchaseThreshold = 30, bulkDiscountRate = 0.75 } = options;
+  const { bulkPurchaseThreshold = QUANTITY_THRESHOLDS.BULK_PURCHASE, bulkDiscountRate = DISCOUNT_RATES.BULK_PURCHASE } = options;
 
   const summaryDetails = document.querySelector("#summary-details");
   if (!summaryDetails) return;
@@ -62,76 +135,14 @@ export function updateSummaryDetails(cartItems, subtotal, itemCount, itemDiscoun
     return;
   }
 
-  // 장바구니 아이템별 상세 정보
-  const itemsHTML = cartItems
-    .map(item => {
-      const quantity = parseInt(item.querySelector(".quantity-number").textContent);
-      const productName = item.querySelector("h3").textContent;
-      const itemTotal = parseInt(item.querySelector(".text-lg").textContent.replace(/[₩,]/g, ""));
+  const itemsHTML = createCartItemsHTML(cartItems);
+  const discountHTML = createDiscountHTML(itemCount, itemDiscounts, isTuesday, bulkPurchaseThreshold, bulkDiscountRate);
+  const summaryHTML = createSummaryHTML(itemsHTML, subtotal, discountHTML);
 
-      return `
-      <div class="flex justify-between text-xs tracking-wide text-gray-400">
-        <span>${productName} x ${quantity}</span>
-        <span>₩${itemTotal.toLocaleString()}</span>
-      </div>
-    `;
-    })
-    .join("");
-
-  // 할인 정보 HTML
-  let discountHTML = "";
-
-  if (itemCount >= bulkPurchaseThreshold) {
-    discountHTML = `
-      <div class="flex justify-between text-sm tracking-wide text-green-400">
-        <span class="text-xs">🎉 대량구매 할인 (${bulkPurchaseThreshold}개 이상)</span>
-        <span class="text-xs">-${(1 - bulkDiscountRate) * 100}%</span>
-      </div>
-    `;
-  } else if (itemDiscounts.length > 0) {
-    discountHTML = itemDiscounts
-      .map(
-        item => `
-      <div class="flex justify-between text-sm tracking-wide text-green-400">
-        <span class="text-xs">${item.name} (10개↑)</span>
-        <span class="text-xs">-${item.discount}%</span>
-      </div>
-    `
-      )
-      .join("");
-  }
-
-  // 화요일 할인 정보
-  if (isTuesday) {
-    discountHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-purple-400">
-        <span class="text-xs">🌟 화요일 추가 할인</span>
-        <span class="text-xs">-10%</span>
-      </div>
-    `;
-  }
-
-  summaryDetails.innerHTML = /* HTML */ `
-    ${itemsHTML}
-    <div class="border-t border-white/10 my-3"></div>
-    <div class="flex justify-between text-sm tracking-wide">
-      <span>Subtotal</span>
-      <span>₩${subtotal.toLocaleString()}</span>
-    </div>
-    ${discountHTML}
-    <div class="flex justify-between text-sm tracking-wide text-gray-400">
-      <span>Shipping</span>
-      <span>Free</span>
-    </div>
-  `;
+  summaryDetails.innerHTML = summaryHTML;
 }
 
-/**
- * 할인 정보를 업데이트합니다.
- *
- * @param {number} discountRate - 할인율 (0-1)
- * @param {number} savedAmount - 절약 금액
- */
+// 할인 정보를 업데이트합니다.
 function updateDiscountInfo(discountRate, savedAmount) {
   const discountInfo = document.querySelector("#discount-info");
   if (!discountInfo) return;
@@ -151,24 +162,15 @@ function updateDiscountInfo(discountRate, savedAmount) {
   }
 }
 
-/**
- * 총액을 업데이트합니다.
- *
- * @param {number} totalAmount - 총액
- */
+// 총액을 업데이트합니다.
 function updateTotalAmount(totalAmount) {
-  const totalDiv = document.querySelector("#cart-total .text-2xl");
+  const totalDiv = document.querySelector("#total-amount");
   if (totalDiv) {
     totalDiv.textContent = "₩" + Math.round(totalAmount).toLocaleString();
   }
 }
 
-/**
- * 포인트를 표시합니다.
- *
- * @param {number} totalPoints - 총 포인트
- * @param {Array} pointsDetails - 포인트 상세 내역
- */
+// 포인트를 표시합니다.
 function updateLoyaltyPoints(totalPoints, pointsDetails) {
   const loyaltyPointsDiv = document.querySelector("#loyalty-points");
   if (!loyaltyPointsDiv) return;
@@ -196,11 +198,7 @@ function updateTuesdaySpecial(isTuesday, totalAmount) {
   }
 }
 
-/**
- * OrderSummary의 모든 정보를 한 번에 업데이트합니다.
- *
- * @param {Object} orderState - OrderService에서 받은 상태 데이터
- */
+// OrderSummary의 모든 정보를 한 번에 업데이트합니다.
 export function updateOrderSummary(orderState) {
   const { subtotal, totalAmount, discountRate, savedAmount, itemCount, itemDiscounts, isTuesday, totalPoints, pointsDetails } = orderState;
 

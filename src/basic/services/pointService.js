@@ -1,4 +1,4 @@
-import { POINTS, POINTS_QUANTITY_THRESHOLDS, QUANTITY_BONUS_POINTS } from "../constants/index.js";
+import { POINTS, POINTS_QUANTITY_THRESHOLDS, QUANTITY_BONUS_POINTS, PRODUCT_IDS } from "../constants/index.js";
 
 export class PointService {
   constructor() {
@@ -35,9 +35,9 @@ export class PointService {
     }
 
     // 세트 구매 보너스
-    const hasKeyboard = cartItems.some(item => item.id === "p1");
-    const hasMouse = cartItems.some(item => item.id === "p2");
-    const hasMonitorArm = cartItems.some(item => item.id === "p3");
+    const hasKeyboard = cartItems.some(item => item.id === PRODUCT_IDS.KEYBOARD);
+    const hasMouse = cartItems.some(item => item.id === PRODUCT_IDS.MOUSE);
+    const hasMonitorArm = cartItems.some(item => item.id === PRODUCT_IDS.MONITOR_ARM);
 
     if (hasKeyboard && hasMouse) {
       finalPoints += POINTS.KEYBOARD_MOUSE_SET;
@@ -95,9 +95,9 @@ export class PointService {
    * @returns {number} 세트 구매 보너스 포인트
    */
   calculateSetBonus(cartItems) {
-    const hasKeyboard = cartItems.some(item => item.id === "p1");
-    const hasMouse = cartItems.some(item => item.id === "p2");
-    const hasMonitorArm = cartItems.some(item => item.id === "p3");
+    const hasKeyboard = cartItems.some(item => item.id === PRODUCT_IDS.KEYBOARD);
+    const hasMouse = cartItems.some(item => item.id === PRODUCT_IDS.MOUSE);
+    const hasMonitorArm = cartItems.some(item => item.id === PRODUCT_IDS.MONITOR_ARM);
 
     let bonus = 0;
     if (hasKeyboard && hasMouse) {
