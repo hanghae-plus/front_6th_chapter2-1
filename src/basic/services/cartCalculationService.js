@@ -9,8 +9,13 @@ import { getCartContainer } from "../ui/dom/getDOMElements";
  * 모든 비즈니스 로직을 계산하는 함수
  */
 export const calculateAllBusinessLogic = () => {
+  // 장바구니 전체 계산 및 Store 업데이트
   const cartData = calculateAndUpdateCart();
+
+  // 재고 부족 아이템 체크
   const lowStockItems = getLowStockItems();
+
+  // 장바구니 상태 가져오기
   const cartState = getCartState();
   const bonusPointsData = calculateBonusPoints(cartState);
 
@@ -24,18 +29,21 @@ export const calculateAllBusinessLogic = () => {
 
 /**
  * 장바구니 전체 계산 및 Store 업데이트
- * @returns {Object} 계산된 장바구니 데이터
  */
 export const calculateAndUpdateCart = () => {
+  // 장바구니 아이템 가져오기
   const cartItems = cartStore.getState().items;
+
+  // 장바구니 전체 계산
   const totals = calculateCartTotals(cartItems);
+
+  // 장바구니 상태 업데이트
   cartStore.updateTotals(totals);
   return { items: cartItems, totals };
 };
 
 /**
  * 장바구니 상태 가져오기
- * @returns {Object} 장바구니 상태
  */
 export const getCartState = () => {
   return cartStore.getState();
@@ -43,7 +51,6 @@ export const getCartState = () => {
 
 /**
  * 장바구니 아이템 추가
- * @param {Object} product - 추가할 상품 정보
  */
 export const addCartItem = (product) => {
   cartStore.addCartItem(product);

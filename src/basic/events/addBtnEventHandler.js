@@ -7,7 +7,7 @@ import {
 } from "../ui/dom/getDOMElements";
 
 /**
- * "추가" 버튼 이벤트 초기화
+ * addBtn 이벤트 초기화
  */
 export const initAddButtonEvent = () => {
   const addBtn = getAddToCartButton();
@@ -15,9 +15,11 @@ export const initAddButtonEvent = () => {
   const cartContainer = getCartContainer();
 
   addBtn.addEventListener("click", () => {
+    // 상품 선택 체크
     const selectedItemId = productSelect.value;
     if (!selectedItemId) return;
 
+    // 상품 존재 체크
     const productList = productStore.getState().products;
     const selectedProduct = productList.find((p) => p.id === selectedItemId);
     if (!selectedProduct || selectedProduct.quantity <= 0) {
@@ -25,6 +27,7 @@ export const initAddButtonEvent = () => {
       return;
     }
 
+    // 장바구니 업데이트
     updateCartItem(selectedItemId, +1, cartContainer);
   });
 };

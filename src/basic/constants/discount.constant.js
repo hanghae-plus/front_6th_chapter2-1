@@ -2,17 +2,17 @@ export const DISCOUNT = {
   BULK: {
     THRESHOLD: 30, // 수량 기준
     RATE: 0.75, // 25% 할인율
-    PERCENT: 25,
+    PERCENT: 25, // 25%
   },
   TUESDAY: {
-    WEEKDAY: 2,
+    WEEKDAY: 2, // 화요일
     RATE: 0.9, // 10% 할인율
-    PERCENT: 10,
+    PERCENT: 10, // 10%
   },
 };
 
 export const ITEM_DISCOUNT = {
-  THRESHOLD: 10,
+  THRESHOLD: 10, // 수량 기준
   RATES: {
     default: 0,
     p1: 0.1, // 10%

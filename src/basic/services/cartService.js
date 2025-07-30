@@ -5,12 +5,16 @@ import { handleCalculateCartStuff } from "./cartCalculationService";
 
 /**
  * 장바구니 상품 수량 추가/감소/삭제 및 UI 처리까지 담당하는 서비스
+ * @param {string} productId - 상품 ID
+ * @param {number} quantityChangeValue - 수량 변경 값
+ * @param {HTMLElement} cartContainer - 장바구니 컨테이너
  */
 export const updateCartItem = (
   productId,
   quantityChangeValue,
   cartContainer
 ) => {
+  // 상품 존재 체크
   const product = productStore
     .getState()
     .products.find((p) => p.id === productId);
@@ -34,12 +38,13 @@ export const updateCartItem = (
   // 재고 업데이트
   productStore.updateStock(productId, product.quantity - quantityChangeValue);
 
-  // cartStore 업데이트
+  // 수량 증가 또는 추가
   if (quantityChangeValue > 0) {
-    // 수량 증가: addCartItem 사용
     cartStore.addCartItem(product);
-  } else {
-    // 수량 감소 또는 제거: updateItemQuantity 사용
+  }
+
+  // 수량 감소 또는 제거
+  if (quantityChangeValue <= 0) {
     cartStore.updateItemQuantity(productId, newQuantity);
   }
 
@@ -48,5 +53,6 @@ export const updateCartItem = (
   const cartItemsHTML = renderAllCartItems(updatedCartItems);
   cartContainer.innerHTML = cartItemsHTML;
 
+  // 장바구니 계산
   handleCalculateCartStuff();
 };

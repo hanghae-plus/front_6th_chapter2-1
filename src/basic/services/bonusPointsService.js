@@ -12,15 +12,17 @@ export const calculateBonusPoints = (cartState) => {
   const { items, totals } = cartState;
   const { totalAmount, totalQty } = totals;
 
+  // 장바구니 아이템 존재 체크
   if (items.length === 0) {
     return { finalPoints: 0, pointsDetail: [] };
   }
 
+  // 기본 포인트 계산
   const basePoints = Math.floor(totalAmount / POINT_RULES.BASE_UNIT_AMOUNT);
   let finalPoints = 0;
   const pointsDetail = [];
 
-  // 기본 포인트
+  // 기본 포인트 체크
   if (basePoints > 0) {
     finalPoints = basePoints;
     pointsDetail.push("기본: " + basePoints + "p");
@@ -47,8 +49,6 @@ export const calculateBonusPoints = (cartState) => {
 
 /**
  * 상품 조합 보너스 포인트 계산
- * @param {Array} items - 장바구니 아이템들
- * @returns {Object} 조합 보너스 정보
  */
 export const calculateProductCombinationBonus = (items) => {
   let points = 0;
@@ -58,17 +58,20 @@ export const calculateProductCombinationBonus = (items) => {
   let hasMouse = false;
   let hasMonitorArm = false;
 
+  // 상품 조합 보너스 포인트 계산
   items.forEach((item) => {
     if (item.id === PRODUCT_IDS.p1) hasKeyboard = true;
     else if (item.id === PRODUCT_IDS.p2) hasMouse = true;
     else if (item.id === PRODUCT_IDS.p3) hasMonitorArm = true;
   });
 
+  // 키보드+마우스 세트 보너스 포인트 체크
   if (hasKeyboard && hasMouse) {
     points += BONUS_SETS.KEYBOARD_MOUSE.points;
     details.push(BONUS_SETS.KEYBOARD_MOUSE.label);
   }
 
+  // 풀세트 보너스 포인트 체크
   if (hasKeyboard && hasMouse && hasMonitorArm) {
     points += BONUS_SETS.FULL_SET.points;
     details.push(BONUS_SETS.FULL_SET.label);
@@ -79,13 +82,12 @@ export const calculateProductCombinationBonus = (items) => {
 
 /**
  * 대량구매 보너스 포인트 계산
- * @param {number} totalQty - 총 수량
- * @returns {Object} 대량구매 보너스 정보
  */
 export const calculateBulkPurchaseBonus = (totalQty) => {
   let points = 0;
   const details = [];
 
+  // 대량구매 보너스 포인트 계산
   for (const rule of BULK_PURCHASE_BONUS_RULES) {
     if (totalQty >= rule.threshold) {
       points = rule.points;

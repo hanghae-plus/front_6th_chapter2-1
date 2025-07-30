@@ -14,6 +14,7 @@ export const initManualOverlayEvent = () => {
   const manualColumn = getManualColumn();
   const manualClose = getManualClose();
 
+  // 매뉴얼 토글 체크
   if (manualToggle) {
     manualToggle.onclick = () => {
       manualOverlay.classList.toggle("hidden");
@@ -21,6 +22,7 @@ export const initManualOverlayEvent = () => {
     };
   }
 
+  // 매뉴얼 오버레이 체크
   if (manualOverlay) {
     manualOverlay.onclick = (e) => {
       if (e.target === manualOverlay) {
@@ -30,6 +32,7 @@ export const initManualOverlayEvent = () => {
     };
   }
 
+  // 매뉴얼 닫기 체크
   if (manualClose) {
     manualClose.onclick = () => {
       manualOverlay.classList.add("hidden");
