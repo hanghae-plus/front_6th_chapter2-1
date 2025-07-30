@@ -124,6 +124,27 @@ class ProductsManager {
     return this.#productList.reduce((totalStock, currentProduct) => totalStock + currentProduct.quantity, 0);
   }
 
+  isLowTotalStock() {
+    return this.getTotalStock() < LOW_TOTAL_STOCK_THRESHOLD;
+  }
+
+  getLowStockMessages() {
+    return this.#productList
+      .filter((product) => product.quantity < LOW_STOCK_THRESHOLD)
+      .map((product) =>
+        product.quantity > OUT_OF_STOCK
+          ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
+          : `${product.name}: 품절`
+      )
+      .join('\n');
+  }
+
+  getLowStockProducts() {
+    return this.#productList.filter(
+      (product) => OUT_OF_STOCK < product.quantity && product.quantity < LOW_STOCK_THRESHOLD
+    );
+  }
+
   getOptionMessage(product) {
     const baseText = `${product.name} - ${product.discountValue}원`;
 
@@ -147,21 +168,12 @@ class ProductsManager {
     return baseText;
   }
 
-  getLowStockMessages() {
-    return this.#productList
-      .filter((product) => product.quantity < LOW_STOCK_THRESHOLD)
-      .map((product) =>
-        product.quantity > OUT_OF_STOCK
-          ? `${product.name}: 재고 부족 (${product.quantity}개 남음)`
-          : `${product.name}: 품절`
-      )
-      .join('\n');
-  }
-
-  getLowStockProducts() {
-    return this.#productList.filter(
-      (product) => OUT_OF_STOCK < product.quantity && product.quantity < LOW_STOCK_THRESHOLD
-    );
+  getProductOptions() {
+    return this.#productList.map((product) => ({
+      id: product.id,
+      message: this.getOptionMessage(product),
+      disabled: product.quantity === OUT_OF_STOCK,
+    }));
   }
 }
 

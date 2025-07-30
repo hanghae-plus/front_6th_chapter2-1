@@ -1,16 +1,10 @@
+import { handleUpdateProductSelectOptions } from './controller/handleProductSelector';
 import { cartManager } from './domain/cart';
 import { calculateBonusPoints, renderBonusPoints } from './domain/point';
-import {
-  initialProducts,
-  LIGHTNING_DISCOUNT,
-  LOW_TOTAL_STOCK_THRESHOLD,
-  OUT_OF_STOCK,
-  SUGGEST_DISCOUNT,
-} from './domain/product';
+import { initialProducts, LIGHTNING_DISCOUNT, OUT_OF_STOCK, SUGGEST_DISCOUNT } from './domain/product';
 import productManager from './domain/product';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/applyDiscount';
 import { isTuesday } from './utils/dateUtil';
-import { createProductSelectorOption } from './view/elements';
 import { globalElements } from './view/globalElements';
 import { renderLayout } from './view/layout';
 
@@ -32,7 +26,7 @@ function main() {
 
   /* 데이터 준비 */
   initProducts();
-  updateSelectOptions();
+  handleUpdateProductSelectOptions();
   calculateCart();
 
   /* 번개 세일 */
@@ -47,7 +41,7 @@ function main() {
         randomItem.onSale = true;
         alert(`⚡번개세일! ${randomItem.name}이(가) 20% 할인 중입니다!`);
 
-        updateSelectOptions();
+        handleUpdateProductSelectOptions();
         updatePricesInCart();
       }
     }, 30000);
@@ -66,7 +60,7 @@ function main() {
           suggest.discountValue = Math.round(suggest.discountValue * (1 - SUGGEST_DISCOUNT));
           suggest.suggestSale = true;
 
-          updateSelectOptions();
+          handleUpdateProductSelectOptions();
           updatePricesInCart();
         }
       }
@@ -74,26 +68,31 @@ function main() {
   }, Math.random() * 20000);
 }
 
-/* 상품 셀렉트 박스(selectedItem)의 옵션을 현재 상품 상태에 맞게 갱신 */
-function updateSelectOptions() {
-  globalElements.productSelector.innerHTML = '';
+// /* 상품 셀렉트 박스(selectedItem)의 옵션을 현재 상품 상태에 맞게 갱신 */
+// function handleUpdateProductSelectOptions() {
+//   globalElements.productSelector.innerHTML = '';
 
-  productManager.getProducts().map((product) => {
-    const optionElement = createProductSelectorOption({
-      value: product.id,
-      message: productManager.getOptionMessage(product),
-      disabled: product.quantity === OUT_OF_STOCK,
-    });
-    globalElements.productSelector.appendChild(optionElement);
-  });
+//   const options = productManager.getProductOptions();
 
-  /** @todo style update 부분. 분리 필요 */
-  if (productManager.getTotalStock() < LOW_TOTAL_STOCK_THRESHOLD) {
-    globalElements.productSelector.style.borderColor = 'orange';
-  } else {
-    globalElements.productSelector.style.borderColor = '';
-  }
-}
+//   options.forEach((option) => {
+//     const optionElement = createProductSelectorOption(option);
+//   });
+//   productManager.getProducts().map((product) => {
+//     const optionElement = createProductSelectorOption({
+//       value: product.id,
+//       message: productManager.getOptionMessage(product),
+//       disabled: product.quantity === OUT_OF_STOCK,
+//     });
+
+//     globalElements.productSelector.appendChild(optionElement);
+//   });
+
+//   if (productManager.isLowTotalStock()) {
+//     globalElements.productSelector.style.borderColor = 'orange';
+//   } else {
+//     globalElements.productSelector.style.borderColor = '';
+//   }
+// }
 
 /**
  * 총 상품 수량 및 가격 계산
@@ -428,6 +427,6 @@ globalElements.cartDisplay.addEventListener('click', function (event) {
     // if (targetProduct && targetProduct.quantity < 5) {
     // }
     calculateCart();
-    updateSelectOptions();
+    handleUpdateProductSelectOptions();
   }
 });
