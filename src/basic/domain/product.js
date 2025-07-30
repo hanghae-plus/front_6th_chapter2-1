@@ -10,6 +10,9 @@ export const OUT_OF_STOCK = 0;
 /* 번개 세일 할인율 */
 export const LIGHTNING_DISCOUNT = 0.2;
 
+/* 추천 세일 할인율 */
+export const SUGGEST_DISCOUNT = 0.05;
+
 class ProductsManager {
   static #instance;
   #productList = [];

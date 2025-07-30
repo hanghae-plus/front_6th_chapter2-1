@@ -1,4 +1,4 @@
-import { LIGHTNING_DISCOUNT, LOW_TOTAL_STOCK_THRESHOLD, OUT_OF_STOCK } from './domain/product';
+import { LIGHTNING_DISCOUNT, LOW_TOTAL_STOCK_THRESHOLD, OUT_OF_STOCK, SUGGEST_DISCOUNT } from './domain/product';
 import productManager from './domain/product';
 import {
   createAddCartButton,
@@ -16,7 +16,7 @@ import {
   createStockInfo,
 } from './elements';
 
-let lastSelectedItem;
+let lastSelectedItem = null;
 
 let stockInfo;
 let itemCount;
@@ -122,7 +122,6 @@ function main() {
   const lightningDelay = Math.random() * 10000;
   totalAmount = 0;
   itemCount = 0;
-  lastSelectedItem = null;
 
   productSelector = createProductSelector();
 
@@ -176,23 +175,17 @@ function main() {
   /* 추천 세일 */
   setTimeout(() => {
     setInterval(() => {
+      /** @todo lastSelectedItem <- 마지막 장바구니에 담긴 아이템인데 네이밍 애매. 다시 변경할 것. cart 도메인 함수 내부에서 관리 */
       if (lastSelectedItem) {
-        let suggest = null;
-        for (let k = 0; k < productManager.getProductCount(); k++) {
-          const product = productManager.getProductAt(k);
-          if (product.id !== lastSelectedItem) {
-            if (product.quantity > 0) {
-              if (!product.suggestSale) {
-                suggest = product[k];
-                break;
-              }
-            }
-          }
-        }
+        const suggest = productManager
+          .getProducts()
+          .find((product) => product.id !== lastSelectedItem && product.quantity > OUT_OF_STOCK);
+
         if (suggest) {
-          alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
-          suggest.discountValue = Math.round((suggest.discountValue * (100 - 5)) / 100);
+          alert(`💝  ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
+          suggest.discountValue = Math.round(suggest.discountValue * (1 - SUGGEST_DISCOUNT));
           suggest.suggestSale = true;
+
           updateSelectOptions();
           doUpdatePricesInCart();
         }
@@ -694,6 +687,7 @@ addCartButton.addEventListener('click', function () {
       itemToAdd.quantity--;
     }
     handleCalculateCartStuff();
+    // 장바구니에 마지막으로 담은 아이템
     lastSelectedItem = selItem;
   }
 });
