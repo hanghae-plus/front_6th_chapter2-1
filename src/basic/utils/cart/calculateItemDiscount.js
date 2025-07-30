@@ -1,23 +1,24 @@
+import { ITEM_DISCOUNT } from "../../constants/discount.constant";
 import { productIds } from "../../constants/product.constant";
 
 export const calculateItemDiscount = (
   productId,
   quantity,
-  discountThreshold = 10
+  discountThreshold = ITEM_DISCOUNT.THRESHOLD
 ) => {
-  if (quantity < discountThreshold) return 0;
+  if (quantity < discountThreshold) return ITEM_DISCOUNT.RATES.default;
   switch (productId) {
     case productIds.p1:
-      return 0.1;
+      return ITEM_DISCOUNT.RATES.p1;
     case productIds.p2:
-      return 0.15;
+      return ITEM_DISCOUNT.RATES.p2;
     case productIds.p3:
-      return 0.2;
+      return ITEM_DISCOUNT.RATES.p3;
     case productIds.p4:
-      return 0.05;
+      return ITEM_DISCOUNT.RATES.p4;
     case productIds.p5:
-      return 0.25;
+      return ITEM_DISCOUNT.RATES.p5;
     default:
-      return 0;
+      return ITEM_DISCOUNT.RATES.default;
   }
 };

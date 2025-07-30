@@ -1,3 +1,4 @@
+import { DISCOUNT } from "../../constants/discount.constant";
 import { calculateItemDiscount } from "./calculateItemDiscount";
 
 /**
@@ -28,19 +29,19 @@ export const calculateCartTotals = (items) => {
 
   // 대량구매 할인 계산
   let bulkDiscount = 0;
-  if (totalQty >= 30) {
-    totalAmount = subTotal * 0.75;
-    bulkDiscount = 25;
+  if (totalQty >= DISCOUNT.BULK.THRESHOLD) {
+    totalAmount = subTotal * DISCOUNT.BULK.RATE;
+    bulkDiscount = DISCOUNT.BULK.PERCENT;
   }
 
   // 화요일 할인 계산
   const today = new Date();
-  const isTuesday = today.getDay() === 2;
+  const isTuesday = today.getDay() === DISCOUNT.TUESDAY.WEEKDAY;
   let tuesdayDiscount = 0;
 
   if (isTuesday && totalAmount > 0) {
-    totalAmount = totalAmount * 0.9;
-    tuesdayDiscount = 10;
+    totalAmount = totalAmount * DISCOUNT.TUESDAY.RATE;
+    tuesdayDiscount = DISCOUNT.TUESDAY.PERCENT;
   }
 
   // 총 할인율 계산
