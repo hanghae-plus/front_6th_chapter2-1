@@ -9,8 +9,11 @@ export interface CartItem {
 
 export interface Cart {
   items: CartItem[];
-  totalAmount: number;
+  totalAmount: number; // 최종 결제 금액
+  originalAmount: number; // 원래 금액
+  discountAmount: number; // 할인 금액
   itemCount: number;
+  appliedDiscounts: string[];
 }
 
 export interface CartAction {

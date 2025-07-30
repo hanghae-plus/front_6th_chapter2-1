@@ -1,4 +1,7 @@
+import { useCart } from '../hooks/useCart';
+
 export default function OrderSummary() {
+  const { state } = useCart();
   return (
     <div className="bg-black text-white p-8 flex flex-col">
       <h2 className="text-xs font-medium mb-5 tracking-extra-wide uppercase">
@@ -6,20 +9,17 @@ export default function OrderSummary() {
       </h2>
       <div className="flex-1 flex flex-col">
         <div id="summary-details" className="space-y-3">
-          <div className="flex justify-between text-xs tracking-wide text-gray-400">
-            <span>생산성 폭발 마우스 x 5</span>
-            <span>₩76,000</span>
-          </div>
-
-          <div className="flex justify-between text-xs tracking-wide text-gray-400">
-            <span>버그 없애는 키보드 x 1</span>
-            <span>₩8,000</span>
-          </div>
+          {state.items.map((item) => (
+            <div key={item.id} className="flex justify-between text-xs tracking-wide text-gray-400">
+              <span>{item.name} x {item.quantity}</span>
+              <span>₩{(item.price * item.quantity).toLocaleString()}</span>
+            </div>
+          ))}
 
           <div className="border-t border-white/10 my-3"></div>
           <div className="flex justify-between text-sm tracking-wide">
             <span>Subtotal</span>
-            <span>₩84,000</span>
+            <span>₩{state.totalAmount.toLocaleString()}</span>
           </div>
 
           <div className="flex justify-between text-sm tracking-wide text-gray-400">
@@ -28,11 +28,24 @@ export default function OrderSummary() {
           </div>
         </div>
         <div className="mt-auto">
+          {state.discountAmount > 0 && (
+            <div className="bg-green-500/20 rounded-lg p-3 mb-4">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
+                <span className="text-sm font-medium text-green-400">
+                  {((state.discountAmount / state.originalAmount) * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="text-2xs text-gray-300">
+                ₩{state.discountAmount.toLocaleString()} 할인되었습니다
+              </div>
+            </div>
+          )}
           <div id="discount-info" className="mb-4"></div>
           <div id="cart-total" className="pt-5 border-t border-white/10">
             <div className="flex justify-between items-baseline">
               <span className="text-sm uppercase tracking-wider">Total</span>
-              <div className="text-2xl tracking-tight">₩84,000</div>
+              <div className="text-2xl tracking-tight">₩{state.totalAmount.toLocaleString()}</div>
             </div>
             <div
               id="loyalty-points"

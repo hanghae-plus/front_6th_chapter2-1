@@ -1,4 +1,5 @@
 import type { Cart, CartAction, CartItem } from '../../types/cart';
+import { calculateCartTotals } from '../../utils/cartUtils';
 
 const productMap: Record<string, Omit<CartItem, 'quantity'>> = {
   p1: {
@@ -40,19 +41,12 @@ const productMap: Record<string, Omit<CartItem, 'quantity'>> = {
 export const initialCartState: Cart = {
   items: [],
   totalAmount: 0,
+  originalAmount: 0,
+  discountAmount: 0,
   itemCount: 0,
+  appliedDiscounts: [],
 };
 
-function calculateCartTotals(
-  items: CartItem[]
-): Pick<Cart, 'totalAmount' | 'itemCount'> {
-  const totalAmount = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  return { totalAmount, itemCount };
-}
 
 export function cartReducer(state: Cart, action: CartAction): Cart {
   switch (action.type) {
@@ -74,6 +68,7 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
         updatedItems = [...state.items, { ...product, quantity }];
       }
       return {
+        ...state,
         items: updatedItems,
         ...calculateCartTotals(updatedItems),
       };
@@ -89,6 +84,7 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
         )
         .filter((item) => item.quantity > 0); // 수량이 0 이하가 되면 제거
       return {
+        ...state,
         items: updatedItems,
         ...calculateCartTotals(updatedItems),
       };
@@ -98,6 +94,7 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
       const { productId } = action.payload;
       const updatedItems = state.items.filter((item) => item.id !== productId);
       return {
+        ...state,
         items: updatedItems,
         ...calculateCartTotals(updatedItems),
       };
