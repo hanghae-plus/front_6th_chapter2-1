@@ -127,7 +127,7 @@ function render() {
   productSelect.innerHTML = state.products.map(ProductSelectItem).join('');
   productSelect.value = currentSelection;
 
-  stockStatus.innerHTML = StockStatus();
+  stockStatus.innerHTML = StockStatus(summary.stockMessages);
 
   renderCartItems();
 
