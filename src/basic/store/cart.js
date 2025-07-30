@@ -27,10 +27,10 @@ const cartActions = {
 
   addCartItem: (state, productItem) => {
     // 장바구니에 이미 있는 상품인지 확인
-    const existingItem = state.items.find((item) => item.id === productItem.id);
-
+    const isExistItem = state.items.find((item) => item.id === productItem.id);
+    console.log("실행됨", isExistItem);
     // 이미 있는 상품이면 수량 증가
-    if (existingItem) {
+    if (isExistItem) {
       return {
         ...state,
         items: state.items.map((item) =>
@@ -40,7 +40,7 @@ const cartActions = {
         ),
       };
     }
-
+    console.log("추가됨!?");
     // 없는 상품이면 새로 추가
     return {
       ...state,

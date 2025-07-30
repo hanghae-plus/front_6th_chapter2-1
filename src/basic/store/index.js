@@ -22,14 +22,12 @@ export const createStore = (initialState, actions = {}) => {
     boundActions[actionName] = (...args) => {
       const result = actions[actionName](state, ...args);
 
-      // 결과가 객체이고 state 속성이 있으면 상태 변경으로 간주
-      if (result && typeof result === "object" && "state" in result) {
-        store.setState(result.state);
-        return result.data; // 데이터 반환
-      } else {
-        // 조회 함수는 결과만 반환
+      // 모든 액션은 상태 변경을 위한 것이므로 결과를 새로운 state로 설정
+      if (result && typeof result === "object") {
+        store.setState(result);
         return result;
       }
+      return result;
     };
   });
   return {

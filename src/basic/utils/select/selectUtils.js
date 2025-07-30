@@ -12,8 +12,6 @@ export const updateSelectOptions = (sel, prodList) => {
 
   sel.innerHTML = "";
 
-  const totalStock = calculateTotalStock(prodList);
-
   prodList.forEach((item) => {
     const option = document.createElement("option");
     option.value = item.id;
@@ -30,6 +28,7 @@ export const updateSelectOptions = (sel, prodList) => {
   if (currentValue && prodList.some((item) => item.id === currentValue)) {
     sel.value = currentValue;
   }
+  const totalStock = calculateTotalStock(prodList);
 
   // 재고 부족 시 테두리 색상 변경
   sel.style.borderColor =

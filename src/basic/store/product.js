@@ -63,23 +63,21 @@ export const productState = {
 };
 
 const productActions = {
-  getProduct: (state, productId) => {
-    return state.products.find((product) => product.id === productId);
-  },
-  getAllProducts: (state) => {
-    return state.products;
-  },
-  getProductIds: (state) => {
-    return state.productIds;
-  },
+  // getProduct: (state, productId) => {
+  //   return state.products.find((product) => product.id === productId);
+  // },
+  // getAllProducts: (state) => {
+  //   return state.products;
+  // },
+  // getProductIds: (state) => {
+  //   return state.productIds;
+  // },
   updateStock: (state, productId, newQuantity) => {
     return {
-      state: {
-        ...state,
-        products: state.products.map((product) =>
-          product.id === productId ? { ...product, q: newQuantity } : product
-        ),
-      },
+      ...state,
+      products: state.products.map((product) =>
+        product.id === productId ? { ...product, q: newQuantity } : product
+      ),
     };
   },
 };

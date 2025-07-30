@@ -202,22 +202,23 @@ function main() {
   handleCalculateCartStuff();
   // lightningDelay = Math.random() * 10000;
 
-  const prodList = productStore.getAllProducts();
+  const prodList = productStore.getState().products;
 
-  // 번개할인 타이머 시작
-  startLightningSaleTimer({
-    prodList,
-    onUpdateSelectOptions,
-    doUpdatePricesInCart,
-  });
+  //TODO : 주석 꼭 풀어야함@@@@@
+  // // 번개할인 타이머 시작
+  // startLightningSaleTimer({
+  //   prodList,
+  //   onUpdateSelectOptions,
+  //   doUpdatePricesInCart,
+  // });
 
-  // 추천할인 타이머 시작
-  startRecommendationTimer({
-    prodList,
-    lastSel,
-    onUpdateSelectOptions,
-    doUpdatePricesInCart,
-  });
+  // // 추천할인 타이머 시작
+  // startRecommendationTimer({
+  //   prodList,
+  //   lastSel,
+  //   onUpdateSelectOptions,
+  //   doUpdatePricesInCart,
+  // });
 }
 var sum;
 
@@ -234,7 +235,8 @@ var sum;
 3. 재고가 변경될 때
 */
 const onUpdateSelectOptions = () => {
-  const prodList = productStore.getAllProducts();
+  const prodList = productStore.getState().products;
+
   updateSelectOptions(sel, prodList);
 };
 
@@ -293,7 +295,7 @@ function handleCalculateCartStuff() {
   bulkDisc = subTot;
   itemDiscounts = [];
 
-  const prodList = productStore.getAllProducts();
+  const prodList = productStore.getState().products;
 
   for (let i = 0; i < cartItems.length; i++) {
     const cartItem = cartItems[i];
@@ -477,7 +479,7 @@ var doRenderBonusPoints = function () {
   var hasMouse;
   var hasMonitorArm;
   var nodes;
-  const prodList = productStore.getAllProducts();
+  const prodList = productStore.getState().products;
   if (cartDisp.children.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
@@ -560,7 +562,7 @@ var doRenderBonusPoints = function () {
 const handleStockInfoUpdate = () => {
   let infoMsg = "";
 
-  const prodList = productStore.getAllProducts();
+  const prodList = productStore.getState().products;
 
   prodList.forEach((product) => {
     const currentStock = product.q;
@@ -587,7 +589,7 @@ function doUpdatePricesInCart() {
   var totalCount = 0,
     j = 0;
   var cartItems;
-  const prodList = productStore.getAllProducts();
+  const prodList = productStore.getState().products;
   while (cartDisp.children[j]) {
     var qty = cartDisp.children[j].querySelector(".quantity-number");
     totalCount += qty ? parseInt(qty.textContent) : 0;
@@ -648,7 +650,7 @@ main();
 addBtn.addEventListener("click", () => {
   // select 값 가져오기
   const selItem = sel.value;
-  const prodList = productStore.getAllProducts();
+  const prodList = productStore.getState().products;
   const itemToAdd = prodList.find((product) => product.id === selItem);
 
   if (!selItem || !itemToAdd || itemToAdd.q <= 0) {
@@ -671,21 +673,24 @@ addBtn.addEventListener("click", () => {
     const newQty = currentQty + 1;
 
     // 최신 재고 정보 가져오기
-    const latestProdList = productStore.getAllProducts();
+    const latestProdList = productStore.getState().products;
 
     // 최신 재고 정보 찾기
-    const latestItem = latestProdList.find(
-      (product) => product.id === itemToAdd.id
-    );
+    // const latestItem = latestProdList.find(
+    //   (product) => product.id === itemToAdd.id
+    // );
+    const itemQuantity = itemToAdd.q;
+    console.log("최신재고", itemQuantity);
 
     // 원본 로직: 새로운 수량이 (현재 재고 + 현재 장바구니 수량) 이하여야 함
-    if (latestItem && newQty <= latestItem.q + currentQty) {
+    // if (latestItem && newQty <= latestItem.q + currentQty) {
+    if (itemQuantity > 0) {
       // 수량 업데이트
       // qtyElem.textContent = newQty;
       renderQuantity(itemToAdd.id, newQty);
       // 재고 업데이트
       cartStore.addCartItem(itemToAdd);
-      productStore.updateStock(itemToAdd.id, latestItem.q - 1);
+      productStore.updateStock(itemToAdd.id, itemQuantity - 1);
 
       // 선택 옵션 업데이트
       onUpdateSelectOptions();
@@ -698,11 +703,12 @@ addBtn.addEventListener("click", () => {
     cartDisp.insertAdjacentHTML("beforeend", newItemHTML);
 
     // 최신 재고 정보를 가져와서 업데이트
-    const latestProdList = productStore.getAllProducts();
+    const latestProdList = productStore.getState().products;
     const latestItem = latestProdList.find(
       (product) => product.id === itemToAdd.id
     );
     if (latestItem) {
+      cartStore.addCartItem(latestItem);
       productStore.updateStock(itemToAdd.id, latestItem.q - 1);
       onUpdateSelectOptions();
     }
@@ -713,7 +719,7 @@ addBtn.addEventListener("click", () => {
 });
 cartDisp.addEventListener("click", function (event) {
   var tgt = event.target;
-  const prodList = productStore.getAllProducts();
+  const prodList = productStore.getState().products;
   if (
     tgt.classList.contains("quantity-change") ||
     tgt.classList.contains("remove-item")
