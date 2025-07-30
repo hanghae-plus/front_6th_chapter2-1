@@ -1,3 +1,8 @@
+import {
+  BONUS_SETS,
+  BULK_PURCHASE_BONUS_RULES,
+  POINT_RULES,
+} from "../constants/points.constant";
 import { productIds } from "../constants/product.constant";
 
 /**
@@ -11,7 +16,7 @@ export const calculateBonusPoints = (cartState) => {
     return { finalPoints: 0, pointsDetail: [] };
   }
 
-  const basePoints = Math.floor(totalAmount / 1000);
+  const basePoints = Math.floor(totalAmount / POINT_RULES.BASE_UNIT_AMOUNT);
   let finalPoints = 0;
   const pointsDetail = [];
 
@@ -23,7 +28,7 @@ export const calculateBonusPoints = (cartState) => {
 
   // 화요일 2배 포인트
   if (totals.isTuesday && basePoints > 0) {
-    finalPoints = basePoints * 2;
+    finalPoints = basePoints * POINT_RULES.TUESDAY_MULTIPLIER;
     pointsDetail.push("화요일 2배");
   }
 
@@ -60,13 +65,13 @@ export const calculateProductCombinationBonus = (items) => {
   });
 
   if (hasKeyboard && hasMouse) {
-    points += 50;
-    details.push("키보드+마우스 세트 +50p");
+    points += BONUS_SETS.KEYBOARD_MOUSE.points;
+    details.push(BONUS_SETS.KEYBOARD_MOUSE.label);
   }
 
   if (hasKeyboard && hasMouse && hasMonitorArm) {
-    points += 100;
-    details.push("풀세트 구매 +100p");
+    points += BONUS_SETS.FULL_SET.points;
+    details.push(BONUS_SETS.FULL_SET.label);
   }
 
   return { points, details };
@@ -81,16 +86,12 @@ export const calculateBulkPurchaseBonus = (totalQty) => {
   let points = 0;
   const details = [];
 
-  if (totalQty >= 30) {
-    points = 100;
-    details.push("대량구매(30개+) +100p");
-  } else if (totalQty >= 20) {
-    points = 50;
-    details.push("대량구매(20개+) +50p");
-  } else if (totalQty >= 10) {
-    points = 20;
-    details.push("대량구매(10개+) +20p");
+  for (const rule of BULK_PURCHASE_BONUS_RULES) {
+    if (totalQty >= rule.threshold) {
+      points = rule.points;
+      details.push(`대량구매(${rule.threshold}개+) +${rule.points}p`);
+      break; // 가장 높은 조건만 적용
+    }
   }
-
   return { points, details };
 };
