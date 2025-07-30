@@ -479,12 +479,6 @@ const doRenderBonusPoints = function () {
 
 /**  재고 부족/품절 상품의 메시지를 stockInfo에 표시 */
 const handleStockUpdate = () => {
-  const totalStock = productManager.getTotalStock();
-
-  if (totalStock < LOW_TOTAL_STOCK_THRESHOLD) {
-    // @todo 전체 재고가 50개 미만일 경우 상품 선택 드롭다운 테두리 색상 orange로 변경
-  }
-
   const infoMessage = productManager.getLowStockMessages();
 
   // @todo ui업데이트. 따로 분리
