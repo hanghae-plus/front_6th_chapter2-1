@@ -1,4 +1,7 @@
-// 비즈니스 로직 import
+/**
+ * 상태 관리 훅
+ * React hook 패턴을 차용한 vanilla JS 상태 관리
+ */
 import {
   calculateCartData,
   calculatePoints,
@@ -12,10 +15,12 @@ import {
 } from './entities.js'
 
 
-// 전역 변수 선언
-// 상태 관리 변수
+/**
+ * 전역 상태
+ * 요구사항: 상품 목록, 장바구니, 마지막 선택 상품 추적
+ */
 let prodList: Product[] = [];
-let cart: Cart = {}; // 장바구니 모델 { productId: quantity }
+let cart: Cart = {};
 let lastSel: string | null = null;
 
 interface UseProductsReturn {
@@ -27,6 +32,10 @@ interface UseProductsReturn {
   setProducts: (newProducts: Product[]) => void;
 }
 
+/**
+ * 상품 목록 관리 훅
+ * 요구사항: 상품 정보 조회, 재고 확인, 상품 업데이트
+ */
 export function useProducts(): UseProductsReturn {
   return {
     products: prodList,
@@ -52,6 +61,10 @@ interface UseCartReturn {
   setCart: (newCart: Cart) => void;
 }
 
+/**
+ * 장바구니 관리 훅
+ * 요구사항: 장바구니 상태, 금액 계산, 포인트 계산
+ */
 export function useCart(): UseCartReturn {
   const cartData = calculateCartData(cart, prodList, new Date());
   const pointsData = calculatePoints(cartData, cart, new Date());
@@ -75,6 +88,10 @@ interface UseLastSelectedReturn {
   setLastSel: (value: string | null) => void;
 }
 
+/**
+ * 마지막 선택 상품 추적 훅
+ * 요구사항: 추천 할인을 위한 마지막 선택 상품 기록
+ */
 export function useLastSelected(): UseLastSelectedReturn {
   return {
     lastSel: lastSel,
