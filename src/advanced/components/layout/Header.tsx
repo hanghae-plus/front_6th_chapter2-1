@@ -1,12 +1,11 @@
 import { ReactElement } from 'react';
 
-import { useCartStore } from '@/advanced/store/cartStore';
-import { getCartTotalCount } from '@/advanced/utils/cart.util';
-
 function Header(): ReactElement {
-  const { cartItems } = useCartStore();
+  // const { cartItems } = useCartStore();
 
-  const totalCount = getCartTotalCount(cartItems);
+  // const totalCount = getCartTotalCount(cartItems);
+
+  const totalCount = 0;
 
   return (
     <div className="mb-8">

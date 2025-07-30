@@ -8,8 +8,11 @@ import MainLayout from '@/advanced/components/layout/MainLayout';
 import SectionLayout from '@/advanced/components/layout/SectionLayout';
 import OrderSummary from '@/advanced/components/order/OrderSummary';
 import ProductSelect from '@/advanced/components/product/ProductSelect';
+import { useLayoutStore } from '@/advanced/store/layoutStore';
 
 function App(): ReactElement {
+  const { showHelpOverlay } = useLayoutStore();
+
   return (
     <React.Fragment>
       <Header />
@@ -22,8 +25,8 @@ function App(): ReactElement {
         <OrderSummary />
       </MainLayout>
 
+      {showHelpOverlay && <HelpOverlay />}
       <HelpToggle />
-      <HelpOverlay />
     </React.Fragment>
   );
 }
