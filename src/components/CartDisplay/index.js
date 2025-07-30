@@ -1,4 +1,8 @@
 import { createCartItem } from './CartItem';
+import {
+  handleQuantityChange,
+  handleRemoveItem,
+} from '../../handlers/cartHandlers.js';
 
 export function createCartDisplay() {
   const container = document.createElement('div');
@@ -12,10 +16,7 @@ export function createCartDisplay() {
   };
 
   // CartDisplay에 setupEventListeners 메서드 추가
-  container.setupEventListeners = function ({
-    handleQuantityChange,
-    handleRemoveItem,
-  }) {
+  container.setupEventListeners = function () {
     container.addEventListener('click', function (event) {
       const tgt = event.target;
       if (

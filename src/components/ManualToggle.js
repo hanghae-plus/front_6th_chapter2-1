@@ -8,14 +8,20 @@ export function createManualToggle() {
     </svg>
   `;
 
+  // Manual 토글 핸들러 함수
+  const toggleManual = function () {
+    const manual = document.querySelector('.fixed.inset-0');
+    if (manual) {
+      manual.classList.toggle('hidden');
+      manual.querySelector('.transform').classList.toggle('translate-x-full');
+    }
+  };
+
   // ManualToggle에 setupEventListeners 메서드 추가
-  container.setupEventListeners = function () {
+  container.setupEventListeners = function ({ onToggle } = {}) {
     container.addEventListener('click', function () {
-      const manual = document.querySelector('.fixed.inset-0');
-      if (manual) {
-        manual.classList.toggle('hidden');
-        manual.querySelector('.transform').classList.toggle('translate-x-full');
-      }
+      toggleManual();
+      if (onToggle) onToggle();
     });
   };
 

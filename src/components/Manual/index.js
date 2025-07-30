@@ -7,20 +7,26 @@ export function createManual() {
   const column = createManualColumn();
   container.appendChild(column);
 
+  // Manual 닫기 핸들러 함수
+  const closeManual = function () {
+    container.classList.add('hidden');
+    container.querySelector('.transform').classList.add('translate-x-full');
+  };
+
   // Manual에 setupEventListeners 메서드 추가
-  container.setupEventListeners = function () {
+  container.setupEventListeners = function ({ onClose } = {}) {
     container.addEventListener('click', function (e) {
       if (e.target === container) {
-        container.classList.add('hidden');
-        container.querySelector('.transform').classList.add('translate-x-full');
+        closeManual();
+        if (onClose) onClose();
       }
     });
 
     const closeButton = container.querySelector('#manual-close-button');
     if (closeButton) {
       closeButton.addEventListener('click', function () {
-        container.classList.add('hidden');
-        container.querySelector('.transform').classList.add('translate-x-full');
+        closeManual();
+        if (onClose) onClose();
       });
     }
   };
