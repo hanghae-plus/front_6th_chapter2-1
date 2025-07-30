@@ -89,15 +89,15 @@ export function isAllSale(saleEvent: number): boolean {
   return (saleEvent & SALE_EVENT.ALL) === SALE_EVENT.ALL;
 }
 
-export function hasLightningSale(product: Product): boolean {
+export function hasLightningSale(product: Pick<Product, 'saleEvent'>): boolean {
   return isLightningSale(product.saleEvent);
 }
 
-export function hasSuggestSale(product: Product): boolean {
+export function hasSuggestSale(product: Pick<Product, 'saleEvent'>): boolean {
   return isSuggestSale(product.saleEvent);
 }
 
-export function hasAllSale(product: Product): boolean {
+export function hasAllSale(product: Pick<Product, 'saleEvent'>): boolean {
   return isAllSale(product.saleEvent);
 }
 
@@ -161,27 +161,24 @@ export function applySuggestSale(productId: string): void {
   applySale(productId, SALE_EVENT.SUGGEST);
 }
 
-export function isSoldOut(product: Product): boolean {
+export function isSoldOut(product: Pick<Product, 'quantity'>): boolean {
   return product.quantity === 0;
 }
 
-export function isLowStock(product: Product): boolean {
+export function isLowStock(product: Pick<Product, 'quantity'>): boolean {
   const LOW_STOCK_THRESHOLD = 5;
   return !isSoldOut(product) && product.quantity < LOW_STOCK_THRESHOLD;
 }
 
-export function isBulk(product: Product): boolean {
+export function isBulk(product: Pick<Product, 'quantity'>): boolean {
   const BULK_THRESHOLD = 10;
   return product.quantity >= BULK_THRESHOLD;
 }
 
-export function updateProductQuantity({
+export function addProductQuantity({
   id,
   quantity,
-}: {
-  id: string;
-  quantity: number;
-}): void {
+}: Pick<Product, 'id' | 'quantity'>): void {
   products = products.map((product) => {
     if (product.id !== id) {
       return product;
