@@ -1,21 +1,32 @@
 import js from '@eslint/js';
-import globals from 'globals';
+import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
-import { defineConfig, globalIgnores } from 'eslint/config';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import globals from 'globals';
 import stylistic from '@stylistic/eslint-plugin';
 
-export default defineConfig([
-  globalIgnores(['**/main.original.js']),
+export default tseslint.config(
+  js.configs.recommended,
+  tseslint.configs.recommended,
   {
-    files: ['**/*.{js,mjs,cjs,jsx}'],
-    plugins: { js, '@stylistic': stylistic },
+    files: ['**/*.{ts,tsx}'],
+    plugins: {
+      react: pluginReact,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+      '@stylistic': stylistic,
+    },
     rules: {
-      '@stylistic/quotes': ['error', 'single'],
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
       'no-var': ['error'],
       'prefer-const': ['error'],
+      '@stylistic/quotes': ['error', 'single'],
     },
-    extends: ['js/recommended'],
     languageOptions: { globals: globals.browser },
-  },
-  pluginReact.configs.flat.recommended,
-]);
+  }
+);
