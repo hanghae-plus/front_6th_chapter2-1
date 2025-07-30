@@ -2,34 +2,19 @@ import { ProductStore } from "../store/productStore.js";
 import { QUANTITY_THRESHOLDS } from "../constants/index.js";
 import { discountService } from "./discountService.js";
 
-// 상품 관련된 서비스
+// 상품 관련 비즈니스 로직 서비스
 export class ProductService {
   constructor() {
     this.productStore = new ProductStore();
   }
 
-  // 상품 검증
+  // 상품 검증 (비즈니스 로직)
   validateProduct(productId) {
     const product = this.productStore.getProductById(productId);
     return product && product.quantity > 0;
   }
 
-  // 재고 확인
-  checkStock(productId, requiredQuantity = 1) {
-    return this.productStore.hasStock(productId, requiredQuantity);
-  }
-
-  // 재고 차감
-  decreaseStock(productId, quantity = 1) {
-    return this.productStore.updateStock(productId, -quantity);
-  }
-
-  // 재고 증가
-  increaseStock(productId, quantity = 1) {
-    return this.productStore.updateStock(productId, quantity);
-  }
-
-  // 랜덤 상품 선택 (재고 있는 상품 중에서)
+  // 랜덤 상품 선택 (비즈니스 로직)
   selectRandomProduct() {
     const availableProducts = this.productStore.getAvailableProducts();
     if (availableProducts.length === 0) return null;
@@ -38,13 +23,13 @@ export class ProductService {
     return availableProducts[randomIndex];
   }
 
-  // 추천 상품 찾기 (마지막 선택 상품 제외)
+  // 추천 상품 찾기 (비즈니스 로직)
   findSuggestionProduct(lastSelectedProductId) {
     const availableProducts = this.productStore.getAvailableProducts();
     return availableProducts.find(product => product.id !== lastSelectedProductId && !product.suggestSale);
   }
 
-  // 번개세일 적용
+  // 번개세일 적용 (비즈니스 로직)
   applyLightningSale() {
     const randomProduct = this.selectRandomProduct();
     if (randomProduct && !randomProduct.onSale) {
@@ -60,7 +45,7 @@ export class ProductService {
     return { success: false };
   }
 
-  // 추천세일 적용
+  // 추천세일 적용 (비즈니스 로직)
   applySuggestSale(lastSelectedProductId) {
     const suggestionProduct = this.findSuggestionProduct(lastSelectedProductId);
     if (suggestionProduct) {
@@ -76,7 +61,7 @@ export class ProductService {
     return { success: false };
   }
 
-  // 재고 경고 메시지 생성
+  // 재고 경고 메시지 생성 (비즈니스 로직)
   generateStockWarningMessage() {
     const lowStockProducts = this.productStore.getLowStockProducts(QUANTITY_THRESHOLDS.LOW_STOCK_WARNING);
 
@@ -88,29 +73,14 @@ export class ProductService {
     return `⚠️ 재고 부족: ${productNames}`;
   }
 
-  // 전체 재고 계산
+  // 전체 재고 계산 (비즈니스 로직)
   calculateTotalStock() {
     return this.productStore.getTotalStock();
   }
 
-  // 상품 목록 조회
-  getProducts() {
-    return this.productStore.getProducts();
-  }
-
-  // 특정 상품 조회
-  getProductById(productId) {
-    return this.productStore.getProductById(productId);
-  }
-
-  // 할인 중인 상품 조회
-  getSaleProducts() {
-    return this.productStore.getSaleProducts();
-  }
-
   // 초기화 메서드
   async initializeUI() {
-    const products = this.getProducts();
+    const products = this.productStore.getProducts();
     const discountInfos = this.calculateProductDiscountInfos(products);
 
     // 이벤트 발송
@@ -122,11 +92,37 @@ export class ProductService {
     });
   }
 
+  // 할인 정보 계산
   calculateProductDiscountInfos(products) {
     return products.map(product => ({
       productId: product.id,
       rate: discountService.calculateProductDiscountRate(product),
       status: discountService.getProductDiscountStatus(product),
     }));
+  }
+
+  // Store 메서드들에 대한 간단한 접근자 (필요한 경우만)
+  getProducts() {
+    return this.productStore.getProducts();
+  }
+
+  getProductById(productId) {
+    return this.productStore.getProductById(productId);
+  }
+
+  getAvailableProducts() {
+    return this.productStore.getAvailableProducts();
+  }
+
+  getSaleProducts() {
+    return this.productStore.getSaleProducts();
+  }
+
+  updateStock(productId, quantity) {
+    return this.productStore.updateStock(productId, quantity);
+  }
+
+  hasStock(productId, requiredQuantity = 1) {
+    return this.productStore.hasStock(productId, requiredQuantity);
   }
 }

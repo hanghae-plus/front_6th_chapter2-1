@@ -1,5 +1,3 @@
-import { TIMERS } from "../constants/index.js";
-import { cartService } from "./cartService.js";
 import { uiEventBus } from "../core/eventBus.js";
 import { discountService } from "./discountService.js";
 
@@ -7,63 +5,58 @@ export class TimerService {
   constructor(productService, cartDisplay) {
     this.productService = productService;
     this.cartDisplay = cartDisplay;
-    this.timers = new Map();
+    this.lightningSaleTimer = null;
+    this.suggestSaleTimer = null;
   }
 
+  // 번개세일 타이머 시작
   startLightningSaleTimer() {
-    const delay = this.getRandomDelay(TIMERS.LIGHTNING_SALE_DELAY);
-    const timerId = setTimeout(() => {
-      const intervalId = setInterval(() => {
-        this.executeLightningSale();
-      }, TIMERS.LIGHTNING_SALE_INTERVAL);
-      this.timers.set("lightningSale", intervalId);
-    }, delay);
-
-    this.timers.set("lightningSaleDelay", timerId);
+    this.lightningSaleTimer = setInterval(() => {
+      this.applyLightningSale();
+    }, 30000); // 30초마다 실행
   }
 
+  // 추천세일 타이머 시작
   startSuggestSaleTimer() {
-    const delay = this.getRandomDelay(TIMERS.SUGGEST_SALE_DELAY);
-    const timerId = setTimeout(() => {
-      const intervalId = setInterval(() => {
-        this.executeSuggestSale();
-      }, TIMERS.SUGGEST_SALE_INTERVAL);
-      this.timers.set("suggestSale", intervalId);
-    }, delay);
-
-    this.timers.set("suggestSaleDelay", timerId);
+    this.suggestSaleTimer = setInterval(() => {
+      this.applySuggestSale();
+    }, 45000); // 45초마다 실행
   }
 
-  executeLightningSale() {
+  // 번개세일 적용 (ProductService의 비즈니스 로직 사용)
+  applyLightningSale() {
     const result = this.productService.applyLightningSale();
-
     if (result.success) {
-      alert(result.message);
       this.updateUI();
+      console.log(result.message);
     }
   }
 
-  executeSuggestSale() {
-    if (this.cartDisplay.children.length === 0) {
-      return;
-    }
-
-    const lastSelectedProduct = cartService.getLastSelectedProduct();
-    if (!lastSelectedProduct) return;
-
-    const result = this.productService.applySuggestSale(lastSelectedProduct);
-
+  // 추천세일 적용 (ProductService의 비즈니스 로직 사용)
+  applySuggestSale() {
+    const lastSelectedProduct = this.getLastSelectedProduct();
+    const result = this.productService.applySuggestSale(lastSelectedProduct?.id);
+    
     if (result.success) {
-      alert(result.message);
       this.updateUI();
+      console.log(result.message);
     }
   }
 
+  // 마지막 선택된 상품 조회
+  getLastSelectedProduct() {
+    // 실제 구현에서는 선택된 상품을 추적하는 로직이 필요
+    // 현재는 간단히 첫 번째 상품을 반환
+    const products = this.productService.getProducts();
+    return products.find(product => product.quantity > 0);
+  }
+
+  // UI 업데이트
   updateUI() {
-    // 직접 이벤트 발송
     const products = this.productService.getProducts();
     const discountInfos = this.calculateProductDiscountInfos(products);
 
+    // 상품 옵션 업데이트 이벤트 발송
     uiEventBus.emit("product:options:updated", {
       products,
       discountInfos,
@@ -71,34 +64,40 @@ export class TimerService {
     });
 
     // 장바구니 가격 업데이트
-    const cartItems = Array.from(this.cartDisplay.children);
-    if (cartItems.length > 0) {
-      this.updateCartPrices(cartItems);
-    }
+    this.updateCartPrices();
   }
 
-  updateCartPrices(cartItems) {
-    const itemsToUpdate = cartItems
-      .map(cartItem => {
-        const productId = cartItem.id;
-        const product = this.productService.getProductById(productId);
-        if (product) {
-          const discountInfo = {
-            rate: discountService.calculateProductDiscountRate(product),
-            status: discountService.getProductDiscountStatus(product),
-          };
-          return { cartItem, product, discountInfo };
-        }
-        return null;
-      })
-      .filter(item => item !== null);
+  // 장바구니 가격 업데이트
+  updateCartPrices() {
+    const cartItems = document.querySelectorAll(".cart-item");
+    const itemsToUpdate = [];
 
+    cartItems.forEach(cartItem => {
+      const { productId } = cartItem.dataset;
+      const product = this.productService.getProductById(productId);
+
+      if (product) {
+        const discountInfo = {
+          rate: discountService.calculateProductDiscountRate(product),
+          status: discountService.getProductDiscountStatus(product),
+        };
+
+        itemsToUpdate.push({
+          cartItem,
+          product,
+          discountInfo,
+        });
+      }
+    });
+
+    // 가격 업데이트 이벤트 발송
     uiEventBus.emit("product:prices:updated", {
       itemsToUpdate,
       success: true,
     });
   }
 
+  // 할인 정보 계산
   calculateProductDiscountInfos(products) {
     return products.map(product => ({
       productId: product.id,
@@ -107,24 +106,14 @@ export class TimerService {
     }));
   }
 
-  getRandomDelay(maxDelay) {
-    return Math.random() * maxDelay;
-  }
-
-  stopAllTimers() {
-    this.timers.forEach(timerId => {
-      clearTimeout(timerId);
-      clearInterval(timerId);
-    });
-    this.timers.clear();
-  }
-
-  stopTimer(timerName) {
-    const timerId = this.timers.get(timerName);
-    if (timerId) {
-      clearTimeout(timerId);
-      clearInterval(timerId);
-      this.timers.delete(timerName);
+  // 타이머 정리
+  cleanup() {
+    if (this.lightningSaleTimer) {
+      clearInterval(this.lightningSaleTimer);
+    }
+    if (this.suggestSaleTimer) {
+      clearInterval(this.suggestSaleTimer);
     }
   }
 }
+

@@ -23,7 +23,7 @@ import { OrderEventListeners } from "./events/listeners/orderListeners.js";
 // Event Bus 이벤트 리스너 초기화
 function initEventBusListeners(serviceManager) {
   const { productService, cartService, orderService } = serviceManager.getAllServices();
-
+  
   // 각 컴포넌트별 이벤트 리스너 초기화
   new CartEventListeners(uiEventBus, cartService, discountService);
   new ProductEventListeners(uiEventBus, productService);
@@ -35,7 +35,7 @@ async function main() {
 
   // Service Manager 초기화
   const serviceManager = new ServiceManager();
-
+  
   // Service 등록
   serviceManager.register("product", new ProductService());
   serviceManager.register("cart", new CartService());
