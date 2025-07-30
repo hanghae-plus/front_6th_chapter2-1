@@ -49,6 +49,18 @@ export class ProductEventListeners {
         success: true,
       });
     });
+
+    // 재고 정보 업데이트 요청 이벤트
+    this.uiEventBus.on("stock:update:requested", () => {
+      const products = this.productService.getProducts();
+      const stockMessage = generateStockWarningMessage(products);
+
+      this.uiEventBus.emit("product:stock:updated", {
+        products,
+        stockMessage,
+        success: true,
+      });
+    });
   }
 
   updateProductOptions(products, discountInfos) {
@@ -70,8 +82,8 @@ export class ProductEventListeners {
 
   updatePricesInCart(itemsToUpdate) {
     // 장바구니 내 가격 업데이트
-    itemsToUpdate.forEach(({ element, product, discountInfo }) => {
-      updateCartItemPrice(element, product, discountInfo);
+    itemsToUpdate.forEach(({ cartItem, product, discountInfo }) => {
+      updateCartItemPrice(cartItem, product, discountInfo);
     });
   }
 

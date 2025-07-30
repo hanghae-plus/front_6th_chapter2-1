@@ -100,7 +100,9 @@ function main() {
   initEventBusListeners();
 
   handleProductOptionsUpdate();
-  handleCartSummaryUpdate();
+
+  // 초기 장바구니 요약 업데이트 (빈 배열로 시작)
+  handleCartSummaryUpdate([]);
 
   // 타이머 서비스 초기화 및 시작
   const timerService = new TimerService(productService, handleProductOptionsUpdate, handlePricesUpdate, cartDisplay);
@@ -137,17 +139,14 @@ function handleStockUpdate() {
 }
 
 // 장바구니 내 가격 업데이트 핸들러
-function handlePricesUpdate() {
-  // 비즈니스 로직: 장바구니 아이템 정보 수집
-  const cartDisplay = document.querySelector("#cart-items");
-  const cartItems = Array.from(cartDisplay.children);
-
+function handlePricesUpdate(cartItems = []) {
+  // 장바구니 아이템 정보 처리
   const itemsToUpdate = cartItems
-    .map(el => {
-      const product = findProductById(el.id, PRODUCT_LIST);
+    .map(cartItem => {
+      const product = findProductById(cartItem.id, PRODUCT_LIST);
       if (product) {
         const discountInfo = calculateProductDiscountInfo(product);
-        return { element: el, product, discountInfo };
+        return { cartItem, product, discountInfo };
       }
       return null;
     })
@@ -164,23 +163,20 @@ function handlePricesUpdate() {
 }
 
 // 장바구니 요약 업데이트 핸들러 (Event Bus 기반)
-function handleCartSummaryUpdate() {
-  const cartDisplay = document.querySelector("#cart-items");
-  const cartItems = cartDisplay.children;
-
-  // DiscountService를 사용하여 할인 계산
-  const discountResult = discountService.applyAllDiscounts(Array.from(cartItems), PRODUCT_LIST);
+function handleCartSummaryUpdate(cartItems = []) {
+  // 순수 비즈니스 로직: 할인 계산
+  const discountResult = discountService.applyAllDiscounts(cartItems, PRODUCT_LIST);
 
   // 이벤트 발송 (DOM 조작 없음)
   uiEventBus.emit("cart:summary:calculated", {
-    cartItems: Array.from(cartItems),
+    cartItems,
     discountResult,
     itemCount: cartService.getItemCount(),
     success: true,
   });
 
-  // 재고 정보도 함께 업데이트
-  handleStockUpdate();
+  // 재고 정보 업데이트 요청 (이벤트 기반 통신)
+  uiEventBus.emit("stock:update:requested");
 }
 
 main();

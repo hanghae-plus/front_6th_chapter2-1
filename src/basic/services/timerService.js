@@ -61,7 +61,10 @@ export class TimerService {
 
   updateUI() {
     this.onUpdateSelectOptions();
-    this.doUpdatePricesInCart();
+
+    // DOM에서 장바구니 아이템을 가져와서 핸들러에 전달
+    const cartItems = Array.from(this.cartDisplay.children);
+    this.doUpdatePricesInCart(cartItems);
   }
 
   getRandomDelay(maxDelay) {
