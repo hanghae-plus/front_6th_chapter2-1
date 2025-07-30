@@ -907,28 +907,23 @@ function onGetStockTotal() {
 
 // 재고 정보 업데이트
 const handleStockInfoUpdate = function () {
-  let infoMsg;
-  let totalStock;
-  let messageOptimizer;
-
-  infoMsg = '';
-  totalStock = onGetStockTotal();
+  const totalStock = onGetStockTotal();
 
   if (totalStock < QUANTITY_THRESHOLDS.STOCK_WARNING_THRESHOLD) {
-    // 재고 부족 경고 (필요시 확장)
+    // 재고 부족 경고 로직
   }
 
-  // 각 상품별 재고 상태 체크
-  PRODUCT_LIST.forEach(function (item) {
-    if (item.quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING) {
-      if (item.quantity > 0) {
-        infoMsg += `${item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
-      } else {
-        infoMsg += `${item.name}: 품절\n`;
-      }
-    }
+  // 재고 부족 상품들만 필터링
+  const lowStockItems = PRODUCT_LIST.filter(
+    (item) => item.quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING
+  ).map((item) => {
+    return item.quantity > 0
+      ? `${item.name}: 재고 부족 (${item.quantity}개 남음)`
+      : `${item.name}: 품절`;
   });
-  stockInfo.textContent = infoMsg;
+
+  // DOM 업데이트
+  stockInfo.textContent = lowStockItems.join('\n');
 };
 
 // ==========================================
