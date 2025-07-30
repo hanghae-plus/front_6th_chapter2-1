@@ -902,15 +902,6 @@ const doRenderBonusPoints = function () {
 
 // 전체 재고 수량 계산
 function onGetStockTotal() {
-  // let sum = 0
-  // let currentProduct;
-
-  // for (let i = 0; i < PRODUCT_LIST.length; i++) {
-  //   currentProduct = PRODUCT_LIST[i];
-  //   sum += currentProduct.quantity;
-  // }
-  // return sum;
-
   return PRODUCT_LIST.reduce((acc, cur) => (acc += cur.quantity), 0);
 }
 
