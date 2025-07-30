@@ -1,4 +1,3 @@
-// Product related constants
 export const PRODUCT_CONSTANTS = {
   STOCK: {
     LOW_STOCK_THRESHOLD: 5,
@@ -7,14 +6,12 @@ export const PRODUCT_CONSTANTS = {
   },
 };
 
-// Product related DOM element IDs
 export const PRODUCT_ELEMENT_IDS = {
   PRODUCT_SELECT: 'product-select',
   ADD_TO_CART: 'add-to-cart',
   STOCK_STATUS: 'stock-status',
 };
 
-// Product data
 export const PRODUCTS = {
   KEYBOARD: 'p1',
   MOUSE: 'p2',

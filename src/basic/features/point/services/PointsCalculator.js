@@ -41,17 +41,14 @@ export const calculateAndRenderPoints = (
     return { points: 0, details: [] };
   }
 
-  // 1. 기본 포인트 계산
   const basePoints = calculateBasePoints(totalAmount);
   const baseDetails = basePoints > 0 ? [`기본: ${basePoints}p`] : [];
 
-  // 2. 화요일 2배 적용
   const todayIsTuesday = isTuesday();
   const tuesdayPoints =
     todayIsTuesday && basePoints > 0 ? basePoints * 2 : basePoints;
   const tuesdayDetails = todayIsTuesday && basePoints > 0 ? ['화요일 2배'] : [];
 
-  // 3. 세트 보너스 계산
   const setBonusResult = calculateSetBonuses(
     cartItems,
     productList,
@@ -59,10 +56,8 @@ export const calculateAndRenderPoints = (
     productIds,
   );
 
-  // 4. 대량 구매 보너스 계산
   const bulkBonusResult = calculateBulkBonuses(totalItemCount, constants);
 
-  // 5. 최종 포인트 계산 (불변성)
   const finalPoints =
     tuesdayPoints + setBonusResult.points + bulkBonusResult.points;
   const pointsDetail = [
@@ -72,7 +67,6 @@ export const calculateAndRenderPoints = (
     ...bulkBonusResult.details,
   ];
 
-  // 6. DOM에 렌더링 (선언적)
   renderPointsToDOM(finalPoints, pointsDetail);
 
   return {
@@ -92,7 +86,6 @@ const calculateSetBonuses = (cartItems, productList, constants, productIds) => {
   const hasMouse = productIdsInCart.includes(productIds.MOUSE);
   const hasMonitorArm = productIdsInCart.includes(productIds.MONITOR_ARM);
 
-  // 키보드 + 마우스 세트 보너스
   const keyboardMouseBonus =
     hasKeyboard && hasMouse ? constants.POINTS.KEYBOARD_MOUSE_BONUS : 0;
 
@@ -100,7 +93,6 @@ const calculateSetBonuses = (cartItems, productList, constants, productIds) => {
     bonusDetails.push(`키보드+마우스 세트 +${keyboardMouseBonus}p`);
   }
 
-  // 풀세트 보너스 (키보드 + 마우스 + 모니터암)
   const fullSetBonus =
     hasKeyboard && hasMouse && hasMonitorArm
       ? constants.POINTS.FULL_SET_BONUS

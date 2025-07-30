@@ -22,7 +22,6 @@ export const calculateAndRenderPoints = cartResults => {
   const cartElements = cartDisplayElement.children;
   const { totalAmount, totalItemCount } = cartResults;
 
-  // 순수 함수로 포인트 계산 및 렌더링
   const pointsResults = calculatePointsFunction(
     totalAmount,
     totalItemCount,

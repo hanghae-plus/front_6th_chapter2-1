@@ -28,7 +28,6 @@ export const updateProductSelector = () => {
     productState.lastSelectedProduct,
   );
 
-  // 재고 상태에 따른 스타일 업데이트
   const totalStock = getTotalStock(productState.products);
   const borderColor = totalStock < 50 ? 'orange' : '';
 

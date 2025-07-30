@@ -152,11 +152,9 @@ export const updateCartUI = cartResults => {
 export const renderCartTotalComponent = pointsResults => {
   const totalAmount = productState.amount;
 
-  // DOM에서 카트 요소들 가져오기 (할인율 계산용)
   const cartDisplayElement = findElement('#cart-items');
   const cartElements = cartDisplayElement.children;
 
-  // 최신 할인율 계산
   const cartResults = calculateCart(
     cartElements,
     productState.products,

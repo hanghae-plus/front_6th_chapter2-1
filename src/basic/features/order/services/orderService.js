@@ -11,6 +11,5 @@ import { renderOrderSummaryDetails } from '../components/OrderSummaryDetails.js'
  * @param {object} cartResults - 카트 계산 결과
  */
 export const updateOrderSummary = cartResults => {
-  // 순수 함수로 주문 요약 렌더링
   renderOrderSummaryDetails(cartResults, productState.products);
 };

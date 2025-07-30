@@ -3,7 +3,6 @@ import { productState } from '../../product/store/ProductStore.js';
 import { findProductById } from '../../product/utils/productUtils.js';
 import { renderCartItem } from '../components/CartItem.js';
 
-// Cart click handlers (moved from clickDelegates.js)
 const handleCartClick = (
   event,
   { cartUtils, onCalculate, onUpdateOptions },
@@ -44,7 +43,6 @@ const handleAddToCartClick = (event, { onAddToCart }) => {
   onAddToCart();
 };
 
-// Cart utilities
 const cartUtils = {
   updateItemQuantity: (product, existingItem) => {
     const qtyElement = existingItem.querySelector('.quantity-number');
@@ -111,7 +109,6 @@ const cartUtils = {
   },
 };
 
-// Main cart event handler (불변성)
 const handleAddToCart = () => {
   const productSelector = document.getElementById('product-select');
   const selectedProductId = productSelector.value;
@@ -129,9 +126,7 @@ const handleAddToCart = () => {
   }
 };
 
-// Register cart events
 export const registerCartEvents = (onCalculate, onUpdateOptions) => {
-  // Register Add to Cart button
   const addToCartButton = document.getElementById('add-to-cart');
   if (addToCartButton) {
     addToCartButton.addEventListener('click', event => {
@@ -139,7 +134,6 @@ export const registerCartEvents = (onCalculate, onUpdateOptions) => {
     });
   }
 
-  // Register cart item events (delegation)
   const cartContainer = document.getElementById('cart-items');
   if (cartContainer) {
     cartContainer.addEventListener('click', event => {

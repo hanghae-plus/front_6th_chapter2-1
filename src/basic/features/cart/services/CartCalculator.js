@@ -134,26 +134,21 @@ export const calculateCart = (
 ) => {
   const cartItems = Array.from(cartElements);
 
-  // 1. 기본 계산
   const { subtotal, totalItemCount } = calculateSubtotal(cartItems, products);
 
-  // 2. 대량 구매 할인 확인 (개별 할인 무시)
   const isBulkPurchase =
     totalItemCount >= constants.DISCOUNT.BULK_DISCOUNT_THRESHOLD;
 
   const amountAfterBulkDiscount = isBulkPurchase ? subtotal * 0.75 : subtotal;
 
-  // 3. 개별 상품 할인 적용 (대량 구매가 아닌 경우에만)
   const itemDiscountResult = isBulkPurchase
     ? { totalAmount: amountAfterBulkDiscount, itemDiscounts: [] }
     : applyItemDiscounts(cartItems, products, constants, productIds);
 
-  // 4. 화요일 할인 적용
   const { finalAmount: afterTuesdayDiscount, isTuesday } = applyTuesdayDiscount(
     itemDiscountResult.totalAmount,
   );
 
-  // 5. 할인율 계산
   const discountRate = calculateDiscountRate(subtotal, afterTuesdayDiscount);
 
   return {

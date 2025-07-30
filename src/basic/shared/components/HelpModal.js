@@ -82,7 +82,6 @@ const HelpModal = () => {
   const overlay = htmlToElement(overlayHTML);
   const modalPanel = overlay.querySelector('.fixed.right-0');
 
-  // Modal state management
   let isOpen = false;
 
   const handleToggle = () => {
@@ -101,9 +100,6 @@ const HelpModal = () => {
     overlay.classList.add('hidden');
     modalPanel.classList.add('translate-x-full');
   };
-
-  // Note: Event handling is managed by event delegation in main.basic.js
-  // No direct event listeners are attached here to avoid conflicts
 
   return {
     toggleButton,

@@ -68,21 +68,17 @@ const ProductSelector = ({
 
   const selector = htmlToElement(selectorHTML);
 
-  // Set initial selection
   if (selectedProductId) {
     selector.value = selectedProductId;
   }
 
-  // Add event listener
   selector.addEventListener('change', e => {
     if (onSelectionChange) {
       onSelectionChange(e.target.value);
     }
   });
 
-  // Add update method for compatibility (선언적)
   selector.updateProducts = (newProducts, newSelectedId) => {
-    // Re-render options (불변성)
     const newOptionsHTML = newProducts
       .map(product => {
         const baseText = `${product.name} - ${product.val}원`;
