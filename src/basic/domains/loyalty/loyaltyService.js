@@ -1,4 +1,4 @@
-import { PRODUCT_IDS, products } from "../../features/product";
+import { PRODUCT_IDS, products } from "../product";
 
 export const doRenderBonusPoints = function (state) {
 	// Calculate base points and initialize tracking variables

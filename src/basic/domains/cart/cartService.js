@@ -1,4 +1,4 @@
-import { PRODUCT_IDS, products } from "../../features/product";
+import { PRODUCT_IDS, products } from "../product";
 import { handleStockInfoUpdate } from "../product/productService";
 import { doRenderBonusPoints } from "../loyalty/loyaltyService";
 import { DISCOUNT_CONSTANTS, STOCK_CONSTANTS, UI_CONSTANTS } from "../../constants/discount";

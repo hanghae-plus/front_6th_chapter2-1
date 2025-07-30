@@ -1,4 +1,4 @@
-import { PRODUCT_IDS } from "../constants";
+import { PRODUCT_IDS } from "./constants";
 
 export const products = [
 	{

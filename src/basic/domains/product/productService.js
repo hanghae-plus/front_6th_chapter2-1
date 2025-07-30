@@ -1,4 +1,4 @@
-import { products } from "../../features/product";
+import { products } from "./data";
 import { STOCK_CONSTANTS } from "../../constants/discount";
 
 export function onUpdateSelectOptions(state) {

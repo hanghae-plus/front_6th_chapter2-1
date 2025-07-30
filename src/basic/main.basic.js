@@ -1,4 +1,4 @@
-import { PRODUCT_IDS, products } from "./features/product";
+import { PRODUCT_IDS, products } from "./domains/product";
 import { Header } from "./shared/components";
 import { createAppState } from "./state/appState";
 import { onUpdateSelectOptions } from "./domains/product/productService";
