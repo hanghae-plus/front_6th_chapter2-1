@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useEffect } from 'react';
 
 import AddButton from '@/advanced/components/product/AddButton';
 import StockStatus from '@/advanced/components/product/StockStatus';
@@ -7,11 +7,26 @@ import { ProductStatus } from '@/advanced/types/product.type';
 import { createProductText, getProductStatus } from '@/advanced/utils/product.util';
 
 export default function ProductSelect(): ReactElement {
-  const { products } = useProductStore();
+  const { products, setSelectedProduct } = useProductStore();
+
+  const handleChangeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const product = products.find(product => product.id === e.target.value);
+
+    if (product) {
+      setSelectedProduct(product);
+    }
+  };
+
+  const initializeSelectedProduct = () => setSelectedProduct(products[0]);
+
+  useEffect(() => {
+    initializeSelectedProduct();
+  }, []);
 
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">
       <select
+        onChange={handleChangeSelect}
         id="product-select"
         className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
       >
@@ -24,6 +39,7 @@ export default function ProductSelect(): ReactElement {
           </option>
         ))}
       </select>
+
       <AddButton />
       <StockStatus />
     </div>

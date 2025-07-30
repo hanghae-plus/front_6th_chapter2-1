@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 import getProducts from '@/advanced/api/getProducts';
-import CartItems from '@/advanced/components/cart/CartItems';
+import { CartList } from '@/advanced/components/cart';
 import Header from '@/advanced/components/layout/Header';
 import HelpOverlay from '@/advanced/components/layout/HelpOverlay';
 import HelpToggle from '@/advanced/components/layout/HelpToggle';
@@ -29,7 +29,7 @@ function App() {
       <MainLayout>
         <SectionLayout>
           <ProductSelect />
-          <CartItems />
+          <CartList />
         </SectionLayout>
         <OrderSummary />
       </MainLayout>

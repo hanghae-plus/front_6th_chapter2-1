@@ -13,15 +13,18 @@ export function getProductStatus(product: Product): ProductStatus {
 export function createProductText(product: Product): string {
   const status: ProductStatus = getProductStatus(product);
 
+  const discountText = product.onSale ? '⚡SALE' : product.suggestSale ? '💝추천' : '';
+
   const formatters = {
-    [ProductStatus.OUT_OF_STOCK]: () => `${product.name} - ${product.price}원 (품절)`,
+    [ProductStatus.OUT_OF_STOCK]: () =>
+      `${product.name} - ${product.price}원 (품절) ${discountText}`,
     [ProductStatus.SUPER_SALE]: () =>
       `⚡💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (${getSuperSaleRate()}% SUPER SALE!)`,
     [ProductStatus.LIGHTNING_SALE]: () =>
       `⚡${product.name} - ${product.originalPrice}원 → ${product.price}원 (${DISCOUNT_RATE_LIGHTNING}% SALE!)`,
     [ProductStatus.SUGGESTION_SALE]: () =>
       `💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (${DISCOUNT_RATE_SUGGESTION}% 추천할인!)`,
-    [ProductStatus.NORMAL]: () => `${product.name} - ${product.price}원`,
+    [ProductStatus.NORMAL]: () => `${product.name} - ${product.price}원 ${discountText}`,
   };
 
   return formatters[status]();

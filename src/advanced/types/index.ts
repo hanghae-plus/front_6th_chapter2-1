@@ -1,14 +1,3 @@
-// Cart Item 타입
-export interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  originalPrice: number;
-  quantity: number;
-  onSale: boolean;
-  suggestSale: boolean;
-}
-
 // 할인 관련 타입
 export interface DiscountInfo {
   name: string;
