@@ -1,11 +1,11 @@
 import { TIMERS } from "../constants/index.js";
 import { cartService } from "./cartService.js";
+import { uiEventBus } from "../core/eventBus.js";
+import { discountService } from "./discountService.js";
 
 export class TimerService {
-  constructor(productService, onUpdateSelectOptions, doUpdatePricesInCart, cartDisplay) {
+  constructor(productService, cartDisplay) {
     this.productService = productService;
-    this.onUpdateSelectOptions = onUpdateSelectOptions;
-    this.doUpdatePricesInCart = doUpdatePricesInCart;
     this.cartDisplay = cartDisplay;
     this.timers = new Map();
   }
@@ -60,11 +60,51 @@ export class TimerService {
   }
 
   updateUI() {
-    this.onUpdateSelectOptions();
+    // 직접 이벤트 발송
+    const products = this.productService.getProducts();
+    const discountInfos = this.calculateProductDiscountInfos(products);
 
-    // DOM에서 장바구니 아이템을 가져와서 핸들러에 전달
+    uiEventBus.emit("product:options:updated", {
+      products,
+      discountInfos,
+      success: true,
+    });
+
+    // 장바구니 가격 업데이트
     const cartItems = Array.from(this.cartDisplay.children);
-    this.doUpdatePricesInCart(cartItems);
+    if (cartItems.length > 0) {
+      this.updateCartPrices(cartItems);
+    }
+  }
+
+  updateCartPrices(cartItems) {
+    const itemsToUpdate = cartItems
+      .map(cartItem => {
+        const productId = cartItem.id;
+        const product = this.productService.getProductById(productId);
+        if (product) {
+          const discountInfo = {
+            rate: discountService.calculateProductDiscountRate(product),
+            status: discountService.getProductDiscountStatus(product),
+          };
+          return { cartItem, product, discountInfo };
+        }
+        return null;
+      })
+      .filter(item => item !== null);
+
+    uiEventBus.emit("product:prices:updated", {
+      itemsToUpdate,
+      success: true,
+    });
+  }
+
+  calculateProductDiscountInfos(products) {
+    return products.map(product => ({
+      productId: product.id,
+      rate: discountService.calculateProductDiscountRate(product),
+      status: discountService.getProductDiscountStatus(product),
+    }));
   }
 
   getRandomDelay(maxDelay) {

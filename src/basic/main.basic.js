@@ -6,18 +6,12 @@ import { createManualSystem } from "./components/Manual.js";
 import { createLayoutSystem } from "./components/Layout.js";
 import { createCartDisplay } from "./components/CartDisplay.js";
 
-// data
-import { PRODUCT_LIST } from "./data/product.js";
-
 // services
 import { CartService } from "./services/cartService.js";
 import { TimerService } from "./services/timerService.js";
 import { ProductService } from "./services/productService.js";
 import { OrderService } from "./services/orderService.js";
 import { discountService } from "./services/discountService.js";
-
-// handlers
-import { calculateProductDiscountInfo, calculateProductDiscountInfos, handleProductOptionsUpdate, handleStockUpdate, handlePricesUpdate } from "./handlers/index.js";
 
 // events
 import { uiEventBus } from "./core/eventBus.js";
@@ -38,7 +32,7 @@ function initEventBusListeners() {
   new OrderEventListeners(uiEventBus, orderService);
 }
 
-function main() {
+async function main() {
   const root = document.getElementById("app");
 
   // ProductService 초기화
@@ -82,18 +76,23 @@ function main() {
   // Event Bus 이벤트 리스너 등록
   initEventBusListeners();
 
-  handleProductOptionsUpdate(productService);
-
-  // 초기 장바구니 요약 업데이트 (빈 배열로 시작)
-  uiEventBus.emit("cart:summary:calculation:requested", {
-    cartItems: [],
-    success: true,
-  });
+  // Service 초기화
+  await productService.initializeUI();
+  await cartService.initializeUI();
 
   // 타이머 서비스 초기화 및 시작
-  const timerService = new TimerService(productService, handleProductOptionsUpdate, handlePricesUpdate, cartDisplay);
+  const timerService = new TimerService(productService, cartDisplay);
   timerService.startLightningSaleTimer();
   timerService.startSuggestSaleTimer();
+}
+
+// 헬퍼 함수
+function calculateProductDiscountInfos(products) {
+  return products.map(product => ({
+    productId: product.id,
+    rate: discountService.calculateProductDiscountRate(product),
+    status: discountService.getProductDiscountStatus(product),
+  }));
 }
 
 main();

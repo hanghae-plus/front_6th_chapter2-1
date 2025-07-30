@@ -1,5 +1,6 @@
 import { ProductStore } from "../store/productStore.js";
 import { QUANTITY_THRESHOLDS } from "../constants/index.js";
+import { discountService } from "./discountService.js";
 
 // 상품 관련된 서비스
 export class ProductService {
@@ -120,5 +121,37 @@ export class ProductService {
   // 상품 상태 초기화
   reset() {
     this.productStore.reset();
+  }
+
+  // 할인율 계산 (discountService 사용)
+  calculateProductDiscountRate(product) {
+    return discountService.calculateProductDiscountRate(product);
+  }
+
+  // 할인 상태 조회 (discountService 사용)
+  getProductDiscountStatus(product) {
+    return discountService.getProductDiscountStatus(product);
+  }
+
+  // 초기화 메서드
+  async initializeUI() {
+    const products = this.getProducts();
+    const discountInfos = this.calculateProductDiscountInfos(products);
+
+    // 이벤트 발송
+    const { uiEventBus } = await import("../core/eventBus.js");
+    uiEventBus.emit("product:options:updated", {
+      products,
+      discountInfos,
+      success: true,
+    });
+  }
+
+  calculateProductDiscountInfos(products) {
+    return products.map(product => ({
+      productId: product.id,
+      rate: this.calculateProductDiscountRate(product),
+      status: this.getProductDiscountStatus(product),
+    }));
   }
 }

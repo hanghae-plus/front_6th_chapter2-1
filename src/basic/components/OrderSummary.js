@@ -101,7 +101,7 @@ export function createOrderSummary() {
             <span class="text-sm uppercase tracking-wider">Total</span>
             <div id="total-amount" class="text-2xl tracking-tight">₩0</div>
           </div>
-          <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
+          <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right" style="display: none;">적립 포인트: 0p</div>
         </div>
         <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
           <div class="flex items-center gap-2">
