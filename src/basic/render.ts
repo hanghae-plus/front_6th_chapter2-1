@@ -1,12 +1,16 @@
 import { useProducts, useCart } from './hooks';
-import { isTuesday } from './entities';
+import { isTuesday, type Product, type CartData, type PointsData } from './entities';
 import { $$ } from './utils';
+
+// Get product name prefix based on sale status
+export const getProductNamePrefix = (product: Product): string =>
+  product.onSale && product.suggestSale ? '⚡💝' :
+    product.onSale ? '⚡' :
+      product.suggestSale ? '💝' : ''
+
 
 // App Component - 전체 애플리케이션 렌더링
 export function App() {
-  const { cartData } = useCart();
-  const itemCount = cartData.itemCount;
-  
   return `
     ${Header()}
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
@@ -60,71 +64,57 @@ export function ProductOptions() {
   const { products, hasLowStock } = useProducts();
   const borderColor = hasLowStock() ? 'orange' : '';
 
-  const options = products.map(item => {
-    const optionData = ProductOption({item: item});
-    return `<option value="${item.id}" class="${optionData.className || ''}" ${optionData.disabled ? 'disabled' : ''}>${optionData.html}</option>`;
-  }).join('');
+  const options = products.map(item => ProductOption({ item })).join('');
 
   return `<select id="product-select" class="w-full p-3 border border-gray-300 rounded-lg text-base mb-3" style="border-color: ${borderColor}">${options}</select>`;
 }
 
 // ProductOption Component
-export function ProductOption({ item }) {
+export function ProductOption({ item }: { item: Product }) {
   let discountText = '';
+  let text = '';
+  let className = '';
+  let disabled = false;
 
   if (item.onSale) discountText += ' ⚡SALE';
   if (item.suggestSale) discountText += ' 💝추천';
   
-  if (item.q === 0) {
-    return {
-      html: `${item.name} - ${item.val}원 (품절)${discountText}`,
-      className: 'text-gray-400',
-      disabled: true
-    };
-  }
-  
-  if (item.onSale && item.suggestSale) {
-    return {
-      html: `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)`,
-      className: 'text-purple-600 font-bold',
-      disabled: false
-    };
+  if (item.quantity === 0) {
+    text = `${item.name} - ${item.val}원 (품절)${discountText}`;
+    className = 'text-gray-400';
+    disabled = true;
+  } else if (item.onSale && item.suggestSale) {
+    text = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)`;
+    className = 'text-purple-600 font-bold';
   } else if (item.onSale) {
-    return {
-      html: `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)`,
-      className: 'text-red-500 font-bold',
-      disabled: false
-    };
+    text = `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)`;
+    className = 'text-red-500 font-bold';
   } else if (item.suggestSale) {
-    return {
-      html: `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)`,
-      className: 'text-blue-500 font-bold',
-      disabled: false
-    };
+    text = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)`;
+    className = 'text-blue-500 font-bold';
+  } else {
+    text = `${item.name} - ${item.val}원`;
   }
   
-  return {
-    html: `${item.name} - ${item.val}원`,
-    className: '',
-    disabled: false
-  };
+  return `<option value="${item.id}" class="${className}" ${disabled ? 'disabled' : ''}>${text}</option>`;
 }
 
 // CartItem Component
-export function CartItem({ item, quantity = 1 }) {
-  const priceData = ProductPrice({product: item});
+export function CartItem({ item, quantity = 1 }: { item: Product; quantity?: number }) {
+  const namePrefix = getProductNamePrefix(item);
+  const priceHTML = ProductPrice({ product: item });
 
   return `
     <div id="${item.id}" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
       ${ProductImage()}
       <div>
-        <h3 class="text-base font-normal mb-1 tracking-tight">${priceData.namePrefix}${item.name}</h3>
+        <h3 class="text-base font-normal mb-1 tracking-tight">${namePrefix}${item.name}</h3>
         <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-        <p class="text-xs text-black mb-3">${priceData.priceHTML}</p>
-        ${QuantityControls({ productId: item.id, quantity: quantity })}
+        <p class="text-xs text-black mb-3">${priceHTML}</p>
+        ${QuantityControls({ product: item, quantity: quantity })}
       </div>
       <div class="text-right">
-        <div class="text-lg mb-2 tracking-tight tabular-nums">${priceData.priceHTML}</div>
+        <div class="text-lg mb-2 tracking-tight tabular-nums">${priceHTML}</div>
         <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${item.id}">Remove</a>
       </div>
     </div>
@@ -141,7 +131,8 @@ export function ProductImage() {
 }
 
 // QuantityControls Component
-export function QuantityControls({ productId, quantity }) {
+export function QuantityControls({ product, quantity }: { product: Product; quantity: number }) {
+  const productId = product.id;
   return `
     <div class="flex items-center gap-4">
       <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${productId}" data-change="-1">−</button>
@@ -152,51 +143,51 @@ export function QuantityControls({ productId, quantity }) {
 }
 
 // DiscountInfo Component
-export function DiscountInfo({ discountRate, savedAmount }) {
-  if (discountRate <= 0 || !savedAmount) return '';
+export function DiscountInfo({ cartData }: { cartData: CartData }) {
+  if (cartData.discountRate <= 0 || !cartData.savedAmount) return '';
   
   return `
     <div class="bg-green-500/20 rounded-lg p-3">
       <div class="flex justify-between items-center mb-1">
         <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-        <span class="text-sm font-medium text-green-400">${(discountRate * 100).toFixed(1)}%</span>
+        <span class="text-sm font-medium text-green-400">${(cartData.discountRate * 100).toFixed(1)}%</span>
       </div>
-      <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
+      <div class="text-2xs text-gray-300">₩${Math.round(cartData.savedAmount).toLocaleString()} 할인되었습니다</div>
     </div>
   `;
 }
 
 // LoyaltyPoints Component
-export function LoyaltyPoints({ points, details }) {
-  if (!points || points <= 0) {
+export function LoyaltyPoints({ pointsData }: { pointsData: PointsData }) {
+  if (!pointsData.finalPoints || pointsData.finalPoints <= 0) {
     return '<div>적립 포인트: <span class="font-bold">0p</span></div>';
   }
   
   return `
-    <div>적립 포인트: <span class="font-bold">${points}p</span></div>
-    <div class="text-2xs opacity-70 mt-1">${details.join(', ')}</div>
+    <div>적립 포인트: <span class="font-bold">${pointsData.finalPoints}p</span></div>
+    <div class="text-2xs opacity-70 mt-1">${pointsData.details.join(', ')}</div>
   `;
 }
 
 // SummaryDetails Component
-export function SummaryDetails({ subtotal, items = [], discounts = [], itemCount, isTuesday }) {
-  if (subtotal <= 0) return '';
+export function SummaryDetails({ cartData }: { cartData: CartData }) {
+  if (cartData.subtotal <= 0) return '';
   
   return `
-    ${SummaryItems({ items: items })}
+    ${SummaryItems({ items: cartData.summaryItems })}
     ${Divider()}
-    ${SummarySubtotal({ amount: subtotal })}
+    ${SummarySubtotal({ amount: cartData.subtotal })}
     ${SummaryDiscounts({ 
-      itemCount: itemCount, 
-      discounts: discounts, 
-      isTuesday: isTuesday 
+      itemCount: cartData.itemCount, 
+      discounts: cartData.itemDiscounts, 
+      isTuesday: cartData.isTuesday 
     })}
     ${SummaryShipping()}
   `;
 }
 
 // SummaryItems Component
-export function SummaryItems({ items }) {
+export function SummaryItems({ items }: { items: CartData['summaryItems'] }) {
   return items.map(item => `
       <div class="flex justify-between text-xs tracking-wide text-gray-400">
         <span>${item.name} x ${item.quantity}</span>
@@ -211,7 +202,7 @@ export function Divider() {
 }
 
 // SummarySubtotal Component
-export function SummarySubtotal({ amount }) {
+export function SummarySubtotal({ amount }: { amount: number }) {
   return `
     <div class="flex justify-between text-sm tracking-wide">
       <span>Subtotal</span>
@@ -221,7 +212,7 @@ export function SummarySubtotal({ amount }) {
 }
 
 // SummaryDiscounts Component
-export function SummaryDiscounts({ itemCount, discounts, isTuesday }) {
+export function SummaryDiscounts({ itemCount, discounts, isTuesday }: { itemCount: CartData['itemCount']; discounts: CartData['itemDiscounts']; isTuesday: CartData['isTuesday'] }) {
   const discountItems = [];
 
   if (itemCount >= 30) {
@@ -249,7 +240,7 @@ export function SummaryDiscounts({ itemCount, discounts, isTuesday }) {
 }
 
 // DiscountItem Component
-export function DiscountItem({ label, percent, color = 'text-green-400' }) {
+export function DiscountItem({ label, percent, color = 'text-green-400' }: { label: string; percent: number; color?: string }) {
   return `
     <div class="flex justify-between text-sm tracking-wide ${color}">
       <span class="text-xs">${label}</span>
@@ -278,46 +269,14 @@ export function StockStatus() {
     .join('\n');
 }
 
-// ProductPrice Component Helper
-export function ProductPrice({ product }) {
-  let namePrefix = '';
-  let priceHTML = '';
 
-  if (product.onSale && product.suggestSale) {
-    namePrefix = '⚡💝';
-    priceHTML = PriceWithDiscount({ 
-      original: product.originalVal, 
-      current: product.val, 
-      color: 'text-purple-600' 
-    });
-  } else if (product.onSale) {
-    namePrefix = '⚡';
-    priceHTML = PriceWithDiscount({ 
-      original: product.originalVal, 
-      current: product.val, 
-      color: 'text-red-500' 
-    });
-  } else if (product.suggestSale) {
-    namePrefix = '💝';
-    priceHTML = PriceWithDiscount({ 
-      original: product.originalVal, 
-      current: product.val, 
-      color: 'text-blue-500' 
-    });
-  } else {
-    priceHTML = `₩${product.val.toLocaleString()}`
-  }
-  
-  return { namePrefix, priceHTML };
-}
-
-
-// PriceWithDiscount Component
-export function PriceWithDiscount({ original, current, color }) {
-  return `
-    <span class="line-through text-gray-400">₩${original.toLocaleString()}</span> 
-    <span class="${color}">₩${current.toLocaleString()}</span>
-  `;
+// ProductPrice Component
+export function ProductPrice({ product }: { product: Product }) {
+  return product.onSale || product.suggestSale
+    ? `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> 
+       <span class="${product.onSale && product.suggestSale ? 'text-purple-600' :
+                      product.onSale ? 'text-red-500' : 'text-blue-500'}">₩${product.val.toLocaleString()}</span>`
+    : `₩${product.val.toLocaleString()}`;
 }
 
 // ProductSelector Component
@@ -463,7 +422,7 @@ export function HelpPointsSection() {
 }
 
 // HelpCard Component
-export function HelpCard({ title, content }) {
+export function HelpCard({ title, content }: { title: string; content: string }) {
   return `
     <div class="bg-gray-100 rounded-lg p-3">
       <p class="font-semibold text-sm mb-1">${title}</p>
@@ -502,11 +461,10 @@ export function rerenderCartItems() {
   const { cart } = useCart();
   const { products } = useProducts();
   const cartDisp = document.getElementById('cart-items');
-  
   if (!cartDisp) return;
-  
+
   // 현재 DOM의 상태와 cart 객체 비교하여 업데이트
-  const existingItems = {};
+  const existingItems: Record<string, Element> = {};
   Array.from(cartDisp.children).forEach(child => {
     existingItems[child.id] = child;
   });
@@ -525,22 +483,23 @@ export function rerenderCartItems() {
       // 기존 아이템이 있으면 업데이트
       const quantityElement = existingItem.querySelector('.quantity-number');
       if (quantityElement) {
-        quantityElement.textContent = quantity;
+        quantityElement.textContent = String(quantity);
       }
       
       // 가격 업데이트 (할인 상태가 변경될 수 있음)
-      const priceData = ProductPrice({product: product});
+      const namePrefix = getProductNamePrefix(product);
+      const priceHTML = ProductPrice({ product });
       const nameElement = existingItem.querySelector('h3');
       if (nameElement) {
-        nameElement.innerHTML = priceData.namePrefix + product.name;
+        nameElement.innerHTML = namePrefix + product.name;
       }
       
       const priceElements = existingItem.querySelectorAll('.text-xs.text-black, .text-lg');
-      priceElements.forEach(elem => {
+      priceElements.forEach((elem: Element) => {
         if (elem.classList.contains('text-black')) {
-          elem.innerHTML = priceData.priceHTML;
+          elem.innerHTML = priceHTML;
         } else if (elem.classList.contains('text-lg')) {
-          elem.innerHTML = priceData.priceHTML;
+          elem.innerHTML = priceHTML;
         }
       });
       
@@ -550,7 +509,9 @@ export function rerenderCartItems() {
       const cartItemHTML = CartItem({ item: product, quantity: quantity });
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = cartItemHTML;
-      cartDisp.appendChild(tempDiv.firstElementChild);
+      if (tempDiv.firstElementChild) {
+        cartDisp.appendChild(tempDiv.firstElementChild);
+      }
     }
   });
   
@@ -580,7 +541,8 @@ export function rerenderItemCount() {
   const itemCountElement = document.getElementById('item-count');
   
   if (itemCountElement) {
-    const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
+    const match = itemCountElement.textContent?.match(/\d+/);
+    const previousCount = match ? parseInt(match[0]) : 0;
     itemCountElement.textContent = `🛍️ ${cartData.itemCount} items in cart`;
     if (previousCount !== cartData.itemCount) {
       itemCountElement.setAttribute('data-changed', 'true');
@@ -594,13 +556,7 @@ export function rerenderSummaryDetails() {
   const summaryDetails = document.getElementById('summary-details');
   
   if (summaryDetails) {
-    summaryDetails.innerHTML = SummaryDetails({
-      subtotal: cartData.subtotal,
-      items: cartData.summaryItems,
-      itemCount: cartData.itemCount,
-      discounts: cartData.itemDiscounts,
-      isTuesday: cartData.isTuesday
-    });
+    summaryDetails.innerHTML = SummaryDetails({ cartData });
   }
 }
 
@@ -623,7 +579,7 @@ export function rerenderLoyaltyPoints() {
   const loyaltyPointsDiv = document.getElementById('loyalty-points');
   
   if (loyaltyPointsDiv && pointsData) {
-    loyaltyPointsDiv.innerHTML = LoyaltyPoints({points: pointsData.finalPoints, details: pointsData.details});
+    loyaltyPointsDiv.innerHTML = LoyaltyPoints({ pointsData });
     loyaltyPointsDiv.style.display = pointsData.finalPoints > 0 || cartData.itemCount > 0 ? 'block' : 'none';
   }
 }
@@ -635,7 +591,7 @@ export function rerenderDiscountInfo() {
   const discountInfoDiv = document.getElementById('discount-info');
   
   if (discountInfoDiv) {
-    discountInfoDiv.innerHTML = DiscountInfo({discountRate: cartData.discountRate, savedAmount: cartData.savedAmount});
+    discountInfoDiv.innerHTML = DiscountInfo({ cartData });
   }
 }
 

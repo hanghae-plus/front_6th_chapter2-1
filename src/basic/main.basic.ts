@@ -27,7 +27,7 @@ export function useLightningSaleTimer() {
       const { products, setProducts } = useProducts();
       const luckyIdx = Math.floor(Math.random() * products.length);
       const luckyItem = products[luckyIdx];
-      if (luckyItem.q > 0 && !luckyItem.onSale) {
+      if (luckyItem.quantity > 0 && !luckyItem.onSale) {
         // setState 패턴으로 상태 업데이트
         setProducts(applyLightningSale(products, luckyItem.id));
         rerenderUI();
@@ -51,14 +51,14 @@ export function useSuggestSaleTimer() {
   let intervalId
   const timeoutId = setTimeout(() => {
     intervalId = setInterval(() => {
-      if (cartDisp.children.length === 0) {
+      if (cartDisplay.children.length === 0) {
         return;
       }
       const { lastSel } = useLastSelected();
       if (lastSel) {
         const { products, setProducts } = useProducts();
         const suggest = products.find(product => product.id !== lastSel &&
-          product.q > 0 &&
+          product.quantity > 0 &&
           !product.suggestSale);
         if (suggest) {
           // setState 패턴으로 상태 업데이트
@@ -80,10 +80,10 @@ export function useSuggestSaleTimer() {
 
 
 // DOM 요소 참조 변수
-let sel:HTMLSelectElement
-let addBtn:HTMLDivElement
-let cartDisp:HTMLDivElement
-let stockInfo:HTMLDivElement
+let productSelect: HTMLSelectElement;
+let addToCartButton: HTMLButtonElement;
+let cartDisplay: HTMLDivElement;
+let stockInfoDisplay: HTMLDivElement;
 
 // 메인 초기화 함수
 function main() {
@@ -104,14 +104,14 @@ function main() {
   root.innerHTML = App();
 
   // DOM 요소 참조 설정
-  sel = document.getElementById('product-select')!;
-  addBtn = document.getElementById('add-to-cart')!;
-  cartDisp = document.getElementById('cart-items')!;
-  stockInfo = document.getElementById('stock-status')!;
+  productSelect = document.getElementById('product-select') as HTMLSelectElement;
+  addToCartButton = document.getElementById('add-to-cart') as HTMLButtonElement;
+  cartDisplay = document.getElementById('cart-items') as HTMLDivElement;
+  stockInfoDisplay = document.getElementById('stock-status') as HTMLDivElement;
 
   // 이벤트
-  addBtn?.addEventListener("click", handleAddToCart);
-  cartDisp?.addEventListener("click", handleCartItemClick);
+  addToCartButton?.addEventListener("click", handleAddToCart);
+  cartDisplay?.addEventListener("click", handleCartItemClick);
 
   // 타이머 설정 (useEffect 패턴)
   useLightningSaleTimer();
@@ -131,75 +131,75 @@ function handleAddToCart() {
   const { products, setProducts } = useProducts();
   const { setLastSel } = useLastSelected()
 
-  const selItem = sel.value
-  if (!selItem) {
+  const selectedItemId = productSelect.value
+  if (!selectedItemId) {
     return;
   }
 
-  const itemToAdd = products.find(product => product.id === selItem)
+  const itemToAdd = products.find(product => product.id === selectedItemId)
   if (!itemToAdd) {
     return;
   }
 
-  if (itemToAdd.q <= 0) {
+  if (itemToAdd.quantity <= 0) {
     return;
   }
 
-  const currentQty = getItemQuantity(selItem)
+  const currentQuantity = getItemQuantity(selectedItemId)
 
   // cart 업데이트 (순수 함수 사용)
-  if (!canAddToCart(itemToAdd, currentQty, 1)) {
+  if (!canAddToCart(itemToAdd, currentQuantity, 1)) {
     alert('재고가 부족합니다.')
     return
   }
 
-  setCart(addToCart(cart, selItem, 1))
-  setProducts(updateProductStock(products, selItem, -1))
-  setLastSel(selItem)
+  setCart(addToCart(cart, selectedItemId, 1))
+  setProducts(updateProductStock(products, selectedItemId, -1))
+  setLastSel(selectedItemId)
 
   rerenderUI()
 }
 
 // 수량 변경 핸들러
-function handleQuantityChange(prodId: string, qtyChange: number) {
+function handleQuantityChange(productId: string, quantityChange: number) {
   const { cart, setCart, getItemQuantity, hasItem } = useCart();
   const { products, setProducts } = useProducts();
   
-  const prod = products.find(product => product.id === prodId);
-  if (!prod || !hasItem(prodId)) return;
+  const product = products.find(product => product.id === productId);
+  if (!product || !hasItem(productId)) return;
   
-  const currentQty = getItemQuantity(prodId);
-  const newQty = currentQty + qtyChange;
+  const currentQuantity = getItemQuantity(productId);
+  const newQuantity = currentQuantity + quantityChange;
   
-  if (newQty > 0) {
-    const availableStock = getAvailableStock(prod, currentQty);
-    if (newQty <= availableStock) {
+  if (newQuantity > 0) {
+    const availableStock = getAvailableStock(product, currentQuantity);
+    if (newQuantity <= availableStock) {
       // cart 업데이트 + 재고 업데이트
-      setCart(updateCartQuantity(cart, prodId, newQty));
-      setProducts(updateProductStock(products, prodId, -qtyChange));
+      setCart(updateCartQuantity(cart, productId, newQuantity));
+      setProducts(updateProductStock(products, productId, -quantityChange));
     } else {
       alert('재고가 부족합니다.');
     }
   } else {
     // 수량이 0이 되면 아이템 제거, 재고 복구
-    setCart(removeFromCart(cart, prodId));
-    setProducts(updateProductStock(products, prodId, currentQty));
+    setCart(removeFromCart(cart, productId));
+    setProducts(updateProductStock(products, productId, currentQuantity));
   }
   
   rerenderUI();
 }
 
 // 아이템 제거 핸들러
-function handleRemoveItem(prodId: string) {
+function handleRemoveItem(productId: string) {
   const { cart, setCart, getItemQuantity } = useCart();
   const { products, setProducts } = useProducts();
   
-  const remQty = getItemQuantity(prodId);
-  if (!remQty) return;
+  const removeQuantity = getItemQuantity(productId);
+  if (!removeQuantity) return;
   
   // cart에서 제거 / 재고 복구
-  setCart(removeFromCart(cart, prodId));
-  setProducts(updateProductStock(products, prodId, remQty));
+  setCart(removeFromCart(cart, productId));
+  setProducts(updateProductStock(products, productId, removeQuantity));
   
   rerenderUI();
 }
@@ -209,18 +209,18 @@ function handleCartItemClick(event: Event) {
   const target = event.target as HTMLElement;
 
   if (target.classList.contains('quantity-change')) {
-    const prodId = target.dataset.productId;
-    const qtyChange = parseInt(target.dataset.change || '0');
-    if (prodId) {
-      handleQuantityChange(prodId, qtyChange);
+    const productId = target.dataset.productId;
+    const quantityChange = parseInt(target.dataset.change || '0');
+    if (productId) {
+      handleQuantityChange(productId, quantityChange);
     }
     return
   }
 
   if (target.classList.contains('remove-item')) {
-    const prodId = target.dataset.productId;
-    if (prodId) {
-      handleRemoveItem(prodId);
+    const productId = target.dataset.productId;
+    if (productId) {
+      handleRemoveItem(productId);
     }
     return
   }

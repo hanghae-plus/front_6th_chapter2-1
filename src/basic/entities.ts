@@ -6,7 +6,7 @@ export interface Product {
   name: string;
   val: number;
   originalVal: number;
-  q: number;
+  quantity: number;
   onSale: boolean;
   suggestSale: boolean;
 }
@@ -88,7 +88,7 @@ export function createInitialProducts(): Product[] {
       name: '버그 없애는 키보드',
       val: 10000,
       originalVal: 10000,
-      q: 50,
+      quantity: 50,
       onSale: false,
       suggestSale: false
     },
@@ -97,7 +97,7 @@ export function createInitialProducts(): Product[] {
       name: '생산성 폭발 마우스',
       val: 20000,
       originalVal: 20000,
-      q: 30,
+      quantity: 30,
       onSale: false,
       suggestSale: false
     },
@@ -106,7 +106,7 @@ export function createInitialProducts(): Product[] {
       name: '거북목 탈출 모니터암',
       val: 30000,
       originalVal: 30000,
-      q: 20,
+      quantity: 20,
       onSale: false,
       suggestSale: false
     },
@@ -115,7 +115,7 @@ export function createInitialProducts(): Product[] {
       name: '에러 방지 노트북 파우치',
       val: 15000,
       originalVal: 15000,
-      q: 0,
+      quantity: 0,
       onSale: false,
       suggestSale: false
     },
@@ -124,7 +124,7 @@ export function createInitialProducts(): Product[] {
       name: '코딩할 때 듣는 Lo-Fi 스피커',
       val: 25000,
       originalVal: 25000,
-      q: 10,
+      quantity: 10,
       onSale: false,
       suggestSale: false
     }
@@ -132,17 +132,17 @@ export function createInitialProducts(): Product[] {
 }
 
 export function calculateTotalStock(products: Product[]): number {
-  return products.reduce((total: number, product: Product) => total + product.q, 0);
+  return products.reduce((total: number, product: Product) => total + product.quantity, 0);
 }
 
 export function getStockInfo(products: Product[]): StockInfo {
   const totalStock = calculateTotalStock(products);
   const lowStockItems = products
-    .filter((item: Product) => item.q < DISCOUNT_THRESHOLDS.LOW_STOCK)
+    .filter((item: Product) => item.quantity < DISCOUNT_THRESHOLDS.LOW_STOCK)
     .map((item: Product) => ({
       product: item,
-      message: item.q > 0
-        ? `${item.name}: 재고 부족 (${item.q}개 남음)`
+      message: item.quantity > 0
+        ? `${item.name}: 재고 부족 (${item.quantity}개 남음)`
         : `${item.name}: 품절`
     }));
   
@@ -328,7 +328,7 @@ export function calculatePoints(cartData: CartData, cart: Cart, currentDate: Dat
 // Sale Management (setState를 통해 상태 업데이트)
 export function applyLightningSale(products: Product[], productId: string): Product[] {
   return products.map(function(product: Product) {
-    if (product.id === productId && product.q > 0 && !product.onSale) {
+    if (product.id === productId && product.quantity > 0 && !product.onSale) {
       return {
         ...product,
         val: Math.round(product.originalVal * (1 - DISCOUNT_RATES.LIGHTNING)),
@@ -341,7 +341,7 @@ export function applyLightningSale(products: Product[], productId: string): Prod
 
 export function applySuggestionSale(products: Product[], productId: string, excludeId: string): Product[] {
   return products.map(function(product: Product) {
-    if (product.id === productId && product.id !== excludeId && product.q > 0 && !product.suggestSale) {
+    if (product.id === productId && product.id !== excludeId && product.quantity > 0 && !product.suggestSale) {
       return {
         ...product,
         val: Math.round(product.val * (1 - DISCOUNT_RATES.SUGGESTION)),
@@ -358,7 +358,7 @@ export function updateProductStock(products: Product[], productId: string, quant
     if (product.id === productId) {
       return {
         ...product,
-        q: product.q + quantityChange
+        quantity: product.quantity + quantityChange
       };
     }
     return product;
@@ -394,9 +394,9 @@ export function removeFromCart(cart: Cart, productId: string): Cart {
 // Validation
 export function canAddToCart(product: Product, currentCartQuantity: number, requestedQuantity: number): boolean {
   const totalRequestedQuantity = currentCartQuantity + requestedQuantity;
-  return product.q >= requestedQuantity && totalRequestedQuantity <= product.q + currentCartQuantity;
+  return product.quantity >= requestedQuantity && totalRequestedQuantity <= product.quantity + currentCartQuantity;
 }
 
 export function getAvailableStock(product: Product, currentCartQuantity: number): number {
-  return product.q + currentCartQuantity;
+  return product.quantity + currentCartQuantity;
 }
