@@ -1,4 +1,4 @@
-import { InfoIcon } from "../shared/components";
+import { InfoIcon } from "../../shared/components";
 
 export function HelpModalToggleButton(manualOverlay, manualColumn) {
 	const manualToggle = document.createElement("button");

@@ -1,4 +1,13 @@
 import {
+	addProductToCart,
+	changeCartItemQuantity,
+	removeCartItem
+} from "./domains/cart/cartOperations";
+import { handleCalculateCartStuff } from "./domains/cart/cartService";
+import { onUpdateSelectOptions } from "./domains/product/productService";
+import { initializeLightningSale } from "./domains/sales/lightningService";
+import { initializeSuggestSale } from "./domains/sales/suggestService";
+import {
 	CartAddButton,
 	CartItemsContainer,
 	HelpContentPanel,
@@ -10,40 +19,34 @@ import {
 	ProductSelectionPanel,
 	ShoppingAreaColumn,
 	StockWarningMessage
-} from "./components/ui";
-import {
-	addProductToCart,
-	changeCartItemQuantity,
-	removeCartItem
-} from "./domains/cart/cartOperations";
-import { handleCalculateCartStuff } from "./domains/cart/cartService";
-import { onUpdateSelectOptions } from "./domains/product/productService";
-import { initializeLightningSale } from "./domains/sales/lightningService";
-import { initializeSuggestSale } from "./domains/sales/suggestService";
+} from "./domains/ui";
 import { Header } from "./shared/components";
-import { createAppState } from "./state/appState";
-import { findProductById } from "./utils/productUtils";
+import { createAppState } from "./shared/state/appState";
+import { findProductById } from "./shared/utils/productUtils";
 
 function main() {
-	// Initialize application state and get root element
+	// Initialize pure business state and get root element
 	const appState = createAppState();
 	const root = document.getElementById("app");
 
-	// Create UI components using component functions
-	appState.sel = ProductDropdownSelect();
-	appState.addBtn = CartAddButton();
-	appState.stockInfo = StockWarningMessage();
+	// Create UI elements separately from business state
+	const uiElements = {
+		sel: ProductDropdownSelect(),
+		addBtn: CartAddButton(),
+		stockInfo: StockWarningMessage(),
+		cartDisp: CartItemsContainer(),
+		sum: null // Will be set after creating rightColumn
+	};
 
 	const selectorContainer = ProductSelectionPanel(
-		appState.sel,
-		appState.addBtn,
-		appState.stockInfo
+		uiElements.sel,
+		uiElements.addBtn,
+		uiElements.stockInfo
 	);
-	appState.cartDisp = CartItemsContainer();
-	const leftColumn = ShoppingAreaColumn(selectorContainer, appState.cartDisp);
+	const leftColumn = ShoppingAreaColumn(selectorContainer, uiElements.cartDisp);
 
 	const rightColumn = OrderSummaryColumn();
-	appState.sum = rightColumn.querySelector("#cart-total");
+	uiElements.sum = rightColumn.querySelector("#cart-total");
 
 	// Create manual components
 	const manualColumn = HelpContentPanel();
@@ -63,30 +66,31 @@ function main() {
 	root.appendChild(manualToggle);
 	root.appendChild(manualOverlay);
 
-	onUpdateSelectOptions(appState);
-	handleCalculateCartStuff(appState);
+	onUpdateSelectOptions(appState, uiElements);
+	handleCalculateCartStuff(appState, uiElements);
 
 	// Initialize timer-based sales
-	initializeLightningSale(appState);
-	initializeSuggestSale(appState);
+	initializeLightningSale(appState, uiElements);
+	initializeSuggestSale(appState, uiElements);
 
 	// Event listeners with improved separation of concerns
-	appState.addBtn.addEventListener("click", handleAddToCartClick(appState));
+	uiElements.addBtn.addEventListener("click", handleAddToCartClick(appState, uiElements));
 
-	appState.cartDisp.addEventListener("click", handleCartClick(appState));
+	uiElements.cartDisp.addEventListener("click", handleCartClick(appState, uiElements));
 }
 
 /**
  * Handle add to cart button click
- * @param {Object} appState - Application state
+ * @param {Object} appState - Application business state
+ * @param {Object} uiElements - UI elements
  * @returns {Function} Event handler function
  */
-function handleAddToCartClick(appState) {
+function handleAddToCartClick(appState, uiElements) {
 	return function () {
-		const selectedProductId = appState.sel.value;
+		const selectedProductId = uiElements.sel.value;
 
-		if (addProductToCart(selectedProductId, appState)) {
-			handleCalculateCartStuff(appState);
+		if (addProductToCart(selectedProductId, appState, uiElements)) {
+			handleCalculateCartStuff(appState, uiElements);
 			appState.lastSel = selectedProductId;
 		}
 	};
@@ -94,10 +98,11 @@ function handleAddToCartClick(appState) {
 
 /**
  * Handle cart item clicks (quantity change or remove)
- * @param {Object} appState - Application state
+ * @param {Object} appState - Application business state
+ * @param {Object} uiElements - UI elements
  * @returns {Function} Event handler function
  */
-function handleCartClick(appState) {
+function handleCartClick(appState, uiElements) {
 	return function (event) {
 		const target = event.target;
 
@@ -121,8 +126,8 @@ function handleCartClick(appState) {
 			removeCartItem(itemElement, product);
 		}
 
-		handleCalculateCartStuff(appState);
-		onUpdateSelectOptions(appState);
+		handleCalculateCartStuff(appState, uiElements);
+		onUpdateSelectOptions(appState, uiElements);
 	};
 }
 

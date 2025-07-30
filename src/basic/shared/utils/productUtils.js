@@ -1,4 +1,4 @@
-import { products } from "../domains/product";
+import { products } from "../../domains/product";
 
 /**
  * Find a product by its ID

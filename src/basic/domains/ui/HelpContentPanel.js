@@ -1,4 +1,4 @@
-import { CloseIcon } from "../shared/components";
+import { CloseIcon } from "../../shared/components";
 
 export function HelpContentPanel() {
 	const manualColumn = document.createElement("div");

@@ -1,10 +1,10 @@
 import { PRODUCT_IDS, products } from "../product";
 
-export const doRenderBonusPoints = function (state) {
+export const doRenderBonusPoints = function (state, uiElements) {
 	// Calculate base points and initialize tracking variables
 	const basePoints = Math.floor(state.totalAmt / 1000);
 	const pointsDetail = [];
-	const nodes = state.cartDisp.children;
+	const nodes = uiElements.cartDisp.children;
 
 	let finalPoints = 0;
 	let hasKeyboard = false;
@@ -12,7 +12,7 @@ export const doRenderBonusPoints = function (state) {
 	let hasMonitorArm = false;
 
 	// Hide points if cart is empty
-	if (state.cartDisp.children.length === 0) {
+	if (uiElements.cartDisp.children.length === 0) {
 		document.getElementById("loyalty-points").style.display = "none";
 		return;
 	}

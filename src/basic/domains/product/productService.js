@@ -1,22 +1,22 @@
-import { STOCK_CONSTANTS } from "../../constants/discount";
+import { STOCK_CONSTANTS } from "../../shared/constants/discount";
 import { products } from "./data";
 
-export function onUpdateSelectOptions(state) {
+export function onUpdateSelectOptions(state, uiElements) {
 	// Clear existing options and calculate total stock
-	state.sel.innerHTML = "";
+	uiElements.sel.innerHTML = "";
 	const totalStock = products.reduce((total, product) => total + product.q, 0);
 
 	// Create options for each product
 	products.forEach((product) => {
 		const option = createProductOption(product);
-		state.sel.appendChild(option);
+		uiElements.sel.appendChild(option);
 	});
 
 	// Update border color based on stock level
 	if (totalStock < STOCK_CONSTANTS.CRITICAL_STOCK_THRESHOLD) {
-		state.sel.style.borderColor = "orange";
+		uiElements.sel.style.borderColor = "orange";
 	} else {
-		state.sel.style.borderColor = "";
+		uiElements.sel.style.borderColor = "";
 	}
 }
 
@@ -54,7 +54,7 @@ function createProductOption(product) {
 	return option;
 }
 
-export const handleStockInfoUpdate = function (state) {
+export const handleStockInfoUpdate = function (state, uiElements) {
 	// Generate stock warning messages using more functional approach
 	const stockWarnings = products
 		.filter((item) => item.q < STOCK_CONSTANTS.LOW_STOCK_THRESHOLD)
@@ -68,5 +68,5 @@ export const handleStockInfoUpdate = function (state) {
 		.join("\n");
 
 	// Update stock info display
-	state.stockInfo.textContent = stockWarnings;
+	uiElements.stockInfo.textContent = stockWarnings;
 };

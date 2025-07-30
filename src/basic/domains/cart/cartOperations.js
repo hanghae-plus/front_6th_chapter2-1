@@ -1,13 +1,14 @@
-import { ShoppingCartItemElement } from "../../components/ui";
-import { findProductById, productExists } from "../../utils/productUtils";
+import { findProductById, productExists } from "../../shared/utils/productUtils";
+import { ShoppingCartItemElement } from "../ui/ui";
 
 /**
  * Add product to cart or increase quantity if already exists
  * @param {string} productId - ID of product to add
- * @param {Object} appState - Application state
+ * @param {Object} appState - Application business state
+ * @param {Object} uiElements - UI elements
  * @returns {boolean} - Success status
  */
-export function addProductToCart(productId, appState) {
+export function addProductToCart(productId, appState, uiElements) {
 	if (!productId || !productExists(productId)) {
 		return false;
 	}
@@ -22,7 +23,7 @@ export function addProductToCart(productId, appState) {
 	if (existingCartItem) {
 		return increaseExistingItemQuantity(existingCartItem, productToAdd);
 	} else {
-		return addNewItemToCart(productToAdd, appState);
+		return addNewItemToCart(productToAdd, uiElements);
 	}
 }
 
@@ -50,12 +51,12 @@ function increaseExistingItemQuantity(cartItem, product) {
 /**
  * Add new item to cart
  * @param {Object} product - Product to add
- * @param {Object} appState - Application state
+ * @param {Object} uiElements - UI elements
  * @returns {boolean} - Success status
  */
-function addNewItemToCart(product, appState) {
+function addNewItemToCart(product, uiElements) {
 	const newItem = ShoppingCartItemElement(product);
-	appState.cartDisp.appendChild(newItem);
+	uiElements.cartDisp.appendChild(newItem);
 	product.q--;
 	return true;
 }

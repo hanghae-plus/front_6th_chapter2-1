@@ -1,15 +1,15 @@
-import { DISCOUNT_CONSTANTS, STOCK_CONSTANTS, UI_CONSTANTS } from "../../constants/discount";
+import { DISCOUNT_CONSTANTS, STOCK_CONSTANTS, UI_CONSTANTS } from "../../shared/constants/discount";
 import { doRenderBonusPoints } from "../loyalty/loyaltyService";
 import { PRODUCT_IDS, products } from "../product";
 import { handleStockInfoUpdate } from "../product/productService";
 
-export function handleCalculateCartStuff(state) {
+export function handleCalculateCartStuff(state, uiElements) {
 	// Reset state values
 	state.totalAmt = 0;
 	state.itemCnt = 0;
 
 	// Get cart items and initialize calculation variables
-	const cartItems = state.cartDisp.children;
+	const cartItems = uiElements.cartDisp.children;
 	const itemDiscounts = [];
 	let subTot = 0;
 
@@ -186,7 +186,7 @@ export function handleCalculateCartStuff(state) {
 	}
 
 	// Update total amount display
-	const totalDiv = state.sum.querySelector(".text-2xl");
+	const totalDiv = uiElements.sum.querySelector(".text-2xl");
 	if (totalDiv) {
 		totalDiv.textContent = `₩${Math.round(state.totalAmt).toLocaleString()}`;
 	}
@@ -242,13 +242,13 @@ export function handleCalculateCartStuff(state) {
 			}
 		}
 	}
-	state.stockInfo.textContent = stockMsg;
-	handleStockInfoUpdate(state);
-	doRenderBonusPoints(state);
+	uiElements.stockInfo.textContent = stockMsg;
+	handleStockInfoUpdate(state, uiElements);
+	doRenderBonusPoints(state, uiElements);
 }
 
-export function doUpdatePricesInCart(state) {
-	const cartItems = state.cartDisp.children;
+export function doUpdatePricesInCart(state, uiElements) {
+	const cartItems = uiElements.cartDisp.children;
 
 	// Update prices for all cart items
 	for (let i = 0; i < cartItems.length; i++) {
@@ -285,5 +285,5 @@ export function doUpdatePricesInCart(state) {
 	}
 
 	// Recalculate totals after price updates
-	handleCalculateCartStuff(state);
+	handleCalculateCartStuff(state, uiElements);
 }

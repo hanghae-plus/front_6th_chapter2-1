@@ -1,5 +1,5 @@
-import { DISCOUNT_CONSTANTS, UI_CONSTANTS } from "../../constants/discount";
-import { findSuggestableProduct } from "../../utils/productUtils";
+import { DISCOUNT_CONSTANTS, UI_CONSTANTS } from "../../shared/constants/discount";
+import { findSuggestableProduct } from "../../shared/utils/productUtils";
 import { doUpdatePricesInCart } from "../cart/cartService";
 import { onUpdateSelectOptions } from "../product/productService";
 
@@ -14,9 +14,10 @@ function applySuggestSaleDiscount(product) {
 
 /**
  * Suggest a product with discount
- * @param {Object} appState - Application state
+ * @param {Object} appState - Application business state
+ * @param {Object} uiElements - UI elements
  */
-function triggerSuggestSale(appState) {
+function triggerSuggestSale(appState, uiElements) {
 	if (!appState.lastSel) return;
 
 	const suggestedProduct = findSuggestableProduct(appState.lastSel);
@@ -24,21 +25,22 @@ function triggerSuggestSale(appState) {
 	if (suggestedProduct) {
 		alert(`💝 ${suggestedProduct.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
 		applySuggestSaleDiscount(suggestedProduct);
-		onUpdateSelectOptions(appState);
-		doUpdatePricesInCart(appState);
+		onUpdateSelectOptions(appState, uiElements);
+		doUpdatePricesInCart(appState, uiElements);
 	}
 }
 
 /**
  * Initialize suggest sale timer
- * @param {Object} appState - Application state
+ * @param {Object} appState - Application business state
+ * @param {Object} uiElements - UI elements
  */
-export function initializeSuggestSale(appState) {
+export function initializeSuggestSale(appState, uiElements) {
 	const suggestDelay = Math.random() * UI_CONSTANTS.TIMERS.SUGGEST_SALE_MAX_DELAY;
 
 	setTimeout(() => {
 		setInterval(() => {
-			triggerSuggestSale(appState);
+			triggerSuggestSale(appState, uiElements);
 		}, UI_CONSTANTS.TIMERS.SUGGEST_SALE_INTERVAL);
 	}, suggestDelay);
 }
