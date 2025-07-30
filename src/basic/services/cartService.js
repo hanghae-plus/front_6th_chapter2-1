@@ -1,5 +1,4 @@
 import CartStore from "../store/cartStore.js";
-import { discountService } from "./discountService.js";
 
 // 장바구니 서비스
 export class CartService {
@@ -133,27 +132,30 @@ export class CartService {
   }
 
   /**
-   * 장바구니 총액과 할인을 계산합니다.
+   * 장바구니 총액을 계산합니다.
    */
   updateCartTotals() {
     const { cartItems } = this.cartStore.getState();
-    const discountResult = discountService.applyAllDiscounts(cartItems, []);
+
+    // 기본 총액 계산 (할인 없음)
+    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     this.cartStore.setState({
-      totalAmount: discountResult.finalAmount,
-      itemCount: cartItems.reduce((sum, item) => sum + item.quantity, 0),
-      discountRate: discountResult.originalAmount > 0 ? (discountResult.originalAmount - discountResult.finalAmount) / discountResult.originalAmount : 0,
-      savedAmount: discountResult.savedAmount,
+      totalAmount: subtotal,
+      itemCount,
+      discountRate: 0,
+      savedAmount: 0,
     });
 
     return {
-      subtotal: discountResult.originalAmount,
-      totalAmount: this.cartStore.getState().totalAmount,
-      itemCount: this.cartStore.getState().itemCount,
-      discountRate: this.cartStore.getState().discountRate,
-      savedAmount: this.cartStore.getState().savedAmount,
-      itemDiscounts: discountResult.individualDiscounts,
-      isTuesday: discountResult.tuesdayDiscount.applied,
+      subtotal,
+      totalAmount: subtotal,
+      itemCount,
+      discountRate: 0,
+      savedAmount: 0,
+      itemDiscounts: [],
+      isTuesday: false,
     };
   }
 
