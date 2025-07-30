@@ -25,7 +25,7 @@ export const renderCartSummary = (cartData) => {
   if (subTotal > 0) {
     items.forEach((item) => {
       const itemTotal = item.val * item.quantity;
-      html += `
+      html += /* HTML */ `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
           <span>${item.name} x ${item.quantity}</span>
           <span>₩${itemTotal.toLocaleString()}</span>
@@ -34,7 +34,7 @@ export const renderCartSummary = (cartData) => {
     });
 
     // 구분선과 소계
-    html += `
+    html += /* HTML */ `
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
         <span>Subtotal</span>
@@ -44,7 +44,7 @@ export const renderCartSummary = (cartData) => {
 
     // 할인 정보
     if (bulkDiscount > 0) {
-      html += `
+      html += /* HTML */ `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
           <span class="text-xs">-${bulkDiscount}%</span>
@@ -52,8 +52,10 @@ export const renderCartSummary = (cartData) => {
       `;
     } else if (itemDiscounts.length > 0) {
       itemDiscounts.forEach((item) => {
-        html += `
-          <div class="flex justify-between text-sm tracking-wide text-green-400">
+        html += /* HTML */ `
+          <div
+            class="flex justify-between text-sm tracking-wide text-green-400"
+          >
             <span class="text-xs">${item.name} (10개↑)</span>
             <span class="text-xs">-${item.discount}%</span>
           </div>
@@ -62,7 +64,7 @@ export const renderCartSummary = (cartData) => {
     }
 
     if (isTuesday && tuesdayDiscount > 0) {
-      html += `
+      html += /* HTML */ `
         <div class="flex justify-between text-sm tracking-wide text-purple-400">
           <span class="text-xs">🌟 화요일 추가 할인</span>
           <span class="text-xs">-${tuesdayDiscount}%</span>
@@ -71,7 +73,7 @@ export const renderCartSummary = (cartData) => {
     }
 
     // 배송비
-    html += `
+    html += /* HTML */ `
       <div class="flex justify-between text-sm tracking-wide text-gray-400">
         <span>Shipping</span>
         <span>Free</span>

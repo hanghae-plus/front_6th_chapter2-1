@@ -11,25 +11,31 @@ export const renderCartItemPrice = (product) => {
 
   // 할인 상태에 따른 가격 렌더링
   if (onSale && suggestSale) {
-    priceHTML = `
-      <span class="line-through text-gray-400">₩${originalVal.toLocaleString()}</span> 
+    priceHTML = /* HTML */ `
+      <span class="line-through text-gray-400"
+        >₩${originalVal.toLocaleString()}</span
+      >
       <span class="text-purple-600">₩${val.toLocaleString()}</span>
     `;
     displayName = "⚡💝" + name;
   } else if (onSale) {
-    priceHTML = `
-      <span class="line-through text-gray-400">₩${originalVal.toLocaleString()}</span> 
+    priceHTML = /* HTML */ `
+      <span class="line-through text-gray-400"
+        >₩${originalVal.toLocaleString()}</span
+      >
       <span class="text-red-500">₩${val.toLocaleString()}</span>
     `;
     displayName = "⚡" + name;
   } else if (suggestSale) {
-    priceHTML = `
-      <span class="line-through text-gray-400">₩${originalVal.toLocaleString()}</span> 
+    priceHTML = /* HTML */ `
+      <span class="line-through text-gray-400"
+        >₩${originalVal.toLocaleString()}</span
+      >
       <span class="text-blue-500">₩${val.toLocaleString()}</span>
     `;
     displayName = "💝" + name;
   } else {
-    priceHTML = `₩${val.toLocaleString()}`;
+    priceHTML = /* HTML */ `₩${val.toLocaleString()}`;
     displayName = name;
   }
 
