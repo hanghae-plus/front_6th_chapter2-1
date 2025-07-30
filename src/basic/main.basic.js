@@ -1023,25 +1023,29 @@ main();
 // ==========================================
 
 // 장바구니에 상품 추가 이벤트
-addButton.addEventListener('click', function () {
-  const selItem = productSelect.value;
+addButton.addEventListener('click', () => {
+  const selectItem = productSelect.value;
 
   // 선택된 상품 유효성 검사
-  let hasItem = false;
-  for (let idx = 0; idx < PRODUCT_LIST.length; idx++) {
-    if (PRODUCT_LIST[idx].id === selItem) {
-      hasItem = true;
-      break;
-    }
-  }
-  if (!selItem || !hasItem) {
+  // let hasItem = false;
+
+  // for (let i = 0; i < PRODUCT_LIST.length; i++) {
+  //   if (PRODUCT_LIST[i].id === selectItem) {
+  //     hasItem = true;
+  //     break;
+  //   }
+  // }
+
+  const hasItem = PRODUCT_LIST.some((product) => product.id === selectItem);
+
+  if (!selectItem || !hasItem) {
     return;
   }
 
   // 추가할 상품 정보 조회
   let itemToAdd = null;
   for (let j = 0; j < PRODUCT_LIST.length; j++) {
-    if (PRODUCT_LIST[j].id === selItem) {
+    if (PRODUCT_LIST[j].id === selectItem) {
       itemToAdd = PRODUCT_LIST[j];
       break;
     }
@@ -1094,7 +1098,7 @@ addButton.addEventListener('click', function () {
 
     // UI 업데이트
     handleCalculateCartStuff();
-    lastSelectedProduct = selItem;
+    lastSelectedProduct = selectItem;
   }
 });
 
