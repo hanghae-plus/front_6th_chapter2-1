@@ -40,39 +40,8 @@ const PRODUCT_FIVE = 'p5';
  * onUpdateSelectOptions, handleCalculateCartStuff 호출
  * 번개세일/추천세일 setInterval 등록
  *  */
-function main() {
-  /**  ==================== elements 시작 ================================ */
-  const root = document.getElementById('app');
 
-  const header = createHeader();
-  const gridContainer = createGridContainer();
-  const selectorContainer = createSelectorContainer();
-  const leftColumn = createLeftColumn();
-  const rightColumn = createRightColumn();
-
-  const manualToggle = createManualToggle();
-  manualToggle.onclick = function () {
-    manualOverlay.classList.toggle('hidden');
-    manualColumn.classList.toggle('translate-x-full');
-  };
-
-  const manualOverlay = createManualOverlay();
-  manualOverlay.onclick = function (e) {
-    if (e.target === manualOverlay) {
-      manualOverlay.classList.add('hidden');
-      manualColumn.classList.add('translate-x-full');
-    }
-  };
-
-  const manualColumn = createManualColumn();
-
-  /**  ==================== elements 끝 ================================ */
-
-  /**  ==================== 상수 및 변수 시작 ================================ */
-  const lightningDelay = Math.random() * 10000;
-  totalAmount = 0;
-  itemCount = 0;
-  lastSelectedItem = null;
+const initProducts = () => {
   productManager.setProducts([
     {
       id: PRODUCT_ONE,
@@ -120,7 +89,42 @@ function main() {
       suggestSale: false,
     },
   ]);
-  /**  ==================== 상수 및 변수 끝 ================================ */
+};
+
+function main() {
+  /**  ==================== elements 시작 ================================ */
+  const root = document.getElementById('app');
+
+  const header = createHeader();
+  const gridContainer = createGridContainer();
+  const selectorContainer = createSelectorContainer();
+  const leftColumn = createLeftColumn();
+  const rightColumn = createRightColumn();
+
+  const manualToggle = createManualToggle();
+  manualToggle.onclick = function () {
+    manualOverlay.classList.toggle('hidden');
+    manualColumn.classList.toggle('translate-x-full');
+  };
+
+  const manualOverlay = createManualOverlay();
+  manualOverlay.onclick = function (e) {
+    if (e.target === manualOverlay) {
+      manualOverlay.classList.add('hidden');
+      manualColumn.classList.add('translate-x-full');
+    }
+  };
+
+  const manualColumn = createManualColumn();
+
+  /**  ==================== elements 끝 ================================ */
+
+  const lightningDelay = Math.random() * 10000;
+  totalAmount = 0;
+  itemCount = 0;
+  lastSelectedItem = null;
+
+  initProducts();
 
   productSelector = createProductSelector();
 
