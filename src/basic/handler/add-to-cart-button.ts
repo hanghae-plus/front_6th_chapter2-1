@@ -5,7 +5,7 @@ import {
   findProduct,
   isSoldOut,
   ProductsData,
-  updateProductQuantity,
+  addProductQuantity,
 } from '../model/products';
 import { CART_ITEMS_ID, selectById } from '../utils/selector';
 
@@ -27,7 +27,7 @@ export function handleAddItemToCart() {
   const cartItem = document.getElementById(product['id']);
 
   if (!cartItem) {
-    updateProductQuantity({ id: product.id, quantity: -1 });
+    addProductQuantity({ id: product.id, quantity: -1 });
     const cartDisp = selectById(CART_ITEMS_ID);
     if (!cartDisp) {
       throw new Error('cartDisp not found');
@@ -48,7 +48,7 @@ export function handleAddItemToCart() {
 
   if (nextQuantity <= productData.quantity) {
     quantitySpan.textContent = nextQuantity.toString();
-    updateProductQuantity({ id: product.id, quantity: -1 });
+    addProductQuantity({ id: product.id, quantity: -1 });
   } else {
     alert('재고가 부족합니다.');
   }

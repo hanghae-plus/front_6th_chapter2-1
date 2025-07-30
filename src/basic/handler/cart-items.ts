@@ -1,5 +1,5 @@
 import { handleCalculateCartStuff, onUpdateSelectOptions } from '../main.basic';
-import { ProductsData, updateProductQuantity } from '../model/products';
+import { ProductsData, addProductQuantity } from '../model/products';
 
 export function handleClickCartItems(e: MouseEvent) {
   handleQuantityChange(e);
@@ -53,7 +53,7 @@ function handleQuantityChange(e: MouseEvent) {
 
     if (newQuantity <= productData.quantity) {
       quantitySpan.textContent = newQuantity.toString();
-      updateProductQuantity({ id: productId, quantity: +change });
+      addProductQuantity({ id: productId, quantity: +change });
       handleCalculateCartStuff();
       onUpdateSelectOptions();
       return;
@@ -99,7 +99,7 @@ function handleRemoveCartItem(e: MouseEvent) {
       throw new Error('productData is not found');
     }
 
-    updateProductQuantity({ id: productId, quantity: productData.quantity });
+    addProductQuantity({ id: productId, quantity: productData.quantity });
     cartDiv.remove();
     handleCalculateCartStuff();
     onUpdateSelectOptions();
