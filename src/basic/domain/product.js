@@ -50,6 +50,29 @@ class ProductsManager {
     return this.#productList.reduce((totalStock, currentProduct) => totalStock + currentProduct.quantity, 0);
   }
 
+  getOptionMessage(product) {
+    const baseText = `${product.name} - ${product.discountValue}원`;
+
+    if (product.quantity === OUT_OF_STOCK) {
+      const suffix = product.onSale ? ' ⚡SALE' : product.suggestSale ? ' 💝추천' : '';
+      return `${baseText} (품절)${suffix}`;
+    }
+
+    if (product.onSale && product.suggestSale) {
+      return `⚡💝 ${baseText} (25% SUPER SALE!)`;
+    }
+
+    if (product.onSale) {
+      return `⚡ ${product.name} - ${product.originalVal}원 → ${product.discountValue}원 (20% SALE!)`;
+    }
+
+    if (product.suggestSale) {
+      return `💝 ${product.name} - ${product.originalVal}원 → ${product.discountValue}원 (5% 추천할인!)`;
+    }
+
+    return baseText;
+  }
+
   getLowStockMessages() {
     return this.#productList
       .filter((product) => product.quantity < LOW_STOCK_THRESHOLD)

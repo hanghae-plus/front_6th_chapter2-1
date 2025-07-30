@@ -1,4 +1,4 @@
-import { LOW_TOTAL_STOCK_THRESHOLD } from './domain/product';
+import { LOW_TOTAL_STOCK_THRESHOLD, OUT_OF_STOCK } from './domain/product';
 import productManager from './domain/product';
 import {
   createAddCartButton,
@@ -10,6 +10,7 @@ import {
   createManualOverlay,
   createManualToggle,
   createProductSelector,
+  createProductSelectorOption,
   createRightColumn,
   createSelectorContainer,
   createStockInfo,
@@ -147,7 +148,7 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
-  onUpdateSelectOptions();
+  updateSelectOptions();
   handleCalculateCartStuff();
 
   setTimeout(() => {
@@ -158,7 +159,7 @@ function main() {
         luckyItem.discountValue = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
         alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
-        onUpdateSelectOptions();
+        updateSelectOptions();
         doUpdatePricesInCart();
       }
     }, 30000);
@@ -183,7 +184,7 @@ function main() {
           alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
           suggest.discountValue = Math.round((suggest.discountValue * (100 - 5)) / 100);
           suggest.suggestSale = true;
-          onUpdateSelectOptions();
+          updateSelectOptions();
           doUpdatePricesInCart();
         }
       }
@@ -193,53 +194,20 @@ function main() {
 
 let sum;
 
-/**
- *
- * 역할: 상품 셀렉트 박스(selectedItem)의 옵션을 현재 상품 상태에 맞게 갱신
- * 상품 할인 여부(onSale, suggestSale) 및 품절 여부(quantity === 0)를 반영
- * UI에 시각적으로 구분(색상/텍스트 등)
- */
-function onUpdateSelectOptions() {
-  // let totalStock;
-  let opt;
-  let discountText;
+/* 상품 셀렉트 박스(selectedItem)의 옵션을 현재 상품 상태에 맞게 갱신 */
+function updateSelectOptions() {
   productSelector.innerHTML = '';
-  // totalStock = 0;
-  // for (let idx = 0; idx < productManager.getProductCount(); idx++) {
-  //   const _p = productManager.getProductAt(idx);
-  //   totalStock = totalStock + _p.quantity;
-  // }
-  for (let i = 0; i < productManager.getProductCount(); i++) {
-    (function () {
-      const item = productManager.getProductAt(i);
-      opt = document.createElement('option');
-      opt.value = item.id;
 
-      if (item.quantity === 0) {
-        opt.textContent = item.name + ' - ' + item.discountValue + '원 (품절)' + discountText;
-        opt.disabled = true;
-        opt.className = 'text-gray-400';
-      } else {
-        if (item.onSale && item.suggestSale) {
-          opt.textContent =
-            '⚡💝' + item.name + ' - ' + item.originalVal + '원 → ' + item.discountValue + '원 (25% SUPER SALE!)';
-          opt.className = 'text-purple-600 font-bold';
-        } else if (item.onSale) {
-          opt.textContent =
-            '⚡' + item.name + ' - ' + item.originalVal + '원 → ' + item.discountValue + '원 (20% SALE!)';
-          opt.className = 'text-red-500 font-bold';
-        } else if (item.suggestSale) {
-          opt.textContent =
-            '💝' + item.name + ' - ' + item.originalVal + '원 → ' + item.discountValue + '원 (5% 추천할인!)';
-          opt.className = 'text-blue-500 font-bold';
-        } else {
-          opt.textContent = item.name + ' - ' + item.discountValue + '원';
-        }
-      }
-      productSelector.appendChild(opt);
-    })();
-  }
+  productManager.getProducts().map((product) => {
+    const optionElement = createProductSelectorOption({
+      value: product.id,
+      message: productManager.getOptionMessage(product),
+      disabled: product.quantity === OUT_OF_STOCK,
+    });
+    productSelector.appendChild(optionElement);
+  });
 
+  /** @todo style update 부분. 분리 필요 */
   if (productManager.getTotalStock() < LOW_TOTAL_STOCK_THRESHOLD) {
     productSelector.style.borderColor = 'orange';
   } else {
@@ -758,6 +726,6 @@ cartDisplay.addEventListener('click', function (event) {
     if (prod && prod.quantity < 5) {
     }
     handleCalculateCartStuff();
-    onUpdateSelectOptions();
+    updateSelectOptions();
   }
 });

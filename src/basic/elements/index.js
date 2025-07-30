@@ -23,6 +23,26 @@ export const createSelectorContainer = () =>
     className: 'mb-6 pb-6 border-b border-gray-200',
   });
 
+export const createProductSelector = () => {
+  const element = createElement({
+    elementType: 'select',
+    className: 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3',
+  });
+  element.id = 'product-select';
+  return element;
+};
+
+export const createProductSelectorOption = ({ value, message, disabled }) => {
+  const element = createElement({
+    elementType: 'option',
+  });
+  element.value = value;
+  element.textContent = message;
+  element.disabled = !!disabled;
+
+  return element;
+};
+
 export const createLeftColumn = () =>
   createElement({
     elementType: 'div',
@@ -147,15 +167,6 @@ export const createManualColumn = () =>
     </div>
   `,
   });
-
-export const createProductSelector = () => {
-  const element = createElement({
-    elementType: 'select',
-    className: 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3',
-  });
-  element.id = 'product-select';
-  return element;
-};
 
 export const createAddCartButton = () => {
   const element = createElement({
