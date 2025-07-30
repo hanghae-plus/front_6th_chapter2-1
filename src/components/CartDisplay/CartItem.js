@@ -5,27 +5,27 @@ export function createCartItem(product) {
     'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
 
   const saleIcon =
-    product.onSale && product.suggestSale
+    product.isLightningSale && product.isSuggestSale
       ? '⚡💝'
-      : product.onSale
+      : product.isLightningSale
         ? '⚡'
-        : product.suggestSale
+        : product.isSuggestSale
           ? '💝'
           : '';
 
   const priceClass =
-    product.onSale && product.suggestSale
+    product.isLightningSale && product.isSuggestSale
       ? 'text-purple-600'
-      : product.onSale
+      : product.isLightningSale
         ? 'text-red-500'
-        : product.suggestSale
+        : product.isSuggestSale
           ? 'text-blue-500'
           : '';
 
   const priceDisplay =
-    product.onSale || product.suggestSale
-      ? `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="${priceClass}">₩${product.val.toLocaleString()}</span>`
-      : `₩${product.val.toLocaleString()}`;
+    product.isLightningSale || product.isSuggestSale
+      ? `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="${priceClass}">₩${product.price.toLocaleString()}</span>`
+      : `₩${product.price.toLocaleString()}`;
 
   container.innerHTML = `
       <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">

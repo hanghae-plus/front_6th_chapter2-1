@@ -19,7 +19,7 @@ export function createOrderDetails({
       const curItem = findProductById(cartItems[i].id);
       const qtyElem = cartItems[i].querySelector('.quantity-number');
       const q = getQuantityFromElement(qtyElem);
-      const itemTotal = curItem.val * q;
+      const itemTotal = curItem.price * q;
 
       html += `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">

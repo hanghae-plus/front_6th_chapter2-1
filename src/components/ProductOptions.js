@@ -9,7 +9,7 @@ export function createProductOptions(
 
   let totalStock = 0;
   for (let idx = 0; idx < productList.length; idx++) {
-    totalStock += productList[idx].q;
+    totalStock += productList[idx].quantity;
   }
 
   for (let i = 0; i < productList.length; i++) {
@@ -18,25 +18,25 @@ export function createProductOptions(
     opt.value = product.id;
 
     let discountText = '';
-    if (product.onSale) discountText += ' ⚡SALE';
-    if (product.suggestSale) discountText += ' 💝추천';
+    if (product.isLightningSale) discountText += ' ⚡SALE';
+    if (product.isSuggestSale) discountText += ' 💝추천';
 
-    if (product.q === 0) {
-      opt.textContent = `${product.name} - ${product.val}원 (품절)${discountText}`;
+    if (product.quantity === 0) {
+      opt.textContent = `${product.name} - ${product.price}원 (품절)${discountText}`;
       opt.disabled = true;
       opt.className = 'text-gray-400';
     } else {
-      if (product.onSale && product.suggestSale) {
-        opt.textContent = `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`;
+      if (product.isLightningSale && product.isSuggestSale) {
+        opt.textContent = `⚡💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (25% SUPER SALE!)`;
         opt.className = 'text-purple-600 font-bold';
-      } else if (product.onSale) {
-        opt.textContent = `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`;
+      } else if (product.isLightningSale) {
+        opt.textContent = `⚡${product.name} - ${product.originalPrice}원 → ${product.price}원 (20% SALE!)`;
         opt.className = 'text-red-500 font-bold';
-      } else if (product.suggestSale) {
-        opt.textContent = `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`;
+      } else if (product.isSuggestSale) {
+        opt.textContent = `💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (5% 추천할인!)`;
         opt.className = 'text-blue-500 font-bold';
       } else {
-        opt.textContent = `${product.name} - ${product.val}원${discountText}`;
+        opt.textContent = `${product.name} - ${product.price}원${discountText}`;
       }
     }
 
