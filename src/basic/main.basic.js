@@ -787,35 +787,27 @@ function onUpdateSelectOptions() {
   }
 }
 
-function handleCalculateCartStuff() {
+/**
+ * 장바구니 계산 및 전체 UI 업데이트
+ * 메인 함수: 장바구니 상태 계산 후 모든 UI 컴포넌트 업데이트
+ */
+function updateCartDisplay() {
   const cartItems = cartDisp.children;
-  const lowStockItems = [];
-  let idx;
 
-  // ✅ useCartManager로 장바구니 계산 처리
+  // 1. 장바구니 계산 (비즈니스 로직)
   const calculation = useCartManager.updateCartCalculation(cartItems);
   const { subtotal, itemCount, totalAmount, discountRate, originalTotal, isSpecialDiscount, itemDiscounts } =
     calculation;
 
-  const products = useProductData.getProducts();
-  for (idx = 0; idx < products.length; idx += 1) {
-    if (products[idx].q < 5 && products[idx].q > 0) {
-      lowStockItems.push(products[idx].name);
-    }
-  }
-
-  // UI 스타일 업데이트 (할인 표시)
+  // 2. UI 업데이트 (프레젠테이션 로직)
   updateCartItemStyles(cartItems);
-
-  // 화요일 특별 할인 UI 표시
   updateSpecialDiscountDisplay(isSpecialDiscount, totalAmount);
-
-  // 상품 개수 표시 업데이트
   updateItemCountDisplay(itemCount);
   renderOrderSummaryDetails(cartItems, subtotal, itemCount, itemDiscounts, isSpecialDiscount, totalAmount);
   updateTotalAndPointsDisplay(totalAmount);
   renderDiscountInfoPanel(discountRate, totalAmount, originalTotal);
-  // ✅ useStockManager로 재고 관리 통합
+
+  // 3. 연관 컴포넌트 업데이트
   useStockManager.updateStockInfoDisplay();
   doRenderBonusPoints();
 }
@@ -880,7 +872,7 @@ function doUpdatePricesInCart() {
       }
     }
   }
-  handleCalculateCartStuff();
+  updateCartDisplay();
 }
 
 function main() {
@@ -1052,7 +1044,7 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
   onUpdateSelectOptions();
-  handleCalculateCartStuff();
+  updateCartDisplay();
 
   const lightningDelay = Math.random() * SALE_INTERVALS.LIGHTNING_SALE_INITIAL_DELAY;
   setTimeout(() => {
@@ -1174,7 +1166,7 @@ addBtn.addEventListener("click", function () {
       cartDisp.appendChild(newItem);
       itemToAdd.q -= 1;
     }
-    handleCalculateCartStuff();
+    updateCartDisplay();
     lastSel = selItem;
   }
 });
@@ -1209,7 +1201,7 @@ cartDisp.addEventListener("click", function (event) {
     if (prod && prod.q < STOCK_THRESHOLDS.LOW_STOCK_WARNING) {
       // 재고 경고 처리는 useStockManager에서 담당
     }
-    handleCalculateCartStuff();
+    updateCartDisplay();
     onUpdateSelectOptions();
   }
 });
