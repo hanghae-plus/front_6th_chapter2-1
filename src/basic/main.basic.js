@@ -56,7 +56,7 @@ function main() {
   // ProductSelector 컴포넌트 생성
   const selectorContainer = createProductSelector({
     products: productService.getProducts(),
-    discountInfos: [],
+    discountInfos: calculateProductDiscountInfos(productService.getProducts(), discountService),
     onAddToCart: () => {
       uiEventBus.emit("cart:add:requested");
     },
@@ -86,6 +86,14 @@ function main() {
   const timerService = new TimerService(productService);
   timerService.startLightningSaleTimer();
   timerService.startSuggestSaleTimer();
+}
+
+function calculateProductDiscountInfos(products, discountService) {
+  return products.map(product => ({
+    productId: product.id,
+    rate: discountService.calculateProductDiscountRate(product),
+    status: discountService.getProductDiscountStatus(product),
+  }));
 }
 
 main();

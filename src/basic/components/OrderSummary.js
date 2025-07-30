@@ -36,7 +36,7 @@ function createDiscountHTML(itemCount, itemDiscounts, isTuesday, bulkPurchaseThr
   if (itemCount >= bulkPurchaseThreshold) {
     discountHTML = `
       <div class="flex justify-between text-sm tracking-wide text-green-400">
-        <span class="text-xs">🎉 대량구매 할인 (${bulkPurchaseThreshold}개 이상)</span>
+        <span class="text-xs">🎉 대량구매!!! 할인 (${bulkPurchaseThreshold}개 이상)</span>
         <span class="text-xs">-${(1 - bulkDiscountRate) * 100}%</span>
       </div>
     `;
@@ -201,6 +201,9 @@ function updateTuesdaySpecial(isTuesday, totalAmount) {
 // OrderSummary의 모든 정보를 한 번에 업데이트합니다.
 export function updateOrderSummary(orderState) {
   const { cartItems = [], subtotal, totalAmount, discountRate, savedAmount, itemCount, itemDiscounts, isTuesday, totalPoints, pointsDetails } = orderState;
+  console.log("===orderState===");
+  console.log(orderState);
+  console.log("===orderState===");
 
   updateSummaryDetails(cartItems, subtotal, itemCount, itemDiscounts, isTuesday);
   updateDiscountInfo(discountRate, savedAmount);

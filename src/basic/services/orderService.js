@@ -55,8 +55,8 @@ export class OrderService {
       savedAmount: discountResult.savedAmount,
       itemCount,
       itemDiscounts: discountResult.individualDiscounts.map(discount => ({
-        name: discount.productName,
-        discount: discount.rate * 100,
+        name: discount.name,
+        discount: discount.discount,
       })),
       isTuesday,
     };
