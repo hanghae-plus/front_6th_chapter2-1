@@ -13,7 +13,7 @@ interface CartActions {
   hasProductInCart: (product: Product) => boolean;
 }
 
-export const useCartStore = create<CartState & CartActions>((set, get) => ({
+const useCartStore = create<CartState & CartActions>((set, get) => ({
   cartItems: [],
 
   hasProductInCart: (product: Product) => {
@@ -68,3 +68,5 @@ export const useCartStore = create<CartState & CartActions>((set, get) => ({
     });
   },
 }));
+
+export default useCartStore;

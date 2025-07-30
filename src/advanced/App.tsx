@@ -2,15 +2,16 @@ import React, { useEffect } from 'react';
 
 import getProducts from '@/advanced/api/getProducts';
 import { CartList } from '@/advanced/components/cart';
-import Header from '@/advanced/components/layout/Header';
-import HelpOverlay from '@/advanced/components/layout/HelpOverlay';
-import HelpToggle from '@/advanced/components/layout/HelpToggle';
-import MainLayout from '@/advanced/components/layout/MainLayout';
-import SectionLayout from '@/advanced/components/layout/SectionLayout';
-import OrderSummary from '@/advanced/components/order/OrderSummary';
-import ProductSelect from '@/advanced/components/product/ProductSelect';
-import { useLayoutStore } from '@/advanced/store/useLayoutStore';
-import { useProductStore } from '@/advanced/store/useProductStore';
+import {
+  Header,
+  HelpOverlay,
+  HelpToggle,
+  MainLayout,
+  SectionLayout,
+} from '@/advanced/components/layout';
+import { OrderSummary } from '@/advanced/components/order';
+import { ProductSelect } from '@/advanced/components/product';
+import { useLayoutStore, useProductStore } from '@/advanced/store';
 
 function App() {
   const { showHelpOverlay } = useLayoutStore();

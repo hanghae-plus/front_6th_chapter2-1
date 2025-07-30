@@ -2,7 +2,7 @@ import { ReactElement, useEffect } from 'react';
 
 import AddButton from '@/advanced/components/product/AddButton';
 import StockStatus from '@/advanced/components/product/StockStatus';
-import { useProductStore } from '@/advanced/store/useProductStore';
+import { useProductStore } from '@/advanced/store';
 import { ProductStatus } from '@/advanced/types/product.type';
 import { createProductText, getProductStatus } from '@/advanced/utils/product.util';
 

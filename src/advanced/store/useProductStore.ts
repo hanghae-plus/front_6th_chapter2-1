@@ -12,7 +12,7 @@ interface ProductActions {
   setSelectedProduct: (product: Product) => void;
 }
 
-export const useProductStore = create<ProductState & ProductActions>(set => ({
+const useProductStore = create<ProductState & ProductActions>(set => ({
   products: [],
   selectedProduct: null,
 
@@ -23,3 +23,5 @@ export const useProductStore = create<ProductState & ProductActions>(set => ({
     set({ products });
   },
 }));
+
+export default useProductStore;

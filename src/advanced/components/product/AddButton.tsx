@@ -1,7 +1,6 @@
 import { ReactElement } from 'react';
 
-import { useCartStore } from '@/advanced/store/useCartStore';
-import { useProductStore } from '@/advanced/store/useProductStore';
+import { useCartStore, useProductStore } from '@/advanced/store';
 
 export default function AddButton(): ReactElement {
   const { selectedProduct } = useProductStore();

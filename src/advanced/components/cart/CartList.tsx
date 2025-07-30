@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 
 import CartListItem from '@/advanced/components/cart/CartListItem';
-import { useCartStore } from '@/advanced/store/useCartStore';
+import { useCartStore } from '@/advanced/store';
 
 export default function CartList(): ReactElement {
   const { cartItems } = useCartStore();

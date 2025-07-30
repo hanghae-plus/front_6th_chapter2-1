@@ -8,10 +8,12 @@ interface LayoutActions {
   setShowHelpOverlay: (showHelpOverlay: boolean) => void;
 }
 
-export const useLayoutStore = create<LayoutState & LayoutActions>(set => ({
+const useLayoutStore = create<LayoutState & LayoutActions>(set => ({
   showHelpOverlay: false,
 
   setShowHelpOverlay: (showHelpOverlay: boolean) => {
     set({ showHelpOverlay });
   },
 }));
+
+export default useLayoutStore;
