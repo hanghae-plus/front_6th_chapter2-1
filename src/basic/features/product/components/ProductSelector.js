@@ -1,11 +1,12 @@
+import { setInnerHTML } from '../../../shared/core/domUtils.js';
 import { htmlToElement } from '../../../shared/utils/dom.js';
 
 /**
- * Pure ProductSelector Component - JSX-like Template
+ * ProductSelector Component
  * @param {object} props - Component props
- * @param {Array} props.products - Product list
+ * @param {Array} props.products - Array of products
  * @param {string} props.selectedProductId - Currently selected product ID
- * @param {Function} props.onSelectionChange - Callback when selection changes
+ * @param {Function} props.onSelectionChange - Selection change callback
  * @returns {HTMLElement} Product selector element
  */
 const ProductSelector = ({
@@ -16,30 +17,40 @@ const ProductSelector = ({
   const renderOptions = () => {
     return products
       .map(product => {
-        let optionText = `${product.name} - ${product.val}원`;
-        let optionClass = '';
+        const baseText = `${product.name} - ${product.val}원`;
+        const baseClass = '';
 
-        if (product.q === 0) {
-          optionText = `${product.name} - ${product.val}원 (품절)`;
-          optionClass = 'class="text-gray-400"';
-        } else {
-          if (product.onSale && product.suggestSale) {
-            optionText = `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`;
-            optionClass = 'class="text-purple-600 font-bold"';
-          } else if (product.onSale) {
-            optionText = `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`;
-            optionClass = 'class="text-red-500 font-bold"';
-          } else if (product.suggestSale) {
-            optionText = `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`;
-            optionClass = 'class="text-blue-500 font-bold"';
-          }
-        }
+        const optionConfig =
+          product.q === 0
+            ? {
+                text: `${product.name} - ${product.val}원 (품절)`,
+                class: 'class="text-gray-400"',
+              }
+            : product.onSale && product.suggestSale
+              ? {
+                  text: `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`,
+                  class: 'class="text-purple-600 font-bold"',
+                }
+              : product.onSale
+                ? {
+                    text: `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`,
+                    class: 'class="text-red-500 font-bold"',
+                  }
+                : product.suggestSale
+                  ? {
+                      text: `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`,
+                      class: 'class="text-blue-500 font-bold"',
+                    }
+                  : {
+                      text: baseText,
+                      class: baseClass,
+                    };
 
         const disabled = product.q === 0 ? 'disabled' : '';
 
         return /* html */ `
-        <option value="${product.id}" ${optionClass} ${disabled}>
-          ${optionText}
+        <option value="${product.id}" ${optionConfig.class} ${disabled}>
+          ${optionConfig.text}
         </option>
       `;
       })
@@ -69,41 +80,51 @@ const ProductSelector = ({
     }
   });
 
-  // Add update method for compatibility
+  // Add update method for compatibility (선언적)
   selector.updateProducts = (newProducts, newSelectedId) => {
-    // Re-render options
+    // Re-render options (불변성)
     const newOptionsHTML = newProducts
       .map(product => {
-        let optionText = `${product.name} - ${product.val}원`;
-        let optionClass = '';
+        const baseText = `${product.name} - ${product.val}원`;
+        const baseClass = '';
 
-        if (product.q === 0) {
-          optionText = `${product.name} - ${product.val}원 (품절)`;
-          optionClass = 'class="text-gray-400"';
-        } else {
-          if (product.onSale && product.suggestSale) {
-            optionText = `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`;
-            optionClass = 'class="text-purple-600 font-bold"';
-          } else if (product.onSale) {
-            optionText = `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`;
-            optionClass = 'class="text-red-500 font-bold"';
-          } else if (product.suggestSale) {
-            optionText = `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`;
-            optionClass = 'class="text-blue-500 font-bold"';
-          }
-        }
+        const optionConfig =
+          product.q === 0
+            ? {
+                text: `${product.name} - ${product.val}원 (품절)`,
+                class: 'class="text-gray-400"',
+              }
+            : product.onSale && product.suggestSale
+              ? {
+                  text: `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`,
+                  class: 'class="text-purple-600 font-bold"',
+                }
+              : product.onSale
+                ? {
+                    text: `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`,
+                    class: 'class="text-red-500 font-bold"',
+                  }
+                : product.suggestSale
+                  ? {
+                      text: `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`,
+                      class: 'class="text-blue-500 font-bold"',
+                    }
+                  : {
+                      text: baseText,
+                      class: baseClass,
+                    };
 
         const disabled = product.q === 0 ? 'disabled' : '';
 
         return /* html */ `
-        <option value="${product.id}" ${optionClass} ${disabled}>
-          ${optionText}
+        <option value="${product.id}" ${optionConfig.class} ${disabled}>
+          ${optionConfig.text}
         </option>
       `;
       })
       .join('');
 
-    selector.innerHTML = newOptionsHTML;
+    setInnerHTML(selector, newOptionsHTML);
 
     if (newSelectedId) {
       selector.value = newSelectedId;
@@ -113,4 +134,4 @@ const ProductSelector = ({
   return selector;
 };
 
-export { ProductSelector };
+export default ProductSelector;

@@ -1,4 +1,4 @@
-import { ProductSelector } from '../../features/product/components/ProductSelector.js';
+import ProductSelector from '../../features/product/components/ProductSelector.js';
 import {
   productState,
   setProductState,

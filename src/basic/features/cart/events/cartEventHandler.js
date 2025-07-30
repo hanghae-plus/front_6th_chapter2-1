@@ -1,3 +1,4 @@
+import { setTextContent } from '../../../shared/core/domUtils.js';
 import { productState } from '../../product/store/ProductStore.js';
 import { findProductById } from '../../product/utils/productUtils.js';
 import { renderCartItem } from '../components/CartItem.js';
@@ -51,7 +52,7 @@ const cartUtils = {
     const newQty = currentQty + 1;
 
     if (newQty <= product.q + currentQty) {
-      qtyElement.textContent = newQty;
+      setTextContent(qtyElement, newQty);
       product.q--;
       return true;
     } else {
@@ -98,7 +99,7 @@ const cartUtils = {
       return;
     }
 
-    qtyElement.textContent = newQty;
+    setTextContent(qtyElement, newQty);
     product.q -= change;
   },
 
@@ -110,7 +111,7 @@ const cartUtils = {
   },
 };
 
-// Main cart event handler
+// Main cart event handler (불변성)
 const handleAddToCart = () => {
   const productSelector = document.getElementById('product-select');
   const selectedProductId = productSelector.value;
@@ -119,13 +120,9 @@ const handleAddToCart = () => {
   if (!product) return;
 
   const existingItem = document.getElementById(selectedProductId);
-  let success = false;
-
-  if (existingItem) {
-    success = cartUtils.updateItemQuantity(product, existingItem);
-  } else {
-    success = cartUtils.addNewItem(product);
-  }
+  const success = existingItem
+    ? cartUtils.updateItemQuantity(product, existingItem)
+    : cartUtils.addNewItem(product);
 
   if (success) {
     window.dispatchEvent(new CustomEvent('cart-updated'));
