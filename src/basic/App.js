@@ -8,13 +8,10 @@ import { OrderItemSummary } from './components/OrderItemSummary';
 import { OrderSummary } from './components/OrderSummary';
 import { ProductSelectItem } from './components/ProductSelectItem';
 import { StockStatus } from './components/StockStatus';
-import { LIGHTNING_DELAY, LIGHTNING_INTERVAL, SUGGEST_DELAY, SUGGEST_INTERVAL } from './constant';
 import { state, dispatch, subscribe, getCartSummary, getBonusPoints } from './store';
+import { startSaleTimers, stopSaleTimers } from './utils/saleTimers';
 
 const DOMElements = {};
-
-let lightningSaleTimerId = null;
-let suggestSaleTimerId = null;
 
 const renderInitialLayout = () => {
   const root = document.getElementById('app');
@@ -68,7 +65,7 @@ const attachEventListeners = () => {
     }
   });
 
-  window.addEventListener('beforeunload', stopTimers);
+  window.addEventListener('beforeunload', stopSaleTimers);
 };
 
 function renderCartItems() {
@@ -183,47 +180,13 @@ const alertNotifications = () => {
   }
 };
 
-const startLightningSale = () => {
-  const luckyIdx = Math.floor(Math.random() * state.products.length);
-  const luckyItem = state.products[luckyIdx];
-  if (luckyItem) {
-    dispatch({ type: 'START_LIGHTNING_SALE', payload: { productId: luckyItem.id } });
-  }
-};
-
-const startSuggestSale = () => {
-  if (!state.lastSelectedId) return;
-
-  const luckyItem = state.products.find(
-    (product) => product.id !== state.lastSelectedId && product.quantity && !product.suggestSale,
-  );
-  if (luckyItem) {
-    dispatch({ type: 'START_SUGGEST_SALE', payload: { productId: luckyItem.id } });
-  }
-};
-
-const startTimers = () => {
-  setTimeout(() => {
-    lightningSaleTimerId = setInterval(startLightningSale, LIGHTNING_INTERVAL);
-  }, LIGHTNING_DELAY);
-
-  setTimeout(function () {
-    suggestSaleTimerId = setInterval(startSuggestSale, SUGGEST_INTERVAL);
-  }, SUGGEST_DELAY);
-};
-
-const stopTimers = () => {
-  clearInterval(lightningSaleTimerId);
-  clearInterval(suggestSaleTimerId);
-};
-
 function init() {
   renderInitialLayout();
   cacheDOMElements();
   attachEventListeners();
   subscribe(render);
   render();
-  startTimers();
+  startSaleTimers();
 }
 
 export default { init };
