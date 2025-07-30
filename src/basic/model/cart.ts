@@ -28,8 +28,12 @@ function findIndex(id: string) {
   return index;
 }
 
+export function safeFindCart(id: string) {
+  return carts.find((cart) => cart.id === id);
+}
+
 export function findCart(id: string) {
-  const cart = carts.find((cart) => cart.id === id);
+  const cart = safeFindCart(id);
 
   if (!cart) {
     throw new Error(`findCart: ${id} not found`);
@@ -69,19 +73,16 @@ function updateCart({ id, quantity }: Cart) {
   carts[cartIndex].quantity = quantity;
 }
 
-export function addToCart(id: string) {
-  const quantity = 1;
+export function addToCart({ id, quantity = 1 }: Cart) {
   const cartIndex = safeFindIndex(id);
 
-  validateQuantity(id, quantity);
-
   if (cartIndex < 0) {
+    validateQuantity(id, quantity);
     addCart({ id, quantity });
+    addProductQuantity({ id, quantity: -quantity });
   } else {
-    updateCart({ id, quantity });
+    addCartQuantity({ id, quantity });
   }
-
-  addProductQuantity({ id, quantity: -quantity });
 }
 
 export function addCartQuantity({ id, quantity }: Cart) {
@@ -103,4 +104,8 @@ export function clearCart() {
     addProductQuantity({ id: cart.id, quantity: cart.quantity });
   });
   carts = [];
+}
+
+export function getCartTotalCount() {
+  return carts.reduce((acc, cart) => acc + cart.quantity, 0);
 }

@@ -1,6 +1,6 @@
-import { handleCalculateCartStuff, onUpdateSelectOptions } from '../main.basic';
+import { handleCalculateCartStuff, updateProductSelect } from '../main.basic';
 import { addCartQuantity, removeCart } from '../model/cart';
-import { findProduct, ProductsData } from '../model/products';
+import { findProduct } from '../model/products';
 
 export function handleClickCartItems(e: MouseEvent) {
   handleQuantityChange(e);
@@ -53,7 +53,7 @@ function handleQuantityChange(e: MouseEvent) {
     }
 
     handleCalculateCartStuff();
-    onUpdateSelectOptions();
+    updateProductSelect();
   }
 }
 
@@ -85,17 +85,9 @@ function handleRemoveCartItem(e: MouseEvent) {
       throw new Error('quantitySpan is not found');
     }
 
-    const productData = ProductsData.find(
-      (product) => product.id === productId
-    );
-
-    if (!productData) {
-      throw new Error('productData is not found');
-    }
-
     removeCart(productId);
     cartDiv.remove();
     handleCalculateCartStuff();
-    onUpdateSelectOptions();
+    updateProductSelect();
   }
 }

@@ -1,9 +1,11 @@
-const SALE_EVENT = {
-  NONE: 0x0,
-  LIGHTNING: 0x1,
-  SUGGEST: 0x2,
-  ALL: 0x3,
-};
+import {
+  isAllSale,
+  isLightningSale,
+  isNoneSale,
+  isSuggestSale,
+  SALE_EVENT,
+  saleRate,
+} from './sale-event';
 
 export interface Product {
   id: string;
@@ -15,7 +17,7 @@ export interface Product {
   saleEvent: number;
 }
 
-export const ProductsData = [
+let products: Product[] = [
   {
     id: 'p1',
     name: '버그 없애는 키보드',
@@ -63,8 +65,6 @@ export const ProductsData = [
   },
 ];
 
-let products: Product[] = JSON.parse(JSON.stringify(ProductsData));
-
 export function getProducts(): Product[] {
   return products;
 }
@@ -83,16 +83,8 @@ export function getProductCount(): number {
   return products.length;
 }
 
-export function isLightningSale(saleEvent: number): boolean {
-  return (saleEvent & SALE_EVENT.LIGHTNING) === SALE_EVENT.LIGHTNING;
-}
-
-export function isSuggestSale(saleEvent: number): boolean {
-  return (saleEvent & SALE_EVENT.SUGGEST) === SALE_EVENT.SUGGEST;
-}
-
-export function isAllSale(saleEvent: number): boolean {
-  return (saleEvent & SALE_EVENT.ALL) === SALE_EVENT.ALL;
+export function hasNoneSale(product: Pick<Product, 'saleEvent'>): boolean {
+  return isNoneSale(product.saleEvent);
 }
 
 export function hasLightningSale(product: Pick<Product, 'saleEvent'>): boolean {
@@ -107,43 +99,6 @@ export function hasAllSale(product: Pick<Product, 'saleEvent'>): boolean {
   return isAllSale(product.saleEvent);
 }
 
-export function saleEmoji(saleEvent: number) {
-  if (isAllSale(saleEvent)) {
-    return '⚡💝';
-  }
-
-  if (isLightningSale(saleEvent)) {
-    return '⚡';
-  }
-
-  if (isSuggestSale(saleEvent)) {
-    return '💝';
-  }
-
-  return '';
-}
-
-function getSaleRate(saleEvent: number): number {
-  const NONE_SALE_RATE = 0;
-  const LIGHTNING_SALE_RATE = 0.2;
-  const SUGGEST_SALE_RATE = 0.05;
-  const ALL_SALE_RATE = 0.25;
-
-  if (isAllSale(saleEvent)) {
-    return ALL_SALE_RATE;
-  }
-
-  if (isLightningSale(saleEvent)) {
-    return LIGHTNING_SALE_RATE;
-  }
-
-  if (isSuggestSale(saleEvent)) {
-    return SUGGEST_SALE_RATE;
-  }
-
-  return NONE_SALE_RATE;
-}
-
 function applySale(productId: string, saleEvent: number): void {
   products = products.map((product) => {
     if (product.id !== productId) {
@@ -153,7 +108,7 @@ function applySale(productId: string, saleEvent: number): void {
     const nextSaleEvent = product.saleEvent | saleEvent;
     return {
       ...product,
-      price: product.price * (1 - getSaleRate(nextSaleEvent)),
+      price: product.price * (1 - saleRate(nextSaleEvent)),
       saleEvent: nextSaleEvent,
     };
   });
@@ -192,4 +147,13 @@ export function addProductQuantity({
 
     return { ...product, quantity: product.quantity + quantity };
   });
+}
+
+export function getTotalProductQuantity(): number {
+  return products.reduce((acc, product) => acc + product.quantity, 0);
+}
+
+export function isLowTotalQuantity(): boolean {
+  const LOW_TOTAL_QUANTITY_THRESHOLD = 50;
+  return getTotalProductQuantity() < LOW_TOTAL_QUANTITY_THRESHOLD;
 }

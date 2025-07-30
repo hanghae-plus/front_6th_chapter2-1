@@ -1,3 +1,23 @@
+const domMap = new Map<HTML_ELEMENT_ID, HTMLElement>();
+
+export function selectById<T extends HTMLElement>(id: HTML_ELEMENT_ID): T {
+  const cachedDom = domMap.get(id);
+
+  if (cachedDom) {
+    return cachedDom as T;
+  }
+
+  const dom = document.getElementById(id);
+
+  if (!dom) {
+    throw new Error(`selectById: ${id} not found`);
+  }
+
+  domMap.set(id, dom);
+
+  return dom as T;
+}
+
 type HTML_ELEMENT_ID =
   | 'cart-items'
   | 'product-select'
@@ -38,23 +58,3 @@ export const POINTS_NOTICE_ID: HTML_ELEMENT_ID = 'points-notice';
 export const MANUAL_OVERLAY_ID: HTML_ELEMENT_ID = 'manual-overlay';
 
 export const MANUAL_COLUMN_ID: HTML_ELEMENT_ID = 'manual-column';
-
-const domMap = new Map<HTML_ELEMENT_ID, HTMLElement>();
-
-export function selectById<T extends HTMLElement>(id: HTML_ELEMENT_ID): T {
-  const cachedDom = domMap.get(id);
-
-  if (cachedDom) {
-    return cachedDom as T;
-  }
-
-  const dom = document.getElementById(id);
-
-  if (!dom) {
-    throw new Error(`selectById: ${id} not found`);
-  }
-
-  domMap.set(id, dom);
-
-  return dom as T;
-}
