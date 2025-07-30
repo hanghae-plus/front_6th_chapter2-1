@@ -1,12 +1,11 @@
 import { createStore } from ".";
-import { products } from "./products";
+import { products } from "./product";
 
 export const cartState = {
   selectedProductId: null,
   items: [],
   totalAmount: 0,
   itemCount: 0,
-  products, // 단순 참조용 (products는 불변하니까..?)
 };
 
 const cartActions = {
@@ -25,6 +24,34 @@ const cartActions = {
     ...state,
     totalAmount: amount,
   }),
+
+  addCartItem: (state, productItem) => {
+    // 장바구니에 이미 있는 상품인지 확인
+    const existingItem = state.items.find((item) => item.id === productItem.id);
+
+    // 이미 있는 상품이면 수량 증가
+    if (existingItem) {
+      return {
+        ...state,
+        items: state.items.map((item) =>
+          item.id === productItem.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        ),
+      };
+    }
+
+    // 없는 상품이면 새로 추가
+    return {
+      ...state,
+      items: [...state.items, { ...productItem, quantity: 1 }],
+    };
+  },
+
+  getItemQuantity: (state, productId) => {
+    const item = state.items.find((item) => item.id === productId);
+    return item ? item.quantity : 0;
+  },
 
   reset: (state) => ({
     ...state,

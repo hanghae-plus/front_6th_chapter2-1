@@ -1,6 +1,7 @@
 import { Header } from "./components/Header";
 import { renderNewCartItem } from "./render/renderNewCartItem";
 import { renderQuantity } from "./render/renderQuantity";
+import cartStore from "./store/cart";
 import productStore, { productIds } from "./store/product";
 import { calculateItemDiscount } from "./utils/cart/calculateItemDiscount";
 import { checkHasItem } from "./utils/cart/checkHasItem";
@@ -657,9 +658,14 @@ addBtn.addEventListener("click", () => {
   const item = document.getElementById(itemToAdd["id"]);
   if (item) {
     // 상품 수량
-    const qtyElem = item.querySelector(".quantity-number");
+    // const qtyElem = item.querySelector(".quantity-number");
+
     // 현재 수량
-    const currentQty = parseInt(qtyElem.textContent);
+    // const currentQty = parseInt(qtyElem.textContent);
+    const currentQty = cartStore.getItemQuantity(itemToAdd.id);
+
+    console.log("currentQty", currentQty);
+    console.log("cartStore", cartStore.getState());
 
     // 새로운 수량
     const newQty = currentQty + 1;
@@ -678,6 +684,7 @@ addBtn.addEventListener("click", () => {
       // qtyElem.textContent = newQty;
       renderQuantity(itemToAdd.id, newQty);
       // 재고 업데이트
+      cartStore.addCartItem(itemToAdd);
       productStore.updateStock(itemToAdd.id, latestItem.q - 1);
 
       // 선택 옵션 업데이트

@@ -8,7 +8,7 @@ export const productIds = {
   p5: "p5",
 };
 
-const products = [
+export const products = [
   {
     id: productIds.p1,
     name: "버그 없애는 키보드",
