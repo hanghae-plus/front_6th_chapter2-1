@@ -1,10 +1,8 @@
 let bonusPts = 0;
 let stockInfo;
-let itemCnt;
 let lastSel;
 let sel;
 let addBtn;
-const totalAmt = 0;
 
 const PRODUCT_IDS = {
   KEYBOARD: "p1",
