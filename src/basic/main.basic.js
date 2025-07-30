@@ -118,6 +118,14 @@ const SUGGEST_DELAY_RANGE = 20000; // 추천할인 시작 지연 범위 (20초)
 // ================================================
 const TUESDAY = 2; // 화요일 (0=일요일, 1=월요일, 2=화요일, ...)
 
+// ================================================
+// 상태 관리 import
+// ================================================
+import { cartState } from './states/cartState.js';
+import { productState } from './states/productState.js';
+import { stateActions, subscribeToState } from './states/state.js';
+import { uiState } from './states/uiState.js';
+
 function Header() {
   return /* HTML */ `
     <div class="mb-8">
@@ -506,10 +514,6 @@ function isTuesday() {
 }
 
 function main() {
-  let totalAmt = 0;
-  let lastSel = null;
-  let itemCnt = 0;
-
   const root = document.getElementById('app');
 
   root.innerHTML += Header();
@@ -524,22 +528,25 @@ function main() {
   const sum = root.querySelector('#cart-total');
   const manualToggle = root.querySelector('#manual-toggle');
   const manualOverlay = root.querySelector('#manual-overlay');
-  const manualColumn = root.querySelector('#manual-column');
 
   manualToggle.onclick = function () {
-    manualOverlay.classList.toggle('hidden');
-    manualColumn.classList.toggle('translate-x-full');
+    stateActions.toggleManualOverlay();
   };
 
   manualOverlay.onclick = function (e) {
     if (e.target === manualOverlay) {
-      manualOverlay.classList.add('hidden');
-      manualColumn.classList.add('translate-x-full');
+      stateActions.toggleManualOverlay();
     }
   };
 
   onUpdateSelectOptions();
   handleCalculateCartStuff();
+
+  // 상태 변경 구독 설정
+  subscribeToState(() => {
+    // 상태 변경 시 UI 업데이트
+    updateUIFromState();
+  });
 
   const lightningDelay = Math.random() * LIGHTNING_DELAY_RANGE;
   setTimeout(() => {
@@ -556,9 +563,10 @@ function main() {
   }, lightningDelay);
   setTimeout(function () {
     setInterval(function () {
-      if (lastSel) {
+      if (productState.selectedProduct) {
         const suggest = productList.find(
-          (product) => product.id !== lastSel && product.q > 0 && !product.suggestSale
+          (product) =>
+            product.id !== productState.selectedProduct && product.q > 0 && !product.suggestSale
         );
 
         if (suggest) {
@@ -586,10 +594,11 @@ function main() {
       sel.style.borderColor = '';
     }
   }
+
   function handleCalculateCartStuff() {
-    totalAmt = 0;
-    itemCnt = 0;
-    let originalTotal = totalAmt;
+    let totalAmt = 0;
+    let itemCnt = 0;
+    let originalTotal = 0;
     let subTot = 0;
 
     const itemDiscounts = [];
@@ -721,6 +730,10 @@ function main() {
       totalDiv.textContent = `₩${Math.round(totalAmt).toLocaleString()}`;
     }
 
+    // 상태 업데이트
+    stateActions.updateCartTotal(totalAmt);
+    stateActions.updateCartItemCount(itemCnt);
+
     const discountInfoDiv = document.getElementById('discount-info');
     discountInfoDiv.innerHTML = '';
     if (discRate > 0 && totalAmt > 0) {
@@ -740,21 +753,22 @@ function main() {
     const itemCountElement = document.getElementById('item-count');
     if (itemCountElement) {
       const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
-      itemCountElement.textContent = `🛍️  ${itemCnt} items in cart`;
-      if (previousCount !== itemCnt) {
+      itemCountElement.textContent = `🛍️  ${cartState.itemCount} items in cart`;
+      if (previousCount !== cartState.itemCount) {
         itemCountElement.setAttribute('data-changed', 'true');
       }
     }
     handleStockInfoUpdate();
     doRenderBonusPoints();
   }
+
   function doRenderBonusPoints() {
     if (cartDisp.children.length === 0) {
       document.getElementById('loyalty-points').style.display = 'none';
       return;
     }
 
-    const basePoints = Math.floor(totalAmt / BASE_POINTS_RATE);
+    const basePoints = Math.floor(cartState.total / BASE_POINTS_RATE);
     const pointsDetail = [];
     let finalPoints = 0;
 
@@ -795,19 +809,19 @@ function main() {
       finalPoints = finalPoints + BONUS_POINTS.FULL_SET;
       pointsDetail.push(`풀세트 구매 +${BONUS_POINTS.FULL_SET}p`);
     }
-    if (itemCnt >= BONUS_POINTS_THRESHOLDS.LARGE) {
+    if (cartState.itemCount >= BONUS_POINTS_THRESHOLDS.LARGE) {
       finalPoints = finalPoints + BONUS_POINTS.BULK_PURCHASE.LARGE;
       pointsDetail.push(
         `대량구매(${BONUS_POINTS_THRESHOLDS.LARGE}개+) +${BONUS_POINTS.BULK_PURCHASE.LARGE}p`
       );
     } else {
-      if (itemCnt >= BONUS_POINTS_THRESHOLDS.MEDIUM) {
+      if (cartState.itemCount >= BONUS_POINTS_THRESHOLDS.MEDIUM) {
         finalPoints = finalPoints + BONUS_POINTS.BULK_PURCHASE.MEDIUM;
         pointsDetail.push(
           `대량구매(${BONUS_POINTS_THRESHOLDS.MEDIUM}개+) +${BONUS_POINTS.BULK_PURCHASE.MEDIUM}p`
         );
       } else {
-        if (itemCnt >= BONUS_POINTS_THRESHOLDS.SMALL) {
+        if (cartState.itemCount >= BONUS_POINTS_THRESHOLDS.SMALL) {
           finalPoints = finalPoints + BONUS_POINTS.BULK_PURCHASE.SMALL;
           pointsDetail.push(
             `대량구매(${BONUS_POINTS_THRESHOLDS.SMALL}개+) +${BONUS_POINTS.BULK_PURCHASE.SMALL}p`
@@ -820,6 +834,27 @@ function main() {
     if (loyaltyPoints) {
       loyaltyPoints.innerHTML = LoyaltyPointsTag({ bonusPoints: bonusPts, pointsDetail });
       loyaltyPoints.style.display = 'block';
+    }
+  }
+
+  function updateUIFromState() {
+    // 아이템 카운트 업데이트
+    const itemCountElement = document.getElementById('item-count');
+    if (itemCountElement) {
+      itemCountElement.textContent = `🛍️  ${cartState.itemCount} items in cart`;
+    }
+
+    // 매뉴얼 오버레이 상태 업데이트
+    const manualOverlay = document.getElementById('manual-overlay');
+    const manualColumn = document.getElementById('manual-column');
+    if (manualOverlay && manualColumn) {
+      if (uiState.isManualOpen) {
+        manualOverlay.classList.remove('hidden');
+        manualColumn.classList.remove('translate-x-full');
+      } else {
+        manualOverlay.classList.add('hidden');
+        manualColumn.classList.add('translate-x-full');
+      }
     }
   }
 
@@ -905,7 +940,7 @@ function main() {
         itemToAdd.q--;
       }
       handleCalculateCartStuff();
-      lastSel = selItem;
+      stateActions.updateSelectedProduct(selItem);
     }
   });
 
