@@ -14,25 +14,6 @@ export const findElement = (selector, parent = document) => {
 };
 
 /**
- * 요소들 찾기 헬퍼
- * @param {string} selector - CSS 선택자
- * @param {Element} parent - 부모 요소 (기본값: document)
- * @returns {NodeList}
- */
-export const findElements = (selector, parent = document) => {
-  return parent.querySelectorAll(selector);
-};
-
-/**
- * 요소 존재 확인
- * @param {string} selector - CSS 선택자
- * @returns {boolean}
- */
-export const elementExists = selector => {
-  return !!findElement(selector);
-};
-
-/**
  * 텍스트 내용 설정
  * @param {Element} element - 대상 요소
  * @param {string} text - 설정할 텍스트
