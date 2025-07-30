@@ -109,9 +109,7 @@ const AppState = {
   },
 };
 
-// 기존 전역 변수들 (호환성 유지) - React 변환 시 제거 예정
-let lastSelectedProduct;
-let totalElement;
+// React 변환 준비 완료 - 모든 전역 변수가 AppState로 통합됨
 
 // 초기화 함수들
 function initializeApp() {
@@ -124,15 +122,16 @@ function initializeApp() {
   window.itemCount = AppState.cart.itemCount;
 }
 
-function createHeader() {
-  const header = document.createElement('div');
-  header.className = 'mb-8';
-  header.innerHTML = `
-    <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
-    <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-    <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
+function createHeader(props = {}) {
+  const { itemCount = 0 } = props;
+
+  return `
+    <div class="mb-8">
+      <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
+      <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
+      <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ ${itemCount} items in cart</p>
+    </div>
   `;
-  return header;
 }
 
 function createProductSelector() {
@@ -199,7 +198,7 @@ function createOrderSummary() {
     </p>
   `;
 
-  totalElement = rightColumn.querySelector('#cart-total');
+  AppState.ui.totalElement = rightColumn.querySelector('#cart-total');
   return rightColumn;
 }
 
@@ -292,8 +291,8 @@ function createHelpModal() {
 function createUI() {
   const root = document.getElementById('app');
 
-  // 헤더 생성
-  const header = createHeader();
+  // 헤더 생성 (HTML 문자열로 받음)
+  const headerHTML = createHeader({ itemCount: AppState.cart.itemCount });
 
   // 상품 선택 영역 생성
   const selectorContainer = createProductSelector();
@@ -319,8 +318,8 @@ function createUI() {
   const { manualToggle, manualOverlay, manualColumn } = createHelpModal();
   manualOverlay.appendChild(manualColumn);
 
-  // DOM에 요소들 추가
-  root.appendChild(header);
+  // DOM에 요소들 추가 (헤더는 HTML 문자열을 innerHTML로 설정)
+  root.innerHTML = headerHTML;
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
@@ -359,8 +358,8 @@ function setupLightningSaleTimer() {
   const lightningDelay = Math.random() * TIMER_CONFIG.LIGHTNING_SALE_DELAY;
   setTimeout(() => {
     setInterval(function () {
-      const luckyIndex = Math.floor(Math.random() * productList.length);
-      const luckyItem = productList[luckyIndex];
+      const luckyIndex = Math.floor(Math.random() * AppState.products.length);
+      const luckyItem = AppState.products[luckyIndex];
       if (luckyItem.quantity > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
@@ -375,17 +374,17 @@ function setupLightningSaleTimer() {
 function setupRecommendationTimer() {
   setTimeout(function () {
     setInterval(function () {
-      if (cartDisplay.children.length === 0) {
+      if (AppState.ui.cartDisplay.children.length === 0) {
         return;
       }
-      if (lastSelectedProduct) {
+      if (AppState.ui.lastSelectedProduct) {
         let suggest = null;
 
-        for (let k = 0; k < productList.length; k++) {
-          if (productList[k].id !== lastSelectedProduct) {
-            if (productList[k].quantity > 0) {
-              if (!productList[k].suggestSale) {
-                suggest = productList[k];
+        for (let k = 0; k < AppState.products.length; k++) {
+          if (AppState.products[k].id !== AppState.ui.lastSelectedProduct) {
+            if (AppState.products[k].quantity > 0) {
+              if (!AppState.products[k].suggestSale) {
+                suggest = AppState.products[k];
                 break;
               }
             }
@@ -615,7 +614,7 @@ function updateItemCountDisplay(itemCount) {
 }
 
 function updateTotalDisplay(totalAmount) {
-  const totalDiv = totalElement.querySelector('.text-2xl');
+  const totalDiv = AppState.ui.totalElement.querySelector('.text-2xl');
   if (totalDiv) {
     totalDiv.textContent = formatPrice(totalAmount);
   }
