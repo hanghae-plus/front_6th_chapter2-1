@@ -1,6 +1,7 @@
 import { calculateBasePoint, getBulkBonusPoint, getSetBonusPoint } from './features/point/service';
 import { productIds, productList } from './features/product/constants';
 import { renderProductSelectOptions } from './features/product/render';
+import { getStockInfo } from './features/product/service';
 import { isTuesday } from './utils/date';
 
 let itemCount;
@@ -428,7 +429,7 @@ function handleCalculateCartStuff() {
     }
   }
   stockInfo.textContent = stockMessage;
-  handleStockInfoUpdate();
+  renderStockInfo(stockInfo);
   renderBonusPoints();
 }
 
@@ -490,19 +491,8 @@ const renderBonusPoints = () => {
   }
 };
 
-const handleStockInfoUpdate = function () {
-  let infoMessage = '';
-
-  productList.forEach(function (product) {
-    if (product.quantity < 5) {
-      if (product.quantity > 0) {
-        infoMessage = infoMessage + product.name + ': 재고 부족 (' + product.quantity + '개 남음)\n';
-      } else {
-        infoMessage = infoMessage + product.name + ': 품절\n';
-      }
-    }
-  });
-  stockInfo.textContent = infoMessage;
+const renderStockInfo = (stockInfoEl) => {
+  stockInfoEl.textContent = productList.map(getStockInfo).join('\n');
 };
 
 function doUpdatePricesInCart() {
