@@ -1,35 +1,22 @@
 import Divider from '@/advanced/components/layout/Divider';
 import useOrderSummary from '@/advanced/hooks/useOrderSummary';
-import { useCartStore } from '@/advanced/store';
 import formatPrice from '@/advanced/utils/format.util';
 
 export default function SummaryDetail() {
-  const { cartItems } = useCartStore();
-
-  const { subTotal } = useOrderSummary();
-
-  const orderList = cartItems.map(cartItem => {
-    const { name, price, quantity } = cartItem;
-
-    const totalPrice = price * quantity;
-    const formattedTotalPrice = formatPrice(totalPrice);
-
-    return (
-      <div key={cartItem.id} className="flex justify-between text-xs tracking-wide text-gray-400">
-        <span>
-          {name} x {quantity}
-        </span>
-        <span>{formattedTotalPrice}</span>
-      </div>
-    );
-  });
+  const { subTotal, orderList, isBulkDiscount, discountedProducts } = useOrderSummary();
 
   const formattedSubTotal = formatPrice(subTotal);
 
   return (
     <div id="summary-details" className="space-y-3">
-      {/* 주문 요약 내용 */}
-      {orderList}
+      {orderList.map(({ name, quantity, totalPrice }) => (
+        <div key={name} className="flex justify-between text-xs tracking-wide text-gray-400">
+          <span>
+            {name} x {quantity}
+          </span>
+          <span>{formatPrice(totalPrice)}</span>
+        </div>
+      ))}
 
       <Divider />
 
@@ -37,6 +24,20 @@ export default function SummaryDetail() {
         <span>Subtotal</span>
         <span>{formattedSubTotal}</span>
       </div>
+
+      {isBulkDiscount ? (
+        <div className="flex justify-between text-sm tracking-wide text-green-400">
+          <span className="text-xs">🎉 대량구매 할인 (30개 이상)</span>
+          <span className="text-xs">-25%</span>
+        </div>
+      ) : (
+        discountedProducts.map(({ name, discountRate }) => (
+          <div className="flex justify-between text-sm tracking-wide text-green-400">
+            <span className="text-xs">{name} (10개↑)</span>
+            <span className="text-xs">-{discountRate}%</span>
+          </div>
+        ))
+      )}
 
       <div className="flex justify-between text-sm tracking-wide text-gray-400">
         <span>Shipping</span>

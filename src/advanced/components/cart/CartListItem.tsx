@@ -1,13 +1,21 @@
 import { ReactElement } from 'react';
 
+import useOrderSummary from '@/advanced/hooks/useOrderSummary';
 import type { CartItem } from '@/advanced/types/cart.type';
+import formatPrice from '@/advanced/utils/format.util';
 
 interface Props {
   item: CartItem;
 }
 
 export default function CartListItem({ item }: Props): ReactElement {
+  const { discountedProducts } = useOrderSummary();
+
   const { id, name, price, quantity } = item;
+
+  const discountedStyle = discountedProducts.some(product => product.id === id)
+    ? 'font-bold'
+    : 'font-normal';
 
   return (
     <div
@@ -20,7 +28,7 @@ export default function CartListItem({ item }: Props): ReactElement {
       <div>
         <h3 className="text-base font-normal mb-1 tracking-tight">{name}</h3>
         <p className="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-        <p className="text-xs text-black mb-3">{price}</p>
+        <p className="text-xs text-black mb-3">{formatPrice(price)}</p>
         <div className="flex items-center gap-4">
           <button className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white">
             −
@@ -34,8 +42,8 @@ export default function CartListItem({ item }: Props): ReactElement {
         </div>
       </div>
       <div className="text-right">
-        <div className="text-lg mb-2 tracking-tight tabular-nums" style={{ fontWeight: 'normal' }}>
-          {price}
+        <div className={`text-lg mb-2 tracking-tight tabular-nums ${discountedStyle}`}>
+          {formatPrice(price)}
         </div>
         <a
           className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
