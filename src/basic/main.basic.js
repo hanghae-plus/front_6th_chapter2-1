@@ -496,6 +496,7 @@ function handleCalculateCartStuff() {
 
 // 추가 포인트 UI를 렌더링
 const doRenderBonusPoints = function () {
+  const loyaltyPointsEl = document.getElementById('loyalty-points');
   const cartProductEls = Array.from(cartContainerEl.children);
   const hasKeyboard = cartProductEls.some((el) => el.id === productIds.keyboard);
   const hasMouse = cartProductEls.some((el) => el.id === productIds.mouse);
@@ -507,7 +508,8 @@ const doRenderBonusPoints = function () {
 
   // 장바구니에 상품이 없으면 loyalty-points 요소 숨김
   if (cartProductEls.length === 0) {
-    document.getElementById('loyalty-points').style.display = 'none';
+    loyaltyPointsEl.style.display = 'none';
+
     return;
   }
 
@@ -541,20 +543,13 @@ const doRenderBonusPoints = function () {
     pointsDetailText.push(bulkBonusPoint.label);
   }
 
-  // 포인트 문구 표시 UI
-  const pointsTag = document.getElementById('loyalty-points');
+  if (loyaltyPointsEl && finalPoints > 0) {
+    loyaltyPointsEl.innerHTML = `
+      <div>적립 포인트: <span class="font-bold">${finalPoints}p</span></div>
+      <div class="text-2xs opacity-70 mt-1">${pointsDetailText.join(', ')}</div>
+    `;
 
-  if (pointsTag) {
-    if (finalPoints > 0) {
-      pointsTag.innerHTML = `
-        <div>적립 포인트: <span class="font-bold">${finalPoints}p</span></div>
-        <div class="text-2xs opacity-70 mt-1">${pointsDetailText.join(', ')}</div>
-      `;
-      pointsTag.style.display = 'block';
-    } else {
-      pointsTag.textContent = '적립 포인트: 0p';
-      pointsTag.style.display = 'block';
-    }
+    loyaltyPointsEl.style.display = 'block';
   }
 };
 
