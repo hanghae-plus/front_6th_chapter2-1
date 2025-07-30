@@ -1,7 +1,6 @@
 import { calculateBasePoint, getBulkBonusPoint, getSetBonusPoint } from './features/point/service';
 import { productIds, productList } from './features/product/constants';
-import { renderProductSelectOptions } from './features/product/render';
-import { getStockInfo } from './features/product/service';
+import { renderProductSelectOptions, renderStockInfo } from './features/product/render';
 import { isTuesday } from './utils/date';
 
 let itemCount;
@@ -429,7 +428,7 @@ function handleCalculateCartStuff() {
     }
   }
   stockInfo.textContent = stockMessage;
-  renderStockInfo(stockInfo);
+  renderStockInfo(stockInfo, productList);
   renderBonusPoints();
 }
 
@@ -489,10 +488,6 @@ const renderBonusPoints = () => {
 
     loyaltyPointsEl.style.display = 'block';
   }
-};
-
-const renderStockInfo = (stockInfoEl) => {
-  stockInfoEl.textContent = productList.map(getStockInfo).join('\n');
 };
 
 function doUpdatePricesInCart() {

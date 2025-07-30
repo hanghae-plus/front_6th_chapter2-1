@@ -1,4 +1,4 @@
-import { getProductOptionStyle, getSalesInfoText, getTotalStock, isOutOfStock } from './service';
+import { getProductOptionStyle, getSalesInfoText, getStockInfo, getTotalStock, isOutOfStock } from './service';
 
 /**
  * @description 상품 셀렉 요소의 옵션을 렌더링
@@ -24,4 +24,13 @@ export const renderProductSelectOptions = (selector, products) => {
   });
 
   selector.append(...options);
+};
+
+/**
+ * @description 재고 정보 렌더링
+ * @param {HTMLSelectElement} target - 재고 정보를 업데이트할 요소
+ * @param {Product} products - 상품목록
+ */
+export const renderStockInfo = (target, products) => {
+  target.textContent = products.map(getStockInfo).join('\n');
 };
