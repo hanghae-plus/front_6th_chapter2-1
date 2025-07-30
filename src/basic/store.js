@@ -144,19 +144,39 @@ const notify = () => {
   }
 };
 
-const getCartSummary = (state) => {
-  const cartDetails = state.cartList.map((cartItem) => {
-    const product = state.products.find((p) => p.id === cartItem.productId);
+// getters
+const getProducts = (state) => state.products;
+const getCartList = (state) => state.cartList;
+const getIsTuesday = () => new Date().getDay() === 2;
+
+export const getCartDetails = (state) => {
+  const products = getProducts(state);
+  const cartList = getCartList(state);
+  return cartList.map((cartItem) => {
+    const product = products.find((p) => p.id === cartItem.productId);
     return {
       ...cartItem,
       product,
       itemTotal: product.price * cartItem.quantity,
     };
   });
+};
 
-  const subtotal = cartDetails.reduce((sum, item) => sum + item.itemTotal, 0);
-  const totalQuantity = cartDetails.reduce((sum, item) => sum + item.quantity, 0);
+export const getTotalQuantity = (state) => {
+  const cartDetails = getCartDetails(state);
+  return cartDetails.reduce((sum, item) => sum + item.quantity, 0);
+};
 
+export const getSubtotal = (state) => {
+  const cartDetails = getCartDetails(state);
+  return cartDetails.reduce((sum, item) => sum + item.itemTotal, 0);
+};
+
+export const getDiscountResult = (state) => {
+  const cartDetails = getCartDetails(state);
+  const subtotal = getSubtotal(state);
+  const totalQuantity = getTotalQuantity(state);
+  const isTuesday = getIsTuesday();
   const discounts = [];
   let totalAfterDiscounts = 0;
 
@@ -164,8 +184,7 @@ const getCartSummary = (state) => {
     totalAfterDiscounts = subtotal * (1 - DISCOUNT_RATES.BULK);
     discounts.push({ reason: '🎉 대량구매 할인 (30개 이상)', amount: '25%' });
   } else {
-    let individualDiscountedTotal = 0;
-    cartDetails.forEach((item) => {
+    totalAfterDiscounts = cartDetails.reduce((total, item) => {
       let itemDiscountRate = 0;
       const individualDiscount = DISCOUNT_RATES.INDIVIDUAL[item.productId];
 
@@ -176,58 +195,42 @@ const getCartSummary = (state) => {
           amount: `${itemDiscountRate * 100}%`,
         });
       }
-      individualDiscountedTotal += item.itemTotal * (1 - itemDiscountRate);
-    });
-    totalAfterDiscounts = individualDiscountedTotal;
+      return total + item.itemTotal * (1 - itemDiscountRate);
+    }, 0);
   }
 
-  const isTuesday = new Date().getDay() === 2;
   let finalTotal = totalAfterDiscounts;
   if (isTuesday && finalTotal > 0) {
     finalTotal *= 1 - DISCOUNT_RATES.TUESDAY;
   }
 
-  const savedAmount = subtotal - finalTotal;
-  const totalDiscountRate = subtotal > 0 ? savedAmount / subtotal : 0;
+  return { finalTotal, discounts };
+};
 
-  const stockMessages = state.products
+export const getStockMessages = (state) => {
+  const products = getProducts(state);
+  return products
     .filter((p) => p.quantity < 5)
     .map((p) =>
       p.quantity > 0 ? `${p.name}: 재고 부족 (${p.quantity}개 남음)` : `${p.name}: 품절`,
     );
-
-  return {
-    totalQuantity,
-    subtotal,
-    finalTotal,
-    totalDiscountRate,
-    savedAmount,
-    discounts,
-    isTuesday,
-    stockMessages,
-    cartItemsForDisplay: cartDetails.map((item) => ({
-      name: item.product.name,
-      quantity: item.quantity,
-      totalPrice: item.itemTotal,
-    })),
-  };
 };
 
-function getBonusPoints(state, summary) {
-  if (summary.totalQuantity === 0) {
-    return { bonusPoints: 0, pointsDetail: [] };
-  }
+export const getBonusPoints = (state) => {
+  const totalQuantity = getTotalQuantity(state);
+  if (totalQuantity === 0) return { bonusPoints: 0, pointsDetail: [] };
 
-  const basePoints = Math.floor(summary.finalTotal / 1000);
+  const { finalTotal } = getDiscountResult(state);
+  const basePoints = Math.floor(finalTotal / 1000);
   let finalPoints = basePoints;
   const pointsDetail = basePoints > 0 ? [`기본: ${basePoints}p`] : [];
 
-  if (new Date().getDay() === 2 && basePoints > 0) {
+  if (getIsTuesday() && basePoints > 0) {
     finalPoints += basePoints;
     pointsDetail.push('화요일 2배');
   }
 
-  const has = (productId) => state.cartList.some((item) => item.productId === productId);
+  const has = (productId) => getCartList(state).some((item) => item.productId === productId);
   const hasKeyboard = has(PRODUCT_IDS.P1);
   const hasMouse = has(PRODUCT_IDS.P2);
   const hasMonitorArm = has(PRODUCT_IDS.P3);
@@ -240,18 +243,43 @@ function getBonusPoints(state, summary) {
     finalPoints += 100;
     pointsDetail.push('풀세트 구매 +100p');
   }
-  if (summary.totalQuantity >= 30) {
+  if (totalQuantity >= 30) {
     finalPoints += 100;
     pointsDetail.push('대량구매(30개+) +100p');
-  } else if (summary.totalQuantity >= 20) {
+  } else if (totalQuantity >= 20) {
     finalPoints += 50;
     pointsDetail.push('대량구매(20개+) +50p');
-  } else if (summary.totalQuantity >= 10) {
+  } else if (totalQuantity >= 10) {
     finalPoints += 20;
     pointsDetail.push('대량구매(10개+) +20p');
   }
 
   return { bonusPoints: finalPoints, pointsDetail };
-}
+};
 
-export { state, subscribe, dispatch, getCartSummary, getBonusPoints };
+export const getCartSummary = (state) => {
+  const { finalTotal, discounts } = getDiscountResult(state);
+  const { bonusPoints, pointsDetail } = getBonusPoints(state);
+  const subtotal = getSubtotal(state);
+  const savedAmount = subtotal - finalTotal;
+
+  return {
+    subtotal,
+    finalTotal,
+    discounts,
+    savedAmount,
+    bonusPoints,
+    pointsDetail,
+    totalQuantity: getTotalQuantity(state),
+    isTuesday: getIsTuesday(),
+    stockMessages: getStockMessages(state),
+    totalDiscountRate: subtotal > 0 ? savedAmount / subtotal : 0,
+    cartItemsForDisplay: getCartDetails(state).map((item) => ({
+      name: item.product.name,
+      quantity: item.quantity,
+      totalPrice: item.itemTotal,
+    })),
+  };
+};
+
+export { state, subscribe, dispatch, getCartSummary };

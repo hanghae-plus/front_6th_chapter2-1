@@ -50,8 +50,9 @@ function renderCartItems(DOMElements) {
   });
 }
 
-function renderOrderSummary(DOMElements, summary, bonusPoints, pointsDetail) {
+function renderOrderSummary(DOMElements, summary) {
   const { summaryDetails, discountInfo, totalAmount, loyaltyPoints, tuesdaySpecial } = DOMElements;
+  const { bonusPoints, pointsDetail } = summary;
 
   summaryDetails.innerHTML = OrderContent(summary);
   discountInfo.innerHTML = DiscountInfo(summary);

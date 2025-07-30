@@ -2,7 +2,7 @@ import { CartContainer } from './components/cart-section/CartContainer';
 import { Header } from './components/header/Header';
 import { Manual } from './components/manual/Manual';
 import { OrderSummary } from './components/order-summary/OrderSummary';
-import { state, dispatch, subscribe, getCartSummary, getBonusPoints } from './store';
+import { state, dispatch, subscribe, getCartSummary } from './store';
 import { DOMElements, cacheDOMElements } from './utils/dom';
 import { handleSelectChange, handleAddItemToCart, handleCartItemActions } from './utils/handlers';
 import {
@@ -56,12 +56,11 @@ const attachEventListeners = () => {
 
 function render() {
   const summary = getCartSummary(state);
-  const { bonusPoints, pointsDetail } = getBonusPoints(state, summary);
 
-  renderTotalQuantity(DOMElements, summary);
   renderProductSelector(DOMElements);
+  renderTotalQuantity(DOMElements, summary);
   renderCartContent(DOMElements, summary);
-  renderOrderSummary(DOMElements, summary, bonusPoints, pointsDetail);
+  renderOrderSummary(DOMElements, summary);
 
   alertNotifications();
 }
