@@ -23,7 +23,7 @@ function App() {
   return (
     <CartProvider>
       <div className="bg-gray-50 text-black overflow-hidden text-sm max-w-screen-xl h-screen max-h-800 mx-auto p-8 flex flex-col">
-        <Header count={0} />
+        <Header />
         <MainLayout left={<CartDisplay />} right={<OrderSummary />} />
         <InfoButton onClick={handleOpenModal} />
         <ManualModal isOpen={isModalOpen} onClose={handleCloseModal} />
