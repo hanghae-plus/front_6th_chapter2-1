@@ -61,6 +61,24 @@ const cartActions = {
     };
   },
 
+  updateItemQuantity: (state, productId, newQuantity) => {
+    if (newQuantity <= 0) {
+      // 수량이 0 이하면 아이템 제거
+      return {
+        ...state,
+        items: state.items.filter((item) => item.id !== productId),
+      };
+    }
+
+    // 수량 업데이트
+    return {
+      ...state,
+      items: state.items.map((item) =>
+        item.id === productId ? { ...item, quantity: newQuantity } : item
+      ),
+    };
+  },
+
   getItemQuantity: (state, productId) => {
     const item = state.items.find((item) => item.id === productId);
     return {

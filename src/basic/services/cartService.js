@@ -1,74 +1,43 @@
 import productStore from "../store/product";
 import cartStore from "../store/cart";
-import { renderQuantity } from "../ui/render/renderQuantity";
-import { renderNewCartItem } from "../ui/render/renderNewCartItem";
+import { renderAllCartItems } from "../ui/render/renderAllCartItems";
 import { handleCalculateCartStuff } from "./cartCalculationService";
 
 /**
  * 장바구니 상품 수량 추가/감소/삭제 및 UI 처리까지 담당하는 서비스
  */
-export const updateCartItem = (
-  prodId,
-  qtyChange,
-
-  cartContainer
-) => {
+export const updateCartItem = (prodId, qtyChange, cartContainer) => {
   const product = productStore.getState().products.find((p) => p.id === prodId);
   if (!product) return;
 
-  const itemElem = document.getElementById(prodId);
-  const existsInDOM = Boolean(itemElem);
-  const currentQty = existsInDOM
-    ? parseInt(itemElem.querySelector(".quantity-number")?.textContent || "0")
-    : 0;
-
+  // 현재 cartStore 상태에서 수량 확인
+  const currentState = cartStore.getState();
+  const existingItem = currentState.items.find((item) => item.id === prodId);
+  const currentQty = existingItem ? existingItem.quantity : 0;
   const newQty = currentQty + qtyChange;
 
-  if (newQty <= 0) {
-    itemElem?.remove();
-    productStore.updateStock(prodId, product.q + currentQty);
-
-    // cartStore에서도 해당 아이템 제거
-    const currentState = cartStore.getState();
-    const updatedItems = currentState.items.filter(
-      (item) => item.id !== prodId
-    );
-    cartStore.updateItems(updatedItems);
-
-    handleCalculateCartStuff();
-    return;
-  }
-
-  if (newQty > product.q + currentQty) {
+  // 재고 확인 (수량이 증가하는 경우에만)
+  if (qtyChange > 0 && newQty > product.q + currentQty) {
     alert("재고가 부족합니다.");
     return;
   }
 
+  // 재고 업데이트
   productStore.updateStock(prodId, product.q - qtyChange);
 
-  if (existsInDOM) {
-    renderQuantity(prodId, newQty);
-  } else {
-    const newItemHTML = renderNewCartItem(product);
-    cartContainer.insertAdjacentHTML("beforeend", newItemHTML);
-  }
-
-  // 수량이 증가하는 경우에만 addCartItem 호출
+  // cartStore 업데이트
   if (qtyChange > 0) {
+    // 수량 증가: addCartItem 사용
     cartStore.addCartItem(product);
   } else {
-    // 수량이 감소하는 경우 cartStore에서 직접 수량 업데이트
-    const currentState = cartStore.getState();
-    const updatedItems = currentState.items
-      .map((item) =>
-        item.id === prodId
-          ? { ...item, quantity: Math.max(0, item.quantity + qtyChange) }
-          : item
-      )
-      .filter((item) => item.quantity > 0); // 수량이 0 이하인 아이템 제거
-
-    cartStore.updateItems(updatedItems);
+    // 수량 감소 또는 제거: updateItemQuantity 사용
+    cartStore.updateItemQuantity(prodId, newQty);
   }
+
+  // 전체 UI 다시 렌더링 (DOM 조작 없이)
+  const updatedCartItems = cartStore.getState().items;
+  const cartItemsHTML = renderAllCartItems(updatedCartItems);
+  cartContainer.innerHTML = cartItemsHTML;
 
   handleCalculateCartStuff();
 };

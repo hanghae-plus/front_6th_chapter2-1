@@ -1,4 +1,4 @@
-export const renderNewCartItem = (product) => {
+export const renderNewCartItem = (product, quantity = 1) => {
   const priceString =
     product.onSale || product.suggestSale
       ? /* HTML */ `<span class="line-through text-gray-400"
@@ -49,7 +49,7 @@ export const renderNewCartItem = (product) => {
           </button>
           <span
             class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums"
-            >1</span
+            >${quantity}</span
           >
           <button
             class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
