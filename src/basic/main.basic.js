@@ -32,7 +32,12 @@ import { getStockInfoMessage } from "./entity/stock";
 
 let lastSel = null;
 let productSelector = ProductSelector();
-let addBtn = AddButton();
+
+let addBtn = AddButton({
+  onClick: ({ itemToAdd }) => handleAddToCart({ itemToAdd }),
+  getItemToAdd: () =>
+    prodList.find((item) => item.id === productSelector.value),
+});
 let stockInfo = StockInfoText();
 let cartItemBox = CartItemBox();
 
@@ -290,45 +295,31 @@ const doUpdatePricesInCart = () => {
 };
 
 main();
-addBtn.addEventListener("click", () => {
-  const selItem = productSelector.value;
-  let hasItem = false;
-  for (let idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].id === selItem) {
-      hasItem = true;
-      break;
-    }
-  }
-  if (!selItem || !hasItem) {
+
+const handleAddToCart = ({ itemToAdd }) => {
+  if (!itemToAdd || itemToAdd.quantity === 0) {
     return;
   }
-  let itemToAdd = null;
-  for (let j = 0; j < prodList.length; j++) {
-    if (prodList[j].id === selItem) {
-      itemToAdd = prodList[j];
-      break;
-    }
-  }
-  if (itemToAdd && itemToAdd.quantity > 0) {
-    const item = document.getElementById(itemToAdd["id"]);
-    if (item) {
-      const qtyElem = item.querySelector(".quantity-number");
-      const newQty = parseInt(qtyElem["textContent"]) + 1;
-      if (newQty <= itemToAdd.quantity + parseInt(qtyElem.textContent)) {
-        qtyElem.textContent = newQty;
-        itemToAdd["quantity"]--;
-      } else {
-        alert("재고가 부족합니다.");
-      }
+
+  const item = document.getElementById(itemToAdd["id"]);
+  if (item) {
+    const qtyElem = item.querySelector(".quantity-number");
+    const newQty = parseInt(qtyElem["textContent"]) + 1;
+    if (newQty <= itemToAdd.quantity + parseInt(qtyElem.textContent)) {
+      qtyElem.textContent = newQty;
+      itemToAdd["quantity"]--;
     } else {
-      const cartItem = CartItem(itemToAdd);
-      cartItemBox.appendChild(cartItem);
-      itemToAdd.quantity--;
+      alert("재고가 부족합니다.");
     }
-    handleCalculateCartStuff();
-    lastSel = selItem;
+  } else {
+    const cartItem = CartItem(itemToAdd);
+    cartItemBox.appendChild(cartItem);
+    itemToAdd.quantity--;
   }
-});
+  handleCalculateCartStuff();
+  lastSel = itemToAdd.id;
+};
+
 cartItemBox.addEventListener("click", (event) => {
   const tgt = event.target;
   if (
