@@ -44,10 +44,7 @@ export const updateCartUI = (cartData) => {
   // 화요일 할인 표시 업데이트
   const tuesdaySpecial = document.getElementById("tuesday-special");
   if (tuesdaySpecial) {
-    if (totals.isTuesday && totals.totalAmount > 0) {
-      tuesdaySpecial.classList.remove("hidden");
-    } else {
-      tuesdaySpecial.classList.add("hidden");
-    }
+    const shouldShow = totals.isTuesday && totals.totalAmount > 0;
+    tuesdaySpecial.classList.toggle("hidden", !shouldShow);
   }
 };

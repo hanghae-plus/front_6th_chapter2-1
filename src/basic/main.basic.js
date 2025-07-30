@@ -15,7 +15,7 @@ import {
   initializeTimers,
 } from "./services";
 
-function main() {
+const main = () => {
   // HTML 렌더링으로 DOM 생성
   const root = document.getElementById("app");
   root.innerHTML = renderMainLayout() + renderManualOverlay();
@@ -29,6 +29,6 @@ function main() {
   initManualOverlayEvent();
   initAddButtonEvent();
   initCartDOMEvent();
-}
+};
 
 main();

@@ -60,9 +60,17 @@ export const calculateProductCombinationBonus = (items) => {
 
   // 상품 조합 보너스 포인트 계산
   items.forEach((item) => {
-    if (item.id === PRODUCT_IDS.p1) hasKeyboard = true;
-    else if (item.id === PRODUCT_IDS.p2) hasMouse = true;
-    else if (item.id === PRODUCT_IDS.p3) hasMonitorArm = true;
+    switch (item.id) {
+      case PRODUCT_IDS.p1:
+        hasKeyboard = true;
+        break;
+      case PRODUCT_IDS.p2:
+        hasMouse = true;
+        break;
+      case PRODUCT_IDS.p3:
+        hasMonitorArm = true;
+        break;
+    }
   });
 
   // 키보드+마우스 세트 보너스 포인트 체크
