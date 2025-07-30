@@ -1,4 +1,4 @@
-import { calculateBasePoint } from './features/point/service';
+import { calculateBasePoint, getBulkBonusPoint, getSetBonusPoint } from './features/point/service';
 import { renderProductSelectOptions } from './features/product/render';
 import { isTuesday } from './utils/date';
 
@@ -502,10 +502,8 @@ const doRenderBonusPoints = function () {
   const hasMonitorArm = cartProductEls.some((el) => el.id === productIds.monitorArm);
 
   const basePoints = calculateBasePoint(totalAmount);
-  // 최종포인트
+  const pointsDetailText = [];
   let finalPoints = 0;
-  // 포인트 상세 정보
-  const pointsDetail = [];
 
   // 장바구니에 상품이 없으면 loyalty-points 요소 숨김
   if (cartProductEls.length === 0) {
@@ -516,39 +514,31 @@ const doRenderBonusPoints = function () {
   // 기본 포인트가 0보다 크면 기본 포인트 문구 추가, 최종 포인트 업데이트
   if (basePoints > 0) {
     finalPoints = basePoints;
-    pointsDetail.push('기본: ' + basePoints + 'p');
+    pointsDetailText.push('기본: ' + basePoints + 'p');
   }
 
   // 기본 포인트가 0보다 크고 화요일인 경우 문구 추가, 최종 포인트 2배로 업데이트
   if (isTuesday() && basePoints > 0) {
     finalPoints = basePoints * 2;
-    pointsDetail.push('화요일 2배');
+    pointsDetailText.push('화요일 2배');
   }
 
-  // 선택 상품에 따라 포인트 문구 추가, 최종포인트 업데이트
-  if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push('키보드+마우스 세트 +50p');
-  }
+  const setBonusPoint = getSetBonusPoint({
+    hasKeyboard,
+    hasMouse,
+    hasMonitorArm,
+  });
 
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('풀세트 구매 +100p');
-  }
+  setBonusPoint.forEach(({ label, point }) => {
+    finalPoints += point;
+    pointsDetailText.push(label);
+  });
 
-  if (itemCount >= 30) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('대량구매(30개+) +100p');
-  } else {
-    if (itemCount >= 20) {
-      finalPoints = finalPoints + 50;
-      pointsDetail.push('대량구매(20개+) +50p');
-    } else {
-      if (itemCount >= 10) {
-        finalPoints = finalPoints + 20;
-        pointsDetail.push('대량구매(10개+) +20p');
-      }
-    }
+  const bulkBonusPoint = getBulkBonusPoint(itemCount);
+
+  if (bulkBonusPoint) {
+    finalPoints += bulkBonusPoint.point;
+    pointsDetailText.push(bulkBonusPoint.label);
   }
 
   // 포인트 문구 표시 UI
@@ -561,7 +551,7 @@ const doRenderBonusPoints = function () {
         finalPoints +
         'p</span></div>' +
         '<div class="text-2xs opacity-70 mt-1">' +
-        pointsDetail.join(', ') +
+        pointsDetailText.join(', ') +
         '</div>';
       pointsTag.style.display = 'block';
     } else {
