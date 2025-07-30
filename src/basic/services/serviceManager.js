@@ -28,15 +28,11 @@ export class ServiceManager {
    * 모든 Service를 초기화합니다.
    */
   async initializeAll() {
-    const productService = this.get("product");
-    const cartService = this.get("cart");
-
-    if (productService && productService.initializeUI) {
-      await productService.initializeUI();
-    }
-
-    if (cartService && cartService.initializeUI) {
-      await cartService.initializeUI();
+    // 등록된 모든 Service를 순회하며 초기화
+    for (const [, service] of this.services) {
+      if (service && typeof service.initializeUI === "function") {
+        await service?.initializeUI?.();
+      }
     }
   }
 
