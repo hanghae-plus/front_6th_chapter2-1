@@ -16,8 +16,8 @@ export function calculateIndividualDiscounts(items: CartItem[]) {
     const discountRate = DISCOUNT_RATES.PRODUCT[discountKey as keyof typeof DISCOUNT_RATES.PRODUCT];
     if (!discountRate) return;
 
-    const itemOriginalTotal = item.originalPrice * item.quantity;
-    const itemDiscountAmount = itemOriginalTotal * discountRate;
+    const itemCurrentTotal = item.price * item.quantity;
+    const itemDiscountAmount = itemCurrentTotal * discountRate;
     const discountPercentage = Math.round(discountRate * 100);
 
     totalDiscountAmount += itemDiscountAmount;

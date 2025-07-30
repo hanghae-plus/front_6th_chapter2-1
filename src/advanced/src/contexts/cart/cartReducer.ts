@@ -1,48 +1,31 @@
 import type { Cart, CartAction, CartItem } from '../../types/cart';
 import { calculateCartTotals } from '../../utils/cartUtils';
+import { getProducts } from '../../services/saleService';
 
-const productMap: Record<string, Omit<CartItem, 'quantity'>> = {
-  p1: {
-    id: 'p1',
-    name: '버그 없애는 키보드',
-    originalPrice: 10000,
-    price: 10000,
-    saleIcon: '',
-  },
-  p2: {
-    id: 'p2',
-    name: '생산성 폭발 마우스',
-    originalPrice: 20000,
-    price: 20000,
-    saleIcon: '',
-  },
-  p3: {
-    id: 'p3',
-    name: '거북목 탈출 모니터암',
-    originalPrice: 30000,
-    price: 30000,
-    saleIcon: '',
-  },
-  p4: {
-    id: 'p4',
-    name: '에러 방지 노트북 파우치',
-    originalPrice: 15000,
-    price: 15000,
-    saleIcon: '',
-  },
-  p5: {
-    id: 'p5',
-    name: '코딩할 때 듣는 Lo-Fi 스피커',
-    originalPrice: 25000,
-    price: 25000,
-    saleIcon: '',
-  },
-};
+function getProductMap(): Record<string, Omit<CartItem, 'quantity'>> {
+  const products = getProducts();
+  const productMap: Record<string, Omit<CartItem, 'quantity'>> = {};
+  
+  products.forEach(product => {
+    productMap[product.id] = {
+      id: product.id,
+      name: product.name,
+      originalPrice: product.originalPrice,
+      price: product.price,
+      saleIcon: product.saleIcon,
+      isLightningSale: product.isLightningSale,
+      isSuggestSale: product.isSuggestSale,
+    };
+  });
+  
+  return productMap;
+}
 
 export const initialCartState: Cart = {
   items: [],
   totalAmount: 0,
   originalAmount: 0,
+  realOriginalAmount: 0,
   discountAmount: 0,
   itemCount: 0,
   appliedDiscounts: [],
@@ -55,6 +38,7 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
   switch (action.type) {
     case 'ADD_ITEM': {
       const { productId, quantity } = action.payload;
+      const productMap = getProductMap();
       const product = productMap[productId];
 
       const existingItem = state.items.find((item) => item.id === productId);
@@ -96,6 +80,31 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
     case 'REMOVE_ITEM': {
       const { productId } = action.payload;
       const updatedItems = state.items.filter((item) => item.id !== productId);
+      return {
+        ...state,
+        items: updatedItems,
+        ...calculateCartTotals(updatedItems),
+      };
+    }
+
+    case 'UPDATE_PRICES': {
+      const productMap = getProductMap();
+      
+      const updatedItems = state.items.map((item) => {
+        const updatedProduct = productMap[item.id];
+        if (updatedProduct) {
+          return {
+            ...item,
+            price: updatedProduct.price,
+            originalPrice: updatedProduct.originalPrice,
+            saleIcon: updatedProduct.saleIcon,
+            isLightningSale: updatedProduct.isLightningSale,
+            isSuggestSale: updatedProduct.isSuggestSale,
+          };
+        }
+        return item;
+      });
+
       return {
         ...state,
         items: updatedItems,

@@ -9,21 +9,27 @@ import { calculateLoyaltyPoints } from './pointUtils';
 
 // 기본 금액 계산
 function calculateBasicAmounts(items: CartItem[]) {
+  // Subtotal: 현재 가격 (번개세일 포함) × 수량
   const originalAmount = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  // 실제 원가: 할인율 계산용
+  const realOriginalAmount = items.reduce(
     (sum, item) => sum + item.originalPrice * item.quantity,
     0
   );
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   
-  return { originalAmount, itemCount };
+  return { originalAmount, realOriginalAmount, itemCount };
 }
 
 // 메인 계산 함수
 export function calculateCartTotals(
   items: CartItem[]
-): Pick<Cart, 'totalAmount' | 'originalAmount' | 'discountAmount' | 'itemCount' | 'appliedDiscounts' | 'loyaltyPoints' | 'pointsBreakdown'> {
+): Pick<Cart, 'totalAmount' | 'originalAmount' | 'realOriginalAmount' | 'discountAmount' | 'itemCount' | 'appliedDiscounts' | 'loyaltyPoints' | 'pointsBreakdown'> {
   // 기본 금액 계산
-  const { originalAmount: cartOriginalAmount, itemCount: cartItemCount } = calculateBasicAmounts(items);
+  const { originalAmount: cartOriginalAmount, realOriginalAmount: cartRealOriginalAmount, itemCount: cartItemCount } = calculateBasicAmounts(items);
 
   // 할인 옵션들 계산
   const individualDiscountResult = calculateIndividualDiscounts(items);
@@ -51,6 +57,7 @@ export function calculateCartTotals(
   return {
     totalAmount: Math.max(0, finalTotalAmount),
     originalAmount: cartOriginalAmount,
+    realOriginalAmount: cartRealOriginalAmount,
     discountAmount: finalDiscountAmount,
     itemCount: cartItemCount,
     appliedDiscounts: finalAppliedDiscounts,
