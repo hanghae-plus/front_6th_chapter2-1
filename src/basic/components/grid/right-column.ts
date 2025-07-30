@@ -19,10 +19,10 @@ export const RightColumn = () => {
       <div id="${SUMMARY_DETAILS_ID}" class="space-y-3"></div>
       <div class="mt-auto">
         <div id="${DISCOUNT_INFO_ID}" class="mb-4"></div>
-        <div id="${CART_TOTAL_ID}" class="pt-5 border-t border-white/10">
+        <div class="pt-5 border-t border-white/10">
           <div class="flex justify-between items-baseline">
             <span class="text-sm uppercase tracking-wider">Total</span>
-            <div class="text-2xl tracking-tight">₩0</div>
+            <div id="${CART_TOTAL_ID}" class="text-2xl tracking-tight">₩0</div>
           </div>
           <div
             id="${LOYALTY_POINTS_ID}"

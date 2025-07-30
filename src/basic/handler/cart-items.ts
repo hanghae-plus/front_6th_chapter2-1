@@ -1,4 +1,4 @@
-import { handleCalculateCartStuff, updateProductSelect } from '../main.basic';
+import { updateCartInfo, updateProductSelect } from '../main.basic';
 import { addCartQuantity, removeCart } from '../model/cart';
 import { findProduct } from '../model/products';
 
@@ -52,7 +52,7 @@ function handleQuantityChange(e: MouseEvent) {
       addCartQuantity({ id: productId, quantity: +change });
     }
 
-    handleCalculateCartStuff();
+    updateCartInfo();
     updateProductSelect();
   }
 }
@@ -87,7 +87,7 @@ function handleRemoveCartItem(e: MouseEvent) {
 
     removeCart(productId);
     cartDiv.remove();
-    handleCalculateCartStuff();
+    updateCartInfo();
     updateProductSelect();
   }
 }

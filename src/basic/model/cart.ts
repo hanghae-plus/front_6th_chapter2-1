@@ -1,6 +1,9 @@
-import { findProduct, addProductQuantity } from './products';
+import { isTuesday } from '../utils/day';
+import { calculateRate } from '../utils/price';
+import { CART_ITEMS_ID, selectById } from '../utils/selector';
+import { findProduct, addProductQuantity, isBulk } from './products';
 
-interface Cart {
+export interface Cart {
   id: string;
   quantity: number;
 }
@@ -106,6 +109,69 @@ export function clearCart() {
   carts = [];
 }
 
-export function getCartTotalCount() {
+export function isCartTotalBulk(totalCount: number) {
+  const TOTAL_BULK_SALE_THRESHOLD = 30;
+  return totalCount >= TOTAL_BULK_SALE_THRESHOLD;
+}
+
+export function getCartItemQuantityFromDom() {
+  const cartItems = Array.from(selectById(CART_ITEMS_ID).children);
+  return cartItems.map((cartItem) => {
+    const quantitySpane = cartItem.querySelector('.quantity-number');
+
+    if (!(quantitySpane instanceof HTMLSpanElement)) {
+      throw new Error('quantitySpan is not found');
+    }
+
+    return { id: cartItem.id, quantity: +(quantitySpane.textContent ?? '') };
+  });
+}
+
+export function getCartTotalCount(carts: Cart[]) {
   return carts.reduce((acc, cart) => acc + cart.quantity, 0);
+}
+
+export function getCartTotalPrice(carts: Cart[]) {
+  return carts.reduce(
+    (acc, cart) => acc + cart.quantity * findProduct(cart.id).price,
+    0
+  );
+}
+
+export function getCartFinalPrice({
+  carts,
+  cartTotalCount,
+}: {
+  carts: Cart[];
+  cartTotalCount: number;
+}): number {
+  const { totalPrice, bulkSaledTotalPrice } = carts.reduce(
+    (acc, { quantity, id }) => {
+      const { bulkSaleRate, price } = findProduct(id);
+      const discountRate = isBulk({ quantity }) ? bulkSaleRate : 0;
+      const totalPrice = quantity * price;
+      acc.totalPrice += totalPrice;
+      acc.bulkSaledTotalPrice += calculateRate(totalPrice, discountRate);
+      return acc;
+    },
+    {
+      totalPrice: 0,
+      bulkSaledTotalPrice: 0,
+    }
+  );
+
+  const TOTAL_BULK_SALE_RATE = 0.25;
+  const currentBulkSaleRate = isCartTotalBulk(cartTotalCount)
+    ? TOTAL_BULK_SALE_RATE
+    : 0;
+
+  const minTotalPrice = Math.min(
+    calculateRate(totalPrice, currentBulkSaleRate),
+    bulkSaledTotalPrice
+  );
+
+  const TUESDAY_SALE_RATE = 0.1;
+  const tuesdaySaleRate = isTuesday() ? TUESDAY_SALE_RATE : 0;
+
+  return calculateRate(minTotalPrice, tuesdaySaleRate);
 }

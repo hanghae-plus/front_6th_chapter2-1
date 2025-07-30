@@ -7,6 +7,8 @@ import {
   saleRate,
 } from './sale-event';
 
+export const BULK_THRESHOLD = 10;
+
 export interface Product {
   id: string;
   name: string;
@@ -24,7 +26,7 @@ let products: Product[] = [
     price: 10000,
     originalPrice: 10000,
     quantity: 50,
-    bulkSaleRate: 0.25,
+    bulkSaleRate: 0.1,
     saleEvent: SALE_EVENT.NONE,
   },
   {
@@ -132,7 +134,6 @@ export function isLowStock(product: Pick<Product, 'quantity'>): boolean {
 }
 
 export function isBulk(product: Pick<Product, 'quantity'>): boolean {
-  const BULK_THRESHOLD = 10;
   return product.quantity >= BULK_THRESHOLD;
 }
 

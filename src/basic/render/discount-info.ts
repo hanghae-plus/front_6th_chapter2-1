@@ -3,17 +3,17 @@ import { DISCOUNT_INFO_ID, selectById } from '../utils/selector';
 
 interface Props {
   discountRate: number;
-  originalTotal: number;
+  totalPrice: number;
   finalTotalPrice: number;
 }
 
 export function renderDiscountInfo({
   discountRate,
-  originalTotal,
+  totalPrice,
   finalTotalPrice,
 }: Props) {
   const discountInfo = selectById(DISCOUNT_INFO_ID);
-  const savedAmount = originalTotal - finalTotalPrice;
+  const savedAmount = totalPrice - finalTotalPrice;
 
   if (discountRate > 0) {
     discountInfo.innerHTML = html`

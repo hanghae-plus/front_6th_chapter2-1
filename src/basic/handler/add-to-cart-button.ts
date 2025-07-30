@@ -1,4 +1,4 @@
-import { handleCalculateCartStuff, updateProductSelect } from '../main.basic';
+import { updateCartInfo, updateProductSelect } from '../main.basic';
 import { addToCart } from '../model/cart';
 import { getSelectedProductId } from '../model/product-select';
 import { findProduct, isSoldOut } from '../model/products';
@@ -23,14 +23,14 @@ export function handleAddItemToCart() {
     addToCart({ id: product.id, quantity: changeQuantity });
     const nextQuantity = getNextQuantity({ cartItem, changeQuantity });
     renderUpdateCartQuantity(product.id, nextQuantity);
-    handleCalculateCartStuff();
+    updateCartInfo();
     updateProductSelect();
     return;
   }
 
   addToCart({ id: product.id, quantity: changeQuantity });
   renderAddCartItem(product.id);
-  handleCalculateCartStuff();
+  updateCartInfo();
   updateProductSelect();
 }
 

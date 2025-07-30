@@ -31,3 +31,8 @@ export function renderUpdateCartQuantity(id: string, quantity: number) {
 
   quantitySpan.textContent = quantity.toString();
 }
+
+export function renderCartTotal(totalPrice: number) {
+  const cartTotal = selectById('cart-total');
+  cartTotal.textContent = `₩${Math.round(totalPrice).toLocaleString()}`;
+}
