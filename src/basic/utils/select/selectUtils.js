@@ -7,6 +7,9 @@ const STOCK_CONFIG = {
 };
 
 export const updateSelectOptions = (sel, prodList) => {
+  // 현재 선택된 값 저장
+  const currentValue = sel.value;
+
   sel.innerHTML = "";
 
   const totalStock = calculateTotalStock(prodList);
@@ -22,6 +25,11 @@ export const updateSelectOptions = (sel, prodList) => {
 
     sel.appendChild(option);
   });
+
+  // 이전에 선택된 값이 유효한 옵션인지 확인하고 복원
+  if (currentValue && prodList.some((item) => item.id === currentValue)) {
+    sel.value = currentValue;
+  }
 
   // 재고 부족 시 테두리 색상 변경
   sel.style.borderColor =

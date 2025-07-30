@@ -20,11 +20,18 @@ export const createStore = (initialState, actions = {}) => {
   const boundActions = {};
   Object.keys(actions).forEach((actionName) => {
     boundActions[actionName] = (...args) => {
-      const newState = actions[actionName](state, ...args);
-      store.setState(newState);
+      const result = actions[actionName](state, ...args);
+
+      // 결과가 객체이고 state 속성이 있으면 상태 변경으로 간주
+      if (result && typeof result === "object" && "state" in result) {
+        store.setState(result.state);
+        return result.data; // 데이터 반환
+      } else {
+        // 조회 함수는 결과만 반환
+        return result;
+      }
     };
   });
-
   return {
     ...store,
     ...boundActions,
