@@ -18,8 +18,6 @@ import {
 } from './elements';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/getCartDetails';
 
-let lastSelectedItem = null;
-
 let stockInfo;
 
 let bonusPoints = 0;
@@ -175,11 +173,10 @@ function main() {
   /* 추천 세일 */
   setTimeout(() => {
     setInterval(() => {
-      /** @todo lastSelectedItem <- 마지막 장바구니에 담긴 아이템인데 네이밍 애매. 다시 변경할 것. cart 도메인 함수 내부에서 관리 */
-      if (lastSelectedItem) {
+      if (cartManager.getLastAddedItem()) {
         const suggest = productManager
           .getProducts()
-          .find((product) => product.id !== lastSelectedItem && product.quantity > OUT_OF_STOCK);
+          .find((product) => product.id !== cartManager.getLastAddedItem() && product.quantity > OUT_OF_STOCK);
 
         if (suggest) {
           alert(`💝  ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
@@ -616,8 +613,6 @@ addCartButton.addEventListener('click', function () {
       cartDisplay.appendChild(newItem);
     }
     calculateCart();
-    // 장바구니에 마지막으로 담은 아이템
-    lastSelectedItem = selectedItem;
   }
 });
 
