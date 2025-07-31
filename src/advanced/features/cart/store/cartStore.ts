@@ -54,6 +54,19 @@ export const useCartStore = () => {
     );
   };
 
+  const updateItemProperties = (
+    itemId: string,
+    properties: Partial<
+      Pick<CartItem, 'val' | 'originalVal' | 'onSale' | 'suggestSale'>
+    >,
+  ) => {
+    setCartItems(prev =>
+      prev.map(item =>
+        item.id === itemId ? { ...item, ...properties } : item,
+      ),
+    );
+  };
+
   // 장바구니 비우기
   const clearCart = () => {
     setCartItems([]);
@@ -72,6 +85,7 @@ export const useCartStore = () => {
     addItem,
     removeItem,
     updateQuantity,
+    updateItemProperties,
     updateTotal: setTotal,
     updateDiscountRate: setDiscountRate,
     clearCart,

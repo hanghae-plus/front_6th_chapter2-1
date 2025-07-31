@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Header } from './shared/components/Header.tsx';
 import HelpModal from './shared/components/HelpModal.tsx';
 import ProductSelector from './features/product/components/ProductSelector.tsx';
@@ -12,21 +12,34 @@ import {
   quantityManagers,
   stockManagers,
 } from './features/cart/utils/stockUtils.ts';
-import { calculatePoints } from './features/point/utils/pointsUtils.ts';
+import { calculatePoints } from './features/point/utils/pointsCalculator.ts';
 import {
   generateStockStatusMessage,
   getTotalStock,
   isLowTotalStock,
 } from './features/product/utils/productUtils.ts';
+import {
+  setupFlashSaleTimer,
+  setupRecommendationTimer,
+} from './features/cart/services/promotionService.ts';
 
 function App() {
   const [products, setProducts] = useState(initialProducts);
   const [selectedProductId, setSelectedProductId] = useState(
     initialProducts[0]?.id || '',
   );
+  const [lastSelectedProduct, setLastSelectedProduct] = useState<string | null>(
+    null,
+  );
 
-  const { cartItems, itemCount, addItem, removeItem, updateQuantity } =
-    useCartStore();
+  const {
+    cartItems,
+    itemCount,
+    addItem,
+    removeItem,
+    updateQuantity,
+    updateItemProperties,
+  } = useCartStore();
 
   const totalAmount = cartItems.reduce(
     (sum, item) => sum + item.val * item.quantity,
@@ -38,7 +51,6 @@ function App() {
     [cartItems, totalAmount],
   );
 
-  // 재고 상태 계산
   const stockStatus = useMemo(() => {
     const message = generateStockStatusMessage(products, 5);
     const isLowStock = isLowTotalStock(products, 50);
@@ -50,6 +62,48 @@ function App() {
       totalStock,
     };
   }, [products]);
+
+  useEffect(() => {
+    const promotionCallbacks = {
+      onFlashSale: (_product: any) => {
+        setProducts(prevProducts => [...prevProducts]);
+      },
+      onSuggestSale: (_product: any) => {
+        setProducts(prevProducts => [...prevProducts]);
+      },
+      updateProductList: () => {
+        setProducts(prevProducts => [...prevProducts]);
+      },
+    };
+
+    setupFlashSaleTimer(() => products, promotionCallbacks);
+
+    setupRecommendationTimer(
+      () => products,
+      () => lastSelectedProduct,
+      () => itemCount,
+      promotionCallbacks,
+    );
+  }, []);
+
+  useEffect(() => {
+    cartItems.forEach(cartItem => {
+      const updatedProduct = products.find(p => p.id === cartItem.id);
+      if (
+        updatedProduct &&
+        (updatedProduct.onSale !== cartItem.onSale ||
+          updatedProduct.suggestSale !== cartItem.suggestSale ||
+          updatedProduct.val !== cartItem.val)
+      ) {
+        updateItemProperties(cartItem.id, {
+          val: updatedProduct.val,
+          originalVal: updatedProduct.originalVal,
+          onSale: updatedProduct.onSale,
+          suggestSale: updatedProduct.suggestSale,
+        });
+      }
+    });
+  }, [products, cartItems, updateItemProperties]);
 
   const handleProductSelection = (productId: string) => {
     setSelectedProductId(productId);
@@ -89,6 +143,8 @@ function App() {
         p.id === selectedProductId ? stockManagers.decreaseStock(p, 1) : p,
       ),
     );
+
+    setLastSelectedProduct(selectedProductId);
   };
 
   const handleQuantityChange = (id: string, change: number) => {
