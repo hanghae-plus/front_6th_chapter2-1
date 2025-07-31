@@ -4,30 +4,8 @@ import {
   LeftColumn,
   RightColumn,
 } from './components/layout';
-import {
-  ManualToggle,
-  ManualOverlay,
-  ManualColumn,
-  ManualModal,
-} from './components/manual';
-import {
-  ProductSelector,
-  generateProductOptions,
-  CartContainer,
-  CartItem,
-  OrderSummary,
-} from './components/ui';
-import {
-  PRODUCT_KEYBOARD,
-  PRODUCT_MOUSE,
-  PRODUCT_MONITOR_ARM,
-  PRODUCT_LAPTOP_POUCH,
-  PRODUCT_SPEAKER,
-  QUANTITY_THRESHOLDS,
-  POINT_RATES_BULK_BONUS,
-  PRODUCT_DEFAULT_DISCOUNT_RATES,
-  TIMER_INTERVAL,
-} from './constants';
+import { ManualToggle, ManualOverlay, ManualColumn } from './components/manual';
+import { ProductSelector, CartContainer, OrderSummary } from './components/ui';
 import { initProductList } from './data';
 import {
   attachCartEventListener,
@@ -36,12 +14,7 @@ import {
 } from './eventListeners';
 import { lightningTimer, recommendTimer } from './timer';
 import { createCartHandlers, createManualHandlers } from './useCartHandlers';
-import { initializeCartState, getGlobalCartState } from './useCartState';
-import {
-  isTuesday,
-  getProductDiscountRate,
-  getBonusPerBulkInfo,
-} from './utils';
+import { initializeCartState } from './useCartState';
 
 // DOM 요소들과 상품 데이터 (상태는 useCartState에서 관리)
 let productList;
@@ -151,7 +124,6 @@ function main() {
 
 // 애플리케이션 초기화
 main();
-
 function findProductById(productId) {
   return productList.find((product) => product.id === productId);
 }
