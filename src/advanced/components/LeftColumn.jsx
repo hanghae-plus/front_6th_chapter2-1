@@ -16,12 +16,13 @@ const getStockInfoMessage = (productList) => {
   }, "");
 };
 
-export const LeftColumn = ({ productList }) => {
+export const LeftColumn = ({ isLowStock, productList }) => {
   const stockInfoMessage = getStockInfoMessage(productList);
 
   return (
     <div className="bg-white border border-gray-200 p-8 overflow-y-auto">
       <SelectorContainer
+        isLowStock={isLowStock}
         bottom={<StockInfoText>{stockInfoMessage}</StockInfoText>}
       />
       <CartItemBox />

@@ -7,6 +7,8 @@ import { useState } from "react";
 
 function App() {
   const [productList, setProductList] = useState(prodList);
+  const isLowStock =
+    productList.reduce((acc, cur) => acc + cur.quantity, 0) < 50;
 
   // Cart에 상품이 담길 때 쓰일 예정
   setProductList;
@@ -15,7 +17,7 @@ function App() {
     <>
       <Header />
       <GridContainer>
-        <LeftColumn productList={productList} />
+        <LeftColumn isLowStock={isLowStock} productList={productList} />
         {/* <RightColumn productList={productList} /> */}
       </GridContainer>
       <Manual />
