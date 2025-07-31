@@ -1,7 +1,10 @@
 import { ReactElement } from 'react';
 
-import useDiscount from '@/advanced/hooks/useDiscount';
+import ProductPrice from '@/advanced/components/cart/ProductPrice';
+import { useProductStore } from '@/advanced/store';
 import type { CartItem } from '@/advanced/types/cart.type';
+import { Product } from '@/advanced/types/product.type';
+import { getProductStatusIcon } from '@/advanced/utils/cart.util';
 import formatPrice from '@/advanced/utils/format.util';
 
 interface Props {
@@ -9,13 +12,11 @@ interface Props {
 }
 
 export default function CartListItem({ item }: Props): ReactElement {
-  const { discountedProducts } = useDiscount();
+  const { products } = useProductStore();
 
   const { id, name, price, quantity } = item;
 
-  const discountedStyle = discountedProducts.some(product => product.id === id)
-    ? 'font-bold'
-    : 'font-normal';
+  const product = products.find(product => product.id === id) as Product;
 
   return (
     <div
@@ -26,7 +27,10 @@ export default function CartListItem({ item }: Props): ReactElement {
         <div className="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
       </div>
       <div>
-        <h3 className="text-base font-normal mb-1 tracking-tight">{name}</h3>
+        <h3 className="text-base font-normal mb-1 tracking-tight">
+          {getProductStatusIcon(product)}
+          {name}
+        </h3>
         <p className="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
         <p className="text-xs text-black mb-3">{formatPrice(price)}</p>
         <div className="flex items-center gap-4">
@@ -42,9 +46,7 @@ export default function CartListItem({ item }: Props): ReactElement {
         </div>
       </div>
       <div className="text-right">
-        <div className={`text-lg mb-2 tracking-tight tabular-nums ${discountedStyle}`}>
-          {formatPrice(price)}
-        </div>
+        <ProductPrice product={product} />
         <a
           className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
           data-product-id={id}
