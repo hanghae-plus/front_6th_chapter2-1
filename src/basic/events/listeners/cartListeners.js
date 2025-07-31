@@ -295,7 +295,7 @@ export class CartEventListeners {
     // 순수 비즈니스 로직: 할인 계산
     const discountResult = this.discountService.applyAllDiscounts(cartItems, this.productService.getProducts());
 
-    // 이벤트 발송 (DOM 조작 없음)
+    // 이벤트 발송
     this.uiEventBus.emit(CART_SUMMARY_CALCULATED, {
       cartItems,
       discountResult,
@@ -315,7 +315,7 @@ export class CartEventListeners {
     const targetProduct = this.cartService.validateSelectedProduct(selectedProductId, this.productService.getProducts());
     if (!targetProduct) return;
 
-    // 2단계: 상태 변경 (DOM 조작 없음)
+    // 2단계: 상태 변경
     const success = this.cartService.addProductToCart(targetProduct, 1);
 
     if (!success) return;
