@@ -1,4 +1,9 @@
+// ============================================
+// 1. IMPORTS & CONSTANTS
+// ============================================
+
 // 상수 import
+import { calculateCartState, updateAppState } from './businessLogic.js';
 import {
   PRODUCT_IDS,
   DISCOUNT_RATES,
@@ -8,7 +13,14 @@ import {
   TIMER_CONFIG,
 } from './constants.js';
 // 유틸리티 함수 import
-import { isTuesday, formatPrice, findProductById } from './utils.js';
+import { updateAllUI, updateAdditionalCalculations, setAppState } from './uiUpdates.js';
+import { findProductById } from './utils.js';
+// 비즈니스 로직 import
+// UI 업데이트 import
+
+// ============================================
+// 2. STATE MANAGEMENT
+// ============================================
 
 // 상태 관리 객체 (리액트 변환을 위한 준비)
 const AppState = {
@@ -80,6 +92,10 @@ const AppState = {
   },
 };
 
+// ============================================
+// 3. INITIALIZATION
+// ============================================
+
 // 초기화 함수들
 const initializeApp = () => {
   AppState.init();
@@ -87,6 +103,10 @@ const initializeApp = () => {
   // AppState만 사용하도록 전역 변수 제거
   // window 객체 사용하지 않음
 };
+
+// ============================================
+// 4. UI COMPONENTS
+// ============================================
 
 const Header = (props = {}) => {
   const { itemCount = 0 } = props;
@@ -250,6 +270,10 @@ const ManualModal = () => {
   `;
 };
 
+// ============================================
+// 5. UI RENDERING
+// ============================================
+
 const createUI = () => `
   ${Header({ itemCount: AppState.cart.itemCount })}
   <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
@@ -274,7 +298,10 @@ const renderApp = () => {
   AppState.ui.stockInfo = document.getElementById('stock-status');
 };
 
-// 이벤트 핸들러 함수들
+// ============================================
+// 6. EVENT HANDLERS
+// ============================================
+// 6.1 Modal Event Handlers
 
 const setupModalEventListeners = () => {
   const manualToggle = document.getElementById('manual-toggle');
@@ -323,7 +350,11 @@ const updateModalVisibility = () => {
   }
 };
 
-// 타이머 관련 함수들
+// ============================================
+// 7. TIMER FUNCTIONS
+// ============================================
+// 7.1 Lightning Sale Timer
+
 const setupLightningSaleTimer = () => {
   const lightningDelay = Math.random() * TIMER_CONFIG.LIGHTNING_SALE_DELAY;
   setTimeout(() => {
@@ -345,6 +376,8 @@ const setupLightningSaleTimer = () => {
     }, TIMER_CONFIG.LIGHTNING_SALE_INTERVAL);
   }, lightningDelay);
 };
+
+// 7.2 Recommendation Timer
 
 const setupRecommendationTimer = () => {
   setTimeout(() => {
@@ -380,25 +413,37 @@ const setupTimers = () => {
   setupRecommendationTimer();
 };
 
+// ============================================
+// 8. MAIN FUNCTION
+// ============================================
+
 // 메인 함수 (리팩토링된 버전)
 const main = () => {
   // 1. 앱 초기화
   initializeApp();
 
-  // 2. UI 렌더링
+  // 2. UI 모듈에 AppState 설정
+  setAppState(AppState);
+
+  // 3. UI 렌더링
   renderApp();
 
-  // 3. 이벤트 리스너 설정
+  // 4. 이벤트 리스너 설정
   setupCartEventListeners();
   setupModalEventListeners();
 
-  // 4. 초기화
+  // 5. 초기화
   handleUpdateSelectOptions();
   handleCalculateCartStuff();
 
-  // 5. 타이머 설정
+  // 6. 타이머 설정
   setupTimers();
 };
+
+// ============================================
+// 9. UI COMPONENT HELPERS
+// ============================================
+// 9.1 Select Options Component
 
 const SelectOptionsComponent = () =>
   AppState.products
@@ -437,420 +482,49 @@ const handleUpdateSelectOptions = () => {
   }
 };
 
+// ============================================
+// 10. UTILITY FUNCTIONS
+// ============================================
+// 10.1 Product Utilities
+
 // 공통 유틸리티 함수들
 const findProductByIdLocal = (productId) => findProductById(AppState.products, productId);
 
-const calculateIndividualDiscount = (productId, quantity) => {
-  if (quantity < QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
-    return 0;
-  }
+// ============================================
+// 11. BUSINESS LOGIC
+// ============================================
+// 11.1 Cart Calculations
 
-  const discountRates = {
-    [PRODUCT_IDS.KEYBOARD]: DISCOUNT_RATES.KEYBOARD,
-    [PRODUCT_IDS.MOUSE]: DISCOUNT_RATES.MOUSE,
-    [PRODUCT_IDS.MONITOR_ARM]: DISCOUNT_RATES.MONITOR_ARM,
-    [PRODUCT_IDS.LAPTOP_POUCH]: DISCOUNT_RATES.LAPTOP_POUCH,
-    [PRODUCT_IDS.SPEAKER]: DISCOUNT_RATES.SPEAKER,
-  };
+// ============================================
+// 12. UI UPDATE FUNCTIONS
+// ============================================
+// 12.1 Display Updates
 
-  return discountRates[productId] || 0;
-};
-
-const calculateBulkDiscount = (itemCount) =>
-  itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE ? DISCOUNT_RATES.BULK_PURCHASE : 0;
-
-const calculateTuesdayDiscount = (totalAmount) =>
-  isTuesday() ? totalAmount * DISCOUNT_RATES.TUESDAY : 0;
-
-const getStockStatusMessage = () =>
-  AppState.products
-    .filter((product) => product.stock < QUANTITY_THRESHOLDS.LOW_STOCK)
-    .map((product) => {
-      if (product.stock > 0) {
-        return `${product.name}: 재고 부족 (${product.stock}개 남음)`;
-      }
-      return `${product.name}: 품절`;
-    })
-    .join('\n');
-
-// 장바구니 계산 관련 함수들
-const calculateCartItems = () => {
-  const cartItems = AppState.cart.items;
-  let subtotal = 0;
-  let itemCount = 0;
-  const itemDiscounts = [];
-
-  cartItems.forEach((cartItem) => {
-    const currentProduct = findProductByIdLocal(cartItem.productId);
-    const { quantity } = cartItem; // Object destructuring 사용
-    const itemTotal = currentProduct.value * quantity;
-
-    itemCount += quantity;
-    subtotal += itemTotal;
-
-    // 개별 할인 계산
-    const discount = calculateIndividualDiscount(currentProduct.id, quantity);
-    if (discount > 0) {
-      const { name } = currentProduct;
-      itemDiscounts.push({
-        name,
-        discount: discount * 100,
-      });
-    }
-  });
-
-  return { subtotal, itemCount, itemDiscounts };
-};
-
-const calculateTotalWithDiscounts = (subtotal, itemCount, itemDiscounts) => {
-  let totalAmount = subtotal;
-  let discountRate = 0;
-
-  // 대량구매 할인 적용
-  const bulkDiscount = calculateBulkDiscount(itemCount);
-  if (bulkDiscount > 0) {
-    totalAmount = subtotal * (1 - bulkDiscount);
-    discountRate = bulkDiscount;
-  } else {
-    // 개별 할인 적용
-    const individualDiscountTotal = itemDiscounts.reduce(
-      (sum, item) => sum + subtotal * (item.discount / 100),
-      0,
-    );
-    totalAmount = subtotal - individualDiscountTotal;
-    discountRate = individualDiscountTotal / subtotal;
-  }
-
-  // 화요일 할인 적용
-  const tuesdayDiscount = calculateTuesdayDiscount(totalAmount);
-  if (tuesdayDiscount > 0) {
-    totalAmount -= tuesdayDiscount;
-    discountRate = 1 - totalAmount / subtotal;
-  }
-
-  return { totalAmount, discountRate, tuesdayDiscount };
-};
-
-// UI 업데이트 함수들
-const updateItemCountDisplay = (itemCount) => {
-  const itemCountElement = document.getElementById('item-count');
-  if (itemCountElement) {
-    const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
-    itemCountElement.textContent = `🛍️ ${itemCount} items in cart`;
-    if (previousCount !== itemCount) {
-      itemCountElement.setAttribute('data-changed', 'true');
-    }
-  }
-};
-
-const updateTotalDisplay = (totalAmount) => {
-  const totalDiv = AppState.ui.totalElement.querySelector('.text-2xl');
-  if (totalDiv) {
-    totalDiv.textContent = formatPrice(totalAmount);
-  }
-};
-
-// 주문 요약 컴포넌트들
-const CartItemSummaryComponent = (cartItem) => {
-  const currentProduct = findProductByIdLocal(cartItem.productId);
-  const quantity = cartItem.quantity; // DOM이 아닌 상태에서 읽기
-  const itemTotal = currentProduct.value * quantity;
-
-  return `
-    <div class="flex justify-between text-xs tracking-wide text-gray-400">
-      <span>${currentProduct.name} x ${quantity}</span>
-      <span>${formatPrice(itemTotal)}</span>
-    </div>
-  `;
-};
-
-const SubtotalComponent = (subtotal) => `
-  <div class="border-t border-white/10 my-3"></div>
-  <div class="flex justify-between text-sm tracking-wide">
-    <span>Subtotal</span>
-    <span>${formatPrice(subtotal)}</span>
-  </div>
-`;
-
-const BulkDiscountComponent = () => `
-  <div class="flex justify-between text-sm tracking-wide text-green-400">
-    <span class="text-xs">🎉 대량구매 할인 (${QUANTITY_THRESHOLDS.BULK_PURCHASE}개 이상)</span>
-    <span class="text-xs">-${DISCOUNT_PERCENTAGES.BULK_PURCHASE}%</span>
-  </div>
-`;
-
-const IndividualDiscountComponent = (item) => `
-  <div class="flex justify-between text-sm tracking-wide text-green-400">
-    <span class="text-xs">${item.name} (${QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑)</span>
-    <span class="text-xs">-${item.discount}%</span>
-  </div>
-`;
-
-const TuesdayDiscountComponent = () => `
-  <div class="flex justify-between text-sm tracking-wide text-purple-400">
-    <span class="text-xs">🌟 화요일 추가 할인</span>
-    <span class="text-xs">-${DISCOUNT_PERCENTAGES.TUESDAY}%</span>
-  </div>
-`;
-
-const ShippingInfoComponent = () => `
-  <div class="flex justify-between text-sm tracking-wide text-gray-400">
-    <span>Shipping</span>
-    <span>Free</span>
-  </div>
-`;
-
-const SummaryDetailsComponent = (cartItems, subtotal, itemCount, itemDiscounts, totalAmount) => {
-  if (subtotal <= 0) return '';
-
-  const cartItemSummaries = cartItems
-    .map((cartItem) => CartItemSummaryComponent(cartItem))
-    .join('');
-
-  const discountComponents =
-    itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE
-      ? BulkDiscountComponent()
-      : itemDiscounts.map((item) => IndividualDiscountComponent(item)).join('');
-
-  const tuesdayDiscount = isTuesday() && totalAmount > 0 ? TuesdayDiscountComponent() : '';
-
-  return `
-    ${cartItemSummaries}
-    ${SubtotalComponent(subtotal)}
-    ${discountComponents}
-    ${tuesdayDiscount}
-    ${ShippingInfoComponent()}
-  `;
-};
-
-const updateSummaryDetails = (cartItems, subtotal, itemCount, itemDiscounts, totalAmount) => {
-  const summaryDetails = document.getElementById('summary-details');
-  if (!summaryDetails) return;
-
-  summaryDetails.innerHTML = SummaryDetailsComponent(
-    cartItems,
-    subtotal,
-    itemCount,
-    itemDiscounts,
-    totalAmount,
-  );
-};
-
-const DiscountInfoComponent = (discountRate, originalTotal, totalAmount) => {
-  if (discountRate <= 0 || totalAmount <= 0) return '';
-
-  const savedAmount = originalTotal - totalAmount;
-  return `
-    <div class="bg-green-500/20 rounded-lg p-3">
-      <div class="flex justify-between items-center mb-1">
-        <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-        <span class="text-sm font-medium text-green-400">${(discountRate * 100).toFixed(1)}%</span>
-      </div>
-      <div class="text-2xs text-gray-300">${formatPrice(savedAmount)} 할인되었습니다</div>
-    </div>
-  `;
-};
-
-const updateDiscountInfo = (discountRate, originalTotal, totalAmount) => {
-  const discountInfoDiv = document.getElementById('discount-info');
-  if (!discountInfoDiv) return;
-
-  discountInfoDiv.innerHTML = DiscountInfoComponent(discountRate, originalTotal, totalAmount);
-};
-
-const TuesdaySpecialBannerComponent = (totalAmount) => {
-  if (!isTuesday() || totalAmount <= 0) return 'hidden';
-  return '';
-};
-
-const updateTuesdaySpecialBanner = (totalAmount) => {
-  const tuesdaySpecial = document.getElementById('tuesday-special');
-  if (!tuesdaySpecial) return;
-
-  const visibilityClass = TuesdaySpecialBannerComponent(totalAmount);
-  if (visibilityClass === 'hidden') {
-    tuesdaySpecial.classList.add('hidden');
-  } else {
-    tuesdaySpecial.classList.remove('hidden');
-  }
-};
-
-const StockInfoComponent = () => {
-  const stockMessage = getStockStatusMessage();
-  return stockMessage;
-};
-
-const updateStockInfo = () => {
-  if (!AppState.ui.stockInfo) return;
-  AppState.ui.stockInfo.textContent = StockInfoComponent();
-};
-
-const updateBasicPoints = (totalAmount) => {
-  const points = Math.floor(totalAmount / POINTS_CONFIG.POINTS_DIVISOR);
-  if (points > 0) {
-    updateLoyaltyPointsDisplay(points, [`기본: ${points}p`]);
-  } else {
-    updateLoyaltyPointsDisplay(0, []);
-  }
-};
+// ============================================
+// 13. MAIN CALCULATION FUNCTION
+// ============================================
 
 // 메인 계산 함수 (리팩토링된 버전)
 const handleCalculateCartStuff = () => {
   const cartItems = AppState.cart.items;
 
-  // 1. 장바구니 아이템 계산
-  const { subtotal, itemCount, itemDiscounts } = calculateCartItems();
+  // 1. 계산 로직
+  const cartState = calculateCartState(cartItems, AppState.products);
 
-  // 2. 할인 적용하여 최종 금액 계산
-  const { totalAmount, discountRate } = calculateTotalWithDiscounts(
-    subtotal,
-    itemCount,
-    itemDiscounts,
-  );
+  // 2. 상태 업데이트
+  updateAppState(cartState, AppState);
 
-  // 3. AppState 업데이트 (전역 변수 제거)
-  AppState.cart.totalAmount = totalAmount;
-  AppState.cart.itemCount = itemCount;
+  // 3. UI 업데이트
+  updateAllUI(cartState, AppState);
 
-  // 4. UI 업데이트
-  updateItemCountDisplay(itemCount);
-  updateTotalDisplay(totalAmount);
-  updateSummaryDetails(cartItems, subtotal, itemCount, itemDiscounts, totalAmount);
-  updateDiscountInfo(discountRate, subtotal, totalAmount);
-  updateTuesdaySpecialBanner(totalAmount);
-  updateStockInfo();
-  updateBasicPoints(totalAmount);
-
-  // 5. 추가 계산 및 업데이트
-  handleStockInfoUpdate();
-  handleRenderBonusPoints();
+  // 4. 추가 계산
+  updateAdditionalCalculations(AppState);
 };
 
-// 포인트 계산 관련 함수들
-const calculateBasePoints = (totalAmount) => Math.floor(totalAmount / POINTS_CONFIG.POINTS_DIVISOR);
-
-const calculateTuesdayBonus = (basePoints) => {
-  if (!isTuesday() || basePoints <= 0) return { points: 0, detail: '' };
-  return {
-    points: basePoints * POINTS_CONFIG.TUESDAY_MULTIPLIER,
-    detail: '화요일 2배',
-  };
-};
-
-const checkProductSet = (cartItems) => {
-  const productIds = cartItems.map((item) => item.productId);
-  const hasKeyboard = productIds.includes(PRODUCT_IDS.KEYBOARD);
-  const hasMouse = productIds.includes(PRODUCT_IDS.MOUSE);
-  const hasMonitorArm = productIds.includes(PRODUCT_IDS.MONITOR_ARM);
-
-  return { hasKeyboard, hasMouse, hasMonitorArm };
-};
-
-const calculateSetBonus = (productSet) => {
-  let bonus = 0;
-  const details = [];
-
-  if (productSet.hasKeyboard && productSet.hasMouse) {
-    bonus += POINTS_CONFIG.KEYBOARD_MOUSE_BONUS;
-    details.push(`키보드+마우스 세트 +${POINTS_CONFIG.KEYBOARD_MOUSE_BONUS}p`);
-  }
-
-  if (productSet.hasKeyboard && productSet.hasMouse && productSet.hasMonitorArm) {
-    bonus += POINTS_CONFIG.FULL_SET_BONUS;
-    details.push(`풀세트 구매 +${POINTS_CONFIG.FULL_SET_BONUS}p`);
-  }
-
-  return { bonus, details };
-};
-
-const calculateQuantityBonus = (itemCount) => {
-  if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
-    return {
-      bonus: POINTS_CONFIG.BONUS_30_ITEMS,
-      detail: `대량구매(${QUANTITY_THRESHOLDS.BULK_PURCHASE}개+) +${POINTS_CONFIG.BONUS_30_ITEMS}p`,
-    };
-  }
-  if (itemCount >= QUANTITY_THRESHOLDS.POINTS_BONUS_20) {
-    return {
-      bonus: POINTS_CONFIG.BONUS_20_ITEMS,
-      detail: `대량구매(${QUANTITY_THRESHOLDS.POINTS_BONUS_20}개+) +${POINTS_CONFIG.BONUS_20_ITEMS}p`,
-    };
-  }
-  if (itemCount >= QUANTITY_THRESHOLDS.POINTS_BONUS_10) {
-    return {
-      bonus: POINTS_CONFIG.BONUS_10_ITEMS,
-      detail: `대량구매(${QUANTITY_THRESHOLDS.POINTS_BONUS_10}개+) +${POINTS_CONFIG.BONUS_10_ITEMS}p`,
-    };
-  }
-  return { bonus: 0, detail: '' };
-};
-
-const LoyaltyPointsComponent = (finalPoints, pointsDetail, hide = false) => {
-  if (hide) return '';
-
-  if (finalPoints > 0) {
-    return `<div>적립 포인트: <span class="font-bold">${finalPoints}p</span></div><div class="text-2xs opacity-70 mt-1">${pointsDetail.join(', ')}</div>`;
-  }
-
-  return '적립 포인트: 0p';
-};
-
-const updateLoyaltyPointsDisplay = (finalPoints, pointsDetail, hide = false) => {
-  const loyaltyPointsElement = document.getElementById('loyalty-points');
-  if (!loyaltyPointsElement) return;
-
-  if (hide) {
-    loyaltyPointsElement.style.display = 'none';
-    return;
-  }
-
-  loyaltyPointsElement.innerHTML = LoyaltyPointsComponent(finalPoints, pointsDetail, hide);
-  loyaltyPointsElement.style.display = 'block';
-};
-
-const handleRenderBonusPoints = () => {
-  const cartItems = AppState.cart.items;
-
-  if (cartItems.length === 0) {
-    updateLoyaltyPointsDisplay(0, [], true); // 숨김 처리
-    return;
-  }
-
-  const basePoints = calculateBasePoints(AppState.cart.totalAmount);
-  const tuesdayBonus = calculateTuesdayBonus(basePoints);
-  const productSet = checkProductSet(cartItems);
-  const setBonus = calculateSetBonus(productSet);
-  const quantityBonus = calculateQuantityBonus(AppState.cart.itemCount);
-
-  let finalPoints = basePoints;
-  const pointsDetail = [];
-
-  if (basePoints > 0) {
-    pointsDetail.push(`기본: ${basePoints}p`);
-  }
-
-  if (tuesdayBonus.points > 0) {
-    finalPoints = tuesdayBonus.points;
-    pointsDetail.push(tuesdayBonus.detail);
-  }
-
-  finalPoints += setBonus.bonus;
-  pointsDetail.push(...setBonus.details);
-
-  if (quantityBonus.bonus > 0) {
-    finalPoints += quantityBonus.bonus;
-    pointsDetail.push(quantityBonus.detail);
-  }
-
-  AppState.cart.bonusPoints = finalPoints;
-
-  updateLoyaltyPointsDisplay(finalPoints, pointsDetail);
-};
-
-const handleStockInfoUpdate = () => {
-  if (!AppState.ui.stockInfo) return;
-  AppState.ui.stockInfo.textContent = StockInfoComponent();
-};
+// ============================================
+// 14. POINTS CALCULATION
+// ============================================
+// 14.1 Base Points
 
 const CartItemPriceComponent = (product) => {
   const priceClass =
@@ -902,6 +576,11 @@ const handleUpdatePricesInCart = () => {
   });
   handleCalculateCartStuff();
 };
+
+// ============================================
+// 15. CART ITEM MANAGEMENT
+// ============================================
+// 15.1 Cart Item Creation
 
 // 장바구니 아이템 생성 함수
 const CartItemElement = (product) => {
@@ -1043,6 +722,11 @@ const removeItemFromCart = (productId) => {
   return true;
 };
 
+// ============================================
+// 16. CART EVENT HANDLERS
+// ============================================
+// 16.1 Cart Actions
+
 // 이벤트 핸들러 함수들
 const handleAddToCart = () => {
   const selectedProductId = AppState.ui.selectElement.value;
@@ -1096,11 +780,19 @@ const handleCartClick = (event) => {
   }
 };
 
+// ============================================
+// 17. EVENT LISTENER SETUP
+// ============================================
+
 // 이벤트 리스너 설정 함수
 const setupCartEventListeners = () => {
   AppState.ui.addButton.addEventListener('click', handleAddToCart);
   AppState.ui.cartDisplay.addEventListener('click', handleCartClick);
 };
+
+// ============================================
+// 18. APPLICATION STARTUP
+// ============================================
 
 main();
 
