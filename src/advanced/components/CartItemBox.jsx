@@ -1,6 +1,12 @@
 import { CartItem } from "./CartItem";
 
-export const CartItemBox = ({ onClick, onClickRemove, cartItems = [] }) => {
+export const CartItemBox = ({
+  onClick,
+  onClickRemove,
+  increaseCartItemQuantity,
+  decreaseCartItemQuantity,
+  cartItems = [],
+}) => {
   return (
     <div id="cart-items" onClick={onClick}>
       {cartItems.map((cartItem) => (
@@ -8,6 +14,8 @@ export const CartItemBox = ({ onClick, onClickRemove, cartItems = [] }) => {
           key={`cartItem-${cartItem.id}`}
           {...cartItem}
           onClickRemove={onClickRemove}
+          increaseCartItemQuantity={increaseCartItemQuantity}
+          decreaseCartItemQuantity={decreaseCartItemQuantity}
         />
       ))}
     </div>

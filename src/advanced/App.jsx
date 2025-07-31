@@ -72,6 +72,32 @@ function App() {
     setProductList([...newProductList]);
   };
 
+  const changeCartItemQuantity = ({ id, change }) => {
+    const newCartItems = [...cartItems];
+    const selectedCartItem = newCartItems.find((x) => x.id === id);
+    const newProductList = [...productList];
+    const selectedIndex = newProductList.findIndex((x) => x.id === id);
+
+    if (selectedCartItem.selectedQuantity + change < 0) {
+      return;
+    }
+
+    if (newProductList[selectedIndex].quantity - change < 0) {
+      alert("재고가 부족합니다.");
+      return;
+    }
+
+    if (selectedCartItem.selectedQuantity + change === 0) {
+      setCartItems(newCartItems.filter((x) => x.id !== id));
+    } else {
+      selectedCartItem.selectedQuantity += change;
+      setCartItems([...newCartItems]);
+    }
+
+    newProductList[selectedIndex].quantity -= change;
+    setProductList([...newProductList]);
+  };
+
   useIntervalPromotion({
     productList,
     setProductList,
@@ -93,7 +119,16 @@ function App() {
               <StockInfoText>{getStockInfoMessage(productList)}</StockInfoText>
             }
           />
-          <CartItemBox cartItems={cartItems} onClickRemove={removeFromCart} />
+          <CartItemBox
+            cartItems={cartItems}
+            onClickRemove={removeFromCart}
+            increaseCartItemQuantity={({ id }) =>
+              changeCartItemQuantity({ id, change: 1 })
+            }
+            decreaseCartItemQuantity={({ id }) =>
+              changeCartItemQuantity({ id, change: -1 })
+            }
+          />
         </LeftColumn>
         <RightColumn
           productList={productList}

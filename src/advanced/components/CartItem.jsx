@@ -7,6 +7,8 @@ export const CartItem = ({
   suggestSale,
   selectedQuantity,
   onClickRemove,
+  increaseCartItemQuantity,
+  decreaseCartItemQuantity,
 }) => {
   return (
     <div
@@ -43,8 +45,9 @@ export const CartItem = ({
         <div className="flex items-center gap-4">
           <button
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-            data-product-id="${id}"
+            data-product-id={id}
             data-change="-1"
+            onClick={() => decreaseCartItemQuantity({ id })}
           >
             −
           </button>
@@ -53,8 +56,9 @@ export const CartItem = ({
           </span>
           <button
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-            data-product-id="${id}"
+            data-product-id={id}
             data-change="1"
+            onClick={() => increaseCartItemQuantity({ id })}
           >
             +
           </button>
