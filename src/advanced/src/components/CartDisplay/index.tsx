@@ -1,6 +1,6 @@
 import AddToCartForm from './AddToCartForm';
-import CartItem from './CartItem';
 import { useCart } from '../../hooks/useCart';
+import CartItem from './CartItem';
 
 export default function CartDisplay() {
   const { state } = useCart();
