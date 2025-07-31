@@ -4,13 +4,8 @@ import { useCartContext } from '@/store/CartContext';
 import { useProductContext } from '@/store/ProductContext';
 import { applyLightningSale, applySuggestSale } from '@/usecase/discountEvent';
 
-type UseDiscountEventProps = {
-  handleUpdateProductSelectOptions: () => void;
-  updatePricesInCart: () => void;
-};
-
 /** 번개세일 및 추천세일 실행 */
-export const useDiscountEvent = ({ handleUpdateProductSelectOptions, updatePricesInCart }: UseDiscountEventProps) => {
+export const useDiscountEvent = () => {
   const { products, updateProduct } = useProductContext();
   const { lastAddedItem } = useCartContext();
 
@@ -29,8 +24,6 @@ export const useDiscountEvent = ({ handleUpdateProductSelectOptions, updatePrice
       if (result) {
         updateProduct(result.id, result.changes);
         window.alert(result.message);
-        handleUpdateProductSelectOptions();
-        updatePricesInCart();
       }
     };
 
@@ -51,8 +44,6 @@ export const useDiscountEvent = ({ handleUpdateProductSelectOptions, updatePrice
       if (result) {
         updateProduct(result.id, result.changes);
         window.alert(result.message);
-        handleUpdateProductSelectOptions();
-        updatePricesInCart();
       }
     };
     suggestTimeoutRef.current = setTimeout(() => {
