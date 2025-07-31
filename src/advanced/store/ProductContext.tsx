@@ -4,6 +4,7 @@ import { initialProductList, type Product } from '@/data/product';
 
 type ProductContextType = {
   products: Product[];
+  getProductById: (id: string) => Product | undefined;
   updateProduct: (
     id: string,
     changes: Partial<Pick<Product, 'discountPrice' | 'onSale' | 'suggestSale' | 'quantity'>>
@@ -15,6 +16,10 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>(initialProductList);
+
+  const getProductById = (id: string) => {
+    return products.find((p) => p.id === id);
+  };
 
   const updateProduct = (
     id: string,
@@ -28,7 +33,9 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <ProductContext.Provider value={{ products, updateProduct, resetProducts }}>{children}</ProductContext.Provider>
+    <ProductContext.Provider value={{ products, getProductById, updateProduct, resetProducts }}>
+      {children}
+    </ProductContext.Provider>
   );
 };
 
