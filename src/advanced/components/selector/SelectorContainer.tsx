@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { ProductOption } from "./ProductOption";
+import { CartItem, Product } from "../../model/types";
 
+interface Props {
+  cartItems: CartItem[];
+  addToCart: (item: Product) => void;
+  productList: Product[];
+  isLowStock: boolean;
+  bottom: React.ReactNode;
+}
 export const SelectorContainer = ({
   cartItems,
   addToCart,
   productList,
   isLowStock,
-  setLastSelectedItem,
   bottom = null,
-} = {}) => {
+}: Props) => {
   const [selected, setSelected] = useState(productList[0]);
 
-  // TODO: QA 해봐야함
   const onClick = () => {
     if (!selected || selected.quantity === 0) {
       return;
@@ -40,7 +46,9 @@ export const SelectorContainer = ({
             (item) => item.id === e.target.value
           );
 
-          setSelected(newSelected);
+          if (newSelected != null) {
+            setSelected(newSelected);
+          }
         }}
       >
         {productList.map(ProductOption)}

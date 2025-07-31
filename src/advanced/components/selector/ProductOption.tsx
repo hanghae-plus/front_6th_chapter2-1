@@ -5,6 +5,13 @@ function getOptionMeta({
   isSoldOut,
   onSale,
   suggestSale,
+}: {
+  name: string;
+  price: number;
+  originalPrice: number;
+  isSoldOut: boolean;
+  onSale: boolean;
+  suggestSale: boolean;
 }) {
   switch (true) {
     case isSoldOut:
@@ -34,6 +41,16 @@ function getOptionMeta({
   }
 }
 
+interface Props {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice: number;
+  quantity: number;
+  onSale: boolean;
+  suggestSale: boolean;
+}
+
 export const ProductOption = ({
   id,
   name,
@@ -42,7 +59,7 @@ export const ProductOption = ({
   quantity,
   onSale,
   suggestSale,
-}) => {
+}: Props) => {
   const isSoldOut = quantity === 0;
   const { label, className } = getOptionMeta({
     isSoldOut,

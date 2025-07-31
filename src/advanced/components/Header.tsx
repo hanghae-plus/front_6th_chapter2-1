@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
-function usePrevious(value) {
-  const ref = useRef();
+function usePrevious(value: number) {
+  const ref = useRef<number | null>(null);
 
   useEffect(() => {
     ref.current = value;
@@ -10,7 +10,11 @@ function usePrevious(value) {
   return ref.current;
 }
 
-export const Header = ({ totalItemCount = 0 }) => {
+interface Props {
+  totalItemCount: number;
+}
+
+export const Header = ({ totalItemCount = 0 }: Props) => {
   const prevItemCount = usePrevious(totalItemCount);
 
   return (

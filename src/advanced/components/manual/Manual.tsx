@@ -7,7 +7,7 @@ const useManual = () => {
   const closeManual = () => setShowManual(false);
   const toggleManual = () => setShowManual(!showManual);
 
-  return [showManual, closeManual, toggleManual];
+  return [showManual, closeManual, toggleManual] as const;
 };
 
 export const Manual = () => {

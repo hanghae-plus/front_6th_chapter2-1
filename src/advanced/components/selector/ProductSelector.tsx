@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { ProductOption } from "./ProductOption";
+import { Product } from "../../model/types";
 
-export const ProductSelector = ({ productList, isLowStock }) => {
-  const [selected, setSelected] = useState(productList[0]);
+interface Props {
+  productList: Product[];
+  isLowStock: boolean;
+}
+
+export const ProductSelector = ({ productList, isLowStock }: Props) => {
+  const [selected, setSelected] = useState<Product>(productList[0]);
 
   return (
     <select
@@ -17,7 +23,9 @@ export const ProductSelector = ({ productList, isLowStock }) => {
           (item) => item.id === e.target.value
         );
 
-        setSelected(newSelected);
+        if (newSelected != null) {
+          setSelected(newSelected);
+        }
       }}
     >
       {productList.map(ProductOption)}

@@ -11,9 +11,10 @@ import { SelectorContainer } from "./components/selector/SelectorContainer";
 import { CartItemBox } from "./components/CartItemBox";
 import { StockInfoText } from "./components/selector/StockInfoText";
 import { useIntervalPromotion } from "./hooks/useIntervalPromotion";
+import { CartItem, Product } from "./model/types";
 
 // TODO: 추후 분리 예정
-const getStockInfoMessage = (productList) => {
+const getStockInfoMessage = (productList: Product[]) => {
   return productList.reduce((acc, item) => {
     if (item.quantity < 5) {
       if (item.quantity > 0) {
@@ -27,10 +28,12 @@ const getStockInfoMessage = (productList) => {
 };
 
 function App() {
-  const [lastSelectedItem, setLastSelectedItem] = useState(null);
+  const [lastSelectedItem, setLastSelectedItem] = useState<Product | null>(
+    null
+  );
 
   const [productList, setProductList] = useState(prodList);
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const {
     itemDiscounts,
     totalItemCount,
@@ -45,7 +48,7 @@ function App() {
   );
 
   // Cart에 상품이 담길 때 쓰일 예정
-  const addToCart = (selected) => {
+  const addToCart = (selected: Product) => {
     const newCartItems = [...cartItems];
     const selectedCartItem = newCartItems.find((x) => x.id === selected.id);
     if (selectedCartItem == null) {
@@ -62,7 +65,13 @@ function App() {
     setProductList([...newProductList]);
   };
 
-  const removeFromCart = ({ id, selectedQuantity }) => {
+  const removeFromCart = ({
+    id,
+    selectedQuantity,
+  }: {
+    id: string;
+    selectedQuantity: number;
+  }) => {
     const newCartItems = [...cartItems].filter((x) => x.id !== id);
     setCartItems([...newCartItems]);
 
@@ -72,11 +81,21 @@ function App() {
     setProductList([...newProductList]);
   };
 
-  const changeCartItemQuantity = ({ id, change }) => {
+  const changeCartItemQuantity = ({
+    id,
+    change,
+  }: {
+    id: string;
+    change: number;
+  }) => {
     const newCartItems = [...cartItems];
     const selectedCartItem = newCartItems.find((x) => x.id === id);
     const newProductList = [...productList];
     const selectedIndex = newProductList.findIndex((x) => x.id === id);
+
+    if (selectedCartItem == null) {
+      return;
+    }
 
     if (selectedCartItem.selectedQuantity + change < 0) {
       return;
@@ -114,7 +133,6 @@ function App() {
             addToCart={addToCart}
             productList={productList}
             isLowStock={isLowStock}
-            setLastSelectedItem={setLastSelectedItem}
             bottom={
               <StockInfoText>{getStockInfoMessage(productList)}</StockInfoText>
             }

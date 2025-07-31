@@ -1,6 +1,11 @@
 import { ManualColumn } from "./ManualColumn";
 
-export const ManualOverlay = ({ showManual, closeManual }) => {
+interface Props {
+  showManual: boolean;
+  closeManual: () => void;
+}
+
+export const ManualOverlay = ({ showManual, closeManual }: Props) => {
   return (
     <div
       className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300
@@ -8,7 +13,7 @@ export const ManualOverlay = ({ showManual, closeManual }) => {
       `}
       onClick={closeManual}
     >
-      <ManualColumn showManual={showManual} />
+      <ManualColumn showManual={showManual} closeManual={closeManual} />
     </div>
   );
 };

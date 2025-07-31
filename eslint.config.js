@@ -7,7 +7,7 @@ import {
 
 export default defineConfig([
   {
-    files: ['src/advanced/**/*.{js,jsx}'],
+    files: ['src/advanced/**/*.{js,jsx,ts,tsx}'],
     extends: [
       js.configs.recommended,
       reactHooks.configs['recommended-latest'],

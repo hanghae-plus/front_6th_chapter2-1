@@ -1,3 +1,18 @@
+import { CartItem as CartItemType } from "../model/types";
+
+interface Props {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice: number;
+  onSale: boolean;
+  suggestSale: boolean;
+  selectedQuantity: number;
+  onClickRemove: (item: CartItemType) => void;
+  increaseCartItemQuantity: (item: Pick<CartItemType, "id">) => void;
+  decreaseCartItemQuantity: (item: Pick<CartItemType, "id">) => void;
+}
+
 export const CartItem = ({
   id,
   name,
@@ -9,7 +24,7 @@ export const CartItem = ({
   onClickRemove,
   increaseCartItemQuantity,
   decreaseCartItemQuantity,
-}) => {
+}: Props) => {
   return (
     <div
       id={id}
@@ -78,7 +93,7 @@ export const CartItem = ({
         <div
           className="text-lg mb-2 tracking-tight tabular-nums"
           style={{
-            fontWeight: selectedQuantity > 10 ? "bold" : "normal",
+            fontWeight: selectedQuantity >= 10 ? "bold" : "normal",
           }}
         >
           {onSale || suggestSale ? (

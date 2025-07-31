@@ -1,11 +1,11 @@
-import { useEffect } from "react";
+import { DependencyList, useEffect } from "react";
 
-export const useIntervalEffect = (
-  fn,
+export const useIntervalEffect = <T = unknown>(
+  fn: () => T,
   { delay = 0, interval = 30000 },
-  deps = []
+  deps: DependencyList = []
 ) => {
-  let intervalId, delayId;
+  let intervalId: number, delayId: number;
 
   useEffect(() => {
     delayId = setTimeout(() => {

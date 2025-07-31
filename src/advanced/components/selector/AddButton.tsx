@@ -1,4 +1,8 @@
-export const AddButton = ({ onClick }) => {
+interface Props {
+  onClick: () => void;
+}
+
+export const AddButton = ({ onClick }: Props) => {
   return (
     <button
       onClick={onClick}

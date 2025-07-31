@@ -1,4 +1,8 @@
-export const StockInfoText = ({ children }) => {
+interface Props {
+  children: React.ReactNode;
+}
+
+export const StockInfoText = ({ children }: Props) => {
   return (
     <div
       id="stock-status"

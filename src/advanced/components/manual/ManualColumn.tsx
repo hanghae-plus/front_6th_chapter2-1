@@ -1,4 +1,9 @@
-export const ManualColumn = ({ showManual }) => {
+interface Props {
+  showManual: boolean;
+  closeManual: () => void;
+}
+
+export const ManualColumn = ({ showManual, closeManual }: Props) => {
   return (
     <div
       className={`fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform transition-transform duration-300 ${
@@ -7,10 +12,7 @@ export const ManualColumn = ({ showManual }) => {
     >
       <button
         className="absolute top-4 right-4 text-gray-500 hover:text-black"
-        onClick={() => {
-          document.querySelector(".fixed.inset-0").classList.add("hidden");
-          this.parentElement.classList.add("translate-x-full");
-        }}
+        onClick={closeManual}
       >
         <svg
           className="w-6 h-6"

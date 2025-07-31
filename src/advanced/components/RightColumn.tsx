@@ -1,6 +1,20 @@
 import { SummaryDetails } from "./SummaryDetails";
 import { getCalculatePoints } from "../services/point";
 import { isTuesday } from "../utils/day";
+import { CartItem, Product } from "../model/types";
+
+interface Props {
+  productList: Product[];
+  cartItems: CartItem[];
+  itemDiscounts: {
+    name: string;
+    discount: number;
+  }[];
+  totalItemCount: number;
+  totalDiscountRate: number;
+  totalOriginalPrice: number;
+  totalDiscountedPrice: number;
+}
 
 export const RightColumn = ({
   productList,
@@ -10,7 +24,7 @@ export const RightColumn = ({
   totalDiscountRate = 0,
   totalOriginalPrice = 0,
   totalDiscountedPrice = 0,
-}) => {
+}: Props) => {
   const points = Math.floor(totalDiscountedPrice / 1000);
 
   const { bonusPoints, pointsDetail } = getCalculatePoints({

@@ -1,11 +1,18 @@
 import { useIntervalEffect } from "../utils/hooks";
 import { getLuckySaleProduct, getSuggestSaleProduct } from "../services/event";
+import { Product } from "../model/types";
+
+interface Props {
+  productList: Product[];
+  setProductList: (productList: Product[]) => void;
+  lastSelectedItem: Product | null;
+}
 
 export const useIntervalPromotion = ({
   productList,
   setProductList,
   lastSelectedItem,
-}) => {
+}: Props) => {
   const randomBaseDelay = Math.random() * 10000;
 
   const luckySaleEvent = () => {

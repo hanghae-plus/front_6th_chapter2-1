@@ -1,4 +1,17 @@
+import { CartItem, Product } from "../model/types";
 import { isTuesday } from "../utils/day";
+
+interface Props {
+  cartItems: CartItem[];
+  productList: Product[];
+  itemDiscounts: {
+    name: string;
+    discount: number;
+  }[];
+  totalItemCount: number;
+  totalOriginalPrice: number;
+  totalDiscountedPrice: number;
+}
 
 export const SummaryDetails = ({
   cartItems,
@@ -7,7 +20,7 @@ export const SummaryDetails = ({
   totalItemCount,
   totalOriginalPrice,
   totalDiscountedPrice,
-}) => {
+}: Props) => {
   if (totalOriginalPrice <= 0) {
     return <div id="summary-details" className="space-y-3"></div>;
   }
@@ -16,6 +29,11 @@ export const SummaryDetails = ({
     <div id="summary-details" className="space-y-3">
       {cartItems.map((cartItem) => {
         const currentItem = productList.find((x) => x.id === cartItem.id);
+
+        if (currentItem == null) {
+          return null;
+        }
+
         const selectedQuantity = cartItem.selectedQuantity;
         const itemTotal = currentItem.price * selectedQuantity;
 

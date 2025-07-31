@@ -1,4 +1,6 @@
-export const getLuckySaleProduct = (productList) => {
+import { Product } from "../model/types";
+
+export const getLuckySaleProduct = (productList: Product[]) => {
   const newProductList = [...productList];
   const luckyIndex = Math.floor(Math.random() * productList.length);
   const luckyProduct = productList[luckyIndex];
@@ -25,7 +27,10 @@ export const getLuckySaleProduct = (productList) => {
   };
 };
 
-export const getSuggestSaleProduct = (productList, lastSelectedItem) => {
+export const getSuggestSaleProduct = (
+  productList: Product[],
+  lastSelectedItem: Product | null
+) => {
   const newProductList = [...productList];
   if (lastSelectedItem == null) {
     return null;
