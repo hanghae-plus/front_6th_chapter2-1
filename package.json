@@ -17,7 +17,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "gh-pages": "gh-pages -d ."
+    "gh-pages": "pnpm build && cp dist/index.advanced.html dist/index.html && cp dist/index.html dist/404.html && gh-pages -d dist"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
