@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
-export const Manual: React.FC = () => {
+export default function Manual() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleToggle = () => {
@@ -23,7 +23,7 @@ export const Manual: React.FC = () => {
 
       <div className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} onClick={handleOverlayClick}>
         <div className={`fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
-          <button className="absolute top-4 right-4 text-gray-500 hover:text-black" onClick={() => setIsOpen(false)}>
+          <button className="absolute top-4 right-4 text-gray-500 hover:text-black manual-close-btn" onClick={() => setIsOpen(false)}>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -98,4 +98,4 @@ export const Manual: React.FC = () => {
       </div>
     </>
   );
-};
+}

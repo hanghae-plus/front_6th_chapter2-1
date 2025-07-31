@@ -1,13 +1,12 @@
-import React from "react";
 import { useCart } from "../context/CartContext";
 import { calculateTotalDiscount, calculateTuesdayDiscount } from "../services/discountService";
 import { calculateTotalPoints } from "../services/pointService";
 
-export const OrderSummary: React.FC = () => {
+const OrderSummary = () => {
   const { state } = useCart();
   const { cartItems, totalAmount, bonusPoints } = state;
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.val * item.quantity, 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
   const discounts = calculateTotalDiscount(cartItems, subtotal);
   const isTuesday = calculateTuesdayDiscount();
@@ -18,7 +17,7 @@ export const OrderSummary: React.FC = () => {
   const savedAmount = subtotal - totalAmount;
 
   return (
-    <div className="bg-black text-white p-8 flex flex-col">
+    <div className="flex-1 flex flex-col">
       <h2 className="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
 
       <div className="flex-1 flex flex-col">
@@ -28,7 +27,7 @@ export const OrderSummary: React.FC = () => {
               <span>
                 {item.product.name} x {item.quantity}
               </span>
-              <span>₩{(item.product.val * item.quantity).toLocaleString()}</span>
+              <span>₩{(item.product.price * item.quantity).toLocaleString()}</span>
             </div>
           ))}
         </div>
@@ -108,3 +107,5 @@ export const OrderSummary: React.FC = () => {
     </div>
   );
 };
+
+export default OrderSummary;
