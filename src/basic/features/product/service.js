@@ -7,6 +7,7 @@
  * @property {number} quantity
  * @property {boolean} onSale
  * @property {boolean} suggestSale
+ * @property {string} type
  */
 
 /**
@@ -117,4 +118,21 @@ export const getStockInfo = (product) => {
   }
 
   return '';
+};
+
+/**
+ * @description 상품 할인율
+ * @param {Product} product - 상품
+ * @return {number} 상품 할인율
+ */
+export const getDiscountRate = (product) => {
+  const rules = {
+    keyboard: 0.1,
+    mouse: 0.15,
+    monitorArm: 0.2,
+    pouch: 0.05,
+    speaker: 0.25,
+  };
+
+  return rules[product.type] ?? 0;
 };
