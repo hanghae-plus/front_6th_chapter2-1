@@ -35,6 +35,7 @@ import { initProductList } from './data';
 import {
   attachCartEventListener,
   attachManualEventListener,
+  attachAddToCartEventListener,
 } from './eventListeners';
 import {
   isTuesday,
@@ -80,16 +81,11 @@ function main() {
   rightColumn.appendChild(orderSummaryElement);
   sum = rightColumn.querySelector('#cart-total');
 
-  const handleAddToCart = () => {
-    const selectedProduct = productList[selectElement.selectedIndex];
-    if (selectedProduct?.availableStock > 0) {
-      // Todo: 구현
-    }
-  };
   // 상품 선택 컨테이너
-  const selectorContainer = ProductSelector({ onAddToCart: handleAddToCart });
+  const selectorContainer = ProductSelector();
   selectElement = selectorContainer.querySelector('#product-select');
   addButton = selectorContainer.querySelector('#add-to-cart');
+  attachAddToCartEventListener(addButton, handleAddToCart);
   stockInfo = selectorContainer.querySelector('#stock-status');
 
   leftColumn.appendChild(selectorContainer);
@@ -98,21 +94,7 @@ function main() {
   cartContainer = CartContainer();
   leftColumn.appendChild(cartContainer);
 
-  // ----------------------------------------
   // 도움말 모달 생성
-  // ----------------------------------------
-  // const handleManualToggle = () => {
-  //   manualOverlay.classList.toggle('hidden');
-  //   manualColumn.classList.toggle('translate-x-full');
-  // };
-
-  // const handleManualClose = () => {
-  //   manualOverlay.classList.add('hidden');
-  //   manualColumn.classList.add('translate-x-full');
-  // };
-
-  // const manualToggle = ManualToggle({ onToggle: handleManualToggle });
-  // const manualOverlay = ManualOverlay({ onClose: handleManualClose });
   const manualToggle = ManualToggle();
   const manualOverlay = ManualOverlay();
   const manualColumn = ManualColumn();
@@ -475,7 +457,10 @@ const doRenderBonusPoints = () => {
   // 포인트 UI 업데이트
   bonusPoints = finalPoints;
   const pointsTag = document.getElementById('loyalty-points');
-  PointSummary(pointsTag, bonusPoints, pointsDetail);
+  pointsTag.innerHTML = '';
+  const pointSummary = PointSummary({ bonusPoints, pointsDetail });
+  pointsTag.appendChild(pointSummary);
+  pointsTag.style.display = 'block';
 };
 
 // ========================================
@@ -581,7 +566,7 @@ main();
 // ----------------------------------------
 // 장바구니 추가 버튼 이벤트
 // ----------------------------------------
-addButton.addEventListener('click', function () {
+function handleAddToCart() {
   const selItem = selectElement.value;
   let hasItem = false;
 
@@ -626,7 +611,7 @@ addButton.addEventListener('click', function () {
     handleCalculateCartStuff();
     lastSelectedProductId = selItem;
   }
-});
+}
 
 // 장바구니 이벤트 리스너
 attachCartEventListener(

@@ -68,4 +68,14 @@ function attachManualEventListener(manualToggle, manualOverlay, manualColumn) {
   });
 }
 
-export { attachCartEventListener, attachManualEventListener };
+function attachAddToCartEventListener(addButton, onAddToCart) {
+  addButton.addEventListener('click', function (event) {
+    onAddToCart();
+  });
+}
+
+export {
+  attachCartEventListener,
+  attachManualEventListener,
+  attachAddToCartEventListener,
+};

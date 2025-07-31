@@ -1,6 +1,6 @@
 import { isTuesday } from '../utils';
 
-function ProductSelector({ onAddToCart }) {
+function ProductSelector() {
   const container = document.createElement('div');
   container.className = 'mb-6 pb-6 border-b border-gray-200';
   container.innerHTML = `
@@ -8,11 +8,6 @@ function ProductSelector({ onAddToCart }) {
     <button id="add-to-cart" class="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all">Add to Cart</button>
     <div id="stock-status" class="text-xs text-red-500 mt-3 whitespace-pre-line"></div>
   `;
-
-  // 이벤트 핸들러 설정
-  const addButton = container.querySelector('#add-to-cart');
-  addButton.onclick = onAddToCart;
-
   return container;
 }
 
@@ -128,9 +123,7 @@ function CartItem(product) {
   return newItem;
 }
 
-function PointSummary(targetElement, bonusPoints, pointsDetail) {
-  if (!targetElement) return;
-
+function PointSummary({ bonusPoints = 0, pointsDetail = [] }) {
   const container = document.createElement('div');
 
   if (bonusPoints > 0) {
@@ -142,9 +135,7 @@ function PointSummary(targetElement, bonusPoints, pointsDetail) {
     container.textContent = '적립 포인트: 0p';
   }
 
-  targetElement.innerHTML = '';
-  targetElement.appendChild(container);
-  targetElement.style.display = 'block';
+  return container;
 }
 
 function DiscountSummary(discountRate = 0, totalAmount = 0, originalTotal = 0) {
