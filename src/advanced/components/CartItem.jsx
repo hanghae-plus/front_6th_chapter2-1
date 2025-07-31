@@ -6,6 +6,7 @@ export const CartItem = ({
   onSale,
   suggestSale,
   selectedQuantity,
+  onClickRemove,
 }) => {
   return (
     <div
@@ -48,7 +49,7 @@ export const CartItem = ({
             −
           </button>
           <span className="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">
-            1
+            {selectedQuantity}
           </span>
           <button
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
@@ -79,7 +80,8 @@ export const CartItem = ({
         </div>
         <a
           className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
-          data-product-id="${id}"
+          data-product-id={id}
+          onClick={() => onClickRemove({ id, selectedQuantity })}
         >
           Remove
         </a>

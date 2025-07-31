@@ -62,6 +62,16 @@ function App() {
     setProductList([...newProductList]);
   };
 
+  const removeFromCart = ({ id, selectedQuantity }) => {
+    const newCartItems = [...cartItems].filter((x) => x.id !== id);
+    setCartItems([...newCartItems]);
+
+    const newProductList = [...productList];
+    const selectedIndex = newProductList.findIndex((x) => x.id === id);
+    newProductList[selectedIndex].quantity += selectedQuantity;
+    setProductList([...newProductList]);
+  };
+
   useIntervalPromotion({
     productList,
     setProductList,
@@ -83,7 +93,7 @@ function App() {
               <StockInfoText>{getStockInfoMessage(productList)}</StockInfoText>
             }
           />
-          <CartItemBox cartItems={cartItems} />
+          <CartItemBox cartItems={cartItems} onClickRemove={removeFromCart} />
         </LeftColumn>
         <RightColumn
           productList={productList}
