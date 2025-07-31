@@ -1,5 +1,6 @@
 import { Header } from './shared/components/Header.tsx';
 import HelpModal from './shared/components/HelpModal.tsx';
+import ProductSelector from './features/product/components/ProductSelector.tsx';
 import { ELEMENT_IDS } from './shared/constants/elementIds.ts';
 
 function App() {
@@ -12,7 +13,13 @@ function App() {
         {/* Left Column */}
         <div className='bg-white border border-gray-200 p-8 overflow-y-auto'>
           <div className='mb-6 pb-6 border-b border-gray-200'>
-            {/* ProductSelector will be inserted here */}
+            <ProductSelector
+              products={[]}
+              selectedProductId=''
+              onSelectionChange={productId => {
+                console.log('Selected product:', productId);
+              }}
+            />
             <button
               id={ELEMENT_IDS.ADD_TO_CART}
               className='w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all'
