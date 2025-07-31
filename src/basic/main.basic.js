@@ -1,17 +1,8 @@
 // 상수 import
 import { DISCOUNT_THRESHOLDS, UI_CONSTANTS } from './constants/index.js';
 
-// ProductService import
-import {
-  initializeProducts,
-  getProductById,
-  decreaseStock,
-  increaseStock,
-  getLowStockProducts,
-  getOutOfStockProducts,
-  getTotalStock,
-  calculateItemDiscount,
-} from './services/product/ProductService.js';
+// productStore import
+import { productStore, productStoreActions } from './store/productStore.js';
 
 // DiscountService import
 import { calculateTotalDiscountRate } from './services/discount/DiscountService.js';
@@ -79,22 +70,16 @@ let orderSummaryElement;
 // CartService를 위한 상태 관리
 let cartState = createInitialCartState();
 
-// ProductService 래퍼 (CartService에서 사용하기 위한 인터페이스)
+// productStore를 CartService에서 사용하기 위한 인터페이스
 const productService = {
-  getProductById: (productId) => getProductById(cartStore.products, productId),
+  getProductById: (productId) => productStoreActions.getProductById(productId),
   decreaseStock: (productId, quantity) => {
-    const result = decreaseStock(cartStore.products, productId, quantity);
-    if (result.success) {
-      cartStore.products = result.products;
-    }
-    return result;
+    const success = productStoreActions.decreaseStock(productId, quantity);
+    return { success, products: productStore.products };
   },
   increaseStock: (productId, quantity) => {
-    const result = increaseStock(cartStore.products, productId, quantity);
-    if (result.success) {
-      cartStore.products = result.products;
-    }
-    return result;
+    const success = productStoreActions.increaseStock(productId, quantity);
+    return { success, products: productStore.products };
   },
 };
 
@@ -102,9 +87,8 @@ function main() {
   // cartStore 초기화
   cartStoreActions.reset();
 
-  // 상품 정보 초기화 - ProductService 사용
-  const initialProducts = initializeProducts();
-  cartStoreActions.setProducts(initialProducts);
+  // productStore 초기화
+  productStoreActions.initializeProducts();
 
   // CartService 상태 초기화
   cartState = createInitialCartState();
@@ -150,7 +134,7 @@ function main() {
 
   // 타이머 설정
   setupAllTimers({
-    products: cartStore.products,
+    products: productStore.products,
     cartDisplayElement,
     lastSelectedProductId: cartState.lastSelectedProductId,
     updateProductOptions,
@@ -168,9 +152,9 @@ function processCartItems(cartItems) {
   for (let i = 0; i < cartItems.length; i++) {
     // 상품 찾기
     let curItem;
-    for (let j = 0; j < cartStore.products.length; j++) {
-      if (cartStore.products[j].id === cartItems[i].id) {
-        curItem = cartStore.products[j];
+    for (let j = 0; j < productStore.products.length; j++) {
+      if (productStore.products[j].id === cartItems[i].id) {
+        curItem = productStore.products[j];
         break;
       }
     }
@@ -191,8 +175,8 @@ function processCartItems(cartItems) {
       }
     });
 
-    // 개별 할인 계산 - ProductService 사용
-    const disc = calculateItemDiscount(curItem.id, quantity);
+    // 개별 할인 계산 - productStore 사용
+    const disc = productStoreActions.calculateItemDiscount(curItem.id, quantity);
     if (disc > 0) {
       itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
     }
@@ -215,15 +199,15 @@ function calculateTotalDiscount(subTot, itemCount, currentAmount) {
 
 // 주문 요약 상세 내역 갱신
 function updateOrderSummary(cartItems, subTot, itemCount, itemDiscounts) {
-  renderOrderSummaryDetails(cartItems, cartStore.products, subTot, itemDiscounts);
+  renderOrderSummaryDetails(cartItems, productStore.products, subTot, itemDiscounts);
 }
 
 // 상품 선택 옵션 렌더링 및 재고 상태 표시
 function updateProductOptions() {
-  renderProductOptions(productSelector, cartStore.products);
+  renderProductOptions(productSelector, productStore.products);
 
-  // ProductService의 getTotalStock 함수 사용
-  const totalStock = getTotalStock(cartStore.products);
+  // productStore의 getTotalStock 함수 사용
+  const totalStock = productStoreActions.getTotalStock();
 
   if (totalStock < UI_CONSTANTS.TOTAL_STOCK_THRESHOLD) {
     productSelector.style.borderColor = 'orange';
@@ -361,9 +345,9 @@ const renderBonusPoints = function () {
 // 재고 부족/품절 안내 메시지 생성 및 표시
 function updateStockMessages() {
   // 재고 부족 상품 조회
-  const lowStockProducts = getLowStockProducts(cartStore.products);
+  const lowStockProducts = productStoreActions.getLowStockProducts();
   // 품절 상품 조회
-  const outOfStockProducts = getOutOfStockProducts(cartStore.products);
+  const outOfStockProducts = productStoreActions.getOutOfStockProducts();
 
   renderStockMessages(lowStockProducts, outOfStockProducts, stockInfoElement);
 }
