@@ -1625,7 +1625,7 @@ function main() {
  * @param {Object} product - 상품 객체
  * @returns {Object} 검증 결과
  */
-function validateAddToCartInput(selectedId, product) {
+function validateAddToCartInput(selectedId: string, product: IProduct | null): { isValid: boolean; reason?: string } {
   if (!selectedId || !product) {
     return { isValid: false, reason: "INVALID_SELECTION" };
   }
@@ -1640,7 +1640,15 @@ function validateAddToCartInput(selectedId, product) {
  * @param {Object} product - 상품 객체
  * @returns {Object} 표시 데이터
  */
-function calculateItemDisplayData(product) {
+function calculateItemDisplayData(product: IProduct): {
+  titlePrefix: string;
+  priceDisplay: string;
+  priceClass: string;
+  name: string;
+  id: string;
+  val: number;
+  originalVal: number;
+} {
   let titlePrefix = "";
   if (product.onSale && product.suggestSale) {
     titlePrefix = "⚡💝";
@@ -1681,7 +1689,7 @@ function calculateItemDisplayData(product) {
  * @param {Object} itemData - 아이템 표시 데이터
  * @returns {string} HTML 템플릿
  */
-function createCartItemHTML(itemData) {
+function createCartItemHTML(itemData: { titlePrefix: string; name: string; priceDisplay: string; id: string }): string {
   return `
     <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
       <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
@@ -1708,8 +1716,13 @@ function createCartItemHTML(itemData) {
  * @param {Event} event - 클릭 이벤트
  * @returns {Object} 이벤트 처리 정보
  */
-function parseCartClickEvent(event) {
-  const { target } = event;
+function parseCartClickEvent(event: MouseEvent): {
+  shouldHandle: boolean;
+  actionType?: string;
+  productId?: string;
+  quantityChange?: number;
+} {
+  const target = event.target as HTMLElement;
 
   if (!target.classList.contains("quantity-change") && !target.classList.contains("remove-item")) {
     return { shouldHandle: false };
