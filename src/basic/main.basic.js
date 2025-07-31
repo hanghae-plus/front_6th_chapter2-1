@@ -1369,12 +1369,98 @@ function main() {
   }, Math.random() * 20000);
 }
 
+/**
+ * 장바구니 추가 입력 검증 (순수 함수)
+ * @param {string} selectedId - 선택된 상품 ID
+ * @param {Object} product - 상품 객체
+ * @returns {Object} 검증 결과
+ */
+function validateAddToCartInput(selectedId, product) {
+  if (!selectedId || !product) {
+    return { isValid: false, reason: "INVALID_SELECTION" };
+  }
+  if (product.q <= 0) {
+    return { isValid: false, reason: "OUT_OF_STOCK" };
+  }
+  return { isValid: true };
+}
+
+/**
+ * 상품 표시 데이터 계산 (순수 함수)
+ * @param {Object} product - 상품 객체
+ * @returns {Object} 표시 데이터
+ */
+function calculateItemDisplayData(product) {
+  let titlePrefix = "";
+  if (product.onSale && product.suggestSale) {
+    titlePrefix = "⚡💝";
+  } else if (product.onSale) {
+    titlePrefix = "⚡";
+  } else if (product.suggestSale) {
+    titlePrefix = "💝";
+  }
+
+  let priceDisplay = "";
+  let priceClass = "";
+  if (product.onSale || product.suggestSale) {
+    if (product.onSale && product.suggestSale) {
+      priceClass = "text-purple-600";
+    } else if (product.onSale) {
+      priceClass = "text-red-500";
+    } else {
+      priceClass = "text-blue-500";
+    }
+    priceDisplay = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="${priceClass}">₩${product.val.toLocaleString()}</span>`;
+  } else {
+    priceDisplay = `₩${product.val.toLocaleString()}`;
+  }
+
+  return {
+    titlePrefix,
+    priceDisplay,
+    priceClass,
+    name: product.name,
+    id: product.id,
+    val: product.val,
+    originalVal: product.originalVal,
+  };
+}
+
+/**
+ * 장바구니 아이템 HTML 템플릿 생성 (순수 함수)
+ * @param {Object} itemData - 아이템 표시 데이터
+ * @returns {string} HTML 템플릿
+ */
+function createCartItemHTML(itemData) {
+  return `
+    <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
+      <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+    </div>
+    <div>
+      <h3 class="text-base font-normal mb-1 tracking-tight">${itemData.titlePrefix}${itemData.name}</h3>
+      <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
+      <p class="text-xs text-black mb-3">${itemData.priceDisplay}</p>
+      <div class="flex items-center gap-4">
+        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemData.id}" data-change="-1">−</button>
+        <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
+        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemData.id}" data-change="1">+</button>
+      </div>
+    </div>
+    <div class="text-right">
+      <div class="text-lg mb-2 tracking-tight tabular-nums">${itemData.priceDisplay}</div>
+      <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemData.id}">Remove</a>
+    </div>
+  `;
+}
+
 main();
 addToCartButton.addEventListener("click", function () {
   const selItem = productSelectElement.value;
   const itemToAdd = useProductData.findProductById(selItem);
 
-  if (!selItem || !itemToAdd) {
+  // 입력 검증 (순수 함수 사용)
+  const validation = validateAddToCartInput(selItem, itemToAdd);
+  if (!validation.isValid) {
     return;
   }
 
@@ -1395,50 +1481,11 @@ addToCartButton.addEventListener("click", function () {
       newItem.className =
         "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
 
-      // 중첩 삼항 연산자를 if문으로 변경
-      let titlePrefix = "";
-      if (itemToAdd.onSale && itemToAdd.suggestSale) {
-        titlePrefix = "⚡💝";
-      } else if (itemToAdd.onSale) {
-        titlePrefix = "⚡";
-      } else if (itemToAdd.suggestSale) {
-        titlePrefix = "💝";
-      }
+      // 표시 데이터 계산 (순수 함수 사용)
+      const itemDisplayData = calculateItemDisplayData(itemToAdd);
 
-      let priceDisplay = "";
-      let priceClass = "";
-      if (itemToAdd.onSale || itemToAdd.suggestSale) {
-        if (itemToAdd.onSale && itemToAdd.suggestSale) {
-          priceClass = "text-purple-600";
-        } else if (itemToAdd.onSale) {
-          priceClass = "text-red-500";
-        } else {
-          priceClass = "text-blue-500";
-        }
-        priceDisplay = `<span class="line-through text-gray-400">₩${itemToAdd.originalVal.toLocaleString()}</span> <span class="${priceClass}">₩${itemToAdd.val.toLocaleString()}</span>`;
-      } else {
-        priceDisplay = `₩${itemToAdd.val.toLocaleString()}`;
-      }
-
-      newItem.innerHTML = `
-        <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-          <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-        </div>
-        <div>
-          <h3 class="text-base font-normal mb-1 tracking-tight">${titlePrefix}${itemToAdd.name}</h3>
-          <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-          <p class="text-xs text-black mb-3">${priceDisplay}</p>
-          <div class="flex items-center gap-4">
-            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="-1">−</button>
-            <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="1">+</button>
-          </div>
-        </div>
-        <div class="text-right">
-          <div class="text-lg mb-2 tracking-tight tabular-nums">${priceDisplay}</div>
-          <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemToAdd.id}">Remove</a>
-        </div>
-      `;
+      // HTML 템플릿 생성 (순수 함수 사용)
+      newItem.innerHTML = createCartItemHTML(itemDisplayData);
       cartDisplayElement.appendChild(newItem);
       itemToAdd.q -= 1;
     }
