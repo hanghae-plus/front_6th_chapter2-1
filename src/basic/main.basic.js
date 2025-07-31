@@ -1,8 +1,10 @@
 import { handleUpdateProductSelectOptions } from './controller/handleProductSelector';
+import { initialProducts } from './data/product';
 import { cartManager } from './domain/cart';
 import { calculateBonusPoints } from './domain/point';
-import { initialProducts, LIGHTNING_DISCOUNT, OUT_OF_STOCK, SUGGEST_DISCOUNT } from './domain/product';
 import productManager from './domain/product';
+import { OUT_OF_STOCK } from './const/stock';
+import { LIGHTNING_DISCOUNT_RATE, SUGGEST_DISCOUNT_RATE } from './const/discount';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/applyDiscount';
 import {
   renderDiscountInfo,
@@ -46,7 +48,7 @@ function main() {
       const randomItem = productManager.getProductAt(randomIndex);
 
       if (randomItem.quantity > OUT_OF_STOCK && !randomItem.onSale) {
-        randomItem.discountValue = Math.round(randomItem.originalVal * (1 - LIGHTNING_DISCOUNT));
+        randomItem.discountValue = Math.round(randomItem.originalVal * (1 - LIGHTNING_DISCOUNT_RATE));
         randomItem.onSale = true;
         alert(`⚡번개세일! ${randomItem.name}이(가) 20% 할인 중입니다!`);
 
@@ -66,7 +68,7 @@ function main() {
 
         if (suggest) {
           alert(`💝  ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
-          suggest.discountValue = Math.round(suggest.discountValue * (1 - SUGGEST_DISCOUNT));
+          suggest.discountValue = Math.round(suggest.discountValue * (1 - SUGGEST_DISCOUNT_RATE));
           suggest.suggestSale = true;
 
           handleUpdateProductSelectOptions();

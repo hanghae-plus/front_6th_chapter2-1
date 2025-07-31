@@ -9,8 +9,8 @@ import {
   BONUS_THRESHOLD_TIER2,
   BONUS_THRESHOLD_TIER3,
 } from '../const/point';
+import { KEYBOARD, MONITORARM, MOUSE } from '../data/product';
 import { isTuesday } from '../utils/dateUtil';
-import { PRODUCT_ONE, PRODUCT_THREE, PRODUCT_TWO } from './product';
 
 export const calculateBonusPoints = (cartItems, totalAmount) => {
   let points = 0;
@@ -28,9 +28,9 @@ export const calculateBonusPoints = (cartItems, totalAmount) => {
   }
 
   const productIds = cartItems.map((item) => item.productId);
-  const hasKeyboard = productIds.includes(PRODUCT_ONE);
-  const hasMouse = productIds.includes(PRODUCT_TWO);
-  const hasMonitorArm = productIds.includes(PRODUCT_THREE);
+  const hasKeyboard = productIds.includes(KEYBOARD);
+  const hasMouse = productIds.includes(MOUSE);
+  const hasMonitorArm = productIds.includes(MONITORARM);
 
   if (hasKeyboard && hasMouse) {
     points += BONUS_KEYBOARD_MOUSE;

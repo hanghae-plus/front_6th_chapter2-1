@@ -1,6 +1,9 @@
 /* 기본 적립금 적립 단위 */
 export const BONUS_BASE_UNIT = 1000;
 
+/** 전체 장바구니 수량에 따른 보너스포인트 적용 임계값 */
+export const CART_TOTAL_BONUS_POINT_THRESHOLD = 30;
+
 /* 키보드+마우스 세트 구매시 포인트  */
 export const BONUS_KEYBOARD_MOUSE = 50;
 

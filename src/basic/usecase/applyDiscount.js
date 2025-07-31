@@ -1,7 +1,12 @@
-import { CART_TOTAL_BENEFIT_THRESHOLD, PER_ITEM_DISCOUNT_THRESHOLD } from '../const/discount';
+import {
+  CART_TOTAL_DISCOUNT_RATE,
+  CART_TOTAL_DISCOUNT_THRESHOLD,
+  PER_ITEM_DISCOUNT_RATES,
+  PER_ITEM_DISCOUNT_THRESHOLD,
+  TUESDAY_DISCOUNT_RATE,
+} from '../const/discount';
 import { cartManager } from '../domain/cart';
 import productManager from '../domain/product';
-import { PRODUCT_FIVE, PRODUCT_FOUR, PRODUCT_ONE, PRODUCT_THREE, PRODUCT_TWO } from '../domain/product';
 import { isTuesday } from '../utils/dateUtil';
 
 export const applyItemDiscount = () => {
@@ -12,23 +17,7 @@ export const applyItemDiscount = () => {
 
       let discountRate = 0;
       if (cartQuantity >= PER_ITEM_DISCOUNT_THRESHOLD) {
-        switch (productId) {
-          case PRODUCT_ONE:
-            discountRate = 0.1;
-            break;
-          case PRODUCT_TWO:
-            discountRate = 0.15;
-            break;
-          case PRODUCT_THREE:
-            discountRate = 0.2;
-            break;
-          case PRODUCT_FOUR:
-            discountRate = 0.05;
-            break;
-          case PRODUCT_FIVE:
-            discountRate = 0.25;
-            break;
-        }
+        discountRate = PER_ITEM_DISCOUNT_RATES[productId] ?? 0;
       }
 
       if (discountRate > 0) {
@@ -53,13 +42,13 @@ export const applyTotalDiscount = ({ subTotal, totalAfterItemDiscount, appliedIt
   let finalTotal = totalAfterItemDiscount;
   let finalDiscountRate = subTotal === 0 ? 0 : (subTotal - finalTotal) / subTotal;
 
-  if (totalItemCount >= CART_TOTAL_BENEFIT_THRESHOLD) {
-    finalTotal = subTotal * 0.75;
-    finalDiscountRate = 0.25;
+  if (totalItemCount >= CART_TOTAL_DISCOUNT_THRESHOLD) {
+    finalTotal = subTotal * (1 - CART_TOTAL_DISCOUNT_RATE);
+    finalDiscountRate = CART_TOTAL_DISCOUNT_RATE;
   }
 
   if (isTuesday() && finalTotal > 0) {
-    finalTotal = finalTotal * 0.9;
+    finalTotal = finalTotal * (1 - TUESDAY_DISCOUNT_RATE);
     finalDiscountRate = subTotal === 0 ? 0 : 1 - finalTotal / subTotal;
   }
 
@@ -69,6 +58,6 @@ export const applyTotalDiscount = ({ subTotal, totalAfterItemDiscount, appliedIt
   return {
     finalTotal,
     finalDiscountRate,
-    itemDiscounts: totalItemCount >= CART_TOTAL_BENEFIT_THRESHOLD ? [] : appliedItemDiscounts, // 전체 할인 시 개별 할인 내역 제거
+    itemDiscounts: totalItemCount >= CART_TOTAL_DISCOUNT_THRESHOLD ? [] : appliedItemDiscounts, // 전체 할인 시 개별 할인 내역 제거
   };
 };
