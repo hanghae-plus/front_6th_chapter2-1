@@ -112,4 +112,4 @@ export const INITIAL_PRODUCTS = [
     hasLightningDiscount: false, 
     hasRecommendationDiscount: false 
   }
-] as const; 
+]; 

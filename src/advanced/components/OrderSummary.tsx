@@ -1,6 +1,6 @@
-import { CartItem, Product } from '../types';
-import { findProductByCartItem, isTuesday, isBulkPurchaseEligible, calculateTotalCartQuantity } from '../utils';
 import { QUANTITY_THRESHOLDS, DISCOUNT_PERCENTAGES } from '../constants';
+import { CartItem, Product } from '../types';
+import { findProductByCartItem, isTuesday, isBulkPurchaseEligible } from '../utils';
 
 interface OrderSummaryProps {
   cartItems: CartItem[];

@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+
 import { Product, CartItem } from '../types';
 import { findProductById, findProductByCartItem } from '../utils';
 
@@ -29,12 +30,12 @@ export const useCartManagement = (products: Product[], setProducts: React.Dispat
             : item
         );
         return newItems;
-      } else {
+      } 
         // Add new item
         const newItems = [...prevItems, { productId, quantity: 1 }];
-        console.log('Added new item:', newItems);
+
         return newItems;
-      }
+      
     });
 
     // Update product stock (원본과 동일: 재고가 0이 되면 더 이상 감소하지 않음)
@@ -101,16 +102,12 @@ export const useCartManagement = (products: Product[], setProducts: React.Dispat
     });
   }, []);
 
-  const totalAmount = useMemo(() => {
-    return cartItems.reduce((total, item) => {
+  const totalAmount = useMemo(() => cartItems.reduce((total, item) => {
       const product = findProductByCartItem(products, item);
       return total + (product ? product.price * item.quantity : 0);
-    }, 0);
-  }, [cartItems, products]);
+    }, 0), [cartItems, products]);
 
-  const itemCount = useMemo(() => {
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
-  }, [cartItems]);
+  const itemCount = useMemo(() => cartItems.reduce((count, item) => count + item.quantity, 0), [cartItems]);
 
   return {
     cartItems,

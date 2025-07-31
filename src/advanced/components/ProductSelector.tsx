@@ -1,12 +1,10 @@
+import { QUANTITY_THRESHOLDS, DISCOUNT_PERCENTAGES } from '../constants';
 import { Product } from '../types';
 import { 
   calculateTotalStock, 
   getLowStockProducts, 
-  getOutOfStockProducts, 
-  extractProductInfo,
-  generateStockStatusMessage 
+  getOutOfStockProducts
 } from '../utils';
-import { QUANTITY_THRESHOLDS, DISCOUNT_PERCENTAGES } from '../constants';
 
 interface ProductSelectorProps {
   products: Product[];
@@ -26,18 +24,7 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({
   const lowStockProductList = getLowStockProducts(products);
   const outOfStockProductList = getOutOfStockProducts(products);
 
-  // 디버깅을 위한 콘솔 로그
-  const stockStatusMessage = generateStockStatusMessage(products);
-  
-      console.log('ProductSelector rendered:', { 
-      totalStockCount, 
-      lowStockProductList: extractProductInfo(lowStockProductList),
-      outOfStockProductList: extractProductInfo(outOfStockProductList),
-      allProducts: extractProductInfo(products),
-      stockStatusMessage,
-      hasLowStock: lowStockProductList.length > 0,
-      hasOutOfStock: outOfStockProductList.length > 0
-    });
+
 
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">
@@ -48,7 +35,6 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({
         }`}
         value={selectedProduct}
         onChange={(e) => {
-          console.log('Product selected:', e.target.value);
           handleProductSelect(e.target.value);
         }}
       >
@@ -95,7 +81,6 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({
         data-testid="add-to-cart"
         className="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all"
         onClick={() => {
-          console.log('Add to cart clicked:', selectedProduct);
           // 원본과 동일하게 선택된 상품이 없으면 첫 번째 상품을 사용
           const productToAdd = selectedProduct || products[0]?.id;
           if (productToAdd) {

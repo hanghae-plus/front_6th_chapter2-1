@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Product, CartItem } from './types';
-import { ProductSelector } from './components/ProductSelector';
+import React, { useEffect } from 'react';
+
 import { CartDisplay } from './components/CartDisplay';
-import { OrderSummary } from './components/OrderSummary';
 import { ManualOverlay } from './components/ManualOverlay';
-import { useProductManagement } from './hooks/useProductManagement';
+import { OrderSummary } from './components/OrderSummary';
+import { ProductSelector } from './components/ProductSelector';
+import { TIMER_CONFIG } from './constants';
 import { useCartManagement } from './hooks/useCartManagement';
 import { useDiscountCalculation } from './hooks/useDiscountCalculation';
-import { TIMER_CONFIG } from './constants';
+import { useProductManagement } from './hooks/useProductManagement';
 
 // 전역 타이머 변수들
-let lightningTimerId: NodeJS.Timeout | null = null;
-let lightningIntervalId: NodeJS.Timeout | null = null;
-let recommendationTimerId: NodeJS.Timeout | null = null;
-let recommendationIntervalId: NodeJS.Timeout | null = null;
+let lightningTimerId: number | null = null;
+let lightningIntervalId: number | null = null;
+let recommendationTimerId: number | null = null;
+let recommendationIntervalId: number | null = null;
 
 const App: React.FC = () => {
   const {
@@ -44,8 +44,7 @@ const App: React.FC = () => {
     itemDiscounts
   } = useDiscountCalculation(cartItems, products, totalAmount, itemCount);
 
-  // 디버깅을 위한 콘솔 로그
-  console.log('App rendered:', { cartItems, totalAmount, itemCount, finalTotal });
+
 
   // Lightning sale effect
   useEffect(() => {
@@ -63,6 +62,7 @@ const App: React.FC = () => {
       }, TIMER_CONFIG.LIGHTNING_SALE_INTERVAL);
     }, lightningDelay);
 
+    // eslint-disable-next-line consistent-return
     return () => {
       // cleanup 함수는 컴포넌트 언마운트 시에만 실행
       if (lightningTimerId) {
@@ -95,6 +95,7 @@ const App: React.FC = () => {
       }, TIMER_CONFIG.RECOMMENDATION_INTERVAL);
     }, recommendationDelay);
 
+    // eslint-disable-next-line consistent-return
     return () => {
       // cleanup 함수는 컴포넌트 언마운트 시에만 실행
       if (recommendationTimerId) {

@@ -1,8 +1,8 @@
 import React from 'react';
 
+import { QUANTITY_THRESHOLDS } from '../constants';
 import { CartItem, Product } from '../types';
 import { findProductByCartItem } from '../utils';
-import { QUANTITY_THRESHOLDS } from '../constants';
 
 interface CartDisplayProps {
   cartItems: CartItem[];

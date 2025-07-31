@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
-import { Product, CartItem, DiscountInfo } from '../types';
-import { findProductByCartItem, isTuesday, isBulkPurchaseEligible, calculateTotalCartQuantity, isIndividualDiscountEligible } from '../utils';
+
 import { 
   PRODUCT_IDS, 
   DISCOUNT_RATES, 
   QUANTITY_THRESHOLDS, 
-  POINTS_CONFIG, 
-  WEEKDAYS 
+  POINTS_CONFIG
 } from '../constants';
+import { Product, CartItem, DiscountInfo } from '../types';
+import { findProductByCartItem, isTuesday, isBulkPurchaseEligible, isIndividualDiscountEligible } from '../utils';
 
 export const useDiscountCalculation = (
   cartItems: CartItem[],
@@ -76,12 +76,10 @@ export const useDiscountCalculation = (
     return { discountRate: rate, itemDiscounts, finalTotal };
   }, [cartItems, products, itemCount]);
 
-  const savedAmount = useMemo(() => {
-    return totalAmount * discountRate;
-  }, [totalAmount, discountRate]);
+  const savedAmount = useMemo(() => totalAmount * discountRate, [totalAmount, discountRate]);
 
   const loyaltyPoints = useMemo(() => {
-    let basePoints = Math.floor(finalTotal / POINTS_CONFIG.POINTS_DIVISOR);
+    const basePoints = Math.floor(finalTotal / POINTS_CONFIG.POINTS_DIVISOR);
     let finalPoints = basePoints;
     const pointsDetail: string[] = [];
 

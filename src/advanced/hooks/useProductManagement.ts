@@ -1,10 +1,11 @@
 import { useState, useCallback } from 'react';
-import { Product } from '../types';
+
 import { 
   INITIAL_PRODUCTS, 
   DISCOUNT_RATES, 
   TIMER_CONFIG 
 } from '../constants';
+import { Product } from '../types';
 import { getAvailableForLightningSale, getAvailableForRecommendationSale } from '../utils';
 
 // 전역 변수로 알럿 중복 방지
@@ -33,7 +34,8 @@ export const useProductManagement = () => {
       const availableProducts = getAvailableForLightningSale(prevProducts);
       if (availableProducts.length === 0) return prevProducts;
 
-      const luckyProduct = availableProducts[Math.floor(Math.random() * availableProducts.length)];
+      const randomIndex = Math.floor(Math.random() * availableProducts.length);
+      const luckyProduct = availableProducts[randomIndex];
       const alertMessage = `⚡번개세일! ${luckyProduct.name}이(가) 20% 할인 중입니다!`;
       
       // 같은 메시지가 이미 표시되었는지 확인
@@ -85,14 +87,14 @@ export const useProductManagement = () => {
               price: Math.round(product.originalPrice * (1 - DISCOUNT_RATES.SUPER_SALE)), // 25% 할인
               hasRecommendationDiscount: true 
             };
-          } else {
+          } 
             // 일반 추천할인 (5%) 적용
             return { 
               ...product, 
               price: Math.round(product.originalPrice * (1 - DISCOUNT_RATES.RECOMMENDATION)), 
               hasRecommendationDiscount: true 
             };
-          }
+          
         }
         return product;
       });
