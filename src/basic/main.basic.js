@@ -46,4 +46,3 @@ function main() {
 
 // 앱 시작
 main()
-
