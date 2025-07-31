@@ -15,6 +15,8 @@ import {
   generateProductOptions,
   CartContainer,
   CartItem,
+  PointSummary,
+  DiscountSummary,
 } from './components/ui';
 import {
   PRODUCT_KEYBOARD,
@@ -435,18 +437,9 @@ function handleCalculateCartStuff() {
   // 할인 정보 표시
   const discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
-  if (discountRate > 0 && totalAmount > 0) {
-    savedAmount = originalTotal - totalAmount;
-    discountInfoDiv.innerHTML = `
-      <div class="bg-green-500/20 rounded-lg p-3">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(discountRate * 100).toFixed(1)}%</span>
-        </div>
-        <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
-      </div>
-    `;
-  }
+  discountInfoDiv.appendChild(
+    DiscountSummary(discountRate, totalAmount, originalTotal),
+  );
 
   // 아이템 카운트 업데이트
   const itemCountElement = document.getElementById('item-count');
@@ -559,22 +552,10 @@ const doRenderBonusPoints = () => {
     );
   }
 
-  // ----------------------------------------
   // 포인트 UI 업데이트
-  // ----------------------------------------
   bonusPoints = finalPoints;
-  const ptsTag = document.getElementById('loyalty-points');
-  if (ptsTag) {
-    if (bonusPoints > 0) {
-      ptsTag.innerHTML =
-        `<div>적립 포인트: <span class="font-bold">${bonusPoints}p</span></div>` +
-        `<div class="text-2xs opacity-70 mt-1">${pointsDetail.join(', ')}</div>`;
-      ptsTag.style.display = 'block';
-    } else {
-      ptsTag.textContent = '적립 포인트: 0p';
-      ptsTag.style.display = 'block';
-    }
-  }
+  const pointsTag = document.getElementById('loyalty-points');
+  PointSummary(pointsTag, bonusPoints, pointsDetail);
 };
 
 // ========================================

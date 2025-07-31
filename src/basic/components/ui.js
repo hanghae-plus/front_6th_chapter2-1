@@ -126,4 +126,48 @@ function CartItem(product) {
   return newItem;
 }
 
-export { ProductSelector, generateProductOptions, CartContainer, CartItem };
+function PointSummary(targetElement, bonusPoints, pointsDetail) {
+  if (!targetElement) return;
+
+  const container = document.createElement('div');
+
+  if (bonusPoints > 0) {
+    container.innerHTML = `
+      <div>적립 포인트: <span class="font-bold">${bonusPoints}p</span></div>
+      <div class="text-2xs opacity-70 mt-1">${pointsDetail.join(', ')}</div>
+    `;
+  } else {
+    container.textContent = '적립 포인트: 0p';
+  }
+
+  targetElement.innerHTML = '';
+  targetElement.appendChild(container);
+  targetElement.style.display = 'block';
+}
+
+function DiscountSummary(discountRate = 0, totalAmount = 0, originalTotal = 0) {
+  const container = document.createElement('div');
+  if (discountRate > 0 && totalAmount > 0) {
+    const savedAmount = originalTotal - totalAmount;
+    container.innerHTML = `
+      <div class="bg-green-500/20 rounded-lg p-3">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
+          <span class="text-sm font-medium text-green-400">${(discountRate * 100).toFixed(1)}%</span>
+        </div>
+        <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
+      </div>
+    `;
+  }
+
+  return container;
+}
+
+export {
+  ProductSelector,
+  generateProductOptions,
+  CartContainer,
+  CartItem,
+  PointSummary,
+  DiscountSummary,
+};
