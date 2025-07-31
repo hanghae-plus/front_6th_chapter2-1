@@ -368,7 +368,7 @@ function handleCalculateCartStuff() {
         `;
       });
     }
-    if (isTuesday) {
+    if (isTuesday()) {
       if (totalAmount > 0) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-purple-400">
