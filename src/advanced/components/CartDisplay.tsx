@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { CartItem, Product } from '../types';
 
 interface CartDisplayProps {
@@ -14,29 +15,20 @@ export const CartDisplay: React.FC<CartDisplayProps> = ({
   products,
   onUpdateQuantity,
   onRemoveItem
-}) => {
-  if (cartItems.length === 0) {
-    return (
-      <div id="cart-items" className="text-center text-gray-500 py-8">
-        장바구니가 비어있습니다.
-      </div>
-    );
-  }
-
-  return (
-    <div id="cart-items">
-      {cartItems.map((item) => (
-        <CartItemComponent
-          key={item.id}
-          item={item}
-          products={products}
-          onUpdateQuantity={onUpdateQuantity}
-          onRemoveItem={onRemoveItem}
-        />
-      ))}
-    </div>
-  );
-};
+}) => (
+  // 원본과 동일하게 빈 장바구니일 때는 빈 div만 표시
+  <div id="cart-items" data-testid="cart-items">
+    {cartItems.map((item) => (
+      <CartItemComponent
+        key={item.productId}
+        item={item}
+        products={products}
+        onUpdateQuantity={onUpdateQuantity}
+        onRemoveItem={onRemoveItem}
+      />
+    ))}
+  </div>
+);
 
 interface CartItemComponentProps {
   item: CartItem;
@@ -51,15 +43,17 @@ const CartItemComponent: React.FC<CartItemComponentProps> = ({
   onUpdateQuantity,
   onRemoveItem
 }) => {
-  const product = products.find(p => p.id === item.id);
+  const product = products.find(p => p.id === item.productId);
   if (!product) return null;
 
   const getDisplayName = () => {
     if (product.onSale && product.suggestSale) {
       return `⚡💝${product.name}`;
-    } else if (product.onSale) {
+    }
+    if (product.onSale) {
       return `⚡${product.name}`;
-    } else if (product.suggestSale) {
+    }
+    if (product.suggestSale) {
       return `💝${product.name}`;
     }
     return product.name;
@@ -88,7 +82,7 @@ const CartItemComponent: React.FC<CartItemComponentProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
+    <div id={item.productId} className="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
       <div className="w-20 h-20 bg-gradient-black relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
       </div>
@@ -104,7 +98,9 @@ const CartItemComponent: React.FC<CartItemComponentProps> = ({
         <div className="flex items-center gap-4">
           <button
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-            onClick={() => onUpdateQuantity(item.id, -1)}
+            data-product-id={item.productId}
+            data-change="-1"
+            onClick={() => onUpdateQuantity(item.productId, -1)}
           >
             −
           </button>
@@ -113,7 +109,9 @@ const CartItemComponent: React.FC<CartItemComponentProps> = ({
           </span>
           <button
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-            onClick={() => onUpdateQuantity(item.id, 1)}
+            data-product-id={item.productId}
+            data-change="1"
+            onClick={() => onUpdateQuantity(item.productId, 1)}
           >
             +
           </button>
@@ -121,12 +119,16 @@ const CartItemComponent: React.FC<CartItemComponentProps> = ({
       </div>
       
       <div className="text-right">
-        <div className="text-lg mb-2 tracking-tight tabular-nums">
+        <div 
+          className="text-lg mb-2 tracking-tight tabular-nums"
+          style={{ fontWeight: item.quantity >= 10 ? 'bold' : 'normal' }}
+        >
           {getDisplayPrice()}
         </div>
         <button
           className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
-          onClick={() => onRemoveItem(item.id)}
+          data-product-id={item.productId}
+          onClick={() => onRemoveItem(item.productId)}
         >
           Remove
         </button>
