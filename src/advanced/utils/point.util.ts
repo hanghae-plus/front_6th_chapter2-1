@@ -1,11 +1,8 @@
+import { POINT_BONUS_FULL_SET, POINT_BONUS_KEYBOARD_MOUSE_SET } from '@/advanced/data/point.data';
 import {
   MIN_QUANTITY_FOR_POINT_BONUS_TIER1,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER2,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER3,
-  POINT_BONUS_FULL_SET,
-  POINT_BONUS_KEYBOARD_MOUSE_SET,
-  POINT_BONUS_QUANTITY_TIER1,
-  POINT_BONUS_QUANTITY_TIER2,
 } from '@/advanced/data/quantity.data';
 import { PointPolicy } from '@/advanced/types/point.type';
 

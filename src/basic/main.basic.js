@@ -3,11 +3,8 @@ import { createTimerManager } from './components/TimerManager.js';
 import { TUESDAY_DAY_OF_WEEK } from './data/date.data.js';
 import {
   DISCOUNT_RATE_BULK,
-  DISCOUNT_RATE_PRODUCT_1,
-  DISCOUNT_RATE_PRODUCT_2,
-  DISCOUNT_RATE_PRODUCT_3,
-  DISCOUNT_RATE_PRODUCT_4,
-  DISCOUNT_RATE_PRODUCT_5,
+  DISCOUNT_RATE_LIST,
+  DISCOUNT_RATE_SUPER_SALE,
   DISCOUNT_RATE_TUESDAY,
 } from './data/discount.data.js';
 import {
@@ -130,15 +127,15 @@ function calculateCartAndUpdateUI() {
       // 개별 상품 할인 적용
       if (quantity >= MIN_QUANTITY_FOR_DISCOUNT) {
         if (currentProduct.id === PRODUCT_1) {
-          discountRate = DISCOUNT_RATE_PRODUCT_1 / 100;
+          discountRate = DISCOUNT_RATE_LIST[PRODUCT_1] / 100;
         } else if (currentProduct.id === PRODUCT_2) {
-          discountRate = DISCOUNT_RATE_PRODUCT_2 / 100;
+          discountRate = DISCOUNT_RATE_LIST[PRODUCT_2] / 100;
         } else if (currentProduct.id === PRODUCT_3) {
-          discountRate = DISCOUNT_RATE_PRODUCT_3 / 100;
+          discountRate = DISCOUNT_RATE_LIST[PRODUCT_3] / 100;
         } else if (currentProduct.id === PRODUCT_4) {
-          discountRate = DISCOUNT_RATE_PRODUCT_4 / 100;
+          discountRate = DISCOUNT_RATE_LIST[PRODUCT_4] / 100;
         } else if (currentProduct.id === PRODUCT_5) {
-          discountRate = DISCOUNT_RATE_PRODUCT_5 / 100;
+          discountRate = DISCOUNT_RATE_LIST[PRODUCT_5] / 100;
         }
 
         if (discountRate > 0) {
@@ -265,15 +262,15 @@ function displayDiscountDetails(summaryDetailsElement, totalQuantity, itemDiscou
   if (totalQuantity >= 30) {
     summaryDetailsElement.innerHTML += `
       <div class="flex justify-between text-sm tracking-wide text-green-400">
-        <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-        <span class="text-xs">-25%</span>
+        <span class="text-xs">🎉 대량구매 할인 (${MIN_QUANTITY_FOR_BULK_DISCOUNT}개 이상)</span>
+        <span class="text-xs">-${DISCOUNT_RATE_SUPER_SALE}%</span>
       </div>
     `;
   } else if (itemDiscounts.length > 0) {
     itemDiscounts.forEach(item => {
       summaryDetailsElement.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">${item.name} (10개↑)</span>
+          <span class="text-xs">${item.name} (${MIN_QUANTITY_FOR_DISCOUNT}개↑)</span>
           <span class="text-xs">-${item.discount}%</span>
         </div>
       `;
@@ -286,7 +283,7 @@ function displayDiscountDetails(summaryDetailsElement, totalQuantity, itemDiscou
       summaryDetailsElement.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-purple-400">
           <span class="text-xs">🌟 화요일 추가 할인</span>
-          <span class="text-xs">-10%</span>
+          <span class="text-xs">-${DISCOUNT_RATE_TUESDAY}%</span>
         </div>
       `;
     }

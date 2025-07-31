@@ -1,3 +1,4 @@
+import { TUESDAY_DAY_OF_WEEK } from '@/advanced/data/date.data';
 import { useCartStore, useProductStore } from '@/advanced/store';
 import { getCartTotalCount } from '@/advanced/utils/cart.util';
 
@@ -7,7 +8,7 @@ export default function useDiscount() {
 
   const isBulkDiscount = getCartTotalCount(cartItems) >= 30;
 
-  const isTuesday = new Date().getDay() === 2;
+  const isTuesday = new Date().getDay() === TUESDAY_DAY_OF_WEEK;
 
   const basicDiscountedProducts: string[] = cartItems
     .map(cartItem => {
