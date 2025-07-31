@@ -224,36 +224,37 @@ export function reducer(state: State, action: Action) {
 }
 
 // getters
-export const getProducts = (state) => state.products;
-export const getCartList = (state) => state.cartList;
-export const getSelectedId = (state) => state.selectedProductId;
-export const getNotifications = (state) => state.notifications;
+export const getProducts = (state: State) => state.products;
+export const getCartList = (state: State) => state.cartList;
+export const getSelectedId = (state: State) => state.selectedProductId;
+export const getNotifications = (state: State) => state.notifications;
 export const getIsTuesday = () => new Date().getDay() === 2;
 
-export const getCartDetails = (state) => {
+export const getCartDetails = (state: State) => {
   const products = getProducts(state);
   const cartList = getCartList(state);
   return cartList.map((cartItem) => {
     const product = products.find((p) => p.id === cartItem.productId);
+
     return {
       ...cartItem,
       product,
-      itemTotal: product.price * cartItem.quantity,
+      itemTotal: (product?.price ?? 0) * cartItem.quantity,
     };
   });
 };
 
-export const getTotalQuantity = (state) => {
+export const getTotalQuantity = (state: State) => {
   const cartDetails = getCartDetails(state);
   return cartDetails.reduce((sum, item) => sum + item.quantity, 0);
 };
 
-export const getSubtotal = (state) => {
+export const getSubtotal = (state: State) => {
   const cartDetails = getCartDetails(state);
   return cartDetails.reduce((sum, item) => sum + item.itemTotal, 0);
 };
 
-export const getDiscountResult = (state) => {
+export const getDiscountResult = (state: State) => {
   const cartDetails = getCartDetails(state);
   const subtotal = getSubtotal(state);
   const totalQuantity = getTotalQuantity(state);
@@ -270,14 +271,14 @@ export const getDiscountResult = (state) => {
     {
       condition: true,
       apply: () => {
-        const details = [];
+        const details: { reason: string; amount: string }[] = [];
         const total = cartDetails.reduce((acc, item) => {
           let itemDiscountRate = 0;
           const individualDiscount = DISCOUNT_RATES.INDIVIDUAL[item.productId];
           if (item.quantity >= 10 && individualDiscount) {
             itemDiscountRate = individualDiscount;
             details.push({
-              reason: `${item.product.name} (10개↑)`,
+              reason: `${item.product?.name} (10개↑)`,
               amount: `${itemDiscountRate * 100}%`,
             });
           }
@@ -290,7 +291,7 @@ export const getDiscountResult = (state) => {
 
   const { total: totalAfterBaseDiscount, details: baseDiscountDetails } = baseDiscountRules
     .find((rule) => rule.condition)
-    .apply();
+    ?.apply() ?? { total: subtotal, details: [] };
 
   let finalTotal = totalAfterBaseDiscount;
   const finalDiscountDetails = [...baseDiscountDetails];
@@ -303,7 +304,7 @@ export const getDiscountResult = (state) => {
   return { finalTotal, discounts: finalDiscountDetails };
 };
 
-export const getStockMessages = (state) => {
+export const getStockMessages = (state: State) => {
   const products = getProducts(state);
   return products
     .filter((p) => p.quantity < 5)
@@ -312,7 +313,7 @@ export const getStockMessages = (state) => {
     );
 };
 
-export const getBonusPoints = (state) => {
+export const getBonusPoints = (state: State) => {
   const totalQuantity = getTotalQuantity(state);
   if (totalQuantity === 0) return { bonusPoints: 0, pointsDetail: [] };
 
@@ -320,7 +321,8 @@ export const getBonusPoints = (state) => {
   const basePoints = Math.floor(finalTotal / 1000);
   const isTuesday = getIsTuesday();
 
-  const has = (productId) => getCartList(state).some((item) => item.productId === productId);
+  const has = (productId: string) =>
+    getCartList(state).some((item) => item.productId === productId);
   const hasKeyboard = has(PRODUCT_IDS.P1);
   const hasMouse = has(PRODUCT_IDS.P2);
   const hasMonitorArm = has(PRODUCT_IDS.P3);
@@ -378,7 +380,7 @@ export const getBonusPoints = (state) => {
   return { bonusPoints: totalBonusPoints, pointsDetail };
 };
 
-export const getCartSummary = (state) => {
+export const getCartSummary = (state: State) => {
   const { finalTotal, discounts } = getDiscountResult(state);
   const { bonusPoints, pointsDetail } = getBonusPoints(state);
   const subtotal = getSubtotal(state);
@@ -396,7 +398,7 @@ export const getCartSummary = (state) => {
     stockMessages: getStockMessages(state),
     totalDiscountRate: subtotal > 0 ? savedAmount / subtotal : 0,
     cartItemsForDisplay: getCartDetails(state).map((item) => ({
-      name: item.product.name,
+      name: item.product?.name,
       quantity: item.quantity,
       totalPrice: item.itemTotal,
     })),
