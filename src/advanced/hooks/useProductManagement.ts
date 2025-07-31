@@ -1,13 +1,10 @@
 import { useState, useCallback } from 'react';
 import { Product } from '../types';
-
-const INITIAL_PRODUCTS: Product[] = [
-  { id: 'p1', name: '버그 없애는 키보드', val: 10000, originalVal: 10000, q: 50, onSale: false, suggestSale: false },
-  { id: 'p2', name: '생산성 폭발 마우스', val: 20000, originalVal: 20000, q: 30, onSale: false, suggestSale: false },
-  { id: 'p3', name: '거북목 탈출 모니터암', val: 30000, originalVal: 30000, q: 20, onSale: false, suggestSale: false },
-  { id: 'p4', name: '에러 방지 노트북 파우치', val: 15000, originalVal: 15000, q: 0, onSale: false, suggestSale: false },
-  { id: 'p5', name: '코딩할 때 듣는 Lo-Fi 스피커', val: 25000, originalVal: 25000, q: 10, onSale: false, suggestSale: false }
-];
+import { 
+  INITIAL_PRODUCTS, 
+  DISCOUNT_RATES, 
+  TIMER_CONFIG 
+} from '../constants';
 
 export const useProductManagement = () => {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
@@ -25,7 +22,7 @@ export const useProductManagement = () => {
       const luckyProduct = availableProducts[Math.floor(Math.random() * availableProducts.length)];
       const updatedProducts = prevProducts.map(p => 
         p.id === luckyProduct.id 
-          ? { ...p, val: Math.round(p.originalVal * 0.8), onSale: true }
+          ? { ...p, val: Math.round(p.originalVal * (1 - DISCOUNT_RATES.LIGHTNING_SALE)), onSale: true }
           : p
       );
 
@@ -45,7 +42,7 @@ export const useProductManagement = () => {
       const suggestProduct = availableProducts[0];
       const updatedProducts = prevProducts.map(p => 
         p.id === suggestProduct.id 
-          ? { ...p, val: Math.round(p.val * 0.95), suggestSale: true }
+          ? { ...p, val: Math.round(p.val * (1 - DISCOUNT_RATES.RECOMMENDATION)), suggestSale: true }
           : p
       );
 

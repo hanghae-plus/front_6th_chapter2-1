@@ -7,6 +7,7 @@ import { ManualOverlay } from './components/ManualOverlay';
 import { useProductManagement } from './hooks/useProductManagement';
 import { useCartManagement } from './hooks/useCartManagement';
 import { useDiscountCalculation } from './hooks/useDiscountCalculation';
+import { TIMER_CONFIG } from './constants';
 
 const App: React.FC = () => {
   const {
@@ -38,11 +39,11 @@ const App: React.FC = () => {
 
   // Lightning sale effect
   useEffect(() => {
-    const lightningDelay = Math.random() * 10000;
+    const lightningDelay = Math.random() * TIMER_CONFIG.LIGHTNING_SALE_DELAY;
     const lightningTimer = setTimeout(() => {
       const lightningInterval = setInterval(() => {
         triggerLightningSale();
-      }, 30000);
+      }, TIMER_CONFIG.LIGHTNING_SALE_INTERVAL);
       return () => clearInterval(lightningInterval);
     }, lightningDelay);
 
@@ -51,13 +52,13 @@ const App: React.FC = () => {
 
   // Recommendation sale effect
   useEffect(() => {
-    const recommendationDelay = Math.random() * 20000;
+    const recommendationDelay = Math.random() * TIMER_CONFIG.RECOMMENDATION_DELAY;
     const recommendationTimer = setTimeout(() => {
       const recommendationInterval = setInterval(() => {
         if (cartItems.length > 0 && selectedProduct) {
           triggerRecommendationSale(selectedProduct);
         }
-      }, 60000);
+      }, TIMER_CONFIG.RECOMMENDATION_INTERVAL);
       return () => clearInterval(recommendationInterval);
     }, recommendationDelay);
 
@@ -72,7 +73,7 @@ const App: React.FC = () => {
           🛒 Hanghae Online Store
         </h1>
         <div className="text-5xl tracking-tight leading-none">Shopping Cart</div>
-        <p className="text-sm text-gray-500 font-normal mt-3">
+        <p id="item-count" className="text-sm text-gray-500 font-normal mt-3">
           🛍️ {itemCount} items in cart
         </p>
       </div>
