@@ -4,7 +4,7 @@ import { createProductSelector } from "./components/ProductSelector.js";
 import { createOrderSummary } from "./components/OrderSummary.js";
 import { createManualSystem } from "./components/Manual.js";
 import { createLayoutSystem } from "./components/Layout.js";
-import { createCartDisplay } from "./components/CartDisplay.js";
+import { createCartList } from "./components/CartList.js";
 
 // services
 import { CartService } from "./services/cartService.js";
@@ -63,10 +63,10 @@ function main() {
     },
   });
 
-  const cartDisplay = createCartDisplay();
+  const cartList = createCartList();
 
   leftColumn.appendChild(selectorContainer);
-  leftColumn.appendChild(cartDisplay);
+  leftColumn.appendChild(cartList);
 
   // OrderSummary 컴포넌트 생성
   const orderSummary = createOrderSummary();

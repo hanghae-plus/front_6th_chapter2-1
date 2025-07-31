@@ -12,7 +12,7 @@ export class ProductService {
   // 상품 검증 (비즈니스 로직)
   validateProduct(productId) {
     const { products } = this.productStore.getState();
-    const product = products.find(p => p.id === productId);
+    const product = products.find(product => product.id === productId);
     return product && product.quantity > 0;
   }
 
@@ -27,10 +27,10 @@ export class ProductService {
   }
 
   // 추천 상품 찾기 (비즈니스 로직)
-  findSuggestionProduct(lastSelectedProductId) {
+  findSuggestionProduct(selectedProductId) {
     const { products } = this.productStore.getState();
     const availableProducts = products.filter(product => product.quantity > 0);
-    return availableProducts.find(product => product.id !== lastSelectedProductId && !product.suggestSale);
+    return availableProducts.find(product => product.id !== selectedProductId && !product.suggestSale);
   }
 
   // 번개세일 적용 (비즈니스 로직)
@@ -60,8 +60,8 @@ export class ProductService {
   }
 
   // 추천세일 적용 (비즈니스 로직)
-  applySuggestSale(lastSelectedProductId) {
-    const suggestionProduct = this.findSuggestionProduct(lastSelectedProductId);
+  applySuggestSale(selectedProductId) {
+    const suggestionProduct = this.findSuggestionProduct(selectedProductId);
     if (suggestionProduct) {
       const { products } = this.productStore.getState();
       const updatedProducts = products.map(product =>
@@ -105,7 +105,7 @@ export class ProductService {
   }
 
   // 할인 정보 계산
-  calculateProductDiscountInfos(products) {
+  calculateProductDiscountInfo(products) {
     return products.map(product => ({
       productId: product.id,
       rate: this.discountService.calculateProductDiscountRate(product),
@@ -144,7 +144,7 @@ export class ProductService {
 
   hasStock(productId, requiredQuantity = 1) {
     const { products } = this.productStore.getState();
-    const product = products.find(item => item.id === productId);
+    const product = products.find(product => product.id === productId);
     return product && product.quantity >= requiredQuantity;
   }
 
@@ -180,9 +180,9 @@ export class ProductService {
   }
 
   // 재고 부족 상품 조회
-  getLowStockProducts(threshold) {
+  getLowStockProducts(stockThreshold) {
     const { products } = this.productStore.getState();
-    return products.filter(product => product.quantity < threshold && product.quantity > 0);
+    return products.filter(product => product.quantity < stockThreshold && product.quantity > 0);
   }
 
   // 가격 업데이트

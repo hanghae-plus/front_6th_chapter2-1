@@ -151,8 +151,8 @@ export class CartEventListeners {
     // 장바구니 요약 업데이트 이벤트
     this.uiEventBus.on("cart:summary:updated", () => {
       // DOM에서 장바구니 아이템을 가져와서 이벤트로 전달
-      const cartDisplay = document.querySelector("#cart-items");
-      const cartItems = Array.from(cartDisplay.children);
+      const cartList = document.querySelector("#cart-items");
+      const cartItems = Array.from(cartList.children);
 
       // 장바구니 요약 계산 요청 이벤트 발송
       this.uiEventBus.emit("cart:summary:calculation:requested", {
