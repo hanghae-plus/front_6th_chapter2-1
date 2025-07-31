@@ -1,10 +1,10 @@
+import { LIGHTNING_DISCOUNT_RATE, SUGGEST_DISCOUNT_RATE } from './const/discount';
+import { OUT_OF_STOCK } from './const/stock';
 import { handleUpdateProductSelectOptions } from './controller/handleProductSelector';
 import { initialProducts } from './data/product';
 import { cartManager } from './domain/cart';
 import { calculateBonusPoints } from './domain/point';
 import productManager from './domain/product';
-import { OUT_OF_STOCK } from './const/stock';
-import { LIGHTNING_DISCOUNT_RATE, SUGGEST_DISCOUNT_RATE } from './const/discount';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/applyDiscount';
 import {
   renderDiscountInfo,
