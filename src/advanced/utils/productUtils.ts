@@ -49,6 +49,22 @@ export const formatOptionMessage = (product: Product) => {
   return baseText;
 };
 
+export const getDiscountIconAndColor = (product: Product) => {
+  let icon = '';
+  let priceColor = '';
+  if (product.onSale && product.suggestSale) {
+    icon = '⚡💝';
+    priceColor = 'text-purple-600';
+  } else if (product.onSale) {
+    icon = '⚡';
+    priceColor = 'text-red-500';
+  } else if (product.suggestSale) {
+    icon = '💝';
+    priceColor = 'text-blue-500';
+  }
+  return { icon, priceColor };
+};
+
 export const toProductOption = (product: Product) => ({
   id: product.id,
   message: formatOptionMessage(product),

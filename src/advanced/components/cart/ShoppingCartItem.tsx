@@ -1,7 +1,9 @@
 import React, { MouseEvent } from 'react';
 
+import { PER_ITEM_DISCOUNT_THRESHOLD } from '@/const/discount';
 import { Product } from '@/data/product';
 import { useCartWithProduct } from '@/hooks/useCartWithProducts';
+import { getDiscountIconAndColor } from '@/utils/productUtils';
 
 type Props = { product: Product };
 
@@ -9,6 +11,10 @@ const ShoppingCartItem = ({ product }: Props) => {
   const { updateCartItemQuantity, removeFromCart } = useCartWithProduct();
 
   const { id, name, price, discountPrice, quantity } = product;
+
+  const hasDiscount = price !== discountPrice;
+  const hasBonusDiscountCondition = quantity >= PER_ITEM_DISCOUNT_THRESHOLD;
+  const { icon, priceColor } = getDiscountIconAndColor(product);
 
   const handleClickAddButton = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -34,7 +40,7 @@ const ShoppingCartItem = ({ product }: Props) => {
         <div className="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45" />
       </div>
       <div>
-        <h3 className="text-base font-normal mb-1 tracking-tight">{name}</h3>
+        <h3 className="text-base font-normal mb-1 tracking-tight">{`${icon}${name}`}</h3>
         <p className="text-xs text-gray-500 mb-0.5 tracking-wide">PRODCT</p>
         <p className="text-xs text-black mb-3">₩{discountPrice?.toLocaleString()}</p>
         <div className="flex items-center gap-4">
@@ -56,9 +62,18 @@ const ShoppingCartItem = ({ product }: Props) => {
         </div>
       </div>
       <div className="text-right">
-        <div className="text-lg mb-2 tracking-tight tabular-nums">
-          <span className="line-through text-gray-400">₩{price?.toLocaleString()}</span>
-          <span className="text-purple-600">₩{discountPrice?.toLocaleString()}</span>
+        <div
+          className="text-lg mb-2 tracking-tight tabular-nums"
+          style={{ fontWeight: hasBonusDiscountCondition ? 'bold' : 'normal' }}
+        >
+          {hasDiscount ? (
+            <>
+              <span className="line-through text-gray-400">₩{price?.toLocaleString()}</span>
+              <span className={priceColor}>₩{discountPrice?.toLocaleString()}</span>
+            </>
+          ) : (
+            `₩${price?.toLocaleString()}`
+          )}
         </div>
         <a
           className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
