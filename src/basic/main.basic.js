@@ -1,6 +1,6 @@
 import { handleUpdateProductSelectOptions } from './controller/handleProductSelector';
 import { cartManager } from './domain/cart';
-import { calculateBonusPoints, renderBonusPoints } from './domain/point';
+import { calculateBonusPoints } from './domain/point';
 import { initialProducts, LIGHTNING_DISCOUNT, OUT_OF_STOCK, SUGGEST_DISCOUNT } from './domain/product';
 import productManager from './domain/product';
 import { applyItemDiscount, applyTotalDiscount } from './usecase/applyDiscount';
@@ -15,6 +15,7 @@ import {
 } from './view/cartSummary';
 import { globalElements } from './view/globalElements';
 import { renderLayout } from './view/layout';
+import { renderBonusPoints } from './view/point';
 
 let totalAmount = 0;
 
