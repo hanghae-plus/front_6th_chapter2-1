@@ -1,6 +1,6 @@
 import { useCartDispatch, useCartState } from '../../../contexts/CartContext';
 
-export const AddButton = () => {
+export const AddToCartButton = () => {
   const dispatch = useCartDispatch();
   const state = useCartState();
 
