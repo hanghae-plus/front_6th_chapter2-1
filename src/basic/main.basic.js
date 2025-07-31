@@ -817,53 +817,121 @@ function renderDiscountInfoPanel(discountRate, totalAmount, originalTotal) {
   }
 }
 
-function updateProductSelectOptions() {
-  let totalStock;
-  let opt;
-  let discountText;
-  productSelectElement.innerHTML = "";
-  totalStock = 0;
-
+/**
+ * 상품 선택 옵션 데이터 계산 (순수 함수)
+ * @returns {Object} 상품 선택 옵션 데이터
+ */
+function calculateProductSelectData() {
   const products = useProductData.getProducts();
 
+  // 전체 재고 계산
+  let totalStock = 0;
   for (let idx = 0; idx < products.length; idx += 1) {
     const product = products[idx];
     totalStock += product.q;
   }
 
-  for (let i = 0; i < products.length; i += 1) {
-    (function () {
-      const item = products[i];
-      opt = document.createElement("option");
-      opt.value = item.id;
-      discountText = "";
-      if (item.onSale) discountText += " ⚡SALE";
-      if (item.suggestSale) discountText += " 💝추천";
-      if (item.q === 0) {
-        opt.textContent = `${item.name} - ${item.val}원 (품절)${discountText}`;
-        opt.disabled = true;
-        opt.className = "text-gray-400";
-      } else if (item.onSale && item.suggestSale) {
-        opt.textContent = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (${DISCOUNT_RULES.LIGHTNING_SALE_RATE + DISCOUNT_RULES.RECOMMENDATION_DISCOUNT_RATE}% SUPER SALE!)`;
-        opt.className = "text-purple-600 font-bold";
-      } else if (item.onSale) {
-        opt.textContent = `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (${DISCOUNT_RULES.LIGHTNING_SALE_RATE}% SALE!)`;
-        opt.className = "text-red-500 font-bold";
-      } else if (item.suggestSale) {
-        opt.textContent = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (${DISCOUNT_RULES.RECOMMENDATION_DISCOUNT_RATE}% 추천할인!)`;
-        opt.className = "text-blue-500 font-bold";
-      } else {
-        opt.textContent = `${item.name} - ${item.val}원${discountText}`;
-      }
-      productSelectElement.appendChild(opt);
-    })();
-  }
+  // 각 상품별 옵션 데이터 생성
+  const optionData = products.map(function (item) {
+    let discountText = "";
+    if (item.onSale) discountText += " ⚡SALE";
+    if (item.suggestSale) discountText += " 💝추천";
 
-  if (totalStock < STOCK_THRESHOLDS.TOTAL_STOCK_WARNING) {
-    productSelectElement.style.borderColor = "orange";
-  } else {
-    productSelectElement.style.borderColor = "";
-  }
+    // 상품 상태별 텍스트와 클래스 결정
+    let optionText;
+    let optionClass;
+    let isDisabled;
+
+    if (item.q === 0) {
+      optionText = `${item.name} - ${item.val}원 (품절)${discountText}`;
+      optionClass = "text-gray-400";
+      isDisabled = true;
+    } else if (item.onSale && item.suggestSale) {
+      const totalDiscountRate = DISCOUNT_RULES.LIGHTNING_SALE_RATE + DISCOUNT_RULES.RECOMMENDATION_DISCOUNT_RATE;
+      optionText = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (${totalDiscountRate}% SUPER SALE!)`;
+      optionClass = "text-purple-600 font-bold";
+      isDisabled = false;
+    } else if (item.onSale) {
+      optionText = `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (${DISCOUNT_RULES.LIGHTNING_SALE_RATE}% SALE!)`;
+      optionClass = "text-red-500 font-bold";
+      isDisabled = false;
+    } else if (item.suggestSale) {
+      optionText = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (${DISCOUNT_RULES.RECOMMENDATION_DISCOUNT_RATE}% 추천할인!)`;
+      optionClass = "text-blue-500 font-bold";
+      isDisabled = false;
+    } else {
+      optionText = `${item.name} - ${item.val}원${discountText}`;
+      optionClass = "";
+      isDisabled = false;
+    }
+
+    return {
+      id: item.id,
+      text: optionText,
+      className: optionClass,
+      disabled: isDisabled,
+    };
+  });
+
+  return {
+    options: optionData,
+    totalStock,
+    shouldShowWarning: totalStock < STOCK_THRESHOLDS.TOTAL_STOCK_WARNING,
+  };
+}
+
+/**
+ * 상품 선택 옵션 엘리먼트들 생성 (순수 함수)
+ * @param {Object} selectData - 상품 선택 데이터
+ * @returns {Array} option 엘리먼트 배열
+ */
+function createProductSelectOptions(selectData) {
+  return selectData.options.map(function (optionData) {
+    const opt = document.createElement("option");
+    opt.value = optionData.id;
+    opt.textContent = optionData.text;
+    opt.disabled = optionData.disabled;
+    if (optionData.className) {
+      opt.className = optionData.className;
+    }
+    return opt;
+  });
+}
+
+/**
+ * 상품 선택 렌더러 객체
+ * DOM 조작만 담당
+ */
+const ProductSelectRenderer = {
+  /**
+   * 상품 선택 옵션 렌더링
+   * @param {Object} selectData - 상품 선택 데이터
+   */
+  render(selectData) {
+    // 기존 옵션들 초기화
+    productSelectElement.innerHTML = "";
+
+    // 새 옵션들 생성 및 추가
+    const options = createProductSelectOptions(selectData);
+    options.forEach(function (opt) {
+      productSelectElement.appendChild(opt);
+    });
+
+    // 재고 부족 경고 표시
+    if (selectData.shouldShowWarning) {
+      productSelectElement.style.borderColor = "orange";
+    } else {
+      productSelectElement.style.borderColor = "";
+    }
+  },
+};
+
+/**
+ * 상품 선택 옵션 업데이트 (리팩토링된 버전)
+ */
+function updateProductSelectOptions() {
+  const selectData = calculateProductSelectData();
+  ProductSelectRenderer.render(selectData);
 }
 
 function renderBonusPointsDisplay() {
