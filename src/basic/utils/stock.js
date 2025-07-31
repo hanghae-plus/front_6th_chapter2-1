@@ -25,7 +25,7 @@ export function getStockStatus(quantity) {
  * @returns {Array} 재고 부족 상품 목록
  */
 export function getLowStockProducts(products) {
-  return products.filter((product) => product.q < LOW_STOCK_THRESHOLD);
+  return products.filter((product) => product.quantity < LOW_STOCK_THRESHOLD);
 }
 
 /**
@@ -36,10 +36,10 @@ export function getLowStockProducts(products) {
 export function generateStockWarningMessage(lowStockProducts) {
   return lowStockProducts
     .map((product) => {
-      if (product.q === 0) {
+      if (product.quantity === 0) {
         return `${product.name}: 품절`;
       }
-      return `${product.name}: 재고 부족 (${product.q}개 남음)`;
+      return `${product.name}: 재고 부족 (${product.quantity}개 남음)`;
     })
     .join('\n');
 }
@@ -57,12 +57,12 @@ export function updateStockQuantity(products, productId, change) {
     return false;
   }
 
-  const newQuantity = product.q + change;
+  const newQuantity = product.quantity + change;
   if (newQuantity < 0) {
     return false; // 재고 부족
   }
 
-  product.q = newQuantity;
+  product.quantity = newQuantity;
   return true;
 }
 
@@ -73,7 +73,7 @@ export function updateStockQuantity(products, productId, change) {
  * @returns {boolean} 재고 충분 여부
  */
 export function hasEnoughStock(product, requestedQuantity) {
-  return product.q >= requestedQuantity;
+  return product.quantity >= requestedQuantity;
 }
 
 /**
@@ -82,5 +82,5 @@ export function hasEnoughStock(product, requestedQuantity) {
  * @returns {boolean} 선택 가능 여부
  */
 export function isProductSelectable(product) {
-  return product.q > 0;
+  return product.quantity > 0;
 }

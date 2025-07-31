@@ -1,5 +1,5 @@
-import type { Product } from '../types';
 import { LOW_STOCK_THRESHOLD } from '../constants';
+import type { Product } from '../types';
 
 /**
  * 재고 상태를 가져옵니다.
@@ -13,19 +13,20 @@ export function getStockStatus(quantity: number) {
       text: '품절',
       isSelectable: false,
     };
-  } else if (quantity < LOW_STOCK_THRESHOLD) {
+  }
+  if (quantity < LOW_STOCK_THRESHOLD) {
     return {
       status: 'low_stock',
       text: `${quantity}개 남음`,
       isSelectable: true,
     };
-  } else {
-    return {
-      status: 'in_stock',
-      text: `${quantity}개`,
-      isSelectable: true,
-    };
   }
+
+  return {
+    status: 'in_stock',
+    text: `${quantity}개`,
+    isSelectable: true,
+  };
 }
 
 /**
@@ -34,7 +35,9 @@ export function getStockStatus(quantity: number) {
  * @returns {Product[]} 재고 부족 상품 목록
  */
 export function getLowStockProducts(products: Product[]): Product[] {
-  return products.filter((product) => product.q > 0 && product.q < LOW_STOCK_THRESHOLD);
+  return products.filter(
+    (product) => product.quantity > 0 && product.quantity < LOW_STOCK_THRESHOLD
+  );
 }
 
 /**
@@ -48,7 +51,7 @@ export function generateStockWarningMessage(lowStockProducts: Product[]): string
   }
 
   const warnings = lowStockProducts.map((product) => {
-    const stockStatus = getStockStatus(product.q);
+    const stockStatus = getStockStatus(product.quantity);
     return `${product.name}: ${stockStatus.text}`;
   });
 
@@ -64,7 +67,7 @@ export function generateStockWarningMessage(lowStockProducts: Product[]): string
 export function updateStockQuantity(products: Product[], productId: string, change: number): void {
   const product = findProductById(products, productId);
   if (product) {
-    product.q = Math.max(0, product.q + change);
+    product.quantity = Math.max(0, product.quantity + change);
   }
 }
 
@@ -75,7 +78,7 @@ export function updateStockQuantity(products: Product[], productId: string, chan
  * @returns {boolean} 재고 충분 여부
  */
 export function hasEnoughStock(product: Product, requestedQuantity: number): boolean {
-  return product.q >= requestedQuantity;
+  return product.quantity >= requestedQuantity;
 }
 
 /**
@@ -84,7 +87,7 @@ export function hasEnoughStock(product: Product, requestedQuantity: number): boo
  * @returns {boolean} 선택 가능 여부
  */
 export function isProductSelectable(product: Product): boolean {
-  return product.q > 0;
+  return product.quantity > 0;
 }
 
 /**
@@ -95,4 +98,4 @@ export function isProductSelectable(product: Product): boolean {
  */
 function findProductById(products: Product[], productId: string): Product | undefined {
   return products.find((product) => product.id === productId);
-} 
+}

@@ -1,7 +1,6 @@
-import type { Product, CartItem } from '../types';
-import { 
-  INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD, 
-  BULK_PURCHASE_THRESHOLD, 
+import {
+  INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD,
+  BULK_PURCHASE_THRESHOLD,
   BULK_PURCHASE_DISCOUNT,
   TUESDAY_SPECIAL_DISCOUNT,
   PRODUCT_DISCOUNTS,
@@ -11,7 +10,7 @@ import {
   NOTEBOOK_CASE,
   SPEAKER,
 } from '../constants';
-
+import type { Product, CartItem } from '../types';
 
 /**
  * 개별 상품 할인을 계산합니다.
@@ -76,16 +75,19 @@ export function calculateTotalDiscounts(cartItems: CartItem[], isTuesday: boolea
   cartItems.forEach((item) => {
     const itemTotal = item.val * item.quantity;
     subtotal += itemTotal;
-    
-    const individualDiscount = calculateIndividualDiscount({
-      id: item.id,
-      name: item.name,
-      val: item.val,
-      originalVal: item.originalVal,
-      q: item.quantity,
-      onSale: item.onSale,
-      suggestSale: item.suggestSale,
-    }, item.quantity);
+
+    const individualDiscount = calculateIndividualDiscount(
+      {
+        id: item.id,
+        name: item.name,
+        val: item.val,
+        originalVal: item.originalVal,
+        quantity: item.quantity,
+        onSale: item.onSale,
+        suggestSale: item.suggestSale,
+      },
+      item.quantity
+    );
     individualDiscountTotal += itemTotal * individualDiscount;
   });
 
@@ -95,7 +97,10 @@ export function calculateTotalDiscounts(cartItems: CartItem[], isTuesday: boolea
   bulkDiscountTotal = subtotal * bulkDiscount;
 
   // 화요일 할인 계산
-  const tuesdayDiscount = calculateTuesdayDiscount(isTuesday, subtotal - individualDiscountTotal - bulkDiscountTotal);
+  const tuesdayDiscount = calculateTuesdayDiscount(
+    isTuesday,
+    subtotal - individualDiscountTotal - bulkDiscountTotal
+  );
   tuesdayDiscountTotal = (subtotal - individualDiscountTotal - bulkDiscountTotal) * tuesdayDiscount;
 
   const totalDiscount = individualDiscountTotal + bulkDiscountTotal + tuesdayDiscountTotal;
@@ -110,4 +115,4 @@ export function calculateTotalDiscounts(cartItems: CartItem[], isTuesday: boolea
     finalTotal,
     discountRate: subtotal > 0 ? totalDiscount / subtotal : 0,
   };
-} 
+}

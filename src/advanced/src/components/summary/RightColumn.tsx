@@ -1,15 +1,15 @@
-import type { RightColumnProps } from '../../types';
 import { LoyaltyPointsTag } from './LoyaltyPointsTag';
 import { TUESDAY_SPECIAL_DISCOUNT } from '../../constants';
-import { isTuesday } from '../../utils/date';
 import { useCartStore } from '../../store';
+import type { RightColumnProps } from '../../types';
+import { isTuesday } from '../../utils/date';
 
 export const RightColumn = ({ total, bonusPoints, pointsDetail }: RightColumnProps) => {
   const isTuesdayToday = isTuesday();
   const { items } = useCartStore();
 
   return (
-    <div className='bg-gray-900 text-white p-8 overflow-y-auto'>
+    <div className='bg-black text-white p-8'>
       <div className='flex flex-col h-full'>
         <div className='mb-6'>
           <h2 className='text-lg font-medium mb-4'>Order Summary</h2>

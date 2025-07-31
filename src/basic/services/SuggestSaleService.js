@@ -52,7 +52,7 @@ function triggerSuggestSale(productList, productState, doUpdatePricesInCart) {
  */
 function findSuggestProduct(productList, selectedProductId) {
   return productList.find(
-    (product) => product.id !== selectedProductId && product.q > 0 && !product.suggestSale
+    (product) => product.id !== selectedProductId && product.quantity > 0 && !product.suggestSale
   );
 }
 

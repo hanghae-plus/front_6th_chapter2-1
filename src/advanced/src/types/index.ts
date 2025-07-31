@@ -6,7 +6,7 @@ export interface Product {
   name: string;
   val: number;
   originalVal: number;
-  q: number;
+  quantity: number;
   onSale: boolean;
   suggestSale: boolean;
 }

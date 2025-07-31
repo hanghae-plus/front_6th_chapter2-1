@@ -10,7 +10,7 @@ export const AddToCartButton = () => {
     if (!selectedProduct) return;
 
     const product = findProductById(products, selectedProduct);
-    if (!product || product.q <= 0) return;
+    if (!product || product.quantity <= 0) return;
 
     // 장바구니에 추가
     addItem({
@@ -30,12 +30,12 @@ export const AddToCartButton = () => {
 
   return (
     <button
-      id="add-to-cart"
-      className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+      id='add-to-cart'
+      className='w-full py-3 bg-black text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed'
       onClick={handleAddToCart}
       disabled={!selectedProduct}
     >
       Add to Cart
     </button>
   );
-}; 
+};

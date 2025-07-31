@@ -41,17 +41,17 @@ export function calculateCart(params) {
   for (let i = 0; i < cartItems.length; i++) {
     const curItem = findProductById(productList, cartItems[i].id);
     const qtyElem = cartItems[i].querySelector('.quantity-number');
-    const q = parseInt(qtyElem.textContent);
-    const itemTot = curItem.val * q;
+    const quantity = parseInt(qtyElem.textContent);
+    const itemTot = curItem.val * quantity;
     let disc = 0;
 
-    itemCnt += q;
+    itemCnt += quantity;
     subTot += itemTot;
 
     // 개별 상품 할인 적용
-    updateItemPriceDisplay(cartItems[i], q);
+    updateItemPriceDisplay(cartItems[i], quantity);
 
-    if (q >= INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD) {
+    if (quantity >= INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD) {
       disc = calculateIndividualDiscount(curItem.id);
       if (disc > 0) {
         itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
@@ -193,11 +193,11 @@ function updateSummaryDetails(
     for (let i = 0; i < cartItems.length; i++) {
       const curItem = findProductById(productList, cartItems[i].id);
       const qtyElem = cartItems[i].querySelector('.quantity-number');
-      const q = parseInt(qtyElem.textContent);
-      const itemTotal = curItem.val * q;
+      const quantity = parseInt(qtyElem.textContent);
+      const itemTotal = curItem.val * quantity;
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
-          <span>${curItem.name} x ${q}</span>
+          <span>${curItem.name} x ${quantity}</span>
           <span>₩${itemTotal.toLocaleString()}</span>
         </div>
       `;

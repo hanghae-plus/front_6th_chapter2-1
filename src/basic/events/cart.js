@@ -22,13 +22,13 @@ export function handleAddToCart(event, context) {
 
   const itemToAdd = findProductById(productList, selItem);
 
-  if (itemToAdd && itemToAdd.q > 0) {
+  if (itemToAdd && itemToAdd.quantity > 0) {
     const item = document.getElementById(itemToAdd.id);
     if (item) {
       // 이미 장바구니에 있는 상품인 경우 수량 증가
       const qtyElem = item.querySelector('.quantity-number');
       const newQty = parseInt(qtyElem.textContent) + 1;
-      if (newQty <= itemToAdd.q + parseInt(qtyElem.textContent)) {
+      if (newQty <= itemToAdd.quantity + parseInt(qtyElem.textContent)) {
         qtyElem.textContent = newQty;
         updateStockQuantity(productList, itemToAdd.id, -1);
       } else {
@@ -64,7 +64,7 @@ export function handleQuantityChange(event, context) {
   const currentQty = parseInt(qtyElem.textContent);
   const newQty = currentQty + qtyChange;
 
-  if (newQty > 0 && newQty <= prod.q + currentQty) {
+  if (newQty > 0 && newQty <= prod.quantity + currentQty) {
     // 수량 변경
     qtyElem.textContent = newQty;
     updateStockQuantity(productList, prodId, -qtyChange);

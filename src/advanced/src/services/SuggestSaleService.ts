@@ -16,7 +16,7 @@ const timerState = {
 function findSuggestProduct(products: Product[], selectedProductId: string): Product | null {
   return (
     products.find(
-      (product) => product.id !== selectedProductId && product.q > 0 && !product.suggestSale
+      (product) => product.id !== selectedProductId && product.quantity > 0 && !product.suggestSale
     ) || null
   );
 }

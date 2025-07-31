@@ -35,7 +35,7 @@ function triggerLightningSale(productList, doUpdatePricesInCart) {
   const luckyIdx = Math.floor(Math.random() * productList.length);
   const luckyItem = productList[luckyIdx];
 
-  if (luckyItem.q > 0 && !luckyItem.onSale) {
+  if (luckyItem.quantity > 0 && !luckyItem.onSale) {
     luckyItem.val = Math.round((luckyItem.originalVal * (100 - LIGHTNING_SALE_DISCOUNT)) / 100);
     luckyItem.onSale = true;
 

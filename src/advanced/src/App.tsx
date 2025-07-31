@@ -74,7 +74,7 @@ const App = () => {
   ]);
 
   return (
-    <div className='min-h-screen bg-gray-50 p-8'>
+    <div className='min-h-screen bg-gray-50'>
       <div className='max-w-7xl mx-auto flex flex-col h-screen'>
         <Header itemCount={itemCount} />
         <div className='flex-1 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 min-h-0'>

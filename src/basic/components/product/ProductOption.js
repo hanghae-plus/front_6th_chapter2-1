@@ -6,24 +6,24 @@
  * @param {string} props.item.id - 상품 ID
  * @param {string} props.item.name - 상품명
  * @param {number} props.item.val - 가격
- * @param {number} props.item.q - 재고 수량
+ * @param {number} props.item.quantity - 재고 수량
  * @param {boolean} props.item.onSale - 번개세일 여부
  * @param {boolean} props.item.suggestSale - 추천할인 여부
  * @returns {string} 상품 옵션 HTML
  */
 export function ProductOption({ item }) {
-  const { id, name, val, q, onSale, suggestSale } = item;
+  const { id, name, val, quantity, onSale, suggestSale } = item;
 
   // 할인 상태 계산
   const discountStates = [];
   if (onSale) discountStates.push('⚡SALE');
   if (suggestSale) discountStates.push('💝SUGGEST');
 
-  const stockText = q === 0 ? '품절' : `${q}개`;
+  const stockText = quantity === 0 ? '품절' : `${quantity}개`;
   const discountDisplay = discountStates.length > 0 ? ` (${discountStates.join(', ')})` : '';
 
   return /* HTML */ `
-    <option value="${id}" ${q === 0 ? 'disabled' : ''}>
+    <option value="${id}" ${quantity === 0 ? 'disabled' : ''}>
       ${name}${discountDisplay} - ${val}원 - ${stockText}
     </option>
   `;

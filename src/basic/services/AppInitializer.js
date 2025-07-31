@@ -223,7 +223,7 @@ function doUpdatePricesInCart(elements, services) {
  */
 function onUpdateSelectOptions(elements) {
   elements.sel.innerHTML = '';
-  const totalStock = productList.reduce((acc, product) => acc + product.q, 0);
+  const totalStock = productList.reduce((acc, product) => acc + product.quantity, 0);
 
   const optionsHTML = productList.map((item) => getProductOptionComponent()({ item })).join('');
   elements.sel.innerHTML = optionsHTML;
