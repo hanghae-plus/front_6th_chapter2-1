@@ -6,7 +6,7 @@
   "homepage": "https://geonhwiii.github.io/front_6th_chapter2-1",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cp ./dist/index.advanced.html ./dist/404.html",
     "preview": "vite preview",
     "start:basic": "vite serve --open ./index.basic.html",
     "start:advanced": "vite serve --open ./index.advanced.html",
