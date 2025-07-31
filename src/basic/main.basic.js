@@ -51,16 +51,15 @@ const initializeApp = () => {
   });
 
   // App 컴포넌트 렌더링
-  const { appElement, helpModal } = App();
+  const { appElement, helpModal, header } = App();
   const root = document.getElementById('app');
 
-  // 기존 내용 제거 후 App 추가
+  // 기존 내용 제거 후 Original과 동일한 순서로 추가
   root.innerHTML = '';
-  root.appendChild(appElement);
-
-  // HelpModal은 객체이므로 toggleButton과 overlay를 각각 추가
-  root.appendChild(helpModal.toggleButton);
-  root.appendChild(helpModal.overlay);
+  root.appendChild(header); // 1. Header
+  root.appendChild(appElement); // 2. Grid Container
+  root.appendChild(helpModal.toggleButton); // 3. Help Toggle Button
+  root.appendChild(helpModal.overlay); // 4. Help Modal Overlay
 
   // HelpModal 이벤트 핸들러 연결
   helpModal.toggleButton.addEventListener('click', helpModal.handleToggle);
