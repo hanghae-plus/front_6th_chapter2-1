@@ -1,3 +1,5 @@
+import { BUSINESS_CONSTANTS } from '@/advanced/shared/constants/business.ts';
+
 interface CartItemProps {
   id: string;
   name: string;
@@ -37,6 +39,10 @@ const CartItem = ({
     return '';
   };
 
+  // 할인 대상 수량인지 확인
+  const isDiscountableQuantity =
+    quantity >= BUSINESS_CONSTANTS.DISCOUNT.ITEM_DISCOUNT_MIN_QUANTITY;
+
   // 수량 변경 핸들러
   const handleQuantityChange = (change: number) => {
     if (onQuantityChange) {
@@ -55,6 +61,7 @@ const CartItem = ({
   const renderPrice = (price: number, quantity: number = 1) => {
     const totalPrice = price * quantity;
     const originalTotalPrice = originalVal * quantity;
+    const priceClass = `${getPriceColorClass()}${isDiscountableQuantity && quantity > 1 ? ' font-bold' : ''}`;
 
     if (onSale || suggestSale) {
       return (
@@ -62,14 +69,18 @@ const CartItem = ({
           <span className='line-through text-gray-400'>
             ₩{originalTotalPrice.toLocaleString()}
           </span>{' '}
-          <span className={getPriceColorClass()}>
-            ₩{totalPrice.toLocaleString()}
-          </span>
+          <span className={priceClass}>₩{totalPrice.toLocaleString()}</span>
         </>
       );
     }
 
-    return `₩${totalPrice.toLocaleString()}`;
+    return (
+      <span
+        className={isDiscountableQuantity && quantity > 1 ? 'font-bold' : ''}
+      >
+        ₩{totalPrice.toLocaleString()}
+      </span>
+    );
   };
 
   return (
@@ -87,7 +98,11 @@ const CartItem = ({
           {name}
         </h3>
         <p className='text-xs text-gray-500 mb-0.5 tracking-wide'>PRODUCT</p>
-        <p className='text-xs text-black mb-3'>{renderPrice(val)}</p>
+        <p
+          className={`text-xs text-black mb-3${isDiscountableQuantity ? ' font-bold' : ''}`}
+        >
+          {renderPrice(val)}
+        </p>
         <div className='flex items-center gap-4'>
           <button
             className='quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white'
@@ -108,7 +123,9 @@ const CartItem = ({
       </div>
 
       <div className='text-right'>
-        <div className='text-lg mb-2 tracking-tight tabular-nums'>
+        <div
+          className={`text-lg mb-2 tracking-tight tabular-nums${isDiscountableQuantity ? ' font-bold' : ''}`}
+        >
           {renderPrice(val, quantity)}
         </div>
         <button
