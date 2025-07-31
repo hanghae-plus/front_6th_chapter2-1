@@ -10,16 +10,10 @@ import { ProductSelector } from "../components/ProductSelector";
 import { RightColumn } from "../components/RightColumn";
 import { SelectContainer } from "../components/SelectContainer";
 import { StockInfo } from "../components/StockInfo";
+import { initialProducts, PRODUCT_IDS } from "../features/product";
 
-const PRODUCT_IDS = {
-  KEYBOARD: "p1",
-  MOUSE: "p2",
-  MONITOR_ARM: "p3",
-  LAPTOP_POUCH: "p4",
-  SPEAKER: "p5",
-};
 const state = {
-  prodList: [],
+  prodList: initialProducts,
   bonusPoint: 0,
   itemCount: 0,
   totalAmount: 0,
@@ -29,7 +23,7 @@ const state = {
 const stockInfo = StockInfo();
 const sel = ProductSelector();
 const addBtn = AddButton();
-let cartDisplay = CartDisplay();
+const cartDisplay = CartDisplay();
 
 function main() {
   const gridContainer = GridContainer();
@@ -40,54 +34,7 @@ function main() {
   const manualOverlay = ManualOverlay();
   const manualColumn = ManualColumn();
   const header = Header();
-  let lightningDelay;
-  state.prodList.push(
-    {
-      id: PRODUCT_IDS.KEYBOARD,
-      name: "버그 없애는 키보드",
-      val: 10000,
-      originalVal: 10000,
-      q: 50,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_IDS.MOUSE,
-      name: "생산성 폭발 마우스",
-      val: 20000,
-      originalVal: 20000,
-      q: 30,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_IDS.MONITOR_ARM,
-      name: "거북목 탈출 모니터암",
-      val: 30000,
-      originalVal: 30000,
-      q: 20,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_IDS.LAPTOP_POUCH,
-      name: "에러 방지 노트북 파우치",
-      val: 15000,
-      originalVal: 15000,
-      q: 0,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_IDS.SPEAKER,
-      name: `코딩할 때 듣는 Lo-Fi 스피커`,
-      val: 25000,
-      originalVal: 25000,
-      q: 10,
-      onSale: false,
-      suggestSale: false,
-    }
-  );
+
   const root = document.getElementById("app");
 
   selectorContainer.appendChild(sel);
@@ -121,7 +68,7 @@ function main() {
   }
   onUpdateSelectOptions();
   handleCalculateCartStuff();
-  lightningDelay = Math.random() * 10000;
+  const lightningDelay = Math.random() * 10000;
   setTimeout(() => {
     setInterval(function () {
       let luckyIdx = Math.floor(Math.random() * state.prodList.length);
@@ -238,7 +185,7 @@ function onUpdateSelectOptions() {
 
 function handleCalculateCartStuff() {
   let cartItems;
-  let subTot;
+  let subTotalPrice;
   let itemDiscounts;
   let lowStockItems;
   let idx;
@@ -257,8 +204,8 @@ function handleCalculateCartStuff() {
   state.itemCount = 0;
   originalTotal = state.totalAmount;
   cartItems = cartDisplay.children;
-  subTot = 0;
-  bulkDisc = subTot;
+  subTotalPrice = 0;
+  bulkDisc = subTotalPrice;
   itemDiscounts = [];
   lowStockItems = [];
   for (idx = 0; idx < state.prodList.length; idx++) {
@@ -283,7 +230,7 @@ function handleCalculateCartStuff() {
       itemTot = curItem.val * q;
       disc = 0;
       state.itemCount += q;
-      subTot += itemTot;
+      subTotalPrice += itemTot;
       let itemDiv = cartItems[i];
       let priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
       priceElems.forEach(function (elem) {
@@ -319,12 +266,12 @@ function handleCalculateCartStuff() {
     })();
   }
   let discRate = 0;
-  originalTotal = subTot;
+  originalTotal = subTotalPrice;
   if (state.itemCount >= 30) {
-    state.totalAmount = (subTot * 75) / 100;
+    state.totalAmount = (subTotalPrice * 75) / 100;
     discRate = 25 / 100;
   } else {
-    discRate = (subTot - state.totalAmount) / subTot;
+    discRate = (subTotalPrice - state.totalAmount) / subTotalPrice;
   }
   const today = new Date();
   let isTuesday = today.getDay() === 2;
@@ -344,7 +291,7 @@ function handleCalculateCartStuff() {
     "🛍️ " + state.itemCount + " items in cart";
   summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
-  if (subTot > 0) {
+  if (subTotalPrice > 0) {
     for (let i = 0; i < cartItems.length; i++) {
       let curItem;
       for (let j = 0; j < state.prodList.length; j++) {
@@ -367,7 +314,7 @@ function handleCalculateCartStuff() {
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
         <span>Subtotal</span>
-        <span>₩${subTot.toLocaleString()}</span>
+        <span>₩${subTotalPrice.toLocaleString()}</span>
       </div>
     `;
     if (state.itemCount >= 30) {
