@@ -42,7 +42,7 @@ export function setupTimers(updateUI) {
   }, Math.random() * 20000); // 0~20초 랜덤 지연
 
   // 외부에서 추천 대상 ID를 업데이트하도록 함수 반환
-  return function updateLastSelectedProductId(productId) {
-    lastSelectedProductIdForSuggestion = productId;
+  return function updateLastSelectedProductId() {
+    lastSelectedProductIdForSuggestion = document.getElementById('product-select').value;
   };
 }

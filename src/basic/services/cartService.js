@@ -4,15 +4,15 @@ import { getProductById, updateProductQuantity } from './productService';
 let cartItems = []; // 장바구니 아이템 배열: { id, quantity }
 
 export const getCartItems = () => [...cartItems]; // 장바구니 모든 아이템 반환 (복사본)
-
-export const addItemToCart = (productId) => {
+export const addItemToCart = () => {
+  const productId = document.getElementById('product-select').value; // 선택된 상품 ID 가져오기
   const product = getProductById(productId);
+
   if (!product || product.q <= 0) {
     return { success: false, message: '재고가 부족합니다.' };
   }
 
   const existingItemIndex = cartItems.findIndex((item) => item.id === productId);
-
   if (existingItemIndex > -1) {
     cartItems[existingItemIndex].quantity++; // 수량 증가
   } else {
