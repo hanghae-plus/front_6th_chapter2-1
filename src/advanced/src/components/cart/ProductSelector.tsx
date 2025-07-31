@@ -16,6 +16,11 @@ export const ProductSelector = ({
   onAddToCart,
   stockStatus,
 }: ProductSelectorProps) => {
+  // 선택된 상품 정보
+  const selectedProductInfo = products.find((p) => p.id === selectedProduct);
+  const isProductSelected = selectedProduct && selectedProductInfo;
+  const isProductOutOfStock = selectedProductInfo?.quantity === 0;
+
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">
       <select
@@ -41,10 +46,14 @@ export const ProductSelector = ({
 
       <button
         onClick={onAddToCart}
-        disabled={!selectedProduct}
+        disabled={!isProductSelected || isProductOutOfStock}
         className="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
-        Add to Cart
+        {!isProductSelected
+          ? "상품을 선택하세요"
+          : isProductOutOfStock
+            ? "품절"
+            : "Add to Cart"}
       </button>
 
       {stockStatus && (

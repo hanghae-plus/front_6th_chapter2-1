@@ -30,14 +30,25 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Actions
   const addToCart = useCallback(
     (productId: string) => {
+      // 상품 선택 확인
+      if (!productId) return;
+
       const product = products.find((p) => p.id === productId);
       if (!product) return;
 
+      // 품절 상품 확인
+      if (product.quantity === 0) {
+        const errorMessage = `재고 부족: ${product.name}은(는) 품절입니다.`;
+        setStockError(errorMessage);
+        return;
+      }
+
       const existingItem = cart.find((item) => item.id === productId);
       const currentQuantity = existingItem ? existingItem.quantity : 0;
+      const newQuantity = currentQuantity + 1;
 
-      // 재고 확인
-      if (currentQuantity >= product.quantity) {
+      // 재고 확인 (기존 수량을 고려한 검증)
+      if (newQuantity > product.quantity + currentQuantity) {
         const errorMessage = `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`;
         setStockError(errorMessage);
         return;
@@ -56,9 +67,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (existingItem) {
         setCart((prev) =>
           prev.map((item) =>
-            item.id === productId
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
+            item.id === productId ? { ...item, quantity: newQuantity } : item
           )
         );
         return;
@@ -95,7 +104,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         return;
       }
 
-      // 재고 확인
+      // 재고 확인 (기존 수량을 고려한 검증)
       const product = products.find((p) => p.id === id);
       if (product && quantity > product.quantity + currentQuantity) {
         const errorMessage = `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`;
