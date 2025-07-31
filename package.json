@@ -15,6 +15,7 @@
     "test": "vitest",
     "test:basic": "vitest basic.test.js",
     "test:advanced": "vitest advanced.test.js",
+    "test:react-only": "vitest react-only.test.js",
     "test:ui": "vitest --ui",
     "lint": "eslint src/basic/ --ext .js",
     "lint:fix": "eslint src/basic/ --ext .js --fix",
