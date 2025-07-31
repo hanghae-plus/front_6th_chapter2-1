@@ -4,7 +4,6 @@ import {
   DISCOUNT_RATE_SUPER_SALE,
 } from '@/advanced/data/discount.data';
 import { Product, ProductStatus } from '@/advanced/types/product.type';
-import { getProductStatusIcon } from '@/advanced/utils/cart.util';
 
 export function getProductStatus(product: Product): ProductStatus {
   if (product.stock === 0) return ProductStatus.OUT_OF_STOCK;
@@ -38,4 +37,18 @@ export function createProductText(product: Product): string {
   };
 
   return formatters[status]();
+}
+
+export function getProductStatusIcon(product: Product) {
+  const icons = {
+    [ProductStatus.SUPER_SALE]: '⚡💝',
+    [ProductStatus.LIGHTNING_SALE]: '⚡',
+    [ProductStatus.SUGGESTION_SALE]: '💝',
+    [ProductStatus.OUT_OF_STOCK]: '',
+    [ProductStatus.NORMAL]: '',
+  };
+
+  const status = getProductStatus(product);
+
+  return icons[status];
 }

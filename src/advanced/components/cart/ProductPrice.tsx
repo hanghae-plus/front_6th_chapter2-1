@@ -30,7 +30,7 @@ export default function ProductPrice({ product, size = 'lg' }: Props) {
 
   const productDiscountStyle = isProductDiscount ? 'font-bold' : 'font-normal';
 
-  const textStyle = size === 'lg' ? 'text-lg' : 'text-sm';
+  const textStyle = size === 'lg' ? 'text-lg' : 'text-xs';
 
   return (
     <div

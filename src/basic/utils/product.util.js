@@ -1,5 +1,6 @@
 // TODO : enum 타입 사용하기
 import { PRODUCT_STATUS } from '../data/product.data';
+import { getProductStatusIcon } from './cart.util';
 
 export const getProductStatus = product => {
   if (product.q === 0) return PRODUCT_STATUS.OUT_OF_STOCK;
@@ -44,4 +45,8 @@ export const getProductStyle = status => {
  */
 export function findProductById(productId, productList) {
   return productList.find(product => product.id === productId) || null;
+}
+
+export function createProductName(product) {
+  return getProductStatusIcon(product) + product.name;
 }

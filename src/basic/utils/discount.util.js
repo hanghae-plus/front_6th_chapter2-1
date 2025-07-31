@@ -1,18 +1,13 @@
-import { TUESDAY_DAY_OF_WEEK } from "../data/date.data.js";
+import { TUESDAY_DAY_OF_WEEK } from '../data/date.data.js';
 import {
   DISCOUNT_RATE_BULK,
-  DISCOUNT_RATE_PRODUCT_1,
-  DISCOUNT_RATE_PRODUCT_2,
-  DISCOUNT_RATE_PRODUCT_3,
-  DISCOUNT_RATE_PRODUCT_4,
-  DISCOUNT_RATE_PRODUCT_5,
+  DISCOUNT_RATE_LIST,
   DISCOUNT_RATE_TUESDAY,
-} from "../data/discount.data.js";
-import { PRODUCT_1, PRODUCT_2, PRODUCT_3, PRODUCT_4, PRODUCT_5 } from "../data/product.data.js";
+} from '../data/discount.data.js';
 import {
   MIN_QUANTITY_FOR_BULK_DISCOUNT,
   MIN_QUANTITY_FOR_DISCOUNT,
-} from "../data/quantity.data.js";
+} from '../data/quantity.data.js';
 
 /**
  * 상품별 할인율을 계산하는 함수
@@ -25,15 +20,7 @@ export function calculateProductDiscount(productId, quantity) {
     return 0;
   }
 
-  const discountMap = {
-    [PRODUCT_1]: DISCOUNT_RATE_PRODUCT_1 / 100,
-    [PRODUCT_2]: DISCOUNT_RATE_PRODUCT_2 / 100,
-    [PRODUCT_3]: DISCOUNT_RATE_PRODUCT_3 / 100,
-    [PRODUCT_4]: DISCOUNT_RATE_PRODUCT_4 / 100,
-    [PRODUCT_5]: DISCOUNT_RATE_PRODUCT_5 / 100,
-  };
-
-  return discountMap[productId] || 0;
+  return DISCOUNT_RATE_LIST[productId] / 100 || 0;
 }
 
 /**
@@ -79,4 +66,8 @@ export function applyTuesdayDiscount(totalAmount, originalTotal) {
     discountRate: finalDiscountRate,
     isTuesday,
   };
+}
+
+export function isTuesday() {
+  return new Date().getDay() === TUESDAY_DAY_OF_WEEK;
 }

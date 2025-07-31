@@ -1,4 +1,4 @@
-import { LOW_STOCK_THRESHOLD } from "../data/quantity.data";
+import { LOW_STOCK_THRESHOLD } from '../data/quantity.data';
 
 /**
  * 모든 상품의 재고 합계 계산
@@ -26,17 +26,22 @@ export function getLowStockItems(products, threshold) {
  * @returns {string} 재고 메시지
  */
 export function generateStockMessage(productList) {
-  let stockMessage = "";
+  let stockMessage = '';
 
   productList.forEach(item => {
     if (item.q < LOW_STOCK_THRESHOLD) {
       if (item.q > 0) {
-        stockMessage = stockMessage + item.name + ": 재고 부족 (" + item.q + "개 남음)\n";
+        stockMessage = stockMessage + item.name + ': 재고 부족 (' + item.q + '개 남음)\n';
       } else {
-        stockMessage = stockMessage + item.name + ": 품절\n";
+        stockMessage = stockMessage + item.name + ': 품절\n';
       }
     }
   });
 
   return stockMessage;
+}
+
+export function validateStockAvailability(product, requestedQuantity, currentQuantity = 0) {
+  const availableStock = product.q + currentQuantity;
+  return requestedQuantity <= availableStock;
 }

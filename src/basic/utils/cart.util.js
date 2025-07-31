@@ -32,3 +32,8 @@ export function getProductStatusIcon(product) {
 
   return icons[status];
 }
+
+export function parseQuantityFromElement(element) {
+  if (!element) return 0;
+  return parseInt(element.textContent) || 0;
+}

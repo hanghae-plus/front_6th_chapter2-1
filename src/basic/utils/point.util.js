@@ -5,24 +5,16 @@ import {
   POINT_BONUS_QUANTITY_TIER2,
   POINT_BONUS_QUANTITY_TIER3,
   POINT_RATE_BASE,
-} from "../data/point.data.js";
-import { PRODUCT_1, PRODUCT_2, PRODUCT_3 } from "../data/product.data.js";
+} from '../data/point.data.js';
+import { PRODUCT_1, PRODUCT_2, PRODUCT_3 } from '../data/product.data.js';
 import {
   MIN_QUANTITY_FOR_POINT_BONUS_TIER1,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER2,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER3,
-} from "../data/quantity.data.js";
-/**
- *
- * 기본 포인트를 계산하는 함수
- * @param {number} totalAmount - 총액
- * @returns {number} 기본 포인트
- */
-export function calculateBasePoints(totalAmount) {
-  return Math.floor(totalAmount / POINT_RATE_BASE);
-}
+} from '../data/quantity.data.js';
 
 /**
+ *
  * 기본 포인트를 계산하는 함수
  * @param {number} totalAmount - 총액
  * @returns {number} 기본 포인트
@@ -105,7 +97,7 @@ export function calculateTotalPoints(totalAmount, cartItems, productList, itemCo
   }
 
   if (tuesdayPoints.multiplier > 1) {
-    allDetails.push("화요일 2배");
+    allDetails.push('화요일 2배');
   }
 
   allDetails.push(...bonusPoints.bonusDetails);
