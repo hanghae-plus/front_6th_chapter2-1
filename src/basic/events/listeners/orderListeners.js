@@ -65,6 +65,8 @@ export class OrderEventListeners {
   }
 
   renderOrderSummary(orderSummary, pointsResult) {
+    console.log("orderSummary", orderSummary);
+    console.log("pointsResult", pointsResult);
     const orderState = {
       ...orderSummary,
       cartItems: orderSummary.cartItems || [],

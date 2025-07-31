@@ -21,6 +21,7 @@ function createCartItemRow(productName, quantity, itemTotal) {
 
 // 장바구니 아이템들 HTML을 생성합니다.
 function createCartItemsHTML(cartItems) {
+  console.log("cartItems", cartItems);
   return cartItems
     .map(item => {
       const { quantity, productName, itemTotal } = extractCartItemData(item);

@@ -49,6 +49,7 @@ export class OrderService {
     const itemCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
     return {
+      cartItems,
       subtotal: discountResult.originalAmount,
       totalAmount: discountResult.finalAmount,
       discountRate: discountResult.originalAmount > 0 ? (discountResult.originalAmount - discountResult.finalAmount) / discountResult.originalAmount : 0,
