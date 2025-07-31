@@ -29,25 +29,12 @@ export const calculateTotalDiscount = (cartItems: Cart[], subtotal: number): Dis
   const discounts: DiscountInfo[] = [];
   let totalDiscountAmount = 0;
 
-  // 개별 상품 할인
-  cartItems.forEach(item => {
-    const individualDiscount = calculateIndividualDiscount(item);
-    if (individualDiscount > 0) {
-      const discountAmount = (item.product.price * item.quantity * individualDiscount) / 100;
-      totalDiscountAmount += discountAmount;
-      discounts.push({
-        type: "individual",
-        percentage: individualDiscount,
-        description: `${item.product.name} (10개↑)`,
-        savedAmount: discountAmount,
-      });
-    }
-  });
-
-  // 대량 구매 할인
+  // 대량 구매 할인 확인
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const bulkDiscount = calculateBulkDiscount(totalQuantity);
+
   if (bulkDiscount > 0) {
+    // 대량구매 할인이 적용되면 개별 상품 할인은 제외
     const discountAmount = (subtotal * bulkDiscount) / 100;
     totalDiscountAmount += discountAmount;
     discounts.push({
@@ -55,6 +42,21 @@ export const calculateTotalDiscount = (cartItems: Cart[], subtotal: number): Dis
       percentage: bulkDiscount,
       description: "대량구매 할인 (30개 이상)",
       savedAmount: discountAmount,
+    });
+  } else {
+    // 대량구매 할인이 없을 때만 개별 상품 할인 적용
+    cartItems.forEach(item => {
+      const individualDiscount = calculateIndividualDiscount(item);
+      if (individualDiscount > 0) {
+        const discountAmount = (item.product.price * item.quantity * individualDiscount) / 100;
+        totalDiscountAmount += discountAmount;
+        discounts.push({
+          type: "individual",
+          percentage: individualDiscount,
+          description: `${item.product.name} (10개↑)`,
+          savedAmount: discountAmount,
+        });
+      }
     });
   }
 
