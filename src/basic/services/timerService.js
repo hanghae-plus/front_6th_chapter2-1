@@ -1,28 +1,35 @@
 import { uiEventBus } from "../core/eventBus.js";
-import { PRODUCT_OPTIONS_UPDATED, PRODUCT_PRICES_UPDATED } from "../constants/events.js";
-import { CART_PRICES_UPDATE_REQUESTED } from "../constants/events.js"; // Added missing import
+import { PRODUCT_OPTIONS_UPDATED, CART_PRICES_UPDATE_REQUESTED, PRODUCT_PRICES_UPDATED } from "../constants/events.js";
+import { calculateProductDiscountInfos } from "../utils/discountUtils.js";
 
+// 타이머 서비스
 export class TimerService {
   constructor(productService, discountService, cartService) {
     this.productService = productService;
     this.discountService = discountService;
-    this.cartService = cartService; // ✅ CartService 의존성 추가
+    this.cartService = cartService;
     this.lightningSaleTimer = null;
     this.suggestSaleTimer = null;
   }
 
   // 번개세일 타이머 시작
   startLightningSaleTimer() {
-    this.lightningSaleTimer = setInterval(() => {
-      this.applyLightningSale();
-    }, 30000); // 30초마다 실행
+    const lightningDelay = Math.random() * 10000;
+    setTimeout(() => {
+      this.lightningSaleTimer = setInterval(() => {
+        this.applyLightningSale();
+      }, 30000);
+    }, lightningDelay);
   }
 
   // 추천세일 타이머 시작
   startSuggestSaleTimer() {
-    this.suggestSaleTimer = setInterval(() => {
-      this.applySuggestSale();
-    }, 45000); // 45초마다 실행
+    const suggestDelay = Math.random() * 20000;
+    setTimeout(() => {
+      this.suggestSaleTimer = setInterval(() => {
+        this.applySuggestSale();
+      }, 60000);
+    }, suggestDelay);
   }
 
   // 번개세일 적용 (순수 비즈니스 로직)
@@ -51,7 +58,7 @@ export class TimerService {
   notifyUIUpdate() {
     const originalProducts = this.productService.getProducts();
     const productsWithDiscounts = this.discountService.getProductsWithCurrentDiscounts(originalProducts);
-    const discountInfos = this.calculateProductDiscountInfos(productsWithDiscounts);
+    const discountInfos = calculateProductDiscountInfos(productsWithDiscounts, this.discountService);
 
     // 상품 옵션 업데이트 이벤트 발송
     uiEventBus.emit(PRODUCT_OPTIONS_UPDATED, {
@@ -95,15 +102,6 @@ export class TimerService {
       itemsToUpdate,
       success: true,
     });
-  }
-
-  // 할인 정보 계산 (순수 비즈니스 로직)
-  calculateProductDiscountInfos(products) {
-    return products.map(product => ({
-      productId: product.id,
-      rate: product.discountRate || this.discountService.calculateProductDiscountRate(product),
-      status: product.discountStatus || this.discountService.getProductDiscountStatus(product),
-    }));
   }
 
   // 마지막 선택된 상품 조회 (순수 비즈니스 로직)

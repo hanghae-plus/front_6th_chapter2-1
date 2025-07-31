@@ -1,4 +1,6 @@
 import { QUANTITY_THRESHOLDS } from "../constants/index.js";
+import { uiEventBus } from "../core/eventBus.js";
+import { CART_ADD_REQUESTED } from "../constants/events.js";
 
 // 매직 넘버 상수
 const PERCENT_MULTIPLIER = 100;
@@ -97,7 +99,7 @@ function createProductSelect(products, discountInfos) {
 }
 
 // ProductSelector 컴포넌트를 생성합니다.
-export function createProductSelector({ products, discountInfos, onAddToCart }) {
+export function createProductSelector({ products, discountInfos }) {
   const container = document.createElement("div");
   container.id = "product-selector";
   container.className = "mb-6 pb-6 border-b border-gray-200";
@@ -106,7 +108,10 @@ export function createProductSelector({ products, discountInfos, onAddToCart }) 
   const button = createAddButton();
   const stockInfo = createStockStatus();
 
-  if (onAddToCart) button.addEventListener("click", onAddToCart);
+  // ✅ 컴포넌트 내부에서 직접 이벤트 처리
+  button.addEventListener("click", () => {
+    uiEventBus.emit(CART_ADD_REQUESTED);
+  });
 
   container.appendChild(select);
   container.appendChild(button);

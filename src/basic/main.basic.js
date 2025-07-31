@@ -19,7 +19,9 @@ import { uiEventBus } from "./core/eventBus.js";
 import { CartEventListeners } from "./events/listeners/cartListeners.js";
 import { ProductEventListeners } from "./events/listeners/productListeners.js";
 import { OrderEventListeners } from "./events/listeners/orderListeners.js";
-import { CART_ADD_REQUESTED } from "./constants/events.js";
+
+// utils
+import { calculateProductDiscountInfos } from "./utils/discountUtils.js";
 
 // Event Bus 이벤트 리스너 초기화
 function initEventBusListeners(serviceManager) {
@@ -59,9 +61,6 @@ function main() {
   const selectorContainer = createProductSelector({
     products: productsWithDiscounts,
     discountInfos: calculateProductDiscountInfos(productsWithDiscounts, discountService),
-    onAddToCart: () => {
-      uiEventBus.emit(CART_ADD_REQUESTED);
-    },
   });
 
   const cartList = createCartList();
@@ -88,14 +87,6 @@ function main() {
   const timerService = new TimerService(productService, discountService, cartService);
   timerService.startLightningSaleTimer();
   timerService.startSuggestSaleTimer();
-}
-
-function calculateProductDiscountInfos(products, discountService) {
-  return products.map(product => ({
-    productId: product.id,
-    rate: product.discountRate || discountService.calculateProductDiscountRate(product),
-    status: product.discountStatus || discountService.getProductDiscountStatus(product),
-  }));
 }
 
 main();

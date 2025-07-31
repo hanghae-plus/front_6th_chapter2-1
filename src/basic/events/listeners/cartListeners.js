@@ -3,6 +3,7 @@ import { updateHeaderItemCount } from "../../components/Header.js";
 import { createCartItem } from "../../components/CartItem.js";
 import { getSelectedProduct } from "../../components/ProductSelector.js";
 import { extractNumberFromText, getCartItemQuantity } from "../../utils/domUtils.js";
+import { calculateProductDiscountInfos } from "../../utils/discountUtils.js";
 import { QUANTITY_THRESHOLDS } from "../../constants/index.js";
 import {
   CART_ADD_REQUESTED,
@@ -116,7 +117,7 @@ export class CartEventListeners {
       const productsWithDiscounts = this.discountService.getProductsWithCurrentDiscounts(this.productService.getProducts());
       this.uiEventBus.emit(PRODUCT_OPTIONS_UPDATED, {
         products: productsWithDiscounts,
-        discountInfos: this.calculateProductDiscountInfos(productsWithDiscounts),
+        discountInfos: calculateProductDiscountInfos(productsWithDiscounts, this.discountService),
         success: true,
       });
     });
@@ -138,7 +139,7 @@ export class CartEventListeners {
       const productsWithDiscounts = this.discountService.getProductsWithCurrentDiscounts(this.productService.getProducts());
       this.uiEventBus.emit(PRODUCT_OPTIONS_UPDATED, {
         products: productsWithDiscounts,
-        discountInfos: this.calculateProductDiscountInfos(productsWithDiscounts),
+        discountInfos: calculateProductDiscountInfos(productsWithDiscounts, this.discountService),
         success: true,
       });
     });
@@ -271,14 +272,6 @@ export class CartEventListeners {
 
   // 헬퍼 메서드들 추가
   // getCartItemQuantity는 domUtils에서 import하여 사용
-
-  calculateProductDiscountInfos(products) {
-    return products.map(product => ({
-      productId: product.id,
-      rate: product.discountRate || this.discountService.calculateProductDiscountRate(product),
-      status: product.discountStatus || this.discountService.getProductDiscountStatus(product),
-    }));
-  }
 
   createCartItemElement({ product, discountInfo, onQuantityChange, onRemove }) {
     return createCartItem({ product, discountInfo, onQuantityChange, onRemove });

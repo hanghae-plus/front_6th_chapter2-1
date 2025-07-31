@@ -25,3 +25,30 @@ export function calcTotalDiscount(individualDiscounts, bulkDiscountRate, bulkDis
     hasAnyDiscount: totalRate > 0,
   };
 }
+
+/**
+ * 상품들의 할인 정보를 계산하는 순수 함수
+ *
+ * @param {Array} products - 상품 배열
+ * @param {Object} discountService - 할인 서비스 객체
+ * @returns {Array} 할인 정보 배열
+ */
+export function calculateProductDiscountInfos(products, discountService) {
+  if (!Array.isArray(products) || !discountService) {
+    return [];
+  }
+
+  return products
+    .map(product => {
+      if (!product || !product.id) {
+        return null;
+      }
+
+      return {
+        productId: product.id,
+        rate: product.discountRate || discountService.calculateProductDiscountRate(product),
+        status: product.discountStatus || discountService.getProductDiscountStatus(product),
+      };
+    })
+    .filter(Boolean); // null 값 제거
+}
