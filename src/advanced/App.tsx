@@ -6,6 +6,7 @@ import { OrderSummary } from './components/OrderSummary';
 import { Layout, SelectorContainer } from './components/Layout';
 import { StockInfo } from './components/StockInfo';
 import { CartPrices } from './components/CartPrices';
+import { HelpModal } from './components/HelpModal';
 import { useCartHandlers } from './hooks/useCartHandlers';
 import { useSaleTimers } from './hooks/useSaleTimers';
 import { useCartCalculations } from './hooks/useCartCalculations';
@@ -138,11 +139,10 @@ function App() {
         }
       />
       
-      <div className="mt-4 text-center">
-        <p className="text-sm text-gray-500">
-          ✅ Header, ProductSelector, CartDisplay, OrderSummary, Layout, StockInfo, TotalAndDiscount, CartPrices 컴포넌트 변환 완료!
-        </p>
-      </div>
+      {/* Help Modal */}
+      <HelpModal />
+      
+    
     </div>
   );
 }
