@@ -1,7 +1,7 @@
 import { calculateBasePoint, getBulkBonusPoint, getSetBonusPoint } from './features/point/service';
 import { productIds, productList } from './features/product/constants';
 import { renderProductSelectOptions, renderStockInfo } from './features/product/render';
-import { getDiscountRate, getSaleStatus } from './features/product/service';
+import { getDiscountRate, getDiscountStatus } from './features/product/service';
 import {
   DiscountInfo,
   Header,
@@ -359,7 +359,7 @@ const renderPricesInCart = () => {
     if (product) {
       const priceDiv = cartItem.querySelector('.text-lg');
       const nameDiv = cartItem.querySelector('h3');
-      const status = getSaleStatus(product);
+      const status = getDiscountStatus(product);
 
       const priceInnerHtml = (_product) => {
         return `
