@@ -1,3 +1,4 @@
+import { calculateCartTotals, calculateDiscountedTotal } from './cartUtils';
 import {
   Header,
   GridContainer,
@@ -195,43 +196,19 @@ function handleCalculateCartStuff() {
   }
 
   // ----------------------------------------
-  // 장바구니 아이템별 계산
+  // 장바구니 아이템별 계산 (순수 함수 사용)
   // ----------------------------------------
-  for (let i = 0; i < cartItems.length; i++) {
-    (function () {
-      // 상품 정보 찾기
-      const curItem = findProductById(cartItems[i].id);
+  const {
+    subTotal: calculatedSubTotal,
+    itemCount: calculatedItemCount,
+    itemDiscounts: calculatedDiscounts,
+  } = calculateCartTotals(cartItems, findProductById);
+  subTotal = calculatedSubTotal;
+  itemCount = calculatedItemCount;
+  itemDiscounts.push(...calculatedDiscounts);
 
-      const quantityElem = cartItems[i].querySelector('.quantity-number');
-      let disc;
-
-      // 수량 및 가격 계산
-      const quantity = parseInt(quantityElem.textContent);
-      const itemTot = curItem.val * quantity;
-      disc = 0;
-      itemCount += quantity;
-      subTotal += itemTot;
-
-      // 수량별 스타일 적용
-      const itemDiv = cartItems[i];
-      const priceElems = itemDiv.querySelectorAll('.text-lg, .text-xs');
-      priceElems.forEach(function (elem) {
-        if (elem.classList.contains('text-lg')) {
-          elem.style.fontWeight = quantity >= 10 ? 'bold' : 'normal';
-        }
-      });
-
-      // 개별 상품 할인율 적용
-      if (quantity >= 10) {
-        disc = getProductDiscountRate(curItem.id);
-        if (disc > 0) {
-          itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
-        }
-      }
-
-      totalAmount += itemTot * (1 - disc);
-    })();
-  }
+  // 개별 상품 할인 적용된 총액 계산
+  totalAmount = calculateDiscountedTotal(cartItems, findProductById);
 
   // ----------------------------------------
   // 대량 구매 할인 적용
