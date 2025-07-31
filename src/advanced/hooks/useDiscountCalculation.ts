@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Product, CartItem, DiscountInfo } from '../types';
+import { findProductByCartItem, isTuesday, isBulkPurchaseEligible, calculateTotalCartQuantity, isIndividualDiscountEligible } from '../utils';
 import { 
   PRODUCT_IDS, 
   DISCOUNT_RATES, 
@@ -22,14 +23,14 @@ export const useDiscountCalculation = (
     
     // Calculate subtotal and individual discounts (원본 로직과 동일)
     cartItems.forEach(item => {
-      const product = products.find(p => p.id === item.productId);
+      const product = findProductByCartItem(products, item);
       if (!product) return;
       
-      const itemTotal = product.val * item.quantity;
+      const itemTotal = product.price * item.quantity;
       subtotal += itemTotal;
       
       // Individual discount calculation (원본과 동일)
-      if (item.quantity >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
+      if (isIndividualDiscountEligible(item.quantity)) {
         let discount = 0;
         if (product.id === PRODUCT_IDS.KEYBOARD) {
           discount = DISCOUNT_RATES.KEYBOARD;
@@ -57,7 +58,7 @@ export const useDiscountCalculation = (
     let finalTotal = discountedTotal;
     
     // Bulk discount (30+ items) - overrides individual discounts
-    if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
+    if (isBulkPurchaseEligible(cartItems)) {
       finalTotal = subtotal * (1 - DISCOUNT_RATES.BULK_PURCHASE);
       rate = DISCOUNT_RATES.BULK_PURCHASE;
       // 대량구매 할인이 적용되면 개별 할인은 표시하지 않음
@@ -67,9 +68,7 @@ export const useDiscountCalculation = (
     }
     
     // Tuesday special discount (additional 10%)
-    const today = new Date();
-    const isTuesday = today.getDay() === WEEKDAYS.TUESDAY;
-    if (isTuesday && finalTotal > 0) {
+    if (isTuesday() && finalTotal > 0) {
       finalTotal = finalTotal * (1 - DISCOUNT_RATES.TUESDAY);
       rate = 1 - (finalTotal / subtotal);
     }
@@ -91,9 +90,7 @@ export const useDiscountCalculation = (
     }
 
     // Tuesday bonus
-    const today = new Date();
-    const isTuesday = today.getDay() === WEEKDAYS.TUESDAY;
-    if (isTuesday && basePoints > 0) {
+    if (isTuesday() && basePoints > 0) {
       finalPoints = basePoints * POINTS_CONFIG.TUESDAY_MULTIPLIER;
       pointsDetail.push('화요일 2배');
     }

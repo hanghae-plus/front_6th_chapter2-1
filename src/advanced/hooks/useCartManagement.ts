@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Product, CartItem } from '../types';
+import { findProductById, findProductByCartItem } from '../utils';
 
 // 전역 변수로 재고 알럿 중복 방지
 let lastStockAlertTime = 0;
@@ -8,9 +9,8 @@ export const useCartManagement = (products: Product[], setProducts: React.Dispat
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const addToCart = useCallback((productId: string) => {
-    console.log('addToCart called with:', productId);
-    const product = products.find(p => p.id === productId);
-    if (!product || product.q <= 0) {
+    const product = findProductById(products, productId);
+    if (!product || product.quantity <= 0) {
       const now = Date.now();
       if (now - lastStockAlertTime > 2000) {
         lastStockAlertTime = now;
@@ -20,7 +20,6 @@ export const useCartManagement = (products: Product[], setProducts: React.Dispat
     }
 
     setCartItems(prevItems => {
-      console.log('Previous cart items:', prevItems);
       const existingItem = prevItems.find(item => item.productId === productId);
       if (existingItem) {
         // Increase quantity if item already exists
@@ -29,7 +28,6 @@ export const useCartManagement = (products: Product[], setProducts: React.Dispat
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
-        console.log('Updated existing item:', newItems);
         return newItems;
       } else {
         // Add new item
@@ -41,14 +39,14 @@ export const useCartManagement = (products: Product[], setProducts: React.Dispat
 
     // Update product stock (원본과 동일: 재고가 0이 되면 더 이상 감소하지 않음)
     setProducts(prevProducts => 
-      prevProducts.map(p => 
-        p.id === productId ? { ...p, q: Math.max(0, p.q - 1) } : p
+      prevProducts.map(product => 
+        product.id === productId ? { ...product, quantity: Math.max(0, product.quantity - 1) } : product
       )
     );
   }, [products]);
 
   const updateQuantity = useCallback((productId: string, change: number) => {
-    const product = products.find(p => p.id === productId);
+    const product = findProductById(products, productId);
     if (!product) return;
 
     setCartItems(prevItems => {
@@ -63,7 +61,7 @@ export const useCartManagement = (products: Product[], setProducts: React.Dispat
       }
 
       // Check stock availability for increase (원본과 동일)
-      if (change > 0 && product.q <= 0) {
+      if (change > 0 && product.quantity <= 0) {
         const now = Date.now();
         if (now - lastStockAlertTime > 2000) {
           lastStockAlertTime = now;
@@ -81,8 +79,8 @@ export const useCartManagement = (products: Product[], setProducts: React.Dispat
 
     // Update product stock (원본과 동일: 재고가 0이 되면 더 이상 감소하지 않음)
     setProducts(prevProducts => 
-      prevProducts.map(p => 
-        p.id === productId ? { ...p, q: Math.max(0, p.q - change) } : p
+      prevProducts.map(product => 
+        product.id === productId ? { ...product, quantity: Math.max(0, product.quantity - change) } : product
       )
     );
   }, [products]);
@@ -94,8 +92,8 @@ export const useCartManagement = (products: Product[], setProducts: React.Dispat
 
       // Restore product stock
       setProducts(prevProducts => 
-        prevProducts.map(p => 
-          p.id === productId ? { ...p, q: p.q + itemToRemove.quantity } : p
+        prevProducts.map(product => 
+          product.id === productId ? { ...product, quantity: product.quantity + itemToRemove.quantity } : product
         )
       );
 
@@ -105,8 +103,8 @@ export const useCartManagement = (products: Product[], setProducts: React.Dispat
 
   const totalAmount = useMemo(() => {
     return cartItems.reduce((total, item) => {
-      const product = products.find(p => p.id === item.productId);
-      return total + (product ? product.val * item.quantity : 0);
+      const product = findProductByCartItem(products, item);
+      return total + (product ? product.price * item.quantity : 0);
     }, 0);
   }, [cartItems, products]);
 

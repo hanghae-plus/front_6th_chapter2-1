@@ -5,6 +5,7 @@ import {
   DISCOUNT_RATES, 
   TIMER_CONFIG 
 } from '../constants';
+import { getAvailableForLightningSale, getAvailableForRecommendationSale } from '../utils';
 
 // 전역 변수로 알럿 중복 방지
 let lastLightningAlertTime = 0;
@@ -22,14 +23,14 @@ export const useProductManagement = () => {
     setProducts(prevProducts => [...prevProducts]);
   }, []);
 
-  const triggerLightningSale = useCallback(() => {
+  const handleLightningSale = useCallback(() => {
     const now = Date.now();
     // 이미 알럿이 표시되었거나 2초 내에 같은 알럿이 표시되지 않도록 방지
     if (lightningAlertShown || now - lastLightningAlertTime < 2000) return;
     
     setProducts(prevProducts => {
       // 재고가 있고, 아직 번개세일이 적용되지 않은 상품만 필터링
-      const availableProducts = prevProducts.filter(p => p.q > 0 && !p.onSale);
+      const availableProducts = getAvailableForLightningSale(prevProducts);
       if (availableProducts.length === 0) return prevProducts;
 
       const luckyProduct = availableProducts[Math.floor(Math.random() * availableProducts.length)];
@@ -38,11 +39,11 @@ export const useProductManagement = () => {
       // 같은 메시지가 이미 표시되었는지 확인
       if (lightningAlertMessage === alertMessage) return prevProducts;
       
-      const updatedProducts = prevProducts.map(p => 
-        p.id === luckyProduct.id 
-          ? { ...p, val: Math.round(p.originalVal * (1 - DISCOUNT_RATES.LIGHTNING_SALE)), onSale: true }
-          : p
-      );
+          const updatedProducts = prevProducts.map(product =>
+      product.id === luckyProduct.id
+        ? { ...product, price: Math.round(product.originalPrice * (1 - DISCOUNT_RATES.LIGHTNING_SALE)), hasLightningDiscount: true }
+        : product
+    );
 
       lastLightningAlertTime = now;
       lightningAlertShown = true;
@@ -59,15 +60,13 @@ export const useProductManagement = () => {
     });
   }, []); // 빈 의존성 배열
 
-  const triggerRecommendationSale = useCallback((currentProductId: string) => {
+  const handleRecommendationSale = useCallback((currentProductId: string) => {
     const now = Date.now();
     // 이미 알럿이 표시되었거나 2초 내에 같은 알럿이 표시되지 않도록 방지
     if (recommendationAlertShown || now - lastRecommendationAlertTime < 2000) return;
     
     setProducts(prevProducts => {
-      const availableProducts = prevProducts.filter(p => 
-        p.id !== currentProductId && p.q > 0 && !p.suggestSale
-      );
+            const availableProducts = getAvailableForRecommendationSale(prevProducts, currentProductId);
       
       if (availableProducts.length === 0) return prevProducts;
 
@@ -77,25 +76,25 @@ export const useProductManagement = () => {
       // 같은 메시지가 이미 표시되었는지 확인
       if (recommendationAlertMessage === alertMessage) return prevProducts;
       
-      const updatedProducts = prevProducts.map(p => {
-        if (p.id === suggestProduct.id) {
+      const updatedProducts = prevProducts.map(product => {
+        if (product.id === suggestProduct.id) {
           // 이미 번개세일이 적용된 경우 SUPER SALE (25%) 적용
-          if (p.onSale) {
+          if (product.hasLightningDiscount) {
             return { 
-              ...p, 
-              val: Math.round(p.originalVal * 0.75), // 25% 할인
-              suggestSale: true 
+              ...product, 
+              price: Math.round(product.originalPrice * 0.75), // 25% 할인
+              hasRecommendationDiscount: true 
             };
           } else {
             // 일반 추천할인 (5%) 적용
             return { 
-              ...p, 
-              val: Math.round(p.originalVal * (1 - DISCOUNT_RATES.RECOMMENDATION)), 
-              suggestSale: true 
+              ...product, 
+              price: Math.round(product.originalPrice * (1 - DISCOUNT_RATES.RECOMMENDATION)), 
+              hasRecommendationDiscount: true 
             };
           }
         }
-        return p;
+        return product;
       });
 
       lastRecommendationAlertTime = now;
@@ -119,7 +118,7 @@ export const useProductManagement = () => {
     selectedProduct,
     setSelectedProduct,
     updateProductPrices,
-    triggerLightningSale,
-    triggerRecommendationSale
+    handleLightningSale,
+    handleRecommendationSale
   };
 }; 
