@@ -106,7 +106,6 @@ const initializeApp = () => {
     </div>
   `;
 
-  // ProductSelector를 DOM에 삽입
   const selectorContainer = root.querySelector('.border-b');
   const productSelectorElement = ProductSelector({
     products: initialProducts,
@@ -136,7 +135,7 @@ const initializeApp = () => {
  * @param {object} helpModal - 도움말 모달 인스턴스
  */
 const setupEventHandlers = helpModal => {
-  addEventListener(document, 'click', event => {
+  document.addEventListener('click', event => {
     const target = event.target;
 
     if (target.closest('.help-toggle')) {
@@ -144,11 +143,7 @@ const setupEventHandlers = helpModal => {
       return;
     }
 
-    if (
-      target.closest('.help-close') ||
-      (target.closest('.help-overlay') &&
-        event.target.classList.contains('help-overlay'))
-    ) {
+    if (target.closest('.help-close') || target.closest('.help-overlay')) {
       helpModal.handleClose();
       return;
     }
@@ -221,7 +216,4 @@ const main = callbackFn => {
   }
 };
 
-// 애플리케이션 시작
-main(() => {
-  console.log('애플리케이션이 초기화되었습니다.');
-});
+main();
