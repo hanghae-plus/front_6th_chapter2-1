@@ -1,8 +1,12 @@
-import { OUT_OF_STOCK } from '@/const/stock';
+import { LOW_TOTAL_STOCK_THRESHOLD, OUT_OF_STOCK } from '@/const/stock';
 import { Product } from '@/data/product';
 
 export const isOutOfStock = (quantity: number) => {
   return quantity === OUT_OF_STOCK;
+};
+
+export const isLowTotalStock = (totalStock: number) => {
+  return totalStock < LOW_TOTAL_STOCK_THRESHOLD;
 };
 
 export const formatOptionMessage = (product: Product) => {
@@ -26,6 +30,10 @@ export const formatOptionMessage = (product: Product) => {
   }
 
   return baseText;
+};
+
+export const getTotalStock = (productList: Product[]) => {
+  return productList.reduce((totalStock, currentProduct) => totalStock + currentProduct.quantity, 0);
 };
 
 export const toProductOption = (product: Product) => ({
