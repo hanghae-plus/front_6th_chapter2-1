@@ -1,5 +1,13 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Product, CartItem, initialProducts } from '../lib/product';
+import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
+
+import {
+  calculateFinalDiscount,
+  calculateIndividualDiscount,
+  calculateTotalBulkDiscount,
+  calculateTuesdayDiscount,
+  Discount,
+} from '../lib/discount';
+import { CartItem, initialProducts, Product } from '../lib/product';
 
 interface CartContextType {
   products: Product[];
@@ -11,6 +19,15 @@ interface CartContextType {
   setSelectedProduct: (productId: string | null) => void;
   getCartItemCount: () => number;
   getTotalAmount: () => number;
+  getDiscountedAmount: () => number;
+  getAppliedDiscounts: () => Discount[];
+  getDiscountBreakdown: () => {
+    subtotal: number;
+    individualDiscount: number;
+    totalBulkDiscount: number;
+    tuesdayDiscount: number;
+    finalAmount: number;
+  };
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -35,17 +52,13 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   // 장바구니에 상품 추가
   const addToCart = useCallback(
     (productId: string) => {
-      console.log('addToCart called with productId:', productId);
       const product = products.find((p: Product) => p.id === productId);
-      console.log('found product:', product);
-      
+
       if (!product) {
-        console.log('Product not found');
         return;
       }
-      
+
       if (product.stock === 0) {
-        console.log('Product out of stock');
         return;
       }
 
@@ -67,7 +80,6 @@ export const CartProvider = ({ children }: CartProviderProps) => {
             quantity: 1,
             appliedDiscounts: [],
           };
-          console.log('Adding new item to cart:', newItem);
           return [...prevItems, newItem];
         }
       });
@@ -124,7 +136,9 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
       // 재고 조정
       setProducts((prevProducts: Product[]) =>
-        prevProducts.map((p: Product) => (p.id === productId ? { ...p, stock: p.stock - quantityDiff } : p)),
+        prevProducts.map((p: Product) =>
+          p.id === productId ? { ...p, stock: p.stock - quantityDiff } : p,
+        ),
       );
     },
     [products, cartItems, removeFromCart],
@@ -147,6 +161,59 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     }, 0);
   }, [cartItems]);
 
+  // 할인 적용된 최종 금액 계산
+  const getDiscountedAmount = useCallback(() => {
+    const subtotal = getTotalAmount();
+    const totalQuantity = getCartItemCount();
+
+    // 개별 상품 할인 계산
+    const individualDiscounts = cartItems.map((item: CartItem) =>
+      calculateIndividualDiscount(item.product.price, item.quantity, item.product.discount),
+    );
+
+    const discountResult = calculateFinalDiscount(subtotal, totalQuantity, individualDiscounts);
+    return discountResult.finalAmount;
+  }, [cartItems, getTotalAmount, getCartItemCount]);
+
+  // 적용된 할인 목록 (현재는 빈 배열, 추후 확장)
+  const getAppliedDiscounts = useCallback(() => {
+    return [] as Discount[];
+  }, []);
+
+  // 할인 세부 정보 제공
+  const getDiscountBreakdown = useCallback(() => {
+    const subtotal = getTotalAmount();
+    const totalQuantity = getCartItemCount();
+
+    // 개별 상품 할인 계산
+    const individualDiscounts = cartItems.map((item: CartItem) =>
+      calculateIndividualDiscount(item.product.price, item.quantity, item.product.discount),
+    );
+    const individualDiscount = individualDiscounts.reduce(
+      (sum: number, discount: number) => sum + discount,
+      0,
+    );
+
+    // 개별 할인 적용 후 금액
+    const afterIndividualDiscount = subtotal - individualDiscount;
+
+    // 전체 수량 할인 계산
+    const totalBulkDiscount = calculateTotalBulkDiscount(afterIndividualDiscount, totalQuantity);
+
+    // 화요일 할인 계산
+    const tuesdayDiscount = calculateTuesdayDiscount(afterIndividualDiscount - totalBulkDiscount);
+
+    const finalAmount = afterIndividualDiscount - totalBulkDiscount - tuesdayDiscount;
+
+    return {
+      subtotal,
+      individualDiscount,
+      totalBulkDiscount,
+      tuesdayDiscount,
+      finalAmount,
+    };
+  }, [cartItems, getTotalAmount, getCartItemCount]);
+
   const value = {
     products,
     cartItems,
@@ -157,7 +224,10 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     setSelectedProduct,
     getCartItemCount,
     getTotalAmount,
+    getDiscountedAmount,
+    getAppliedDiscounts,
+    getDiscountBreakdown,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
-}; 
+};

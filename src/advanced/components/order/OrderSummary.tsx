@@ -1,19 +1,11 @@
 import { useCart } from '../../contexts/CartContext';
 
 const OrderSummary = () => {
-  const { cartItems, getTotalAmount } = useCart();
+  const { cartItems, getDiscountedAmount, getDiscountBreakdown } = useCart();
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
       return total + item.product.price * item.quantity;
-    }, 0);
-  };
-
-  const calculateTotalWithDiscount = () => {
-    return cartItems.reduce((total, item) => {
-      const originalPrice = item.product.price * item.quantity;
-      const discountedPrice = originalPrice * (1 - item.product.discount);
-      return total + discountedPrice;
     }, 0);
   };
 
@@ -44,9 +36,10 @@ const OrderSummary = () => {
   };
 
   const subtotal = calculateSubtotal();
-  const total = calculateTotalWithDiscount();
+  const total = getDiscountedAmount();
   const points = calculatePoints();
   const isTuesday = new Date().getDay() === 2;
+  const discountBreakdown = getDiscountBreakdown();
 
   return (
     <div className="bg-black text-white p-8 flex flex-col">
@@ -82,6 +75,28 @@ const OrderSummary = () => {
                 <span>Subtotal</span>
                 <span>₩{subtotal.toLocaleString()}</span>
               </div>
+
+              {/* 할인 정보 표시 */}
+              {discountBreakdown.individualDiscount > 0 && (
+                <div className="flex justify-between text-sm tracking-wide text-green-400">
+                  <span>개별 상품 할인</span>
+                  <span>-₩{discountBreakdown.individualDiscount.toLocaleString()}</span>
+                </div>
+              )}
+
+              {discountBreakdown.totalBulkDiscount > 0 && (
+                <div className="flex justify-between text-sm tracking-wide text-blue-400">
+                  <span>전체 수량 할인 (30개 이상)</span>
+                  <span>-₩{discountBreakdown.totalBulkDiscount.toLocaleString()}</span>
+                </div>
+              )}
+
+              {discountBreakdown.tuesdayDiscount > 0 && (
+                <div className="flex justify-between text-sm tracking-wide text-yellow-400">
+                  <span>화요일 특별 할인</span>
+                  <span>-₩{discountBreakdown.tuesdayDiscount.toLocaleString()}</span>
+                </div>
+              )}
 
               <div className="flex justify-between text-sm tracking-wide text-gray-400">
                 <span>Shipping</span>
