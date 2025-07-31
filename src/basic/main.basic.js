@@ -1453,6 +1453,77 @@ function createCartItemHTML(itemData) {
   `;
 }
 
+/**
+ * 장바구니 이벤트 타입 결정 (순수 함수)
+ * @param {Event} event - 클릭 이벤트
+ * @returns {Object} 이벤트 처리 정보
+ */
+function parseCartClickEvent(event) {
+  const { target } = event;
+
+  if (!target.classList.contains("quantity-change") && !target.classList.contains("remove-item")) {
+    return { shouldHandle: false };
+  }
+
+  const { productId } = target.dataset;
+  if (!productId) {
+    return { shouldHandle: false };
+  }
+
+  if (target.classList.contains("quantity-change")) {
+    return {
+      shouldHandle: true,
+      actionType: "QUANTITY_CHANGE",
+      productId,
+      quantityChange: parseInt(target.dataset.change, 10),
+    };
+  }
+
+  if (target.classList.contains("remove-item")) {
+    return {
+      shouldHandle: true,
+      actionType: "REMOVE_ITEM",
+      productId,
+    };
+  }
+
+  return { shouldHandle: false };
+}
+
+/**
+ * 수량 변경 계산 (순수 함수)
+ * @param {number} currentQuantity - 현재 수량
+ * @param {number} quantityChange - 수량 변경값
+ * @param {number} availableStock - 사용 가능한 재고
+ * @returns {Object} 수량 변경 결과
+ */
+function calculateQuantityChange(currentQuantity, quantityChange, availableStock) {
+  const newQuantity = currentQuantity + quantityChange;
+
+  if (newQuantity > 0 && newQuantity <= availableStock + currentQuantity) {
+    return {
+      isValid: true,
+      action: "UPDATE_QUANTITY",
+      newQuantity,
+      stockChange: -quantityChange,
+    };
+  }
+
+  if (newQuantity <= 0) {
+    return {
+      isValid: true,
+      action: "REMOVE_ITEM",
+      stockChange: currentQuantity,
+    };
+  }
+
+  return {
+    isValid: false,
+    reason: "INSUFFICIENT_STOCK",
+    message: "재고가 부족합니다.",
+  };
+}
+
 main();
 addToCartButton.addEventListener("click", function () {
   const selItem = productSelectElement.value;
@@ -1494,37 +1565,40 @@ addToCartButton.addEventListener("click", function () {
   }
 });
 cartDisplayElement.addEventListener("click", function (event) {
-  const tgt = event.target;
-  if (tgt.classList.contains("quantity-change") || tgt.classList.contains("remove-item")) {
-    const prodId = tgt.dataset.productId;
-    const itemElem = document.getElementById(prodId);
-    const prod = useProductData.findProductById(prodId);
-    if (!prod) return;
+  // 이벤트 파싱 (순수 함수 사용)
+  const eventInfo = parseCartClickEvent(event);
+  if (!eventInfo.shouldHandle) return;
 
-    if (tgt.classList.contains("quantity-change")) {
-      const qtyChange = parseInt(tgt.dataset.change, 10);
-      const qtyElem = itemElem.querySelector(".quantity-number");
-      const currentQty = parseInt(qtyElem.textContent, 10);
-      const newQty = currentQty + qtyChange;
-      if (newQty > 0 && newQty <= prod.q + currentQty) {
-        qtyElem.textContent = newQty;
-        prod.q -= qtyChange;
-      } else if (newQty <= 0) {
-        prod.q += currentQty;
+  const itemElem = document.getElementById(eventInfo.productId);
+  const prod = useProductData.findProductById(eventInfo.productId);
+  if (!prod || !itemElem) return;
+
+  if (eventInfo.actionType === "QUANTITY_CHANGE") {
+    const qtyElem = itemElem.querySelector(".quantity-number");
+    const currentQty = parseInt(qtyElem.textContent, 10);
+
+    // 수량 변경 계산 (순수 함수 사용)
+    const changeResult = calculateQuantityChange(currentQty, eventInfo.quantityChange, prod.q);
+
+    if (changeResult.isValid) {
+      if (changeResult.action === "UPDATE_QUANTITY") {
+        qtyElem.textContent = changeResult.newQuantity;
+        prod.q += changeResult.stockChange;
+      } else if (changeResult.action === "REMOVE_ITEM") {
+        prod.q += changeResult.stockChange;
         itemElem.remove();
-      } else {
-        alert("재고가 부족합니다.");
       }
-    } else if (tgt.classList.contains("remove-item")) {
-      const qtyElem = itemElem.querySelector(".quantity-number");
-      const remQty = parseInt(qtyElem.textContent, 10);
-      prod.q += remQty;
-      itemElem.remove();
+    } else {
+      alert(changeResult.message);
     }
-    if (prod && prod.q < STOCK_THRESHOLDS.LOW_STOCK_WARNING) {
-      // 재고 경고 처리는 useStockManager에서 담당
-    }
-    updateCartDisplay();
-    updateProductSelectOptions();
+  } else if (eventInfo.actionType === "REMOVE_ITEM") {
+    const qtyElem = itemElem.querySelector(".quantity-number");
+    const remQty = parseInt(qtyElem.textContent, 10);
+    prod.q += remQty;
+    itemElem.remove();
   }
+
+  // 연관 업데이트
+  updateCartDisplay();
+  updateProductSelectOptions();
 });
