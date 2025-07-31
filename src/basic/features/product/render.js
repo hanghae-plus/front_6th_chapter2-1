@@ -40,7 +40,7 @@ export const renderProductSelectOptions = (selector, products) => {
  * @param {Product} products - 상품목록
  */
 export const renderStockInfo = (target, products) => {
-  target.textContent = products.map(getStockInfo).join('\n');
+  target.textContent = products.map(getStockInfo).filter(Boolean).join('\n');
 };
 
 /**
