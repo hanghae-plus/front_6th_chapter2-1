@@ -611,7 +611,143 @@ function updateItemCountDisplay(itemCount) {
 }
 
 /**
- * 주문 요약 세부 정보 렌더링
+ * 주문 요약 데이터 계산 (순수 함수)
+ * @param {HTMLCollection} cartItems - 장바구니 DOM 아이템들
+ * @param {number} subtotal - 소계
+ * @param {number} itemCount - 총 상품 개수
+ * @param {Array} itemDiscounts - 개별 상품 할인 목록
+ * @param {boolean} isSpecialDiscount - 특별 할인 여부
+ * @param {number} totalAmount - 총 금액
+ * @returns {Object} 주문 요약 데이터
+ */
+function calculateOrderSummaryData(cartItems, subtotal, itemCount, itemDiscounts, isSpecialDiscount, totalAmount) {
+  // 개별 상품 목록 데이터 계산
+  const items = [];
+  for (let i = 0; i < cartItems.length; i += 1) {
+    const curItem = useProductData.findProductById(cartItems[i].id);
+    if (curItem) {
+      const qtyElem = cartItems[i].querySelector(".quantity-number");
+      const quantity = parseInt(qtyElem.textContent, 10);
+      const itemTotal = curItem.val * quantity;
+
+      items.push({
+        name: curItem.name,
+        quantity,
+        itemTotal,
+      });
+    }
+  }
+
+  // 할인 정보 데이터 계산
+  const discounts = {
+    hasBulkDiscount: itemCount >= DISCOUNT_RULES.BULK_DISCOUNT_THRESHOLD,
+    bulkDiscountRate: DISCOUNT_RULES.BULK_DISCOUNT_RATE,
+    bulkDiscountThreshold: DISCOUNT_RULES.BULK_DISCOUNT_THRESHOLD,
+    itemDiscounts,
+    itemDiscountThreshold: DISCOUNT_RULES.ITEM_DISCOUNT_THRESHOLD,
+    hasSpecialDiscount: isSpecialDiscount && totalAmount > 0,
+    specialDiscountDays: DISCOUNT_RULES.SPECIAL_DISCOUNT_DAYS.map(getKoreanDayName).join(", "),
+    specialDiscountRate: DISCOUNT_RULES.SPECIAL_DISCOUNT_RATE,
+  };
+
+  return {
+    items,
+    subtotal,
+    discounts,
+    shouldRender: subtotal > 0,
+  };
+}
+
+/**
+ * 주문 요약 HTML 템플릿 생성 (순수 함수)
+ * @param {Object} summaryData - 주문 요약 데이터
+ * @returns {string} HTML 템플릿 문자열
+ */
+function createOrderSummaryHTML(summaryData) {
+  if (!summaryData.shouldRender) {
+    return "";
+  }
+
+  // 개별 상품 목록 HTML
+  const itemsHTML = summaryData.items
+    .map(
+      (item) => `
+      <div class="flex justify-between text-xs tracking-wide text-gray-400">
+        <span>${item.name} x ${item.quantity}</span>
+        <span>₩${item.itemTotal.toLocaleString()}</span>
+      </div>
+    `,
+    )
+    .join("");
+
+  // 소계 HTML
+  const subtotalHTML = `
+    <div class="border-t border-white/10 my-3"></div>
+    <div class="flex justify-between text-sm tracking-wide">
+      <span>Subtotal</span>
+      <span>₩${summaryData.subtotal.toLocaleString()}</span>
+    </div>
+  `;
+
+  // 할인 정보 HTML
+  let discountsHTML = "";
+
+  if (summaryData.discounts.hasBulkDiscount) {
+    discountsHTML += `
+      <div class="flex justify-between text-sm tracking-wide text-green-400">
+        <span class="text-xs">🎉 대량구매 할인 (${summaryData.discounts.bulkDiscountThreshold}개 이상)</span>
+        <span class="text-xs">-${summaryData.discounts.bulkDiscountRate}%</span>
+      </div>
+    `;
+  } else if (summaryData.discounts.itemDiscounts.length > 0) {
+    summaryData.discounts.itemDiscounts.forEach(function (item) {
+      discountsHTML += `
+        <div class="flex justify-between text-sm tracking-wide text-green-400">
+          <span class="text-xs">${item.name} (${summaryData.discounts.itemDiscountThreshold}개↑)</span>
+          <span class="text-xs">-${item.discount}%</span>
+        </div>
+      `;
+    });
+  }
+
+  // 특별 할인 HTML
+  let specialDiscountHTML = "";
+  if (summaryData.discounts.hasSpecialDiscount) {
+    specialDiscountHTML = `
+      <div class="flex justify-between text-sm tracking-wide text-purple-400">
+        <span class="text-xs">🌟 ${summaryData.discounts.specialDiscountDays} 추가 할인</span>
+        <span class="text-xs">-${summaryData.discounts.specialDiscountRate}%</span>
+      </div>
+    `;
+  }
+
+  return itemsHTML + subtotalHTML + discountsHTML + specialDiscountHTML;
+}
+
+/**
+ * 주문 요약 렌더러 객체
+ * DOM 조작만 담당
+ */
+const OrderSummaryRenderer = {
+  /**
+   * 주문 요약 렌더링
+   * @param {Object} summaryData - 주문 요약 데이터
+   */
+  render(summaryData) {
+    const summaryDetails = document.getElementById("summary-details");
+    summaryDetails.innerHTML = "";
+
+    if (!summaryData.shouldRender) {
+      return;
+    }
+
+    const html = createOrderSummaryHTML(summaryData);
+    summaryDetails.innerHTML = html;
+  },
+};
+
+/**
+ * 주문 요약 세부 정보 렌더링 (리팩토링된 버전)
  * @param {HTMLCollection} cartItems - 장바구니 DOM 아이템들
  * @param {number} subtotal - 소계
  * @param {number} itemCount - 총 상품 개수
@@ -620,72 +756,15 @@ function updateItemCountDisplay(itemCount) {
  * @param {number} totalAmount - 총 금액
  */
 function renderOrderSummaryDetails(cartItems, subtotal, itemCount, itemDiscounts, isSpecialDiscount, totalAmount) {
-  const summaryDetails = document.getElementById("summary-details");
-  summaryDetails.innerHTML = "";
-
-  if (subtotal <= 0) return;
-
-  // 개별 상품 목록 렌더링
-  for (let i = 0; i < cartItems.length; i += 1) {
-    const curItem = useProductData.findProductById(cartItems[i].id);
-    if (curItem) {
-      const qtyElem = cartItems[i].querySelector(".quantity-number");
-      const q = parseInt(qtyElem.textContent, 10);
-      const itemTotal = curItem.val * q;
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-xs tracking-wide text-gray-400">
-          <span>${curItem.name} x ${q}</span>
-          <span>₩${itemTotal.toLocaleString()}</span>
-        </div>
-      `;
-    }
-  }
-
-  // 소계 표시
-  summaryDetails.innerHTML += `
-    <div class="border-t border-white/10 my-3"></div>
-    <div class="flex justify-between text-sm tracking-wide">
-      <span>Subtotal</span>
-      <span>₩${subtotal.toLocaleString()}</span>
-    </div>
-  `;
-
-  // 할인 정보 표시
-  if (itemCount >= DISCOUNT_RULES.BULK_DISCOUNT_THRESHOLD) {
-    summaryDetails.innerHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-green-400">
-        <span class="text-xs">🎉 대량구매 할인 (${DISCOUNT_RULES.BULK_DISCOUNT_THRESHOLD}개 이상)</span>
-        <span class="text-xs">-${DISCOUNT_RULES.BULK_DISCOUNT_RATE}%</span>
-      </div>
-    `;
-  } else if (itemDiscounts.length > 0) {
-    itemDiscounts.forEach(function (item) {
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">${item.name} (${DISCOUNT_RULES.ITEM_DISCOUNT_THRESHOLD}개↑)</span>
-          <span class="text-xs">-${item.discount}%</span>
-        </div>
-      `;
-    });
-  }
-
-  // 특별 할인 표시
-  if (isSpecialDiscount && totalAmount > 0) {
-    summaryDetails.innerHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-purple-400">
-        <span class="text-xs">🌟 ${DISCOUNT_RULES.SPECIAL_DISCOUNT_DAYS.map(getKoreanDayName).join(", ")} 추가 할인</span>
-        <span class="text-xs">-${DISCOUNT_RULES.SPECIAL_DISCOUNT_RATE}%</span>
-      </div>
-    `;
-  }
-
-  // 배송비 표시
-  summaryDetails.innerHTML += `
-    <div class="flex justify-between text-sm tracking-wide text-gray-400">
-      <span>Shipping</span>
-      <span>Free</span>
-    </div>
-  `;
+  const summaryData = calculateOrderSummaryData(
+    cartItems,
+    subtotal,
+    itemCount,
+    itemDiscounts,
+    isSpecialDiscount,
+    totalAmount,
+  );
+  OrderSummaryRenderer.render(summaryData);
 }
 
 /**
