@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 
-import { GridContainer } from './components/layout/GridContainer';
+import { CartDisplay } from './components/cart/CartDisplay';
 import { Header } from './components/layout/Header';
+import { SelectorContainer } from './components/layout/SelectorContainer';
 import { ManualOverlay } from './components/manual/ManualOverlay';
 import { ManualToggle } from './components/manual/ManualToggle';
+import { RightColumn } from './components/summary/RightColumn';
 import { calculateCart } from './services/CartCalculationService';
 import { createPointsCalculationService } from './services/PointsCalculationService';
 import { useCartStore, usePointsStore } from './store';
@@ -55,15 +57,17 @@ const App = () => {
 
   return (
     <div className='min-h-screen bg-gray-50 p-8'>
-      <div className='max-w-7xl mx-auto'>
+      <div className='max-w-7xl mx-auto flex flex-col h-screen'>
         <Header itemCount={itemCount} />
-        <GridContainer
-          total={
+        <div className='flex-1 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 min-h-0'>
+          <div className='bg-white border border-gray-200 p-8 overflow-y-auto'>
+            <SelectorContainer />
+            <CartDisplay />
+          </div>
+          <RightColumn total={
             items.length > 0 ? items.reduce((sum, item) => sum + item.val * item.quantity, 0) : 0
-          }
-          bonusPoints={totalPoints}
-          pointsDetail={pointsDetail}
-        />
+          } bonusPoints={totalPoints} pointsDetail={pointsDetail} />
+        </div>
         <ManualToggle />
         <ManualOverlay />
       </div>
