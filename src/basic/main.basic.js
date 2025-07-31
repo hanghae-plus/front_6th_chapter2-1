@@ -494,23 +494,21 @@ function doUpdatePricesInCart() {
       const nameDiv = cartItems[i].querySelector('h3');
       const status = getSaleStatus(product);
 
-      if (status === 'SUPER') {
-        priceDiv.innerHTML = `
-          <span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span>
-          <span class="text-purple-600">₩${product.value.toLocaleString()}</span>
+      const priceInnerHtml = (_product) => {
+        return `
+          <span class="line-through text-gray-400">₩${_product.originalValue.toLocaleString()}</span>
+          <span class="text-purple-600">₩${_product.value.toLocaleString()}</span>
         `;
+      };
+
+      if (status === 'SUPER') {
+        priceDiv.innerHTML = priceInnerHtml(product);
         nameDiv.textContent = `⚡💝${product.name}`;
       } else if (status === 'SALE') {
-        priceDiv.innerHTML = `
-          <span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span>
-          <span class="text-red-500">₩${product.value.toLocaleString()}</span>
-        `;
+        priceDiv.innerHTML = priceInnerHtml(product);
         nameDiv.textContent = `⚡${product.name}`;
       } else if (status === 'SUGGEST') {
-        priceDiv.innerHTML = `
-          <span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span>
-          <span class="text-blue-500">₩${product.value.toLocaleString()}</span>
-        `;
+        priceDiv.innerHTML = priceInnerHtml(product);
         nameDiv.textContent = `💝${product.name}`;
       } else {
         priceDiv.textContent = `₩${product.value.toLocaleString()}`;
