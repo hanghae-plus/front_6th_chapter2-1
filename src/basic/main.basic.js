@@ -1,4 +1,9 @@
-import { Header } from './components/layout';
+import {
+  Header,
+  GridContainer,
+  LeftColumn,
+  RightColumn,
+} from './components/layout';
 import {
   PRODUCT_KEYBOARD,
   PRODUCT_MOUSE,
@@ -171,56 +176,8 @@ function main() {
   itemCount = 0;
   lastSelectedProductId = null;
 
-  // ----------------------------------------
   // 상품 데이터 초기화
-  // ----------------------------------------
-  productList = [
-    {
-      id: PRODUCT_KEYBOARD,
-      name: '버그 없애는 키보드',
-      val: 10000,
-      originalVal: 10000,
-      availableStock: 50,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_MOUSE,
-      name: '생산성 폭발 마우스',
-      val: 20000,
-      originalVal: 20000,
-      availableStock: 30,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_MONITOR_ARM,
-      name: '거북목 탈출 모니터암',
-      val: 30000,
-      originalVal: 30000,
-      availableStock: 20,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_LAPTOP_POUCH,
-      name: '에러 방지 노트북 파우치',
-      val: 15000,
-      originalVal: 15000,
-      availableStock: 0,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_SPEAKER,
-      name: `코딩할 때 듣는 Lo-Fi 스피커`,
-      val: 25000,
-      originalVal: 25000,
-      availableStock: 10,
-      onSale: false,
-      suggestSale: false,
-    },
-  ];
+  productList = initProductList();
 
   // ----------------------------------------
   // 기본 DOM 구조 생성
@@ -228,25 +185,19 @@ function main() {
   const root = document.getElementById('app');
 
   // 헤더 생성
-  const header = document.createElement('div');
-  header.innerHTML = Header();
+  const header = Header({ itemCount: 0 });
 
+  const gridContainer = GridContainer();
+  const leftColumn = LeftColumn();
+  const rightColumn = RightColumn();
+
+  rightColumn.innerHTML = OrderSummary();
+  sum = rightColumn.querySelector('#cart-total');
   // 상품 선택 요소들 생성
   selectElement = document.createElement('select');
   selectElement.id = 'product-select';
   selectElement.className =
     'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
-
-  const gridContainer = document.createElement('div');
-  gridContainer.className =
-    'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
-
-  // ----------------------------------------
-  // 왼쪽 컬럼 (상품 선택 및 장바구니)
-  // ----------------------------------------
-  const leftColumn = document.createElement('div');
-  leftColumn['className'] =
-    'bg-white border border-gray-200 p-8 overflow-y-auto';
 
   // 상품 선택 컨테이너
   const selectorContainer = document.createElement('div');
@@ -274,14 +225,6 @@ function main() {
   cartContainer = document.createElement('div');
   cartContainer.id = 'cart-items';
   leftColumn.appendChild(cartContainer);
-
-  // ----------------------------------------
-  // 오른쪽 컬럼 (주문 요약)
-  // ----------------------------------------
-  const rightColumn = document.createElement('div');
-  rightColumn.className = 'bg-black text-white p-8 flex flex-col';
-  rightColumn.innerHTML = OrderSummary();
-  sum = rightColumn.querySelector('#cart-total');
 
   // ----------------------------------------
   // 도움말 모달 생성
@@ -1058,4 +1001,54 @@ function getProductDiscountRate(productId) {
     default:
       return 0;
   }
+}
+
+function initProductList() {
+  return [
+    {
+      id: PRODUCT_KEYBOARD,
+      name: '버그 없애는 키보드',
+      val: 10000,
+      originalVal: 10000,
+      availableStock: 50,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: PRODUCT_MOUSE,
+      name: '생산성 폭발 마우스',
+      val: 20000,
+      originalVal: 20000,
+      availableStock: 30,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: PRODUCT_MONITOR_ARM,
+      name: '거북목 탈출 모니터암',
+      val: 30000,
+      originalVal: 30000,
+      availableStock: 20,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: PRODUCT_LAPTOP_POUCH,
+      name: '에러 방지 노트북 파우치',
+      val: 15000,
+      originalVal: 15000,
+      availableStock: 0,
+      onSale: false,
+      suggestSale: false,
+    },
+    {
+      id: PRODUCT_SPEAKER,
+      name: `코딩할 때 듣는 Lo-Fi 스피커`,
+      val: 25000,
+      originalVal: 25000,
+      availableStock: 10,
+      onSale: false,
+      suggestSale: false,
+    },
+  ];
 }
