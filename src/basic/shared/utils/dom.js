@@ -12,11 +12,3 @@ export const htmlToElement = html => {
   template.innerHTML = html.trim();
   return template.content.firstChild;
 };
-
-/**
- * Get cart total element
- * @returns {HTMLElement|null} Cart total element
- */
-export const getCartTotalElement = () => {
-  return document.getElementById('cart-total');
-};

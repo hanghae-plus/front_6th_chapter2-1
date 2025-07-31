@@ -1,6 +1,5 @@
 import { ELEMENT_IDS } from '../../../shared/constants/element-ids.js';
 import { setInnerHTML } from '../../../shared/core/domUtils.js';
-import { getCartTotalElement } from '../../../shared/utils/dom.js';
 
 /**
  * CartTotal Component - Pure HTML Template
@@ -38,7 +37,7 @@ export default CartTotal;
  * @param {number} props.discountRate - Discount rate (0-1)
  */
 export const renderCartTotal = ({ amount, discountRate }) => {
-  const cartTotal = getCartTotalElement();
+  const cartTotal = document.getElementById(ELEMENT_IDS.CART_TOTAL);
   if (!cartTotal) return;
 
   const totalAmountDiv = cartTotal.querySelector('.text-2xl');
