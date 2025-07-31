@@ -15,6 +15,13 @@
     "jsx": "react-jsx",
     "allowJs": true,
 
+    /* Path mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/advanced/*": ["src/advanced/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

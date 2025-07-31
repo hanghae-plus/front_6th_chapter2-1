@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "start:basic": "vite serve --open ./index.basic.html",
+    "start:original": "vite serve --open ./index.original.html",
     "start:advanced": "vite serve --open ./index.advanced.html",
     "test": "vitest",
     "test:basic": "vitest basic.test.js",

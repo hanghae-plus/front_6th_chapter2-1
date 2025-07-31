@@ -4,7 +4,6 @@
     "paths": {
       "@/*": ["src/*"],
       "@/basic/*": ["src/basic/*"],
-      "@/advanced/*": ["src/advanced/*"],
       "@/shared/*": ["src/basic/shared/*"],
       "@/features/*": ["src/basic/features/*"],
       "@/components/*": ["src/basic/shared/components/*"],
