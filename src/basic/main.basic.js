@@ -1,30 +1,30 @@
+import { AddButton } from "../components/AddButton";
 import { GridContainer } from "../components/GridContainer";
 import { Header } from "../components/Header";
 import { LeftColumn } from "../components/LeftColumn";
 import { ManualColumn } from "../components/ManualColumn";
 import { ManualOverlay } from "../components/ManualOverlay";
 import { ManualToggle } from "../components/ManualToggle";
+import { ProductSelector } from "../components/ProductSelector";
 import { RightColumn } from "../components/RightColumn";
 import { SelectContainer } from "../components/SelectContainer";
-
-var prodList;
-var bonusPts = 0;
-var stockInfo;
-var itemCnt;
-var lastSel;
-var sel;
-var addBtn;
-var totalAmt = 0;
-var PRODUCT_ONE = "p1";
-var p2 = "p2";
-var product_3 = "p3";
-var p4 = "p4";
-var PRODUCT_5 = `p5`;
-var cartDisp;
+import { StockInfo } from "../components/StockInfo";
+let prodList;
+let bonusPts = 0;
+let stockInfo = StockInfo();
+let itemCnt;
+let lastSel;
+let sel = ProductSelector();
+let addBtn = AddButton();
+let totalAmt = 0;
+let PRODUCT_ONE = "p1";
+let p2 = "p2";
+let product_3 = "p3";
+let p4 = "p4";
+let PRODUCT_5 = `p5`;
+let cartDisp;
 
 function main() {
-  var root;
-  let header = Header();
   let gridContainer = GridContainer();
   let leftColumn = LeftColumn();
   let selectorContainer = SelectContainer();
@@ -32,7 +32,7 @@ function main() {
   let manualToggle = ManualToggle();
   let manualOverlay = ManualOverlay();
   let manualColumn = ManualColumn();
-  var lightningDelay;
+  let lightningDelay;
   totalAmt = 0;
   itemCnt = 0;
   lastSel = null;
@@ -83,24 +83,8 @@ function main() {
       suggestSale: false,
     },
   ];
-  var root = document.getElementById("app");
+  let root = document.getElementById("app");
 
-  sel = document.createElement("select");
-  sel.id = "product-select";
-  // gridContainer = document.createElement("div");
-  selectorContainer = document.createElement("div");
-  selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
-  sel.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
-  // gridContainer.className =
-  // "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  addBtn = document.createElement("button");
-  stockInfo = document.createElement("div");
-  addBtn.id = "add-to-cart";
-  stockInfo.id = "stock-status";
-  stockInfo.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
-  addBtn.innerHTML = "Add to Cart";
-  addBtn.className =
-    "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
   selectorContainer.appendChild(sel);
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
@@ -115,7 +99,7 @@ function main() {
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
-  root.appendChild(header);
+  root.appendChild(Header());
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
@@ -128,8 +112,8 @@ function main() {
     handleManualOverlayClick(e, manualColumn)
   );
 
-  var initStock = 0;
-  for (var i = 0; i < prodList.length; i++) {
+  let initStock = 0;
+  for (let i = 0; i < prodList.length; i++) {
     initStock += prodList[i].q;
   }
   onUpdateSelectOptions();
@@ -137,8 +121,8 @@ function main() {
   lightningDelay = Math.random() * 10000;
   setTimeout(() => {
     setInterval(function () {
-      var luckyIdx = Math.floor(Math.random() * prodList.length);
-      var luckyItem = prodList[luckyIdx];
+      let luckyIdx = Math.floor(Math.random() * prodList.length);
+      let luckyItem = prodList[luckyIdx];
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
@@ -153,8 +137,8 @@ function main() {
       if (cartDisp.children.length === 0) {
       }
       if (lastSel) {
-        var suggest = null;
-        for (var k = 0; k < prodList.length; k++) {
+        let suggest = null;
+        for (let k = 0; k < prodList.length; k++) {
           if (prodList[k].id !== lastSel) {
             if (prodList[k].q > 0) {
               if (!prodList[k].suggestSale) {
@@ -179,21 +163,21 @@ function main() {
     }, 60000);
   }, Math.random() * 20000);
 }
-var sum;
+let sum;
 
 function onUpdateSelectOptions() {
-  var totalStock;
-  var opt;
-  var discountText;
+  let totalStock;
+  let opt;
+  let discountText;
   sel.innerHTML = "";
   totalStock = 0;
-  for (var idx = 0; idx < prodList.length; idx++) {
-    var _p = prodList[idx];
+  for (let idx = 0; idx < prodList.length; idx++) {
+    let _p = prodList[idx];
     totalStock = totalStock + _p.q;
   }
-  for (var i = 0; i < prodList.length; i++) {
+  for (let i = 0; i < prodList.length; i++) {
     (function () {
-      var item = prodList[i];
+      let item = prodList[i];
       opt = document.createElement("option");
       opt.value = item.id;
       discountText = "";
@@ -250,27 +234,27 @@ function onUpdateSelectOptions() {
 }
 
 function handleCalculateCartStuff() {
-  var cartItems;
-  var subTot;
-  var itemDiscounts;
-  var lowStockItems;
-  var idx;
-  var originalTotal;
-  var bulkDisc;
-  var itemDisc;
-  var savedAmount;
-  var summaryDetails;
-  var totalDiv;
-  var loyaltyPointsDiv;
-  var points;
-  var discountInfoDiv;
-  var itemCountElement;
-  var previousCount;
-  var stockMsg;
-  var pts;
-  var hasP1;
-  var hasP2;
-  var loyaltyDiv;
+  let cartItems;
+  let subTot;
+  let itemDiscounts;
+  let lowStockItems;
+  let idx;
+  let originalTotal;
+  let bulkDisc;
+  let itemDisc;
+  let savedAmount;
+  let summaryDetails;
+  let totalDiv;
+  let loyaltyPointsDiv;
+  let points;
+  let discountInfoDiv;
+  let itemCountElement;
+  let previousCount;
+  let stockMsg;
+  let pts;
+  let hasP1;
+  let hasP2;
+  let loyaltyDiv;
   totalAmt = 0;
   itemCnt = 0;
   originalTotal = totalAmt;
@@ -286,24 +270,24 @@ function handleCalculateCartStuff() {
   }
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
-      var curItem;
-      for (var j = 0; j < prodList.length; j++) {
+      let curItem;
+      for (let j = 0; j < prodList.length; j++) {
         if (prodList[j].id === cartItems[i].id) {
           curItem = prodList[j];
           break;
         }
       }
-      var qtyElem = cartItems[i].querySelector(".quantity-number");
-      var q;
-      var itemTot;
-      var disc;
+      let qtyElem = cartItems[i].querySelector(".quantity-number");
+      let q;
+      let itemTot;
+      let disc;
       q = parseInt(qtyElem.textContent);
       itemTot = curItem.val * q;
       disc = 0;
       itemCnt += q;
       subTot += itemTot;
-      var itemDiv = cartItems[i];
-      var priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
+      let itemDiv = cartItems[i];
+      let priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
       priceElems.forEach(function (elem) {
         if (elem.classList.contains("text-lg")) {
           elem.style.fontWeight = q >= 10 ? "bold" : "normal";
@@ -337,7 +321,7 @@ function handleCalculateCartStuff() {
     })();
   }
   let discRate = 0;
-  var originalTotal = subTot;
+  originalTotal = subTot;
   if (itemCnt >= 30) {
     totalAmt = (subTot * 75) / 100;
     discRate = 25 / 100;
@@ -345,8 +329,8 @@ function handleCalculateCartStuff() {
     discRate = (subTot - totalAmt) / subTot;
   }
   const today = new Date();
-  var isTuesday = today.getDay() === 2;
-  var tuesdaySpecial = document.getElementById("tuesday-special");
+  let isTuesday = today.getDay() === 2;
+  let tuesdaySpecial = document.getElementById("tuesday-special");
   if (isTuesday) {
     if (totalAmt > 0) {
       totalAmt = (totalAmt * 90) / 100;
@@ -364,16 +348,16 @@ function handleCalculateCartStuff() {
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
-      var curItem;
-      for (var j = 0; j < prodList.length; j++) {
+      let curItem;
+      for (let j = 0; j < prodList.length; j++) {
         if (prodList[j].id === cartItems[i].id) {
           curItem = prodList[j];
           break;
         }
       }
-      var qtyElem = cartItems[i].querySelector(".quantity-number");
-      var q = parseInt(qtyElem.textContent);
-      var itemTotal = curItem.val * q;
+      let qtyElem = cartItems[i].querySelector(".quantity-number");
+      let q = parseInt(qtyElem.textContent);
+      let itemTotal = curItem.val * q;
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
           <span>${curItem.name} x ${q}</span>
@@ -464,8 +448,8 @@ function handleCalculateCartStuff() {
     }
   }
   stockMsg = "";
-  for (var stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
-    var item = prodList[stockIdx];
+  for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
+    let item = prodList[stockIdx];
     if (item.q < 5) {
       if (item.q > 0) {
         stockMsg =
@@ -480,14 +464,14 @@ function handleCalculateCartStuff() {
   doRenderBonusPoints();
 }
 
-var doRenderBonusPoints = function () {
-  var basePoints;
-  var finalPoints;
-  var pointsDetail;
-  var hasKeyboard;
-  var hasMouse;
-  var hasMonitorArm;
-  var nodes;
+let doRenderBonusPoints = function () {
+  let basePoints;
+  let finalPoints;
+  let pointsDetail;
+  let hasKeyboard;
+  let hasMouse;
+  let hasMonitorArm;
+  let nodes;
   if (cartDisp.children.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
@@ -510,8 +494,8 @@ var doRenderBonusPoints = function () {
   hasMonitorArm = false;
   nodes = cartDisp.children;
   for (const node of nodes) {
-    var product = null;
-    for (var pIdx = 0; pIdx < prodList.length; pIdx++) {
+    let product = null;
+    for (let pIdx = 0; pIdx < prodList.length; pIdx++) {
       if (prodList[pIdx].id === node.id) {
         product = prodList[pIdx];
         break;
@@ -549,7 +533,7 @@ var doRenderBonusPoints = function () {
     }
   }
   bonusPts = finalPoints;
-  var ptsTag = document.getElementById("loyalty-points");
+  let ptsTag = document.getElementById("loyalty-points");
   if (ptsTag) {
     if (bonusPts > 0) {
       ptsTag.innerHTML =
@@ -568,9 +552,9 @@ var doRenderBonusPoints = function () {
 };
 
 function onGetStockTotal() {
-  var sum;
-  var i;
-  var currentProduct;
+  let sum;
+  let i;
+  let currentProduct;
   sum = 0;
   for (i = 0; i < prodList.length; i++) {
     currentProduct = prodList[i];
@@ -578,10 +562,10 @@ function onGetStockTotal() {
   }
   return sum;
 }
-var handleStockInfoUpdate = function () {
-  var infoMsg;
-  var totalStock;
-  var messageOptimizer;
+let handleStockInfoUpdate = function () {
+  let infoMsg;
+  let totalStock;
+  let messageOptimizer;
   infoMsg = "";
   totalStock = onGetStockTotal();
   if (totalStock < 30) {
@@ -598,11 +582,11 @@ var handleStockInfoUpdate = function () {
   stockInfo.textContent = infoMsg;
 };
 function doUpdatePricesInCart() {
-  var totalCount = 0,
+  let totalCount = 0,
     j = 0;
-  var cartItems;
+  let cartItems;
   while (cartDisp.children[j]) {
-    var qty = cartDisp.children[j].querySelector(".quantity-number");
+    let qty = cartDisp.children[j].querySelector(".quantity-number");
     totalCount += qty ? parseInt(qty.textContent) : 0;
     j++;
   }
@@ -613,18 +597,18 @@ function doUpdatePricesInCart() {
     );
   }
   cartItems = cartDisp.children;
-  for (var i = 0; i < cartItems.length; i++) {
-    var itemId = cartItems[i].id;
-    var product = null;
-    for (var productIdx = 0; productIdx < prodList.length; productIdx++) {
+  for (let i = 0; i < cartItems.length; i++) {
+    let itemId = cartItems[i].id;
+    let product = null;
+    for (let productIdx = 0; productIdx < prodList.length; productIdx++) {
       if (prodList[productIdx].id === itemId) {
         product = prodList[productIdx];
         break;
       }
     }
     if (product) {
-      var priceDiv = cartItems[i].querySelector(".text-lg");
-      var nameDiv = cartItems[i].querySelector("h3");
+      let priceDiv = cartItems[i].querySelector(".text-lg");
+      let nameDiv = cartItems[i].querySelector("h3");
       if (product.onSale && product.suggestSale) {
         priceDiv.innerHTML =
           '<span class="line-through text-gray-400">₩' +
@@ -673,9 +657,9 @@ function handleManualOverlayClick(e, manualColumn) {
 }
 
 function handleAddToCart() {
-  var selItem = sel.value;
-  var hasItem = false;
-  for (var idx = 0; idx < prodList.length; idx++) {
+  let selItem = sel.value;
+  let hasItem = false;
+  for (let idx = 0; idx < prodList.length; idx++) {
     if (prodList[idx].id === selItem) {
       hasItem = true;
       break;
@@ -684,18 +668,18 @@ function handleAddToCart() {
   if (!selItem || !hasItem) {
     return;
   }
-  var itemToAdd = null;
-  for (var j = 0; j < prodList.length; j++) {
+  let itemToAdd = null;
+  for (let j = 0; j < prodList.length; j++) {
     if (prodList[j].id === selItem) {
       itemToAdd = prodList[j];
       break;
     }
   }
   if (itemToAdd && itemToAdd.q > 0) {
-    var item = document.getElementById(itemToAdd["id"]);
+    let item = document.getElementById(itemToAdd["id"]);
     if (item) {
-      var qtyElem = item.querySelector(".quantity-number");
-      var newQty = parseInt(qtyElem["textContent"]) + 1;
+      let qtyElem = item.querySelector(".quantity-number");
+      let newQty = parseInt(qtyElem["textContent"]) + 1;
       if (newQty <= itemToAdd.q + parseInt(qtyElem.textContent)) {
         qtyElem.textContent = newQty;
         itemToAdd["q"]--;
@@ -703,7 +687,7 @@ function handleAddToCart() {
         alert("재고가 부족합니다.");
       }
     } else {
-      var newItem = document.createElement("div");
+      let newItem = document.createElement("div");
       newItem.id = itemToAdd.id;
       newItem.className =
         "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
@@ -777,25 +761,25 @@ function handleAddToCart() {
 }
 
 function handleCartDispClick(event) {
-  var tgt = event.target;
+  let tgt = event.target;
   if (
     tgt.classList.contains("quantity-change") ||
     tgt.classList.contains("remove-item")
   ) {
-    var prodId = tgt.dataset.productId;
-    var itemElem = document.getElementById(prodId);
-    var prod = null;
-    for (var prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
+    let prodId = tgt.dataset.productId;
+    let itemElem = document.getElementById(prodId);
+    let prod = null;
+    for (let prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
       if (prodList[prdIdx].id === prodId) {
         prod = prodList[prdIdx];
         break;
       }
     }
     if (tgt.classList.contains("quantity-change")) {
-      var qtyChange = parseInt(tgt.dataset.change);
-      var qtyElem = itemElem.querySelector(".quantity-number");
-      var currentQty = parseInt(qtyElem.textContent);
-      var newQty = currentQty + qtyChange;
+      let qtyChange = parseInt(tgt.dataset.change);
+      let qtyElem = itemElem.querySelector(".quantity-number");
+      let currentQty = parseInt(qtyElem.textContent);
+      let newQty = currentQty + qtyChange;
       if (newQty > 0 && newQty <= prod.q + currentQty) {
         qtyElem.textContent = newQty;
         prod.q -= qtyChange;
@@ -806,8 +790,8 @@ function handleCartDispClick(event) {
         alert("재고가 부족합니다.");
       }
     } else if (tgt.classList.contains("remove-item")) {
-      var qtyElem = itemElem.querySelector(".quantity-number");
-      var remQty = parseInt(qtyElem.textContent);
+      let qtyElem = itemElem.querySelector(".quantity-number");
+      let remQty = parseInt(qtyElem.textContent);
       prod.q += remQty;
       itemElem.remove();
     }
