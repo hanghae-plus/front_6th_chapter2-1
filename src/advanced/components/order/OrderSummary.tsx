@@ -1,21 +1,28 @@
+import useCartSummary from '@/hooks/useCartSummary';
+import { useCartWithProduct } from '@/hooks/useCartWithProducts';
 import { isTuesday } from '@/utils/dateUtil';
 
 import AppliedTuesdayDiscount from './AppliedTuesdayDiscount';
-import DiscountList from './DiscountList';
+import { ItemDiscountList, TotalDiscountItem, TuesdayDiscountItem } from './DiscountList';
 import DiscountSummary from './DiscountSummary';
 import FinalPrice from './FinalPriceSummary';
 import OrderList from './OrderList';
 import SubTotal from './SubTotal';
 
 const OrderSummary = () => {
+  const { cartItems } = useCartWithProduct();
+  const { subTotal, isAppliedItemDiscount, isAppliedTotalDiscount, appliedItemDiscountList } = useCartSummary();
+
   return (
     <div className="bg-black text-white p-8 flex flex-col">
       <h2 className="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
       <div className="flex-1 flex flex-col">
         <div id="summary-details" className="space-y-3">
-          <OrderList itemTotal={3000} name="임시값" quantity={326} />
-          <SubTotal subTotal={8234} />
-          <DiscountList />
+          <OrderList cartItems={cartItems} />
+          <SubTotal subTotal={subTotal} />
+          {isAppliedItemDiscount ? <ItemDiscountList discountList={appliedItemDiscountList} /> : null}
+          {isAppliedTotalDiscount ? <TotalDiscountItem /> : null}
+          {isTuesday() ? <TuesdayDiscountItem /> : null}
           <div className="flex justify-between text-sm tracking-wide text-gray-400">
             <span>Shipping</span>
             <span>Free</span>
