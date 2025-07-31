@@ -302,31 +302,38 @@ const handleAddToCart = ({ itemToAdd }) => {
   }
 
   const item = document.getElementById(itemToAdd["id"]);
-  if (item) {
-    const qtyElem = item.querySelector(".quantity-number");
-    const newQty = parseInt(qtyElem["textContent"]) + 1;
-    if (newQty <= itemToAdd.quantity + parseInt(qtyElem.textContent)) {
-      qtyElem.textContent = newQty;
-      itemToAdd["quantity"]--;
-    } else {
-      alert("재고가 부족합니다.");
-    }
-  } else {
+  if (!item) {
     const cartItem = CartItem(itemToAdd);
     cartItemBox.appendChild(cartItem);
     itemToAdd.quantity--;
+
+    handleCalculateCartStuff();
+    lastSel = itemToAdd.id;
+    return;
   }
+
+  const currentQuantityEl = item.querySelector(".quantity-number");
+  const currentQuantity = parseInt(currentQuantityEl.textContent);
+  const newQuantity = currentQuantity + 1;
+
+  if (newQuantity > itemToAdd.quantity + currentQuantity) {
+    alert("재고가 부족합니다.");
+  }
+
+  currentQuantityEl.textContent = newQuantity;
+  itemToAdd.quantity--;
+
   handleCalculateCartStuff();
   lastSel = itemToAdd.id;
 };
 
 const handleCartItemClick = (event) => {
-  const tgt = event.target;
+  const target = event.target;
   if (
-    tgt.classList.contains("quantity-change") ||
-    tgt.classList.contains("remove-item")
+    target.classList.contains("quantity-change") ||
+    target.classList.contains("remove-item")
   ) {
-    const prodId = tgt.dataset.productId;
+    const prodId = target.dataset.productId;
     const itemElem = document.getElementById(prodId);
     let prod = null;
     for (let prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
@@ -335,23 +342,23 @@ const handleCartItemClick = (event) => {
         break;
       }
     }
-    if (tgt.classList.contains("quantity-change")) {
-      const qtyChange = parseInt(tgt.dataset.change);
-      const qtyElem = itemElem.querySelector(".quantity-number");
-      const currentQty = parseInt(qtyElem.textContent);
-      const newQty = currentQty + qtyChange;
-      if (newQty > 0 && newQty <= prod.quantity + currentQty) {
-        qtyElem.textContent = newQty;
+    if (target.classList.contains("quantity-change")) {
+      const qtyChange = parseInt(target.dataset.change);
+      const currentQuantityEl = itemElem.querySelector(".quantity-number");
+      const currentQty = parseInt(currentQuantityEl.textContent);
+      const newQuantity = currentQty + qtyChange;
+      if (newQuantity > 0 && newQuantity <= prod.quantity + currentQty) {
+        currentQuantityEl.textContent = newQuantity;
         prod.quantity -= qtyChange;
-      } else if (newQty <= 0) {
+      } else if (newQuantity <= 0) {
         prod.quantity += currentQty;
         itemElem.remove();
       } else {
         alert("재고가 부족합니다.");
       }
-    } else if (tgt.classList.contains("remove-item")) {
-      const qtyElem = itemElem.querySelector(".quantity-number");
-      const remQty = parseInt(qtyElem.textContent);
+    } else if (target.classList.contains("remove-item")) {
+      const currentQuantityEl = itemElem.querySelector(".quantity-number");
+      const remQty = parseInt(currentQuantityEl.textContent);
       prod.quantity += remQty;
       itemElem.remove();
     }
