@@ -14,7 +14,6 @@ export class ProductEventListeners {
   initProductEventListeners() {
     // 상품 옵션 업데이트 이벤트
     this.uiEventBus.on("product:options:updated", data => {
-      console.log("Product options updated:", data);
       if (data.success) {
         this.renderProductOptions(data.products, data.discountInfos);
       }
@@ -29,7 +28,6 @@ export class ProductEventListeners {
 
     // 가격 정보 업데이트 이벤트
     this.uiEventBus.on("product:prices:updated", data => {
-      console.log("Product prices updated:", data);
       if (data.success) {
         this.renderPricesInCart(data.itemsToUpdate);
       }
