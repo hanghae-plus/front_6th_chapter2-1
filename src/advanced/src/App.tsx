@@ -59,16 +59,10 @@ function App() {
 
           {/* 오른쪽 컬럼: 주문 요약 */}
           <CartSummary
-            total={cartTotals.totalAmount}
+            items={cart}
+            cartTotals={cartTotals}
             loyaltyPoints={pointsCalculation.finalPoints}
-            discountInfo={
-              cartTotals.itemDiscounts.length > 0
-                ? cartTotals.itemDiscounts
-                    .map((d) => `${d.name}: ${d.discount}% 할인`)
-                    .join(", ")
-                : ""
-            }
-            isTuesdaySpecial={cartTotals.isTuesday}
+            pointsDetail={pointsCalculation.pointsDetail}
           />
         </div>
       </div>
