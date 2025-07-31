@@ -57,11 +57,16 @@ const products: Product[] = [
   },
 ];
 
-let updateProductCallback: ProductUpdateCallback | null = null;
+let updateProductCallbacks: ProductUpdateCallback[] = [];
 let selectedProductId: string | null = null;
 
+export function addProductUpdateCallback(callback: ProductUpdateCallback) {
+  updateProductCallbacks.push(callback);
+}
+
+// 기존 함수 호환성을 위해 유지 (deprecated)
 export function setProductUpdateCallback(callback: ProductUpdateCallback) {
-  updateProductCallback = callback;
+  updateProductCallbacks = [callback];
 }
 
 export function setSelectedProduct(productId: string) {
@@ -76,7 +81,7 @@ function updateProduct(productId: string, updates: Partial<Product>) {
   const productIndex = products.findIndex((p) => p.id === productId);
   if (productIndex >= 0) {
     products[productIndex] = { ...products[productIndex], ...updates };
-    updateProductCallback?.(products);
+    updateProductCallbacks.forEach(callback => callback(products));
   }
 }
 

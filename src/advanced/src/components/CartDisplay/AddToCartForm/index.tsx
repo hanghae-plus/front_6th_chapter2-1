@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useCart } from '../../../hooks/useCart';
 import {
   getProducts,
-  setProductUpdateCallback,
+  addProductUpdateCallback,
   setSelectedProduct,
   type Product,
 } from '../../../services/saleService';
@@ -17,7 +17,7 @@ export default function AddToCartForm() {
   const [products, setProducts] = useState<Product[]>(getProducts());
 
   useEffect(() => {
-    setProductUpdateCallback((updatedProducts) => {
+    addProductUpdateCallback((updatedProducts) => {
       setProducts([...updatedProducts]);
     });
   }, []);
@@ -40,7 +40,6 @@ export default function AddToCartForm() {
       },
     });
   };
-
 
   const handleSelectChange = () => {
     const selected = selectRef.current?.value;

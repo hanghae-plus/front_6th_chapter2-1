@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useRef, type ReactNode } from 'react';
 import { cartReducer, initialCartState } from './cartReducer';
 import { CartContext } from './CartContext';
-import { setProductUpdateCallback, decreaseProductStock, increaseProductStock, getProducts } from '../../services/saleService';
+import { addProductUpdateCallback, decreaseProductStock, increaseProductStock, getProducts } from '../../services/saleService';
 import type { CartItem, CartAction } from '../../types/cart';
 
 interface CartProviderProps {
@@ -37,7 +37,7 @@ export function CartProvider({ children }: CartProviderProps) {
   };
   
   useEffect(() => {
-    setProductUpdateCallback(() => {
+    addProductUpdateCallback(() => {
       originalDispatch({ type: 'UPDATE_PRICES' });
     });
   }, []);
