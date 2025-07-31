@@ -5,7 +5,10 @@ import { DISCOUNT_THRESHOLDS, UI_CONSTANTS } from './constants/index.js';
 import { productStore, productStoreActions } from './store/productStore.js';
 
 // DiscountService import
-import { calculateTotalDiscountRate } from './services/discount/DiscountService.js';
+import {
+  calculateTotalDiscountRate,
+  createDiscountInfo,
+} from './services/discount/DiscountService.js';
 
 // PointService import
 import { createPointInfo } from './services/point/PointService.js';
@@ -199,7 +202,9 @@ function calculateTotalDiscount(subTot, itemCount, currentAmount) {
 
 // 주문 요약 상세 내역 갱신
 function updateOrderSummary(cartItems, subTot, itemCount, itemDiscounts) {
-  renderOrderSummaryDetails(cartItems, productStore.products, subTot, itemDiscounts);
+  // createDiscountInfo를 사용하여 올바른 할인 정보 생성
+  const discountInfo = createDiscountInfo(itemDiscounts, itemCount);
+  renderOrderSummaryDetails(cartItems, productStore.products, subTot, discountInfo);
 }
 
 // 상품 선택 옵션 렌더링 및 재고 상태 표시
