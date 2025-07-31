@@ -27,6 +27,7 @@ import {
   PRODUCT_DEFAULT_DISCOUNT_RATES,
 } from './constants';
 import { initProductList } from './data';
+import { attachCartEventListener } from './eventListeners';
 import {
   isTuesday,
   getProductDiscountRate,
@@ -730,57 +731,13 @@ addButton.addEventListener('click', function () {
   }
 });
 
-// ----------------------------------------
-// 장바구니 수량 변경 및 삭제 이벤트
-// ----------------------------------------
-cartContainer.addEventListener('click', function (event) {
-  const tgt = event.target;
-  let quantityElem;
-
-  if (
-    tgt.classList.contains('quantity-change') ||
-    tgt.classList.contains('remove-item')
-  ) {
-    const prodId = tgt.dataset.productId;
-    const itemElem = document.getElementById(prodId);
-    const prod = findProductById(prodId);
-
-    // 수량 변경 처리
-    if (tgt.classList.contains('quantity-change')) {
-      const quantityChange = parseInt(tgt.dataset.change);
-      quantityElem = itemElem.querySelector('.quantity-number');
-      const currentQuantity = parseInt(quantityElem.textContent);
-      const newQuantity = currentQuantity + quantityChange;
-
-      if (
-        newQuantity > 0 &&
-        newQuantity <= prod.availableStock + currentQuantity
-      ) {
-        quantityElem.textContent = newQuantity;
-        prod.availableStock -= quantityChange;
-      } else if (newQuantity <= 0) {
-        prod.availableStock += currentQuantity;
-        itemElem.remove();
-      } else {
-        alert('재고가 부족합니다.');
-      }
-    }
-    // 상품 삭제 처리
-    else if (tgt.classList.contains('remove-item')) {
-      quantityElem = itemElem.querySelector('.quantity-number');
-      const removeQuantity = parseInt(quantityElem.textContent);
-      prod.availableStock += removeQuantity;
-      itemElem.remove();
-    }
-
-    // 재고 부족 상품 체크
-    if (prod && prod.availableStock < 5) {
-    }
-
-    handleCalculateCartStuff();
-    onUpdateSelectOptions();
-  }
-});
+// 장바구니 이벤트 리스너
+attachCartEventListener(
+  cartContainer,
+  findProductById,
+  handleCalculateCartStuff,
+  onUpdateSelectOptions,
+);
 
 function findProductById(productId) {
   return productList.find((product) => product.id === productId);
