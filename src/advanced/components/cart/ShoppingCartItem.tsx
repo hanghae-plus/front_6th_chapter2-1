@@ -10,17 +10,14 @@ const ShoppingCartItem = ({ product }: Props) => {
 
   const { id, name, price, discountPrice, quantity } = product;
 
-  const createQuantityButtonHandler = (delta: number) => (e: MouseEvent<HTMLButtonElement>) => {
+  const handleClickAddButton = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    updateCartItemQuantity(id, delta);
+    updateCartItemQuantity(id, +1);
   };
 
-  const handleClickAddButton = () => {
-    return createQuantityButtonHandler(+1);
-  };
-
-  const handleClickMinusButton = () => {
-    return createQuantityButtonHandler(-1);
+  const handleClickMinusButton = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    updateCartItemQuantity(id, -1);
   };
 
   const handleRemove = (e: MouseEvent<HTMLAnchorElement>) => {
