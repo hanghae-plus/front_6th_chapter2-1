@@ -1,4 +1,10 @@
-export const ProductOption = ({ product }) => {
+import { Product } from '../../../reducer';
+
+interface ProductOptionProps {
+  product: Product;
+}
+
+export const ProductOption = ({ product }: ProductOptionProps) => {
   // 품절 상품
   if (product.quantity === 0) {
     return (

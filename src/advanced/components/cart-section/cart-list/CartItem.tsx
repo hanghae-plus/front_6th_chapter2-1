@@ -1,4 +1,17 @@
-export const CartItem = ({ product, quantity }) => {
+import { useCartState } from '../../../contexts/CartContext';
+
+interface CartItemProps {
+  productId: string;
+  quantity: number;
+}
+
+export const CartItem = ({ productId, quantity }: CartItemProps) => {
+  const state = useCartState();
+
+  const product = state?.products.find((product) => product.id === productId);
+
+  if (!product) return <></>;
+
   const saleIcon =
     product.onSale && product.suggestSale
       ? '⚡💝'

@@ -8,7 +8,7 @@ export const CartContainer = () => (
     <div className='mb-6 pb-6 border-b border-gray-200'>
       <ProductSelector />
       <AddButton />
-      <StockStatus stockMessages={undefined} />
+      <StockStatus />
     </div>
     <CartList />
   </div>
