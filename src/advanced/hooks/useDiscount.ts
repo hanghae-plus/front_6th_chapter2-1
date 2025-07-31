@@ -8,8 +8,8 @@ export default function useDiscount() {
 
   const isBulkDiscount = getCartTotalCount(cartItems) >= 30;
 
-  // const isTuesday = new Date().getDay() === 2;
-  const isTuesday = true;
+  const isTuesday = new Date().getDay() === 2;
+  // const isTuesday = true;
 
   const discountedProducts: Discount[] = cartItems
     .map(cartItem => ({

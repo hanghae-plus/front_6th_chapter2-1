@@ -21,3 +21,5 @@ export interface OrderSummary {
   itemDiscounts: DiscountInfo[];
   points: PointInfo;
 }
+
+export type Nullable<T> = T | null;

@@ -24,5 +24,9 @@ export default function useTimer() {
     startAll: startAllTimers,
     stopAll: stopAllTimers,
     restartAll: restartAllTimers,
+    startLightningSale: lightningSaleTimer.start,
+    stopLightningSale: lightningSaleTimer.stop,
+    startSuggestionSale: suggestionSaleTimer.start,
+    stopSuggestionSale: suggestionSaleTimer.stop,
   };
 }

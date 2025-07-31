@@ -24,6 +24,7 @@ export default function ProductPrice({ product }: Props) {
   const isOnSale = product.onSale || product.suggestSale;
 
   const cartItem = cartItems.find(item => item.id === product.id);
+
   const isProductDiscount = cartItem ? cartItem.quantity >= 10 : false;
 
   const productDiscountStyle = isProductDiscount ? 'font-bold' : 'font-normal';

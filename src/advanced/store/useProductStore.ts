@@ -67,13 +67,15 @@ const useProductStore = create<ProductState & ProductActions>((set, get) => ({
 
       if (!product) return state;
 
-      const newPrice = getDiscountedPrice(product.originalPrice, discountRate);
+      const newDiscountRate = product.discountRate + discountRate;
+
+      const newPrice = getDiscountedPrice(product.originalPrice, newDiscountRate);
 
       return {
         ...state,
         products: state.products.map(product =>
           product.id === productId
-            ? { ...product, onSale: true, discountRate, price: newPrice }
+            ? { ...product, onSale: true, discountRate: newDiscountRate, price: newPrice }
             : product
         ),
       };
@@ -85,13 +87,15 @@ const useProductStore = create<ProductState & ProductActions>((set, get) => ({
 
       if (!product) return state;
 
-      const newPrice = getDiscountedPrice(product.originalPrice, discountRate);
+      const newDiscountRate = product.discountRate + discountRate;
+
+      const newPrice = getDiscountedPrice(product.originalPrice, newDiscountRate);
 
       return {
         ...state,
         products: state.products.map(product =>
           product.id === productId
-            ? { ...product, suggestSale: true, discountRate, price: newPrice }
+            ? { ...product, suggestSale: true, discountRate: newDiscountRate, price: newPrice }
             : product
         ),
       };
