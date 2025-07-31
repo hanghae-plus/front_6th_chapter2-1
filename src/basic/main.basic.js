@@ -13,7 +13,12 @@ import {
   TIMER_CONFIG,
 } from './constants.js';
 // 유틸리티 함수 import
-import { updateAllUI, updateAdditionalCalculations, setAppState } from './uiUpdates.js';
+import {
+  updateAllUI,
+  updateAdditionalCalculations,
+  setAppState,
+  RenderingEngine,
+} from './uiUpdates.js';
 import { findProductById } from './utils.js';
 // 비즈니스 로직 import
 // UI 업데이트 import
@@ -290,7 +295,8 @@ const renderApp = () => {
   const root = document.getElementById('app');
   root.innerHTML = createUI();
 
-  // DOM 요소 참조 업데이트
+  // DOM 캐시 초기화
+  // DOM 요소 참조 설정
   AppState.ui.selectElement = document.getElementById('product-select');
   AppState.ui.addButton = document.getElementById('add-to-cart');
   AppState.ui.cartDisplay = document.getElementById('cart-items');
@@ -452,33 +458,51 @@ const SelectOptionsComponent = () =>
       if (item.onSale) discountText += ' ⚡SALE';
       if (item.suggestSale) discountText += ' 💝추천';
 
+      // 원본과 동일한 재고 표시 방식
+      const stockDisplay = item.stock === 0 ? ' (품절)' : '';
+
       if (item.stock === 0) {
-        return `<option value="${item.id}" disabled class="text-gray-400">${item.name} - ${item.value}원 (품절)${discountText}</option>`;
+        return `<option value="${item.id}" disabled class="text-gray-400">${item.name} - ${item.value}원${stockDisplay}${discountText}</option>`;
       }
       if (item.onSale && item.suggestSale) {
-        return `<option value="${item.id}" class="text-purple-600 font-bold">⚡💝${item.name} - ${item.originalValue}원 → ${item.value}원 (${DISCOUNT_PERCENTAGES.SUPER_SALE}% SUPER SALE!)</option>`;
+        return `<option value="${item.id}" class="text-purple-600 font-bold">⚡💝${item.name} - ${item.originalValue}원 → ${item.value}원 (${DISCOUNT_PERCENTAGES.SUPER_SALE}% SUPER SALE!)${stockDisplay}</option>`;
       }
       if (item.onSale) {
-        return `<option value="${item.id}" class="text-red-500 font-bold">⚡${item.name} - ${item.originalValue}원 → ${item.value}원 (${DISCOUNT_PERCENTAGES.LIGHTNING_SALE}% SALE!)</option>`;
+        return `<option value="${item.id}" class="text-red-500 font-bold">⚡${item.name} - ${item.originalValue}원 → ${item.value}원 (${DISCOUNT_PERCENTAGES.LIGHTNING_SALE}% SALE!)${stockDisplay}</option>`;
       }
       if (item.suggestSale) {
-        return `<option value="${item.id}" class="text-blue-500 font-bold">💝${item.name} - ${item.originalValue}원 → ${item.value}원 (${DISCOUNT_PERCENTAGES.RECOMMENDATION}% 추천할인!)</option>`;
+        return `<option value="${item.id}" class="text-blue-500 font-bold">💝${item.name} - ${item.originalValue}원 → ${item.value}원 (${DISCOUNT_PERCENTAGES.RECOMMENDATION}% 추천할인!)${stockDisplay}</option>`;
       }
-      return `<option value="${item.id}">${item.name} - ${item.value}원${discountText}</option>`;
+      return `<option value="${item.id}">${item.name} - ${item.value}원${stockDisplay}${discountText}</option>`;
     })
     .join('');
 
 const handleUpdateSelectOptions = () => {
   const totalStock = AppState.products.reduce((sum, product) => sum + product.stock, 0);
 
-  if (!AppState.ui.selectElement) return;
+  const { selectElement } = AppState.ui;
+  if (!selectElement) return;
 
-  AppState.ui.selectElement.innerHTML = SelectOptionsComponent();
+  // innerHTML 완전 제거하고 createElement 방식으로
+  const optionsHTML = SelectOptionsComponent();
+
+  // 기존 옵션들 제거
+  while (selectElement.firstChild) {
+    selectElement.removeChild(selectElement.firstChild);
+  }
+
+  // HTML 문자열을 DOM 요소로 변환하여 추가
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = optionsHTML;
+
+  while (tempDiv.firstChild) {
+    selectElement.appendChild(tempDiv.firstChild);
+  }
 
   if (totalStock < 50) {
-    AppState.ui.selectElement.style.borderColor = 'orange';
+    selectElement.style.borderColor = 'orange';
   } else {
-    AppState.ui.selectElement.style.borderColor = '';
+    selectElement.style.borderColor = '';
   }
 };
 
@@ -514,10 +538,16 @@ const handleCalculateCartStuff = () => {
   // 2. 상태 업데이트
   updateAppState(cartState, AppState);
 
-  // 3. UI 업데이트
-  updateAllUI(cartState, AppState);
+  // 3. UI 업데이트 - HTML 컴포넌트 생성
+  const uiComponents = updateAllUI(cartState, AppState);
 
-  // 4. 추가 계산
+  // 4. 렌더링 엔진으로 HTML 문자열 받기
+  const renderedHTML = RenderingEngine.renderAll(uiComponents);
+
+  // 5. 렌더링 엔진이 실제 DOM에 렌더링 (React 방식)
+  RenderingEngine.renderToDOM(renderedHTML);
+
+  // 6. 추가 계산
   updateAdditionalCalculations(AppState);
 };
 
@@ -556,25 +586,23 @@ const CartItemPriceComponent = (product) => {
 
 const handleUpdatePricesInCart = () => {
   const cartItems = AppState.cart.items;
-  cartItems.forEach((cartItem) => {
-    const itemId = cartItem.productId;
-    const product = AppState.products.find((product) => product.id === itemId);
+  const priceUpdates = cartItems
+    .map((cartItem) => {
+      const itemId = cartItem.productId;
+      const product = AppState.products.find((product) => product.id === itemId);
 
-    if (product) {
-      const itemElement = document.getElementById(itemId);
-      if (itemElement) {
-        const priceDiv = itemElement.querySelector('.text-lg');
-        const nameDiv = itemElement.querySelector('h3');
-
-        if (priceDiv && nameDiv) {
-          const { price, name } = CartItemPriceComponent(product);
-          priceDiv.innerHTML = price;
-          nameDiv.textContent = name;
-        }
+      if (product) {
+        return {
+          itemId,
+          ...CartItemPriceComponent(product),
+        };
       }
-    }
-  });
+      return null;
+    })
+    .filter(Boolean);
+
   handleCalculateCartStuff();
+  return priceUpdates;
 };
 
 // ============================================
@@ -636,15 +664,8 @@ const addItemToCart = (productId) => {
       existingItem.quantity = newQuantity;
       product.stock--;
 
-      // DOM 업데이트
-      const itemElement = document.getElementById(productId);
-      if (itemElement) {
-        const quantityElement = itemElement.querySelector('.quantity-number');
-        if (quantityElement) {
-          quantityElement.textContent = newQuantity;
-        }
-      }
-      return true;
+      // HTML 리턴 방식 - DOM 조작 없이 HTML 문자열만 반환
+      return { productId, newQuantity, success: true };
     }
     alert('재고가 부족합니다.');
     return false;
@@ -654,10 +675,8 @@ const addItemToCart = (productId) => {
   AppState.cart.items.push(newItem);
   product.stock--;
 
-  // DOM에 새 아이템 추가
-  const newItemHTML = CartItemElement(product);
-  AppState.ui.cartDisplay.insertAdjacentHTML('beforeend', newItemHTML);
-  return true;
+  // HTML 리턴 방식 - DOM 조작 없이 HTML 문자열만 반환
+  return { productId, newItemHTML: CartItemElement(product), success: true };
 };
 
 const updateItemQuantity = (productId, change) => {
@@ -675,15 +694,8 @@ const updateItemQuantity = (productId, change) => {
     item.quantity = newQuantity;
     product.stock -= change;
 
-    // DOM 업데이트
-    const itemElement = document.getElementById(productId);
-    if (itemElement) {
-      const quantityElement = itemElement.querySelector('.quantity-number');
-      if (quantityElement) {
-        quantityElement.textContent = newQuantity;
-      }
-    }
-    return true;
+    // HTML 리턴 방식 - DOM 조작 없이 HTML 문자열만 반환
+    return { productId, newQuantity, success: true };
   }
 
   if (newQuantity <= 0) {
@@ -740,14 +752,33 @@ const handleAddToCart = () => {
     return;
   }
 
-  if (addItemToCart(selectedProductId)) {
+  const result = addItemToCart(selectedProductId);
+  if (result && result.success) {
+    if (result.newQuantity) {
+      // 기존 아이템 수량 증가
+      RenderingEngine.updateCartItemQuantity(selectedProductId, result.newQuantity);
+    } else if (result.newItemHTML) {
+      // 새 아이템 추가 (innerHTML 없이)
+      const cartDisplay = document.getElementById('cart-items');
+      if (cartDisplay) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = result.newItemHTML;
+
+        while (tempDiv.firstChild) {
+          cartDisplay.appendChild(tempDiv.firstChild);
+        }
+      }
+    }
     handleCalculateCartStuff();
     AppState.ui.lastSelectedProduct = selectedProductId;
   }
 };
 
 const handleQuantityChange = (productId, change) => {
-  if (updateItemQuantity(productId, change)) {
+  const result = updateItemQuantity(productId, change);
+  if (result && result.success) {
+    // HTML 리턴 방식으로 수량 업데이트
+    RenderingEngine.updateCartItemQuantity(productId, result.newQuantity);
     handleCalculateCartStuff();
     handleUpdateSelectOptions();
   }
