@@ -4,7 +4,7 @@ import {
   LeftColumn,
   RightColumn,
 } from './components/layout';
-import { ProductSelector } from './components/ui';
+import { ProductSelector, CartContainer, CartItem } from './components/ui';
 import {
   PRODUCT_KEYBOARD,
   PRODUCT_MOUSE,
@@ -25,8 +25,8 @@ let lastSelectedProductId;
 let selectElement;
 let addButton;
 let totalAmount = 0;
-let cartContainer;
 let sum;
+let cartContainer;
 
 // 주문 요약 컴포넌트 (오른쪽 컬럼)
 function OrderSummary() {
@@ -125,51 +125,6 @@ function ManualModal() {
   `;
 }
 
-function CartItem(product) {
-  const discountIcon =
-    product.onSale && product.suggestSale
-      ? '⚡💝'
-      : product.onSale
-        ? '⚡'
-        : product.suggestSale
-          ? '💝'
-          : '';
-
-  const priceClass =
-    product.onSale && product.suggestSale
-      ? 'text-purple-600'
-      : product.onSale
-        ? 'text-red-500'
-        : product.suggestSale
-          ? 'text-blue-500'
-          : '';
-
-  const priceDisplay =
-    product.onSale || product.suggestSale
-      ? `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="${priceClass}">₩${product.val.toLocaleString()}</span>`
-      : `₩${product.val.toLocaleString()}`;
-
-  return `
-      <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-      </div>
-      <div>
-        <h3 class="text-base font-normal mb-1 tracking-tight">${discountIcon}${product.name}</h3>
-        <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-        <p class="text-xs text-black mb-3">${priceDisplay}</p>
-        <div class="flex items-center gap-4">
-          <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="-1">−</button>
-          <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-          <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="1">+</button>
-        </div>
-      </div>
-      <div class="text-right">
-        <div class="text-lg mb-2 tracking-tight tabular-nums">${priceDisplay}</div>
-        <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${product.id}">Remove</a>
-      </div>
-    `;
-}
-
 // 메인 초기화 함수
 function main() {
   // 초기값 설정
@@ -213,8 +168,7 @@ function main() {
   leftColumn.appendChild(selectorContainer);
 
   // 장바구니 표시 영역
-  cartContainer = document.createElement('div');
-  cartContainer.id = 'cart-items';
+  cartContainer = CartContainer();
   leftColumn.appendChild(cartContainer);
 
   // ----------------------------------------
@@ -885,11 +839,7 @@ addButton.addEventListener('click', function () {
       }
     } else {
       // 새로운 상품을 장바구니에 추가
-      const newItem = document.createElement('div');
-      newItem.id = itemToAdd.id;
-      newItem.className =
-        'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
-      newItem.innerHTML = CartItem(itemToAdd);
+      const newItem = CartItem(itemToAdd);
       cartContainer.appendChild(newItem);
       itemToAdd.availableStock--;
     }
