@@ -12,14 +12,14 @@ export class TimerService {
   startLightningSaleTimer() {
     this.lightningSaleTimer = setInterval(() => {
       this.applyLightningSale();
-    }, 3000); // 30초마다 실행
+    }, 30000); // 30초마다 실행
   }
 
   // 추천세일 타이머 시작
   startSuggestSaleTimer() {
     this.suggestSaleTimer = setInterval(() => {
       this.applySuggestSale();
-    }, 5000); // 45초마다 실행
+    }, 45000); // 45초마다 실행
   }
 
   // 번개세일 적용 (ProductService의 비즈니스 로직 사용)
