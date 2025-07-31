@@ -1,11 +1,11 @@
-import type { Product, CartProduct, appState } from '../type';
+import type { Product, CartProduct, AppState } from '../type';
 import CartContainer from './CartContainer';
 import OrderSummaryBox from './OrderSummaryBox';
 
 interface CartLayoutProps {
   productList: Product[];
   cartList: CartProduct[];
-  appState: appState;
+  appState: AppState;
 }
 
 export const CartLayout = ({ productList, cartList, appState }: CartLayoutProps) => {

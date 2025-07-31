@@ -11,7 +11,7 @@ import { createProductSelector } from './components/ProductSelector';
 import { createCartProductList } from './components/CartProductList';
 import { createStockStatus } from './components/StockStatus';
 
-import { PRODUCT_ID } from './html/constants/constants';
+import { PRODUCT } from './html/constants/constants';
 import { applySaleAlert } from './html/services/applySaleAlert';
 import { changeQuantity, removeFromCart } from './html/states/cartState';
 import { updateProductSelector } from './html/services/updateProductSeletor';
@@ -20,8 +20,8 @@ import { updateCartStatus } from './html/services/updateCartStatus';
 // 상품 목록 - 전역 상태 관리 필요
 const productList = [
   {
-    id: PRODUCT_ID[1],
-    name: '버그 없애는 키보드',
+    id: PRODUCT.ID[1],
+    name: PRODUCT.NAME.KEYBOARD,
     changedPrice: 10000, // 변동된 가격
     originalPrice: 10000, // 원래 가격
     quantity: 50, // 재고 수
@@ -29,8 +29,8 @@ const productList = [
     suggestSale: false,
   },
   {
-    id: PRODUCT_ID[2],
-    name: '생산성 폭발 마우스',
+    id: PRODUCT.ID[2],
+    name: PRODUCT.NAME.MOUSE,
     changedPrice: 20000,
     originalPrice: 20000,
     quantity: 30,
@@ -38,8 +38,8 @@ const productList = [
     suggestSale: false,
   },
   {
-    id: PRODUCT_ID[3],
-    name: '거북목 탈출 모니터암',
+    id: PRODUCT.ID[3],
+    name: PRODUCT.NAME.MONITOR,
     changedPrice: 30000,
     originalPrice: 30000,
     quantity: 20,
@@ -47,8 +47,8 @@ const productList = [
     suggestSale: false,
   },
   {
-    id: PRODUCT_ID[4],
-    name: '에러 방지 노트북 파우치',
+    id: PRODUCT.ID[4],
+    name: PRODUCT.NAME.POUCH,
     changedPrice: 15000,
     originalPrice: 15000,
     quantity: 0,
@@ -56,8 +56,8 @@ const productList = [
     suggestSale: false,
   },
   {
-    id: PRODUCT_ID[5],
-    name: '코딩할 때 듣는 Lo-Fi 스피커',
+    id: PRODUCT.ID[5],
+    name: PRODUCT.NAME.SPEACKER,
     changedPrice: 25000,
     originalPrice: 25000,
     quantity: 10,

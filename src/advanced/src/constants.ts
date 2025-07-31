@@ -1,9 +1,19 @@
-export const PRODUCT_ID = {
-  1: 'p1',
-  2: 'p2',
-  3: 'p3',
-  4: 'p4',
-  5: 'p5',
+export const PRODUCT = {
+  ID: {
+    1: 'p1',
+    2: 'p2',
+    3: 'p3',
+    4: 'p4',
+    5: 'p5',
+  },
+
+  NAME: {
+    KEYBOARD: '버그 없애는 키보드',
+    MOUSE: '생산성 폭발 마우스',
+    MONITOR: '거북목 탈출 모니터암',
+    POUCH: '에러 방지 노트북 파우치',
+    SPEACKER: '코딩할 때 듣는 Lo-Fi 스피커',
+  },
 };
 
 export const LOW_STOCK_THRESHOLD = 5;

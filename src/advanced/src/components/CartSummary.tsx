@@ -1,12 +1,12 @@
 import { DISCOUNT_THRESHOLD } from '../constants';
-import type { Product, CartProduct, appState } from '../type';
+import type { Product, CartProduct, AppState } from '../type';
 import { isTodayTuesday } from '../utils/isTodayTuesday';
 import { findProductById } from '../lib/findProductById';
 
 interface CartSummaryProps {
   productList: Product[];
   cartList: CartProduct[];
-  appState: appState;
+  appState: AppState;
 }
 
 export const CartSummary = ({ productList, cartList, appState }: CartSummaryProps) => {

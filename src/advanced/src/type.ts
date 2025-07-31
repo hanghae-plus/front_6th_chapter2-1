@@ -13,13 +13,12 @@ export interface CartProduct {
   count: number;
 }
 
-export interface discountedProduct {
+export interface DiscountedProduct {
   name: string,
   discount: number,
 }
 
-// 수정 필요 ---
-export interface appState {
+export interface AppState {
   totalPoints: number, // 최종 적립 포인트
   pointsDetail: string[], // 포인트 상세 문자열
 
@@ -28,6 +27,6 @@ export interface appState {
   totalAfterDiscount: number, // 할인 후 장바구니 총 가격
 
   totalDiscountedRate: number, // 총 할인율
-  discountedProductList: discountedProduct[], // 할인 적용된 상품 목록
+  discountedProductList: DiscountedProduct[], // 할인 적용된 상품 목록
   lastSelectedProductId: string | null, // 최근에 장바구니에 담긴 상품 id
 };

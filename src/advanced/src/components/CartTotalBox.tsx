@@ -1,7 +1,7 @@
-import type { appState } from '../type';
+import type { AppState } from '../type';
 
 interface CartTotalBoxProps {
-  appState: appState;
+  appState: AppState;
 }
 
 export const CartTotalBox = ({ appState }: CartTotalBoxProps) => {

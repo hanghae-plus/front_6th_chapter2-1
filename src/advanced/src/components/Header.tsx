@@ -1,7 +1,7 @@
-import type { appState } from '../type';
+import type { AppState } from '../type';
 
 interface HeaderProps {
-  appState: appState;
+  appState: AppState;
 }
 
 export const Header = ({ appState }: HeaderProps) => {

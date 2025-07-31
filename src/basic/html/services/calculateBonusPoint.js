@@ -1,4 +1,4 @@
-import { BONUS_POINT, PRODUCT_ID } from '../constants/constants';
+import { BONUS_POINT, PRODUCT } from '../constants/constants';
 import { isTodayTuesday } from '../../utils/isTodayTuesday';
 
 // 포인트 계산
@@ -38,9 +38,9 @@ export const calculateBonusPoint = ({ state, appState }) => {
 
   for (const item of cartState) {
     // 상품 존재 여부 업데이트
-    if (item.id === PRODUCT_ID[1]) hasKeyboard = true;
-    if (item.id === PRODUCT_ID[2]) hasMouse = true;
-    if (item.id === PRODUCT_ID[3]) hasMonitorArm = true;
+    if (item.id === PRODUCT.ID[1]) hasKeyboard = true;
+    if (item.id === PRODUCT.ID[2]) hasMouse = true;
+    if (item.id === PRODUCT.ID[3]) hasMonitorArm = true;
   }
 
   // 상품에 따른 포인트 추가

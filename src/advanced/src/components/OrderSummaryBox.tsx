@@ -1,4 +1,4 @@
-import type { Product, CartProduct, appState } from '../type';
+import type { Product, CartProduct, AppState } from '../type';
 import { isTodayTuesday } from '../utils/isTodayTuesday';
 import CheckOutButton from './Button/CheckOutButton';
 import CartSummary from './CartSummary';
@@ -9,7 +9,7 @@ import TuesdaySpecialBox from './TuesdaySpecialBox';
 interface OrderSummaryBoxProps {
   productList: Product[];
   cartList: CartProduct[];
-  appState: appState;
+  appState: AppState;
 }
 
 // = rightColumn

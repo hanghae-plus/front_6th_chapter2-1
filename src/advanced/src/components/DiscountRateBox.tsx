@@ -1,7 +1,7 @@
-import type { appState } from '../type';
+import type { AppState } from '../type';
 
 interface DiscountRateBoxProps {
-  appState: appState;
+  appState: AppState;
 }
 
 export const DiscountRateBox = ({ appState }: DiscountRateBoxProps) => {
