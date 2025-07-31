@@ -33,7 +33,7 @@ export const calculateTotalDiscount = (cartItems: Cart[], subtotal: number): Dis
   cartItems.forEach(item => {
     const individualDiscount = calculateIndividualDiscount(item);
     if (individualDiscount > 0) {
-      const discountAmount = (item.product.val * item.quantity * individualDiscount) / 100;
+      const discountAmount = (item.product.price * item.quantity * individualDiscount) / 100;
       totalDiscountAmount += discountAmount;
       discounts.push({
         type: "individual",

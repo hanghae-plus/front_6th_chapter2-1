@@ -10,16 +10,16 @@ interface UseSpecialEventsProps {
 
 export const useSpecialEvents = ({ products, onProductUpdate, selectedProductId }: UseSpecialEventsProps) => {
   const triggerLightningSale = useCallback(() => {
-    const availableProducts = products.filter(p => p.q > 0 && !p.onSale);
+    const availableProducts = products.filter(p => p.quantity > 0 && !p.onSale);
     if (availableProducts.length === 0) return;
 
     const randomIndex = Math.floor(Math.random() * availableProducts.length);
     const luckyProduct = availableProducts[randomIndex];
 
-    const newPrice = Math.round((luckyProduct.originalVal * (100 - DISCOUNT_RATES.LIGHTNING_DISCOUNT)) / 100);
+    const newPrice = Math.round((luckyProduct.originalPrice * (100 - DISCOUNT_RATES.LIGHTNING_DISCOUNT)) / 100);
 
     onProductUpdate(luckyProduct.id, {
-      val: newPrice,
+      price: newPrice,
       onSale: true,
     });
 
@@ -29,15 +29,15 @@ export const useSpecialEvents = ({ products, onProductUpdate, selectedProductId 
   const triggerSuggestSale = useCallback(() => {
     if (!selectedProductId) return;
 
-    const availableProducts = products.filter(p => p.id !== selectedProductId && p.q > 0 && !p.suggestSale);
+    const availableProducts = products.filter(p => p.id !== selectedProductId && p.quantity > 0 && !p.suggestSale);
 
     if (availableProducts.length === 0) return;
 
     const suggestProduct = availableProducts[0];
-    const newPrice = Math.round((suggestProduct.val * (100 - DISCOUNT_RATES.SUGGEST_DISCOUNT)) / 100);
+    const newPrice = Math.round((suggestProduct.price * (100 - DISCOUNT_RATES.SUGGEST_DISCOUNT)) / 100);
 
     onProductUpdate(suggestProduct.id, {
-      val: newPrice,
+      price: newPrice,
       suggestSale: true,
     });
 

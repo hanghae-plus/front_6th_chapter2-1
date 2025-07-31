@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { CartProvider, useCart } from "./context/CartContext";
-import { Layout } from "./components/Layout";
+import Layout from "./components/Layout";
 import { useSpecialEvents } from "./hooks/useSpecialEvents";
 import { INITIAL_PRODUCTS } from "./constants";
 import { Product } from "./types";
@@ -30,17 +30,13 @@ const App = () => {
   return <Layout />;
 };
 
-const AppWithContext: React.FC = () => {
-  return (
-    <CartProvider>
-      <App />
-    </CartProvider>
-  );
-};
-
 // DOM에 렌더링
 const container = document.getElementById("app");
 if (container) {
   const root = createRoot(container);
-  root.render(<AppWithContext />);
+  root.render(
+    <CartProvider>
+      <App />
+    </CartProvider>
+  );
 }
