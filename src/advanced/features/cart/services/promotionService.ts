@@ -3,7 +3,7 @@
  * 프로모션 관련 비즈니스 로직
  */
 
-import { Product } from '@/advanced/features/cart/utils/stockUtils.ts';
+import { Product } from '@/advanced/features/product/types/index.ts';
 import { applyFlashSale, applySuggestSale } from './promotionPriceService.ts';
 import { BUSINESS_CONSTANTS } from '@/advanced/shared/constants/business.ts';
 

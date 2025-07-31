@@ -1,15 +1,6 @@
 import React from 'react';
 import { BUSINESS_CONSTANTS } from '@/advanced/shared/constants/business.ts';
-
-interface Product {
-  id: string;
-  name: string;
-  val: number;
-  originalVal: number;
-  q: number;
-  onSale: boolean;
-  suggestSale: boolean;
-}
+import { Product } from '../types';
 
 interface ProductSelectorProps {
   products?: Product[];

@@ -3,15 +3,7 @@
  * 재고 검증 및 관리 로직
  */
 
-export interface Product {
-  id: string;
-  name: string;
-  val: number;
-  originalVal: number;
-  q: number;
-  onSale: boolean;
-  suggestSale: boolean;
-}
+import { Product } from '@/advanced/features/product/types/index.ts';
 
 export const stockValidators = {
   /**

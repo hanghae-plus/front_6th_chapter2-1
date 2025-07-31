@@ -21,6 +21,7 @@ import {
 import { setupPromotionTimers } from './features/cart/services/promotionService.ts';
 import { calculateCartTotals } from './features/cart/services/cartCalculator.ts';
 import { BUSINESS_CONSTANTS } from './shared/constants/business.ts';
+import { Product } from './features/product/types/index.ts';
 
 function App() {
   const [products, setProducts] = useState(initialProducts);
@@ -74,7 +75,7 @@ function App() {
     const promotionCallbacks = {
       onPromotionApplied: (
         _type: 'flash' | 'recommendation',
-        _product: any,
+        _product: Product,
       ) => {
         setProducts(prevProducts => prevProducts.map(p => ({ ...p })));
       },
