@@ -1,4 +1,12 @@
-import { getProductOptionStyle, getSalesInfoText, getStockInfo, getTotalStock, isOutOfStock } from './service';
+import {
+  getDiscountIcon,
+  getDiscountStatus,
+  getProductOptionStyle,
+  getSalesInfoText,
+  getStockInfo,
+  getTotalStock,
+  isOutOfStock,
+} from './service';
 
 /**
  * @description 상품 셀렉 요소의 옵션을 렌더링
@@ -33,4 +41,27 @@ export const renderProductSelectOptions = (selector, products) => {
  */
 export const renderStockInfo = (target, products) => {
   target.textContent = products.map(getStockInfo).join('\n');
+};
+
+/**
+ * @description 장바구니 상품 렌더링
+ * @param {{target: HTMLDivElement, cartProduct: Product}}
+ */
+export const renderCartProduct = (target, cartProduct) => {
+  const priceDiv = target.querySelector('.text-lg');
+  const nameDiv = target.querySelector('h3');
+
+  const status = getDiscountStatus(cartProduct);
+  const icon = getDiscountIcon(cartProduct);
+
+  if (status === 'NO_SALE') {
+    priceDiv.textContent = `₩${cartProduct.value.toLocaleString()}`;
+    nameDiv.textContent = cartProduct.name;
+  } else {
+    priceDiv.innerHTML = `
+      <span class="line-through text-gray-400">₩${cartProduct.originalValue.toLocaleString()}</span>
+      <span class="text-purple-600">₩${cartProduct.value.toLocaleString()}</span>
+    `;
+    nameDiv.textContent = `${icon}${cartProduct.name}`;
+  }
 };
