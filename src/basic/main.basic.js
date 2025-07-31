@@ -27,6 +27,11 @@ import {
   PRODUCT_DEFAULT_DISCOUNT_RATES,
 } from './constants';
 import { initProductList } from './data';
+import {
+  isTuesday,
+  getProductDiscountRate,
+  getBonusPerBulkInfo,
+} from './utils';
 
 // 상품 데이터 및 장바구니 관련 변수
 let productList;
@@ -314,10 +319,8 @@ function handleCalculateCartStuff() {
   // ----------------------------------------
   // 화요일 특별 할인 적용
   // ----------------------------------------
-  const today = new Date();
-  const isTuesday = today.getDay() === 2;
   const tuesdaySpecial = document.getElementById('tuesday-special');
-  if (isTuesday) {
+  if (isTuesday()) {
     if (totalAmount > 0) {
       totalAmount = (totalAmount * 90) / 100;
       discountRate = 1 - totalAmount / originalTotal;
@@ -505,7 +508,7 @@ const doRenderBonusPoints = () => {
   // ----------------------------------------
   // 화요일 포인트 2배
   // ----------------------------------------
-  if (new Date().getDay() === 2) {
+  if (isTuesday()) {
     if (basePoints > 0) {
       finalPoints = basePoints * 2;
       pointsDetail.push('화요일 2배');
@@ -781,43 +784,4 @@ cartContainer.addEventListener('click', function (event) {
 
 function findProductById(productId) {
   return productList.find((product) => product.id === productId);
-}
-
-function getBonusPerBulkInfo(itemCount) {
-  if (itemCount >= QUANTITY_THRESHOLDS.BONUS_LARGE) {
-    return {
-      points: POINT_RATES_BULK_BONUS.LARGE,
-      threshold: QUANTITY_THRESHOLDS.BONUS_LARGE,
-    };
-  }
-  if (itemCount >= QUANTITY_THRESHOLDS.BONUS_MEDIUM) {
-    return {
-      points: POINT_RATES_BULK_BONUS.MEDIUM,
-      threshold: QUANTITY_THRESHOLDS.BONUS_MEDIUM,
-    };
-  }
-  if (itemCount >= QUANTITY_THRESHOLDS.BONUS_SMALL) {
-    return {
-      points: POINT_RATES_BULK_BONUS.SMALL,
-      threshold: QUANTITY_THRESHOLDS.BONUS_SMALL,
-    };
-  }
-  return null;
-}
-
-function getProductDiscountRate(productId) {
-  switch (productId) {
-    case PRODUCT_KEYBOARD:
-      return PRODUCT_DEFAULT_DISCOUNT_RATES.KEYBOARD;
-    case PRODUCT_MOUSE:
-      return PRODUCT_DEFAULT_DISCOUNT_RATES.MOUSE;
-    case PRODUCT_MONITOR_ARM:
-      return PRODUCT_DEFAULT_DISCOUNT_RATES.MONITOR_ARM;
-    case PRODUCT_LAPTOP_POUCH:
-      return PRODUCT_DEFAULT_DISCOUNT_RATES.LAPTOP_POUCH;
-    case PRODUCT_SPEAKER:
-      return PRODUCT_DEFAULT_DISCOUNT_RATES.SPEAKER;
-    default:
-      return 0;
-  }
 }
