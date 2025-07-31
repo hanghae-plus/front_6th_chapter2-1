@@ -619,7 +619,6 @@ describe('basic 테스트', () => {
       describe('8.2 빈 장바구니', () => {
         it('장바구니가 비어있을 때 포인트 섹션 숨김', () => {
           expect(cartDisp.children.length).toBe(0);
-
           expect(loyaltyPoints.style.display).toBe('none');
         });
 

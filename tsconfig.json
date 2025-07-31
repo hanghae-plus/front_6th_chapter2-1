@@ -1,4 +1,3 @@
-// tsconfig.json or tsconfig.app.json
 {
   "compilerOptions": {
     "target": "ES6",
