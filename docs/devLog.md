@@ -54,3 +54,5 @@ var doRenderBonusPoints = function () {
   // finalPoints와 pointsDetail 둘 다 쓰임.
 };
 ```
+
+1. 함수의 독립성을 유지하기 위해 param으로 값을 받고싶지만, 외부 변수, 함수를 참조하는게 편한 경우가 있을 떄, 어떤 기준으로 합리적인지 판단할 수 있을까?
