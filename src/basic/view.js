@@ -10,7 +10,8 @@ export function createInitialDOM() {
   `;
 
   const gridContainer = document.createElement('div');
-  gridContainer.className = 'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
+  gridContainer.className =
+    'grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden';
 
   const leftColumn = document.createElement('div');
   leftColumn.className = 'bg-white border border-gray-200 p-8 overflow-y-auto';
@@ -20,12 +21,14 @@ export function createInitialDOM() {
 
   const productSelect = document.createElement('select');
   productSelect.id = 'product-select';
-  productSelect.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
+  productSelect.className =
+    'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
 
   const addToCartButton = document.createElement('button');
   addToCartButton.id = 'add-to-cart';
   addToCartButton.innerHTML = 'Add to Cart';
-  addToCartButton.className = 'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
+  addToCartButton.className =
+    'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
 
   const stockStatus = document.createElement('div');
   stockStatus.id = 'stock-status';
@@ -74,7 +77,8 @@ export function createInitialDOM() {
   `;
 
   const helpButton = document.createElement('button');
-  helpButton.className = 'fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50';
+  helpButton.className =
+    'fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50';
   helpButton.innerHTML = `
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -82,10 +86,12 @@ export function createInitialDOM() {
   `;
 
   const helpOverlay = document.createElement('div');
-  helpOverlay.className = 'fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300';
+  helpOverlay.className =
+    'fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300';
 
   const helpColumn = document.createElement('div');
-  helpColumn.className = 'fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300';
+  helpColumn.className =
+    'fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300';
   helpColumn.innerHTML = `
     <button class="absolute top-4 right-4 text-gray-500 hover:text-black">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

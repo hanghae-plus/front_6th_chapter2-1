@@ -1,17 +1,18 @@
 import { state } from './state.js';
 
 export function setupEventListeners(app) {
-  const { addBtn, cartDisp, onUpdateSelectOptions, handleCalculateCartStuff } = app;
+  const { addBtn, cartDisp, onUpdateSelectOptions, handleCalculateCartStuff } =
+    app;
 
-  addBtn.addEventListener("click", function () {
+  addBtn.addEventListener('click', function () {
     const selItem = sel.value;
-    const hasItem = state.products.some(p => p.id === selItem);
+    const hasItem = state.products.some((p) => p.id === selItem);
 
     if (!selItem || !hasItem) {
       return;
     }
 
-    const itemToAdd = state.products.find(p => p.id === selItem);
+    const itemToAdd = state.products.find((p) => p.id === selItem);
 
     if (itemToAdd && itemToAdd.q > 0) {
       const itemInCart = document.getElementById(itemToAdd.id);
@@ -27,7 +28,8 @@ export function setupEventListeners(app) {
       } else {
         const newItem = document.createElement('div');
         newItem.id = itemToAdd.id;
-        newItem.className = 'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
+        newItem.className =
+          'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
         newItem.innerHTML = `
           <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
             <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
@@ -55,12 +57,15 @@ export function setupEventListeners(app) {
     }
   });
 
-  cartDisp.addEventListener("click", function (event) {
+  cartDisp.addEventListener('click', function (event) {
     const tgt = event.target;
-    if (tgt.classList.contains('quantity-change') || tgt.classList.contains("remove-item")) {
+    if (
+      tgt.classList.contains('quantity-change') ||
+      tgt.classList.contains('remove-item')
+    ) {
       const prodId = tgt.dataset.productId;
       const itemElem = document.getElementById(prodId);
-      const prod = state.products.find(p => p.id === prodId);
+      const prod = state.products.find((p) => p.id === prodId);
 
       if (tgt.classList.contains('quantity-change')) {
         const qtyChange = parseInt(tgt.dataset.change);

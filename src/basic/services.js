@@ -10,7 +10,9 @@ export function startTimers(app) {
       const luckyIdx = Math.floor(Math.random() * state.products.length);
       const luckyItem = state.products[luckyIdx];
       if (luckyItem.q > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round(luckyItem.originalVal * (1 - DISCOUNT.LIGHTNING_SALE_RATE));
+        luckyItem.val = Math.round(
+          luckyItem.originalVal * (1 - DISCOUNT.LIGHTNING_SALE_RATE)
+        );
         luckyItem.onSale = true;
         alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
         onUpdateSelectOptions();
@@ -37,8 +39,14 @@ export function startTimers(app) {
           }
         }
         if (suggest) {
-          alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
-          suggest.val = Math.round(suggest.val * (1 - DISCOUNT.RECOMMEND_SALE_RATE));
+          alert(
+            '💝 ' +
+              suggest.name +
+              '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!'
+          );
+          suggest.val = Math.round(
+            suggest.val * (1 - DISCOUNT.RECOMMEND_SALE_RATE)
+          );
           suggest.suggestSale = true;
           onUpdateSelectOptions();
           doUpdatePricesInCart();
