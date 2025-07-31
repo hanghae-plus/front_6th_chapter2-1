@@ -1,5 +1,5 @@
-import { createProductName } from '../utils/product.util';
-import ProductPrice from './cart/ProductPrice';
+import { createProductName } from '../../utils/product.util.js';
+import ProductPrice from './ProductPrice.js';
 
 export default function CartItem(product) {
   return /* HTML */ `

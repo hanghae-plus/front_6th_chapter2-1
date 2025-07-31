@@ -45,3 +45,11 @@ export function validateStockAvailability(product, requestedQuantity, currentQua
   const availableStock = product.q + currentQuantity;
   return requestedQuantity <= availableStock;
 }
+
+export function isLowStock(product) {
+  return product.q < LOW_STOCK_THRESHOLD;
+}
+
+export function isOutOfStock(product) {
+  return product.q === 0;
+}

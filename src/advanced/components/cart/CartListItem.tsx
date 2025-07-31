@@ -2,7 +2,7 @@ import ProductPrice from '@/advanced/components/cart/ProductPrice';
 import { useCartStore, useProductStore } from '@/advanced/store';
 import type { CartItem } from '@/advanced/types/cart.type';
 import { Product } from '@/advanced/types/product.type';
-import { getProductStatusIcon } from '@/advanced/utils/cart.util';
+import { getProductStatusIcon } from '@/advanced/utils/product.util';
 
 interface Props {
   item: CartItem;

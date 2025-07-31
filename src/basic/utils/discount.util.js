@@ -71,3 +71,15 @@ export function applyTuesdayDiscount(totalAmount, originalTotal) {
 export function isTuesday() {
   return new Date().getDay() === TUESDAY_DAY_OF_WEEK;
 }
+
+export function isBulkDiscountEligible(totalQuantity) {
+  return totalQuantity >= MIN_QUANTITY_FOR_BULK_DISCOUNT;
+}
+
+export function isProductDiscountEligible(quantity) {
+  return quantity >= MIN_QUANTITY_FOR_DISCOUNT;
+}
+
+export function isTuesdayToday() {
+  return new Date().getDay() === TUESDAY_DAY_OF_WEEK;
+}

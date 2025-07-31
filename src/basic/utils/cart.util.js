@@ -37,3 +37,23 @@ export function parseQuantityFromElement(element) {
   if (!element) return 0;
   return parseInt(element.textContent) || 0;
 }
+
+export function isQuantityValid(newQuantity) {
+  return newQuantity > 0;
+}
+
+export function hasValidProduct(productToAdd) {
+  return productToAdd && productToAdd.q > 0;
+}
+
+export function isExistingCartItem(productId) {
+  return document.getElementById(productId);
+}
+
+export function isQuantityChangeButton(targetElement) {
+  return targetElement.classList.contains('quantity-change');
+}
+
+export function isRemoveButton(targetElement) {
+  return targetElement.classList.contains('remove-item');
+}

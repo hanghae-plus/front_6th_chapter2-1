@@ -1,6 +1,6 @@
 import App from './App.js';
-import CartItem from './components/CartItem.js';
 import { createTimerManager } from './components/TimerManager.js';
+import CartItem from './components/cart/CartItem.js';
 import ProductPrice from './components/cart/ProductPrice.js';
 import { TUESDAY_DAY_OF_WEEK } from './data/date.data.js';
 import {
@@ -18,18 +18,29 @@ import {
 } from './data/point.data.js';
 import { PRODUCT_1, PRODUCT_2, PRODUCT_3, PRODUCT_LIST } from './data/product.data.js';
 import {
-  LOW_STOCK_THRESHOLD,
   MIN_QUANTITY_FOR_BULK_DISCOUNT,
   MIN_QUANTITY_FOR_DISCOUNT,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER1,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER2,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER3,
 } from './data/quantity.data.js';
-import { parseQuantityFromElement } from './utils/cart.util.js';
-import { calculateProductDiscount, isTuesday } from './utils/discount.util.js';
+import {
+  hasValidProduct,
+  isExistingCartItem,
+  isQuantityChangeButton,
+  isQuantityValid,
+  isRemoveButton,
+  parseQuantityFromElement,
+} from './utils/cart.util.js';
+import {
+  calculateProductDiscount,
+  isBulkDiscountEligible,
+  isProductDiscountEligible,
+  isTuesday,
+} from './utils/discount.util.js';
 import { calculateBasePoints } from './utils/point.util.js';
 import { createProductName, findProductById } from './utils/product.util.js';
-import { validateStockAvailability } from './utils/stock.util.js';
+import { isLowStock, isOutOfStock, validateStockAvailability } from './utils/stock.util.js';
 
 // ============================================================================
 // 전역 상태 변수
@@ -117,7 +128,7 @@ function calculateCartTotals() {
   }
 
   // 대량구매 할인 적용 여부 결정
-  const isBulkDiscountApplied = totalQuantity >= MIN_QUANTITY_FOR_BULK_DISCOUNT;
+  const isBulkDiscountApplied = isBulkDiscountEligible(totalQuantity);
 
   if (isBulkDiscountApplied) {
     // 대량구매 할인이 적용되면 개별 상품 할인 무시하고 원가 사용
@@ -145,13 +156,13 @@ function updateCartItemVisualDiscount(cartItem, quantity) {
   const priceElements = cartItem.querySelectorAll('.text-lg, .text-xs');
   priceElements.forEach(element => {
     if (element.classList.contains('text-lg')) {
-      element.style.fontWeight = quantity >= MIN_QUANTITY_FOR_DISCOUNT ? 'bold' : 'normal';
+      element.style.fontWeight = isProductDiscountEligible(quantity) ? 'bold' : 'normal';
     }
   });
 }
 
 function applyBulkDiscount(subTotal, totalQuantity) {
-  if (totalQuantity >= MIN_QUANTITY_FOR_BULK_DISCOUNT) {
+  if (isBulkDiscountEligible(totalQuantity)) {
     return {
       finalPrice: (subTotal * (100 - DISCOUNT_RATE_BULK)) / 100,
       discountRate: DISCOUNT_RATE_BULK / 100,
@@ -276,7 +287,7 @@ function updateOrderSummaryDisplay(cartItems, subTotal, itemDiscounts, isTuesday
 
 function displayDiscountDetails(summaryDetailsElement, totalQuantity, itemDiscounts, isTuesday) {
   // 대량구매 할인
-  if (totalQuantity >= MIN_QUANTITY_FOR_BULK_DISCOUNT) {
+  if (isBulkDiscountEligible(totalQuantity)) {
     summaryDetailsElement.innerHTML += `
       <div class="flex justify-between text-sm tracking-wide text-green-400">
         <span class="text-xs">🎉 대량구매 할인 (${MIN_QUANTITY_FOR_BULK_DISCOUNT}개 이상)</span>
@@ -350,8 +361,8 @@ function updateStockStatusDisplay() {
   let stockMessage = '';
   for (let stockIdx = 0; stockIdx < PRODUCT_LIST.length; stockIdx++) {
     const product = PRODUCT_LIST[stockIdx];
-    if (product.q < LOW_STOCK_THRESHOLD) {
-      if (product.q > 0) {
+    if (isLowStock(product)) {
+      if (!isOutOfStock(product)) {
         stockMessage = stockMessage + product.name + ': 재고 부족 (' + product.q + '개 남음)\n';
       } else {
         stockMessage = stockMessage + product.name + ': 품절\n';
@@ -494,8 +505,8 @@ function updateStockInfoMessage() {
   const totalStock = calculateTotalStock();
 
   PRODUCT_LIST.forEach(product => {
-    if (product.q < LOW_STOCK_THRESHOLD) {
-      if (product.q > 0) {
+    if (isLowStock(product)) {
+      if (!isOutOfStock(product)) {
         stockMessage = stockMessage + product.name + ': 재고 부족 (' + product.q + '개 남음)\n';
       } else {
         stockMessage = stockMessage + product.name + ': 품절\n';
@@ -544,66 +555,64 @@ addToCartButton.addEventListener('click', () => {
 
   // 유효한 상품인지 확인
   const productToAdd = findProductById(selectedProductId, PRODUCT_LIST);
-  if (!selectedProductId || !productToAdd) {
+  if (!selectedProductId || !hasValidProduct(productToAdd)) {
     return;
   }
 
-  if (productToAdd && productToAdd.q > 0) {
-    const existingCartItem = document.getElementById(productToAdd.id);
+  const existingCartItem = isExistingCartItem(productToAdd.id);
 
-    if (existingCartItem) {
-      // 기존 아이템 수량 증가
-      const quantityElement = existingCartItem.querySelector('.quantity-number');
-      const currentQuantity = parseQuantityFromElement(quantityElement);
-      const newQuantity = currentQuantity + 1;
+  if (existingCartItem) {
+    // 기존 아이템 수량 증가
+    const quantityElement = existingCartItem.querySelector('.quantity-number');
+    const currentQuantity = parseQuantityFromElement(quantityElement);
+    const newQuantity = currentQuantity + 1;
 
-      if (validateStockAvailability(productToAdd, newQuantity, currentQuantity)) {
-        quantityElement.textContent = newQuantity;
-        productToAdd.q--;
-      } else {
-        alert('재고가 부족합니다.');
-      }
-    } else {
-      // 새 아이템 추가
-      const newCartItem = CartItem(productToAdd);
-      cartItemsContainer.innerHTML += newCartItem;
+    if (validateStockAvailability(productToAdd, newQuantity, currentQuantity)) {
+      quantityElement.textContent = newQuantity;
       productToAdd.q--;
+    } else {
+      alert('재고가 부족합니다.');
     }
-
-    calculateCartAndUpdateUI();
-    lastSelectedProductId = selectedProductId;
+  } else {
+    // 새 아이템 추가
+    const newCartItem = CartItem(productToAdd);
+    cartItemsContainer.innerHTML += newCartItem;
+    productToAdd.q--;
   }
+
+  calculateCartAndUpdateUI();
+  lastSelectedProductId = selectedProductId;
 });
 
 // 장바구니 아이템 수량 변경 및 삭제 이벤트
 cartItemsContainer.addEventListener('click', event => {
   const targetElement = event.target;
 
-  if (
-    targetElement.classList.contains('quantity-change') ||
-    targetElement.classList.contains('remove-item')
-  ) {
+  if (isQuantityChangeButton(targetElement) || isRemoveButton(targetElement)) {
     const productId = targetElement.dataset.productId;
     const cartItemElement = document.getElementById(productId);
     const product = findProductById(productId, PRODUCT_LIST);
 
-    if (targetElement.classList.contains('quantity-change')) {
+    if (isQuantityChangeButton(targetElement)) {
       // 수량 변경 처리
       const quantityChange = parseInt(targetElement.dataset.change);
       const quantityElement = cartItemElement.querySelector('.quantity-number');
       const currentQuantity = parseQuantityFromElement(quantityElement);
       const newQuantity = currentQuantity + quantityChange;
 
-      if (newQuantity > 0 && validateStockAvailability(product, newQuantity, currentQuantity)) {
+      if (
+        isQuantityValid(newQuantity) &&
+        validateStockAvailability(product, newQuantity, currentQuantity)
+      ) {
         quantityElement.textContent = newQuantity;
         product.q -= quantityChange;
-      } else if (newQuantity <= 0) {
+      } else if (!isQuantityValid(newQuantity)) {
         product.q += currentQuantity;
         cartItemElement.remove();
       } else {
         alert('재고가 부족합니다.');
       }
-    } else if (targetElement.classList.contains('remove-item')) {
+    } else if (isRemoveButton(targetElement)) {
       // 아이템 삭제 처리
       const quantityElement = cartItemElement.querySelector('.quantity-number');
       const removedQuantity = parseQuantityFromElement(quantityElement);
