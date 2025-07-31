@@ -5,6 +5,8 @@ export interface Product {
   price: number;
   stock: number;
   discount: number;
+  lightningSale?: boolean;
+  recommendationSale?: boolean;
 }
 
 // 장바구니 아이템 타입
@@ -21,6 +23,8 @@ export const PRODUCTS = [
     price: 10000,
     stock: 50,
     discount: 0.1,
+    lightningSale: false,
+    recommendationSale: false,
   },
   {
     id: 'p2',
@@ -28,6 +32,8 @@ export const PRODUCTS = [
     price: 20000,
     stock: 30,
     discount: 0.15,
+    lightningSale: false,
+    recommendationSale: false,
   },
   {
     id: 'p3',
@@ -35,6 +41,8 @@ export const PRODUCTS = [
     price: 30000,
     stock: 20,
     discount: 0.2,
+    lightningSale: false,
+    recommendationSale: false,
   },
   {
     id: 'p4',
@@ -42,6 +50,8 @@ export const PRODUCTS = [
     price: 15000,
     stock: 0,
     discount: 0.05,
+    lightningSale: false,
+    recommendationSale: false,
   },
   {
     id: 'p5',
@@ -49,6 +59,8 @@ export const PRODUCTS = [
     price: 25000,
     stock: 10,
     discount: 0.25,
+    lightningSale: false,
+    recommendationSale: false,
   },
 ];
 
