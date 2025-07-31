@@ -9,6 +9,12 @@ import { useCartManagement } from './hooks/useCartManagement';
 import { useDiscountCalculation } from './hooks/useDiscountCalculation';
 import { TIMER_CONFIG } from './constants';
 
+// 전역 타이머 변수들
+let lightningTimerId: NodeJS.Timeout | null = null;
+let lightningIntervalId: NodeJS.Timeout | null = null;
+let recommendationTimerId: NodeJS.Timeout | null = null;
+let recommendationIntervalId: NodeJS.Timeout | null = null;
+
 const App: React.FC = () => {
   const {
     products,
@@ -34,36 +40,73 @@ const App: React.FC = () => {
     savedAmount,
     finalTotal,
     loyaltyPoints,
-    pointsDetail
+    pointsDetail,
+    itemDiscounts
   } = useDiscountCalculation(cartItems, products, totalAmount, itemCount);
+
+  // 디버깅을 위한 콘솔 로그
+  console.log('App rendered:', { cartItems, totalAmount, itemCount, finalTotal });
 
   // Lightning sale effect
   useEffect(() => {
+    // 이미 타이머가 실행 중이면 중단
+    if (lightningTimerId || lightningIntervalId) {
+      return;
+    }
+    
+    // 원본과 동일: 0~10초 랜덤 지연
     const lightningDelay = Math.random() * TIMER_CONFIG.LIGHTNING_SALE_DELAY;
-    const lightningTimer = setTimeout(() => {
-      const lightningInterval = setInterval(() => {
+    
+    lightningTimerId = setTimeout(() => {
+      lightningIntervalId = setInterval(() => {
         triggerLightningSale();
       }, TIMER_CONFIG.LIGHTNING_SALE_INTERVAL);
-      return () => clearInterval(lightningInterval);
     }, lightningDelay);
 
-    return () => clearTimeout(lightningTimer);
-  }, [triggerLightningSale]);
+    return () => {
+      // cleanup 함수는 컴포넌트 언마운트 시에만 실행
+      if (lightningTimerId) {
+        clearTimeout(lightningTimerId);
+        lightningTimerId = null;
+      }
+      if (lightningIntervalId) {
+        clearInterval(lightningIntervalId);
+        lightningIntervalId = null;
+      }
+    };
+  }, []); // 빈 의존성 배열로 한 번만 실행
 
   // Recommendation sale effect
   useEffect(() => {
+    // 이미 타이머가 실행 중이면 중단
+    if (recommendationTimerId || recommendationIntervalId) {
+      return;
+    }
+    
+    // 원본과 동일: 0~20초 랜덤 지연
     const recommendationDelay = Math.random() * TIMER_CONFIG.RECOMMENDATION_DELAY;
-    const recommendationTimer = setTimeout(() => {
-      const recommendationInterval = setInterval(() => {
-        if (cartItems.length > 0 && selectedProduct) {
+    
+    recommendationTimerId = setTimeout(() => {
+      recommendationIntervalId = setInterval(() => {
+        // 원본과 동일: 마지막 선택한 상품이 있을 때만 추천할인
+        if (selectedProduct) {
           triggerRecommendationSale(selectedProduct);
         }
       }, TIMER_CONFIG.RECOMMENDATION_INTERVAL);
-      return () => clearInterval(recommendationInterval);
     }, recommendationDelay);
 
-    return () => clearTimeout(recommendationTimer);
-  }, [cartItems.length, selectedProduct, triggerRecommendationSale]);
+    return () => {
+      // cleanup 함수는 컴포넌트 언마운트 시에만 실행
+      if (recommendationTimerId) {
+        clearTimeout(recommendationTimerId);
+        recommendationTimerId = null;
+      }
+      if (recommendationIntervalId) {
+        clearInterval(recommendationIntervalId);
+        recommendationIntervalId = null;
+      }
+    };
+  }, [selectedProduct]); // selectedProduct만 의존성으로 설정
 
   return (
     <div className="max-w-screen-xl h-screen max-h-800 mx-auto p-8 flex flex-col">
@@ -73,7 +116,7 @@ const App: React.FC = () => {
           🛒 Hanghae Online Store
         </h1>
         <div className="text-5xl tracking-tight leading-none">Shopping Cart</div>
-        <p id="item-count" className="text-sm text-gray-500 font-normal mt-3">
+        <p id="item-count" data-testid="item-count" className="text-sm text-gray-500 font-normal mt-3">
           🛍️ {itemCount} items in cart
         </p>
       </div>
@@ -98,96 +141,23 @@ const App: React.FC = () => {
         </div>
 
         {/* Right Column */}
-        <OrderSummary
-          cartItems={cartItems}
-          products={products}
-          totalAmount={totalAmount}
-          finalTotal={finalTotal}
-          discountRate={discountRate}
-          savedAmount={savedAmount}
-          loyaltyPoints={loyaltyPoints}
-          pointsDetail={pointsDetail}
-        />
+        <div className="bg-black text-white p-8 flex flex-col">
+          <OrderSummary
+            cartItems={cartItems}
+            products={products}
+            totalAmount={totalAmount}
+            finalTotal={finalTotal}
+            discountRate={discountRate}
+            savedAmount={savedAmount}
+            loyaltyPoints={loyaltyPoints}
+            pointsDetail={pointsDetail}
+            itemDiscounts={itemDiscounts}
+          />
+        </div>
       </div>
 
       {/* Manual Toggle Button */}
       <ManualOverlay />
-
-      {/* Manual Overlay */}
-      <div className="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300" id="manual-overlay">
-        <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300" id="manual-column">
-          <button 
-            className="absolute top-4 right-4 text-gray-500 hover:text-black"
-            onClick={() => {
-              document.getElementById('manual-overlay')?.classList.add('hidden');
-              document.getElementById('manual-column')?.classList.add('translate-x-full');
-            }}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-          <h2 className="text-xl font-bold mb-4">📖 이용 안내</h2>
-          
-          <div className="mb-6">
-            <h3 className="text-base font-bold mb-3">💰 할인 정책</h3>
-            <div className="space-y-3">
-              <div className="bg-gray-100 rounded-lg p-3">
-                <p className="font-semibold text-sm mb-1">개별 상품</p>
-                <p className="text-gray-700 text-xs pl-2">
-                  • 키보드 10개↑: 10%<br/>
-                  • 마우스 10개↑: 15%<br/>
-                  • 모니터암 10개↑: 20%<br/>
-                  • 스피커 10개↑: 25%
-                </p>
-              </div>
-              
-              <div className="bg-gray-100 rounded-lg p-3">
-                <p className="font-semibold text-sm mb-1">전체 수량</p>
-                <p className="text-gray-700 text-xs pl-2">• 30개 이상: 25%</p>
-              </div>
-              
-              <div className="bg-gray-100 rounded-lg p-3">
-                <p className="font-semibold text-sm mb-1">특별 할인</p>
-                <p className="text-gray-700 text-xs pl-2">
-                  • 화요일: +10%<br/>
-                  • ⚡번개세일: 20%<br/>
-                  • 💝추천할인: 5%
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mb-6">
-            <h3 className="text-base font-bold mb-3">🎁 포인트 적립</h3>
-            <div className="space-y-3">
-              <div className="bg-gray-100 rounded-lg p-3">
-                <p className="font-semibold text-sm mb-1">기본</p>
-                <p className="text-gray-700 text-xs pl-2">• 구매액의 0.1%</p>
-              </div>
-              
-              <div className="bg-gray-100 rounded-lg p-3">
-                <p className="font-semibold text-sm mb-1">추가</p>
-                <p className="text-gray-700 text-xs pl-2">
-                  • 화요일: 2배<br/>
-                  • 키보드+마우스: +50p<br/>
-                  • 풀세트: +100p<br/>
-                  • 10개↑: +20p / 20개↑: +50p / 30개↑: +100p
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-200 pt-4 mt-4">
-            <p className="text-xs font-bold mb-1">💡 TIP</p>
-            <p className="text-2xs text-gray-600 leading-relaxed">
-              • 화요일 대량구매 = MAX 혜택<br/>
-              • ⚡+💝 중복 가능<br/>
-              • 상품4 = 품절
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
