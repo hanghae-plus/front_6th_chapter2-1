@@ -244,9 +244,9 @@ export class CartEventListeners {
   }
 
   updateCartItemStyles(cartItems) {
-    for (let i = 0; i < cartItems.length; i++) {
-      const quantity = getCartItemQuantity(cartItems[i]);
-      const itemDiv = cartItems[i];
+    cartItems.forEach(cartItem => {
+      const quantity = getCartItemQuantity(cartItem);
+      const itemDiv = cartItem;
 
       const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
       priceElems.forEach(elem => {
@@ -257,7 +257,7 @@ export class CartEventListeners {
 
       // CartItem 컴포넌트의 updateCartItemPriceStyle 사용
       updateCartItemPriceStyle(itemDiv, quantity);
-    }
+    });
   }
 
   // 헬퍼 메서드들 추가

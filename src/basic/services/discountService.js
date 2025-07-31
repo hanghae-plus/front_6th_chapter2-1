@@ -75,32 +75,37 @@ export class DiscountService {
 
   // 모든 할인을 적용하여 최종 금액을 계산합니다.
   applyAllDiscounts(cartItems, productList) {
-    let totalAmount = 0;
-    let itemCount = 0;
-    let subtotal = 0;
-    const itemDiscounts = [];
-
     // 1. 개별 상품 할인 계산
-    for (let i = 0; i < cartItems.length; i++) {
-      const currentItem = findProductById(cartItems[i].id, productList);
-      if (!currentItem) continue;
+    const itemCalculations = cartItems
+      .map(cartItem => {
+        const currentItem = findProductById(cartItem.id, productList);
+        if (!currentItem) return null;
 
-      // 수량 추출 (타입 체크 로직 분리)
-      const quantity = this.extractQuantity(cartItems[i]);
+        const quantity = this.extractQuantity(cartItem);
+        const itemTotal = currentItem.price * quantity;
+        const discountRate = calculateItemDiscount(currentItem.id, quantity);
 
-      const itemTotal = currentItem.price * quantity;
-      itemCount += quantity;
-      subtotal += itemTotal;
+        return {
+          itemTotal,
+          quantity,
+          discountRate,
+          productName: currentItem.name,
+          hasDiscount: discountRate > 0,
+        };
+      })
+      .filter(Boolean);
 
-      const discountRate = calculateItemDiscount(currentItem.id, quantity);
-      if (discountRate > 0) {
-        itemDiscounts.push({ name: currentItem.name, discount: discountRate * 100 });
-      }
+    // 2. 총계 계산
+    const subtotal = itemCalculations.reduce((sum, calc) => sum + calc.itemTotal, 0);
+    const itemCount = itemCalculations.reduce((sum, calc) => sum + calc.quantity, 0);
+    const itemDiscounts = itemCalculations.filter(calc => calc.hasDiscount).map(calc => ({ name: calc.productName, discount: calc.discountRate * 100 }));
 
-      totalAmount += itemTotal * (1 - discountRate);
-    }
+    // 3. 개별 할인 적용된 총액 계산
+    let totalAmount = itemCalculations.reduce((sum, calc) => {
+      return sum + calc.itemTotal * (1 - calc.discountRate);
+    }, 0);
 
-    // 2. 대량구매 및 화요일 할인 적용
+    // 4. 대량구매 할인 적용
     const originalTotal = subtotal;
     let bulkDiscountRate = 0;
     let bulkDiscountApplied = false;
@@ -108,9 +113,10 @@ export class DiscountService {
     if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
       bulkDiscountRate = DISCOUNT_RATES.BULK_PURCHASE;
       bulkDiscountApplied = true;
-      totalAmount = subtotal * bulkDiscountRate; // 수정: (1 - bulkDiscountRate) -> bulkDiscountRate
+      totalAmount = subtotal * bulkDiscountRate;
     }
 
+    // 5. 화요일 할인 적용
     const today = new Date();
     const isTuesday = today.getDay() === 2;
     let tuesdayDiscountRate = 0;
@@ -119,13 +125,13 @@ export class DiscountService {
     if (isTuesday && totalAmount > 0) {
       tuesdayDiscountRate = DISCOUNT_RATES.TUESDAY_SPECIAL;
       tuesdayDiscountApplied = true;
-      totalAmount = totalAmount * tuesdayDiscountRate; // 수정: (1 - tuesdayDiscountRate) -> tuesdayDiscountRate
+      totalAmount = totalAmount * tuesdayDiscountRate;
     }
 
-    // 3. 할인 집계 유틸 함수로 집계
+    // 6. 할인 집계 유틸 함수로 집계
     const { totalDiscountRate, discountTypes, hasAnyDiscount } = calcTotalDiscount(itemDiscounts, bulkDiscountRate, bulkDiscountApplied, tuesdayDiscountRate, tuesdayDiscountApplied);
 
-    // 4. 불변성을 유지하며 상태 업데이트
+    // 7. 불변성을 유지하며 상태 업데이트
     this.discountStore.setState({
       individualDiscounts: itemDiscounts,
       bulkDiscountRate,

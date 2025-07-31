@@ -15,20 +15,16 @@ export function calculateTotalStock(productList) {
  * @returns {string} 재고 부족 메시지
  */
 export function generateStockWarningMessage(productList) {
-  let stockMsg = "";
-
-  for (let stockIdx = 0; stockIdx < productList.length; stockIdx++) {
-    const item = productList[stockIdx];
-    if (item.quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING) {
+  return productList
+    .filter(item => item.quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING)
+    .map(item => {
       if (item.quantity > 0) {
-        stockMsg += `${item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
+        return `${item.name}: 재고 부족 (${item.quantity}개 남음)`;
       } else {
-        stockMsg += `${item.name}: 품절\n`;
+        return `${item.name}: 품절`;
       }
-    }
-  }
-
-  return stockMsg;
+    })
+    .join("\n");
 }
 
 /**
