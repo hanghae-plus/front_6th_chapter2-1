@@ -1,9 +1,4 @@
 import { useGlobalState } from '../providers/useGlobal';
-// import type { AppState } from '../type';
-
-// interface HeaderProps {
-//   appState: AppState;
-// }
 
 export const Header = () => {
   const { appState } = useGlobalState();

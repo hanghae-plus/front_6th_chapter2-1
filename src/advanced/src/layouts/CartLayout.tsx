@@ -1,13 +1,5 @@
-// import { useGlobalState } from '../providers/useGlobal';
-// import type { Product, CartProduct, AppState } from '../type';
 import CartContainer from '../components/CartContainer';
 import OrderSummaryBox from '../components/OrderSummaryBox';
-
-// interface CartLayoutProps {
-//   productList: Product[];
-//   cartList: CartProduct[];
-//   appState: AppState;
-// }
 
 export const CartLayout = () => {
   return (
