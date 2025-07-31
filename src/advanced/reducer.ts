@@ -68,7 +68,7 @@ export const initialState = {
   selectedProductId: PRODUCT_IDS.P1,
 };
 
-export function reducer(state, action) {
+export function reducer(state: State, action: Action) {
   const { type, payload } = action;
 
   switch (type) {
@@ -76,7 +76,7 @@ export function reducer(state, action) {
       const { productId } = payload;
       const product = state.products.find((p) => p.id === productId);
 
-      if (product.quantity <= 0) {
+      if (product && product.quantity <= 0) {
         return {
           ...state,
           notifications: [
@@ -218,6 +218,7 @@ export function reducer(state, action) {
 // getters
 export const getProducts = (state) => state.products;
 export const getCartList = (state) => state.cartList;
+export const getSelectedId = (state) => state.selectedProductId;
 export const getIsTuesday = () => new Date().getDay() === 2;
 
 export const getCartDetails = (state) => {
