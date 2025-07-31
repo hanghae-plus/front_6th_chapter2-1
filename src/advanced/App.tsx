@@ -22,6 +22,8 @@ import {
   setupFlashSaleTimer,
   setupRecommendationTimer,
 } from './features/cart/services/promotionService.ts';
+import { calculateCartTotals } from './features/cart/services/cartCalculator.ts';
+import { BUSINESS_CONSTANTS } from './shared/constants/business.ts';
 
 function App() {
   const [products, setProducts] = useState(initialProducts);
@@ -41,10 +43,18 @@ function App() {
     updateItemProperties,
   } = useCartStore();
 
-  const totalAmount = cartItems.reduce(
-    (sum, item) => sum + item.val * item.quantity,
-    0,
+  const cartCalculation = useMemo(
+    () => calculateCartTotals(cartItems),
+    [cartItems],
   );
+  const {
+    totalAmount,
+    discountRate,
+    savedAmount,
+    isTuesday,
+    hasDiscounts,
+    itemDiscounts,
+  } = cartCalculation;
 
   const { totalPoints, details, hasPoints } = useMemo(
     () => calculatePoints(cartItems, totalAmount),
@@ -195,13 +205,15 @@ function App() {
       quantity: item.quantity,
       price: item.val,
     })),
-    subtotal: cartItems.reduce(
-      (sum, item) => sum + item.val * item.quantity,
-      0,
-    ),
+    subtotal: cartCalculation.subtotal,
     itemCount,
-    isTuesday: new Date().getDay() === 2,
-    hasBulkDiscount: itemCount >= 30,
+    isTuesday,
+    hasBulkDiscount:
+      itemCount >= BUSINESS_CONSTANTS.DISCOUNT.BULK_DISCOUNT_THRESHOLD,
+    itemDiscounts: itemDiscounts.map(discount => ({
+      name: cartItems.find(item => item.id === discount.productId)?.name || '',
+      discount: Math.round(discount.discountRate * 100),
+    })),
   };
 
   return (
@@ -266,7 +278,18 @@ function App() {
           <div className='flex-1 flex flex-col'>
             <OrderSummaryDetails {...summaryData} />
             <div className='mt-auto'>
-              <div id='discount-info' className='mb-4'></div>
+              <div id='discount-info' className='mb-4'>
+                {hasDiscounts && (
+                  <div className='text-green-600 text-sm'>
+                    <div className='flex justify-between items-center'>
+                      <span>총 할인율: {Math.round(discountRate * 100)}%</span>
+                      <span>
+                        ₩{savedAmount.toLocaleString()} 할인되었습니다
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
               <div id='cart-total' className='pt-5 border-t border-white/10'>
                 <div className='flex justify-between items-baseline'>
                   <span className='text-sm uppercase tracking-wider'>
@@ -298,7 +321,7 @@ function App() {
               </div>
               <div
                 id='tuesday-special'
-                className='mt-4 p-3 bg-white/10 rounded-lg hidden'
+                className={`mt-4 p-3 bg-white/10 rounded-lg ${isTuesday ? '' : 'hidden'}`}
               >
                 <div className='flex items-center gap-2'>
                   <span className='text-2xs'>🎉</span>

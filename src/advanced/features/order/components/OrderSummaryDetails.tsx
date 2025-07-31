@@ -1,13 +1,13 @@
-import { useMemo } from 'react';
-import { calculateItemDiscountRate } from '@/advanced/features/cart/utils/discountUtils.js';
-import { BUSINESS_CONSTANTS } from '@/advanced/shared/constants/business.ts';
-import { PRODUCTS } from '@/advanced/features/product/constants/index.ts';
-
 interface CartItem {
   id: string;
   name: string;
   quantity: number;
   price: number;
+}
+
+interface ItemDiscount {
+  name: string;
+  discount: number;
 }
 
 interface OrderSummaryDetailsProps {
@@ -16,6 +16,7 @@ interface OrderSummaryDetailsProps {
   itemCount?: number;
   isTuesday?: boolean;
   hasBulkDiscount?: boolean;
+  itemDiscounts?: ItemDiscount[];
 }
 
 const OrderSummaryDetails = ({
@@ -24,26 +25,8 @@ const OrderSummaryDetails = ({
   itemCount = 0,
   isTuesday = false,
   hasBulkDiscount = false,
+  itemDiscounts = [],
 }: OrderSummaryDetailsProps) => {
-  const calculatedDiscounts = useMemo(() => {
-    return cartItems
-      .map(item => {
-        const discountRate = calculateItemDiscountRate(
-          item.id,
-          item.quantity,
-          BUSINESS_CONSTANTS,
-          PRODUCTS,
-        );
-
-        return {
-          name: item.name,
-          discount: discountRate * 100,
-        };
-      })
-      .filter(item => item.discount > 0);
-  }, [cartItems]);
-
-  // 장바구니가 비어있을 때
   if (!cartItems.length || subtotal === 0) {
     return (
       <div className='text-center text-sm text-gray-400 py-8'>Empty Cart</div>
@@ -82,10 +65,9 @@ const OrderSummaryDetails = ({
         </div>
       )}
 
-      {/* 동적으로 계산된 개별 상품 할인 (30개 미만일 때만) */}
       {!hasBulkDiscount &&
-        calculatedDiscounts.length > 0 &&
-        calculatedDiscounts.map((discount, index) => (
+        itemDiscounts.length > 0 &&
+        itemDiscounts.map((discount, index) => (
           <div
             key={index}
             className='flex justify-between text-sm tracking-wide text-green-400'
