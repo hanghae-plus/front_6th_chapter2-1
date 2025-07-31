@@ -1,5 +1,6 @@
 import { OrderStore } from "../store/orderStore.js";
 import { pointService } from "./pointService.js";
+import { getCartItemQuantity } from "../utils/domUtils.js";
 
 export class OrderService {
   constructor(discountService) {
@@ -46,7 +47,7 @@ export class OrderService {
 
     const today = new Date().getDay();
     const isTuesday = today === 2;
-    const itemCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const itemCount = cartItems.reduce((sum, cartItemElement) => sum + getCartItemQuantity(cartItemElement), 0);
 
     return {
       cartItems,
