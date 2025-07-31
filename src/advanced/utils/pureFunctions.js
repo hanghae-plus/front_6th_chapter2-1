@@ -6,7 +6,7 @@ import { THRESHOLDS, DISCOUNT_RATES } from '../constant/index.js';
 import {
   getDiscountedProductName,
   getDiscountedPriceHTML,
-} from '../main.basic.js';
+} from '../main.advanced.js';
 
 /**
  * 장바구니 소계 계산 (순수 함수)
@@ -110,7 +110,7 @@ export const calculatePoints = (
   const tuesdayBonus = isTuesdayApplied ? basePoints : 0;
 
   // 세트 보너스 계산
-  // const productMap = new Map(products.map(product => [product.id, product]));
+  const productMap = new Map(products.map(product => [product.id, product]));
   const cartProductIds = Array.from(cartItems).map(item => item.id);
 
   const hasKeyboard = cartProductIds.includes('p1');

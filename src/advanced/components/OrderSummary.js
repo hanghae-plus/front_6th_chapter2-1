@@ -10,7 +10,20 @@ import { THRESHOLDS, DISCOUNT_RATES } from '../constant/index.js';
 export function OrderSummaryHTML() {
   const orderSummary = document.createElement('div');
   orderSummary.className = 'bg-black text-white p-8 flex flex-col';
-  orderSummary.innerHTML = `
+  orderSummary.innerHTML = renderOrderSummary();
+
+  return orderSummary;
+}
+
+/**
+ * OrderSummary 렌더링 함수
+ *
+ * @description 주문 요약 HTML 문자열을 생성
+ *
+ * @returns {string} 주문 요약 HTML 문자열
+ */
+export const renderOrderSummary = () => {
+  return `
     <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
     <div class="flex-1 flex flex-col">
       <div id="summary-details" class="space-y-3"></div>
@@ -19,7 +32,7 @@ export function OrderSummaryHTML() {
         <div id="cart-total" class="pt-5 border-t border-white/10">
           <div class="flex justify-between items-baseline">
             <span class="text-sm uppercase tracking-wider">Total</span>
-            <div class="text-2xl tracking-tight">₩0</div>
+            <div class="text-2xl tracking-tight">0원</div>
           </div>
           <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
         </div>
@@ -39,9 +52,7 @@ export function OrderSummaryHTML() {
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
-
-  return orderSummary;
-}
+};
 
 /**
  * 주문 요약 UI 업데이트
@@ -81,7 +92,7 @@ export function updateOrderSummaryUI(
     summaryDetails.innerHTML += `
       <div class="flex justify-between text-xs tracking-wide text-gray-400">
         <span>${product.name} x ${quantity}</span>
-        <span>₩${itemTotal.toLocaleString()}</span>
+        <span>${itemTotal.toLocaleString()}원</span>
       </div>
     `;
   });
@@ -90,7 +101,7 @@ export function updateOrderSummaryUI(
     <div class="border-t border-white/10 my-3"></div>
     <div class="flex justify-between text-sm tracking-wide">
       <span>Subtotal</span>
-      <span>₩${subTotal.toLocaleString()}</span>
+      <span>${subTotal.toLocaleString()}원</span>
     </div>
   `;
 

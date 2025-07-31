@@ -3,7 +3,7 @@
 // ==========================================
 
 import { THRESHOLDS } from '../constant/index.js';
-import { hasBothDiscounts } from '../main.basic.js';
+import { hasBothDiscounts } from '../main.advanced.js';
 
 /**
  * 🤖 [AI-REFACTORED] 상품 선택 옵션 업데이트 (React 패턴 네이밍)

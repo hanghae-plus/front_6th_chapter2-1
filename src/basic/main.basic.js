@@ -24,6 +24,7 @@ import { HelpModal } from './components/HelpModal.js';
 import { ProductSelector } from './components/ProductSelector.js';
 import { CartDisplay } from './components/CartDisplay.js';
 import { setupEventHandlers } from './components/EventHandlers.js';
+import { setupHelpModalHandlers } from './handlers/helpModalHandlers.js';
 
 // 유틸리티 함수들
 import {
@@ -298,8 +299,11 @@ function main() {
     helpModal,
   );
 
-  // 5️⃣ 헤더 추가
-  layoutElements.root.appendChild(headerComponent);
+  // 5️⃣ 헤더를 맨 앞에 추가
+  layoutElements.root.insertBefore(
+    headerComponent,
+    layoutElements.root.firstChild,
+  );
 
   // 6️⃣ DOM 요소 캐시 초기화
   Object.assign(domElements, initializeDomElements());
@@ -358,6 +362,13 @@ function main() {
     updateProductSelectUI,
     updateCartPricesUI,
     isValidQuantityChange,
+  );
+
+  // 🔟 도움말 모달 핸들러 설정
+  setupHelpModalHandlers(
+    helpModal.manualToggle,
+    helpModal.manualOverlay,
+    helpModal.manualColumn,
   );
 }
 

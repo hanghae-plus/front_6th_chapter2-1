@@ -134,10 +134,10 @@ export const getDiscountedPriceHTML = product => {
 
   const discountColor = getDiscountColor();
   if (discountColor) {
-    return `<span class="line-through text-gray-400">${product.originalVal.toLocaleString()}</span>원 <span class="${discountColor}">${product.val.toLocaleString()}</span>원`;
+    return `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="${discountColor}">₩${product.val.toLocaleString()}</span>`;
   }
 
-  return `${product.val.toLocaleString()}원`;
+  return `₩${product.val.toLocaleString()}`;
 };
 
 // ==========================================
@@ -298,8 +298,8 @@ function main() {
     helpModal,
   );
 
-  // 5️⃣ 헤더 추가
-  layoutElements.root.appendChild(headerComponent);
+  // 5️⃣ 헤더를 맨 앞에 추가
+  layoutElements.root.insertBefore(headerComponent, layoutElements.root.firstChild);
 
   // 6️⃣ DOM 요소 캐시 초기화
   Object.assign(domElements, initializeDomElements());

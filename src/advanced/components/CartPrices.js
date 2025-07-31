@@ -5,7 +5,7 @@
 import {
   getDiscountedProductName,
   getDiscountedPriceHTML,
-} from '../main.basic.js';
+} from '../main.advanced.js';
 
 /**
  * 🤖 [AI-REFACTORED] 장바구니 가격 UI 업데이트 (SRP 적용)

@@ -91,18 +91,6 @@ export function HelpModal() {
     </div>
   `;
 
-  // 이벤트 리스너 설정
-  manualToggle.onclick = function () {
-    manualOverlay.classList.toggle('hidden');
-    manualColumn.classList.toggle('translate-x-full');
-  };
-
-  manualOverlay.onclick = function (event) {
-    if (event.target === manualOverlay) {
-      manualOverlay.classList.add('hidden');
-      manualColumn.classList.add('translate-x-full');
-    }
-  };
 
   // 🔗 DOM 요소 연결
   manualOverlay.appendChild(manualColumn);
@@ -110,5 +98,6 @@ export function HelpModal() {
   return {
     manualToggle,
     manualOverlay,
+    manualColumn,
   };
 }
