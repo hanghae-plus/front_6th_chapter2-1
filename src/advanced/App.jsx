@@ -8,6 +8,24 @@ import { useMemo } from "react";
 import { RightColumn } from "./components/RightColumn";
 import { useOrderSummary } from "./services/order";
 import { useIntervalEffect } from "./utils/hooks";
+import { SelectorContainer } from "./components/selector/SelectorContainer";
+import { CartItemBox } from "./components/CartItemBox";
+import { StockInfoText } from "./components/selector/StockInfoText";
+import { useEffect } from "react";
+
+// TODO: 추후 분리 예정
+const getStockInfoMessage = (productList) => {
+  return productList.reduce((acc, item) => {
+    if (item.quantity < 5) {
+      if (item.quantity > 0) {
+        acc += `${item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
+      } else {
+        acc += `${item.name}: 품절\n`;
+      }
+    }
+    return acc;
+  }, "");
+};
 
 function App() {
   const randomBaseDelay = Math.random() * 10000;
@@ -29,8 +47,26 @@ function App() {
   );
 
   // Cart에 상품이 담길 때 쓰일 예정
-  setProductList;
-  setCartItems;
+  const addToCart = (selected) => {
+    setCartItems((prev) => {
+      const selectedIndex = prev.findIndex((x) => x.id === selected.id);
+      if (selectedIndex !== -1) {
+        prev[selectedIndex].selectedQuantity++;
+        return [...prev];
+      }
+
+      return [...prev, selected];
+    });
+
+    setProductList((prevProductList) => {
+      const selectedIndex = prevProductList.findIndex(
+        (x) => x.id === selected.id
+      );
+      prevProductList[selectedIndex].quantity--;
+
+      return [...prevProductList];
+    });
+  };
 
   const luckySaleEvent = () => {
     const luckyIdx = Math.floor(Math.random() * prodList.length);
@@ -90,7 +126,19 @@ function App() {
     <>
       <Header totalItemCount={totalItemCount} />
       <GridContainer>
-        <LeftColumn isLowStock={isLowStock} productList={productList} />
+        <LeftColumn>
+          <SelectorContainer
+            cartItems={cartItems}
+            addToCart={addToCart}
+            productList={productList}
+            isLowStock={isLowStock}
+            setLastSelectedItem={setLastSelectedItem}
+            bottom={
+              <StockInfoText>{getStockInfoMessage(productList)}</StockInfoText>
+            }
+          />
+          <CartItemBox cartItems={cartItems} />
+        </LeftColumn>
         <RightColumn
           productList={productList}
           cartItems={cartItems}

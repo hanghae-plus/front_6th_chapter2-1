@@ -1,7 +1,7 @@
-export const AddButton = ({ onClick, getItemToAdd }) => {
+export const AddButton = ({ onClick }) => {
   return (
     <button
-      onClick={() => onClick({ itemToAdd: getItemToAdd() })}
+      onClick={onClick}
       id="add-to-cart"
       className="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all"
     >

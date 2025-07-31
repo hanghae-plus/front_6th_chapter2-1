@@ -3,7 +3,7 @@ import { getCalculatePoints } from "../services/point";
 import { isTuesday } from "../utils/day";
 
 export const RightColumn = ({
-  prodList,
+  productList,
   cartItems = [],
   itemDiscounts,
   totalItemCount,
@@ -26,7 +26,7 @@ export const RightColumn = ({
       </h2>
       <div className="flex-1 flex flex-col">
         <SummaryDetails
-          prodList={prodList}
+          productList={productList}
           cartItems={cartItems}
           itemDiscounts={itemDiscounts}
           totalItemCount={totalItemCount}

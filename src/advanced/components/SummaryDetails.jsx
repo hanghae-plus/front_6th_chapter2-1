@@ -1,9 +1,9 @@
 import { isTuesday } from "../utils/day";
 
-// cartItems는 prodList 중에서 카드에 담긴 데이터 엔티티이며 얼마나 담았는지 수량을 추가로 갖고있다.
+// cartItems는 productList 중에서 카드에 담긴 데이터 엔티티이며 얼마나 담았는지 수량을 추가로 갖고있다.
 export const SummaryDetails = ({
   cartItems,
-  prodList,
+  productList,
   itemDiscounts,
   totalItemCount,
   totalOriginalPrice,
@@ -16,12 +16,15 @@ export const SummaryDetails = ({
   return (
     <div id="summary-details" className="space-y-3">
       {cartItems.map((cartItem) => {
-        const currentItem = prodList.find((x) => x.id === cartItem.id);
+        const currentItem = productList.find((x) => x.id === cartItem.id);
         const selectedQuantity = cartItem.selectedQuantity;
         const itemTotal = currentItem.price * selectedQuantity;
 
         return (
-          <div className="flex justify-between text-xs tracking-wide text-gray-400">
+          <div
+            className="flex justify-between text-xs tracking-wide text-gray-400"
+            key={`cartItem-${cartItem.id}`}
+          >
             <span>
               ${currentItem.name} x ${selectedQuantity}
             </span>

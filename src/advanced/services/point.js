@@ -1,3 +1,5 @@
+import { PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE } from "../constants";
+
 export const getCalculatePoints = ({
   totalItemCount,
   totalDiscountedPrice,
