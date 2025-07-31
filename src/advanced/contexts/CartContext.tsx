@@ -83,10 +83,19 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
     setLightningSaleProductId(productId);
 
+    // 상품에 번개세일 상태 적용
+    setProducts((prevProducts: Product[]) =>
+      prevProducts.map((product: Product) =>
+        product.id === productId
+          ? { ...product, lightningSale: true, price: Math.round(product.price * 0.8) }
+          : product,
+      ),
+    );
+
     // 알림창 표시
-    const product = products.find((p) => p.id === productId);
+    const product = products.find((p: Product) => p.id === productId);
     if (product) {
-      alert(`⚡ 번개세일! ${product.name} 20% 할인!`);
+      alert(`⚡번개세일! ${product.name}이(가) 20% 할인 중입니다!`);
     }
   }, [getRandomProductWithStock, products]);
 
@@ -96,7 +105,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
     // 마지막 선택 상품과 다른 상품 선택
     const otherProducts = products.filter(
-      (product) => product.id !== lastSelectedProduct && product.stock > 0,
+      (product: Product) => product.id !== lastSelectedProduct && product.stock > 0,
     );
 
     if (otherProducts.length === 0) return;
@@ -106,22 +115,49 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
     setRecommendationProductId(productId);
 
+    // 상품에 추천할인 상태 적용
+    setProducts((prevProducts: Product[]) =>
+      prevProducts.map((product: Product) =>
+        product.id === productId
+          ? { ...product, recommendationSale: true, price: Math.round(product.price * 0.95) }
+          : product,
+      ),
+    );
+
     // 알림창 표시
-    const product = products.find((p) => p.id === productId);
+    const product = products.find((p: Product) => p.id === productId);
     if (product) {
-      alert(`💝 추천할인! ${product.name} 5% 추가 할인!`);
+      alert(`💝 ${product.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
     }
   }, [lastSelectedProduct, products]);
 
   // 번개세일 종료
   const stopLightningSale = useCallback(() => {
+    if (lightningSaleProductId) {
+      setProducts((prevProducts: Product[]) =>
+        prevProducts.map((product: Product) =>
+          product.id === lightningSaleProductId
+            ? { ...product, lightningSale: false, price: product.price / 0.8 }
+            : product,
+        ),
+      );
+    }
     setLightningSaleProductId(null);
-  }, []);
+  }, [lightningSaleProductId]);
 
   // 추천할인 종료
   const stopRecommendation = useCallback(() => {
+    if (recommendationProductId) {
+      setProducts((prevProducts: Product[]) =>
+        prevProducts.map((product: Product) =>
+          product.id === recommendationProductId
+            ? { ...product, recommendationSale: false, price: product.price / 0.95 }
+            : product,
+        ),
+      );
+    }
     setRecommendationProductId(null);
-  }, []);
+  }, [recommendationProductId]);
 
   // 번개세일 타이머 (30초마다)
   useEffect(() => {
@@ -410,32 +446,65 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     recommendationProductId,
   ]);
 
-  // 포인트 계산
+  // 포인트 계산 (original과 동일)
   const getPoints = useCallback(() => {
-    const subtotal = getTotalAmount();
-    const basePoints = Math.floor(subtotal / 1000);
+    const finalAmount = getDiscountedAmount();
+    const basePoints = Math.floor(finalAmount / 1000);
+    let finalPoints = 0;
+    const pointsDetail: string[] = [];
 
-    // 화요일 특별 포인트 (2배)
+    // 기본 포인트
+    if (basePoints > 0) {
+      finalPoints = basePoints;
+      pointsDetail.push(`기본: ${basePoints}p`);
+    }
+
+    // 화요일 2배
     const today = new Date();
     const isTuesday = today.getDay() === 2;
-    const tuesdayBonus = isTuesday ? basePoints : 0;
+    if (isTuesday && basePoints > 0) {
+      finalPoints = basePoints * 2;
+      pointsDetail.push('화요일 2배');
+    }
 
     // 세트 구매 보너스 (키보드 + 마우스)
     const hasKeyboard = cartItems.some((item: CartItem) => item.product.id === 'p1');
     const hasMouse = cartItems.some((item: CartItem) => item.product.id === 'p2');
-    const setBonus = hasKeyboard && hasMouse ? 50 : 0;
+    if (hasKeyboard && hasMouse) {
+      finalPoints += 50;
+      pointsDetail.push('키보드+마우스 세트 +50p');
+    }
 
-    // 풀세트 구매 보너스 (모든 상품)
-    const fullSetBonus = cartItems.length >= 5 ? 100 : 0;
+    // 풀세트 구매 보너스 (키보드 + 마우스 + 모니터암)
+    const hasMonitorArm = cartItems.some((item: CartItem) => item.product.id === 'p3');
+    if (hasKeyboard && hasMouse && hasMonitorArm) {
+      finalPoints += 100;
+      pointsDetail.push('풀세트 구매 +100p');
+    }
+
+    // 대량구매 보너스
+    const totalQuantity = getCartItemCount();
+    if (totalQuantity >= 30) {
+      finalPoints += 100;
+      pointsDetail.push('대량구매(30개+) +100p');
+    } else if (totalQuantity >= 20) {
+      finalPoints += 50;
+      pointsDetail.push('대량구매(20개+) +50p');
+    } else if (totalQuantity >= 10) {
+      finalPoints += 20;
+      pointsDetail.push('대량구매(10개+) +20p');
+    }
 
     return {
       base: basePoints,
-      tuesday: tuesdayBonus,
-      set: setBonus,
-      fullSet: fullSetBonus,
-      total: basePoints + tuesdayBonus + setBonus + fullSetBonus,
+      tuesday: isTuesday && basePoints > 0 ? basePoints : 0,
+      set: hasKeyboard && hasMouse ? 50 : 0,
+      fullSet: hasKeyboard && hasMouse && hasMonitorArm ? 100 : 0,
+      bulk: totalQuantity >= 30 ? 100 : totalQuantity >= 20 ? 50 : totalQuantity >= 10 ? 20 : 0,
+      total: finalPoints,
+      details: pointsDetail,
     };
-  }, [cartItems, getTotalAmount]);
+  }, [cartItems, getDiscountedAmount, getCartItemCount]);
 
   // 할인 스타일 가져오기
   const getDiscountStyleForProduct = useCallback(

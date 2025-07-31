@@ -40,7 +40,7 @@ export interface DiscountState {
   };
 }
 
-// 개별 상품 할인 계산
+// 개별 상품 할인 계산 (original과 동일)
 export const calculateIndividualDiscount = (
   price: number,
   quantity: number,
@@ -52,7 +52,7 @@ export const calculateIndividualDiscount = (
   return 0;
 };
 
-// 전체 수량 할인 계산
+// 전체 수량 할인 계산 (original과 동일)
 export const calculateTotalBulkDiscount = (subtotal: number, totalQuantity: number): number => {
   if (totalQuantity >= DISCOUNT_POLICIES.TOTAL_BULK_THRESHOLD) {
     return subtotal * DISCOUNT_POLICIES.TOTAL_BULK_RATE;
@@ -60,7 +60,7 @@ export const calculateTotalBulkDiscount = (subtotal: number, totalQuantity: numb
   return 0;
 };
 
-// 화요일 할인 계산
+// 화요일 할인 계산 (original과 동일)
 export const calculateTuesdayDiscount = (amount: number): number => {
   const today = new Date();
   if (today.getDay() === 2) {
@@ -70,7 +70,7 @@ export const calculateTuesdayDiscount = (amount: number): number => {
   return 0;
 };
 
-// 번개세일 할인 계산
+// 번개세일 할인 계산 (original과 동일)
 export const calculateLightningSaleDiscount = (
   productId: string,
   price: number,
@@ -83,7 +83,7 @@ export const calculateLightningSaleDiscount = (
   return 0;
 };
 
-// 추천할인 계산
+// 추천할인 계산 (original과 동일)
 export const calculateRecommendationDiscount = (
   productId: string,
   price: number,
@@ -96,7 +96,7 @@ export const calculateRecommendationDiscount = (
   return 0;
 };
 
-// 할인 적용 순서 및 최종 계산
+// 할인 적용 순서 및 최종 계산 (original과 동일한 순서)
 export const calculateFinalDiscount = (
   subtotal: number,
   totalQuantity: number,
@@ -104,39 +104,35 @@ export const calculateFinalDiscount = (
   lightningSaleDiscount: number = 0,
   recommendationDiscount: number = 0,
 ): DiscountResult => {
+  // 1. 개별 상품 할인 계산
   const individualDiscountTotal = individualDiscounts.reduce((sum, discount) => sum + discount, 0);
+  let currentAmount = subtotal - individualDiscountTotal;
 
-  // 개별 할인 적용 후 금액
-  const afterIndividualDiscount = subtotal - individualDiscountTotal;
+  // 2. 전체 수량 할인 계산 (30개 이상)
+  if (totalQuantity >= DISCOUNT_POLICIES.TOTAL_BULK_THRESHOLD) {
+    currentAmount = subtotal * (1 - DISCOUNT_POLICIES.TOTAL_BULK_RATE);
+  }
 
-  // 전체 수량 할인 계산 (개별 할인과 중복 불가)
-  const totalBulkDiscount = calculateTotalBulkDiscount(afterIndividualDiscount, totalQuantity);
-
-  // 번개세일과 추천할인이 같은 상품에 적용되면 SUPER SALE (25%)
+  // 3. 번개세일과 추천할인 계산
+  let specialDiscount = 0;
   const hasLightningSale = lightningSaleDiscount > 0;
   const hasRecommendation = recommendationDiscount > 0;
-  const isSuperSale = hasLightningSale && hasRecommendation;
 
-  let specialDiscount = 0;
-  if (isSuperSale) {
+  if (hasLightningSale && hasRecommendation) {
     // SUPER SALE: 25% 할인
-    const superSaleAmount = Math.max(lightningSaleDiscount, recommendationDiscount);
-    specialDiscount =
-      superSaleAmount * (DISCOUNT_POLICIES.SUPER_SALE_RATE / DISCOUNT_POLICIES.LIGHTNING_SALE_RATE);
+    specialDiscount = Math.max(lightningSaleDiscount, recommendationDiscount) * 1.25;
   } else {
-    // 개별 할인 적용
     specialDiscount = lightningSaleDiscount + recommendationDiscount;
   }
 
-  // 화요일 할인은 모든 할인과 중복 가능
-  const tuesdayDiscount = calculateTuesdayDiscount(
-    afterIndividualDiscount - totalBulkDiscount - specialDiscount,
-  );
+  currentAmount -= specialDiscount;
 
-  const finalAmount =
-    afterIndividualDiscount - totalBulkDiscount - specialDiscount - tuesdayDiscount;
-  const totalDiscount =
-    individualDiscountTotal + totalBulkDiscount + specialDiscount + tuesdayDiscount;
+  // 4. 화요일 할인 계산 (마지막에 적용)
+  const tuesdayDiscount = calculateTuesdayDiscount(currentAmount);
+  currentAmount -= tuesdayDiscount;
+
+  const finalAmount = currentAmount;
+  const totalDiscount = subtotal - finalAmount;
 
   return {
     subtotal,
@@ -146,7 +142,7 @@ export const calculateFinalDiscount = (
   };
 };
 
-// 할인 아이콘 및 스타일 가져오기
+// 할인 아이콘 및 스타일 가져오기 (original과 동일)
 export const getDiscountStyle = (
   productId: string,
   lightningSaleProductId: string | null,
@@ -159,17 +155,17 @@ export const getDiscountStyle = (
   if (isSuperSale) {
     return {
       icon: '⚡💝',
-      className: 'font-bold text-purple-600',
+      className: 'text-purple-600 font-bold',
     };
   } else if (hasLightningSale) {
     return {
       icon: '⚡',
-      className: 'font-bold text-red-600',
+      className: 'text-red-500 font-bold',
     };
   } else if (hasRecommendation) {
     return {
       icon: '💝',
-      className: 'font-bold text-blue-600',
+      className: 'text-blue-500 font-bold',
     };
   }
 

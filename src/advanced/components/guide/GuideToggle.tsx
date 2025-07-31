@@ -3,17 +3,21 @@ import { useState } from 'react';
 import ShoppingGuide from './ShoppingGuide';
 
 const GuideToggle = () => {
-  const [isToggleOpen, setIsToggleOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const handleOpenToggle = () => {
-    setIsToggleOpen((prev) => !prev);
+  const handleToggle = () => {
+    setIsOpen((prev: boolean) => !prev);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
   };
 
   return (
     <>
       <button
         className="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50"
-        onClick={handleOpenToggle}
+        onClick={handleToggle}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -24,7 +28,7 @@ const GuideToggle = () => {
           />
         </svg>
       </button>
-      {isToggleOpen && <ShoppingGuide />}
+      <ShoppingGuide isOpen={isOpen} onClose={handleClose} />
     </>
   );
 };
