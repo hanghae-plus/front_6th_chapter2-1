@@ -1,12 +1,7 @@
 import { calculateBasePoint, getBulkBonusPoint, getSetBonusPoint } from './features/point/service';
 import { PRODUCT_ID, productList } from './features/product/constants';
-import { renderProductSelectOptions, renderStockInfo } from './features/product/render';
-import {
-  applyLightningSale,
-  applySuggestSale,
-  getDiscountStatus,
-  getProductDiscountRate,
-} from './features/product/service';
+import { renderCartProduct, renderProductSelectOptions, renderStockInfo } from './features/product/render';
+import { applyLightningSale, applySuggestSale, getProductDiscountRate } from './features/product/service';
 import {
   DiscountInfo,
   Header,
@@ -342,36 +337,13 @@ const renderBonusPoints = () => {
 };
 
 const renderPricesInCart = () => {
-  const cartItemsEl = Array.from(cartContainerEl.children);
+  const cartProductsEl = Array.from(cartContainerEl.children);
 
-  cartItemsEl.forEach((cartItem) => {
-    const product = productList.find((_product) => _product.id === cartItem.id);
+  cartProductsEl.forEach((cartProductEl) => {
+    const cartProduct = productList.find((product) => product.id === cartProductEl.id);
 
-    if (product) {
-      const priceDiv = cartItem.querySelector('.text-lg');
-      const nameDiv = cartItem.querySelector('h3');
-      const status = getDiscountStatus(product);
-
-      const priceInnerHtml = (_product) => {
-        return `
-          <span class="line-through text-gray-400">₩${_product.originalValue.toLocaleString()}</span>
-          <span class="text-purple-600">₩${_product.value.toLocaleString()}</span>
-        `;
-      };
-
-      if (status === 'SUPER') {
-        priceDiv.innerHTML = priceInnerHtml(product);
-        nameDiv.textContent = `⚡💝${product.name}`;
-      } else if (status === 'SALE') {
-        priceDiv.innerHTML = priceInnerHtml(product);
-        nameDiv.textContent = `⚡${product.name}`;
-      } else if (status === 'SUGGEST') {
-        priceDiv.innerHTML = priceInnerHtml(product);
-        nameDiv.textContent = `💝${product.name}`;
-      } else {
-        priceDiv.textContent = `₩${product.value.toLocaleString()}`;
-        nameDiv.textContent = product.name;
-      }
+    if (cartProduct) {
+      renderCartProduct(cartProductEl, cartProduct);
     }
   });
 
