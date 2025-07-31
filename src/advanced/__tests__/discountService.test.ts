@@ -4,7 +4,7 @@ import { DISCOUNT_RATES, PRODUCT_IDS } from "../constants";
 import type { Cart } from "../types";
 
 describe("discountService", () => {
-  const createMockCartItem = (quantity: number, productId = PRODUCT_IDS.KEYBOARD): Cart => {
+  const createMockCartItem = (quantity: number, productId: string = PRODUCT_IDS.KEYBOARD): Cart => {
     const productMap = {
       [PRODUCT_IDS.KEYBOARD]: {
         id: PRODUCT_IDS.KEYBOARD,
