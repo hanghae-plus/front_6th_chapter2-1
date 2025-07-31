@@ -1,12 +1,7 @@
-import type { Product } from "../constants";
+import type { Product, CartItem } from "../types";
 
-export interface CartItem {
-  id: string;
-  name: string;
-  val: number;
-  quantity: number;
-  discount: number;
-}
+// Re-export types for backward compatibility
+export type { Product, CartItem };
 
 export interface AppContextType {
   // State

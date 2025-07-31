@@ -1,5 +1,5 @@
 import { DISCOUNT_CONFIG } from "../constants/discount.constant";
-import type { Product } from "../constants/product.constant";
+import type { Product } from "../types";
 
 // 전역 타이머 ID 저장소
 let lightningIntervalId: number | null = null;

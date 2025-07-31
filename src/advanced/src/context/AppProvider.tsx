@@ -1,17 +1,9 @@
-import React, { useState, useCallback, useEffect } from "react";
-import type { AppContextType, CartItem } from "./types";
+import React, { useState, useCallback } from "react";
+import type { AppContextType } from "./types";
 import { AppContext } from "./AppContext";
 import { PRODUCTS } from "../constants";
-import {
-  getLowStockItems,
-  createStockStatusMessage,
-} from "../utils/stockUtils";
-import {
-  startLightningSaleTimer,
-  startRecommendationTimer,
-  showStockAlert,
-  clearAllTimers,
-} from "../services/alertService";
+import { useCart } from "../hooks/useCart";
+import { useProducts } from "../hooks/useProducts";
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -19,111 +11,39 @@ interface AppProviderProps {
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // State
-  const [products, setProducts] = useState(PRODUCTS);
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [isManualOpen, setIsManualOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(PRODUCTS[0]?.id || "");
-  const [stockStatus, setStockStatus] = useState("");
-  const [stockError, setStockError] = useState(""); // 재고 부족 에러 메시지
 
-  // 재고 상태 자동 업데이트 (재고 부족 상품 정보)
-  useEffect(() => {
-    const lowStockItems = getLowStockItems(products);
-    const stockMessage = createStockStatusMessage(lowStockItems);
-    setStockStatus(stockMessage);
-  }, [products]);
-
-  // 알럿 타이머 초기화 (한 번만 실행)
-  useEffect(() => {
-    const updateProducts = () => {
-      setProducts((prev) => [...prev]); // 강제 리렌더링
-    };
-
-    // 번개세일 타이머 시작
-    startLightningSaleTimer({
-      products,
-      onProductUpdate: updateProducts,
-    });
-
-    // 추천할인 타이머 시작
-    startRecommendationTimer({
-      products,
-      onProductUpdate: updateProducts,
-    });
-
-    // 클린업 함수
-    return () => {
-      clearAllTimers();
-    };
-  }, []);
+  // Custom hooks
+  const {
+    products,
+    stockStatus,
+    updateProductQuantity,
+    restoreProductQuantity,
+  } = useProducts();
+  const {
+    cart,
+    stockError,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    setStockError,
+  } = useCart(products);
 
   // Actions
-  const addToCart = useCallback(
+  const handleAddToCart = useCallback(
     (productId: string) => {
-      // 상품 선택 확인
-      if (!productId) {
-        showStockAlert("상품을 선택해주세요.");
-        return;
-      }
-
+      addToCart(productId);
+      // 상품이 성공적으로 추가되면 재고 감소
       const product = products.find((p) => p.id === productId);
-      if (!product) {
-        showStockAlert("잘못된 상품입니다.");
-        return;
+      if (product && product.quantity > 0) {
+        updateProductQuantity(productId, -1);
       }
-
-      // 품절 상품 확인
-      if (product.quantity === 0) {
-        const errorMessage = `재고 부족: ${product.name}은(는) 품절입니다.`;
-        setStockError(errorMessage);
-        showStockAlert(errorMessage);
-        return;
-      }
-
-      const existingItem = cart.find((item) => item.id === productId);
-      const currentQuantity = existingItem ? existingItem.quantity : 0;
-      const newQuantity = currentQuantity + 1;
-
-      // 재고 확인 (기존 수량을 고려한 검증)
-      if (newQuantity > product.quantity + currentQuantity) {
-        const errorMessage = `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`;
-        setStockError(errorMessage);
-        showStockAlert(errorMessage);
-        return;
-      }
-
-      // 재고 에러 초기화
-      setStockError("");
-
-      // 재고 감소
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
-        )
-      );
-
-      if (existingItem) {
-        setCart((prev) =>
-          prev.map((item) =>
-            item.id === productId ? { ...item, quantity: newQuantity } : item
-          )
-        );
-        return;
-      }
-
-      const newItem: CartItem = {
-        id: productId,
-        name: product.name,
-        val: product.val,
-        quantity: 1,
-        discount: 0,
-      };
-      setCart((prev) => [...prev, newItem]);
     },
-    [products, cart]
+    [addToCart, updateProductQuantity, products]
   );
 
-  const updateQuantity = useCallback(
+  const handleUpdateQuantity = useCallback(
     (id: string, quantity: number) => {
       const existingItem = cart.find((item) => item.id === id);
       if (!existingItem) return;
@@ -133,57 +53,28 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
       if (quantity === 0) {
         // 장바구니에서 제거하고 재고 복원
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.id === id ? { ...p, quantity: p.quantity + currentQuantity } : p
-          )
-        );
-        setCart((prev) => prev.filter((item) => item.id !== id));
+        restoreProductQuantity(id, currentQuantity);
+        updateQuantity(id, quantity);
         return;
       }
-
-      // 재고 확인 (기존 수량을 고려한 검증)
-      const product = products.find((p) => p.id === id);
-      if (product && quantity > product.quantity + currentQuantity) {
-        const errorMessage = `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`;
-        setStockError(errorMessage);
-        showStockAlert(errorMessage);
-        return;
-      }
-
-      // 재고 에러 초기화
-      setStockError("");
 
       // 재고 업데이트
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === id ? { ...p, quantity: p.quantity - quantityChange } : p
-        )
-      );
-
-      setCart((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, quantity } : item))
-      );
+      updateProductQuantity(id, -quantityChange);
+      updateQuantity(id, quantity);
     },
-    [products, cart]
+    [cart, updateQuantity, updateProductQuantity, restoreProductQuantity]
   );
 
-  const removeFromCart = useCallback(
+  const handleRemoveFromCart = useCallback(
     (id: string) => {
       const existingItem = cart.find((item) => item.id === id);
       if (existingItem) {
         // 재고 복원
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.id === id
-              ? { ...p, quantity: p.quantity + existingItem.quantity }
-              : p
-          )
-        );
+        restoreProductQuantity(id, existingItem.quantity);
       }
-      setCart((prev) => prev.filter((item) => item.id !== id));
+      removeFromCart(id);
     },
-    [cart]
+    [cart, removeFromCart, restoreProductQuantity]
   );
 
   const toggleManual = useCallback(() => {
@@ -195,7 +86,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, []);
 
   const setStockStatusHandler = useCallback((status: string) => {
-    setStockStatus(status);
+    // stockStatus는 useProducts에서 관리되므로 여기서는 무시
   }, []);
 
   // 최종 재고 상태 메시지 (재고 부족 상품 정보 + 에러 메시지)
@@ -212,9 +103,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     stockStatus: finalStockStatus,
 
     // Actions
-    addToCart,
-    updateQuantity,
-    removeFromCart,
+    addToCart: handleAddToCart,
+    updateQuantity: handleUpdateQuantity,
+    removeFromCart: handleRemoveFromCart,
     toggleManual,
     setSelectedProduct: setSelectedProductHandler,
     setStockStatus: setStockStatusHandler,

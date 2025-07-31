@@ -1,6 +1,6 @@
 import { DISCOUNT, ITEM_DISCOUNT } from "../constants/discount.constant";
 import { PRODUCT_IDS } from "../constants/product.constant";
-import type { CartItem } from "../context/types";
+import type { CartItem } from "../types";
 
 export interface CartTotals {
   subTotal: number;

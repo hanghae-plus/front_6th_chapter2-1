@@ -1,5 +1,5 @@
 import { PRODUCT_IDS } from "../constants/product.constant";
-import type { CartItem } from "../context/types";
+import type { CartItem } from "../types";
 
 export const POINT_RULES = {
   BASE_UNIT_AMOUNT: 1000,
