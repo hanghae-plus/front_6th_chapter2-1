@@ -5,7 +5,6 @@ import { useProductStore } from '@/advanced/store';
 import type { CartItem } from '@/advanced/types/cart.type';
 import { Product } from '@/advanced/types/product.type';
 import { getProductStatusIcon } from '@/advanced/utils/cart.util';
-import formatPrice from '@/advanced/utils/format.util';
 
 interface Props {
   item: CartItem;
@@ -32,7 +31,9 @@ export default function CartListItem({ item }: Props): ReactElement {
           {name}
         </h3>
         <p className="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-        <p className="text-xs text-black mb-3">{formatPrice(product.price)}</p>
+        <p className="text-xs text-black mb-3">
+          <ProductPrice product={product} size="sm" />
+        </p>
         <div className="flex items-center gap-4">
           <button className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white">
             −

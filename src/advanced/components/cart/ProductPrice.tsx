@@ -13,9 +13,10 @@ const priceStyle: Record<ProductStatus, string> = {
 
 interface Props {
   product: Product;
+  size?: 'lg' | 'sm';
 }
 
-export default function ProductPrice({ product }: Props) {
+export default function ProductPrice({ product, size = 'lg' }: Props) {
   const { cartItems } = useCartStore();
 
   const originalPrice = formatPrice(product.originalPrice);
@@ -29,8 +30,12 @@ export default function ProductPrice({ product }: Props) {
 
   const productDiscountStyle = isProductDiscount ? 'font-bold' : 'font-normal';
 
+  const textStyle = size === 'lg' ? 'text-lg' : 'text-sm';
+
   return (
-    <div className={`text-lg mb-2 tracking-tight tabular-nums ${productDiscountStyle}`}>
+    <div
+      className={`${textStyle} mb-2 tracking-tight tabular-nums ${size === 'lg' ? productDiscountStyle : ''}`}
+    >
       {isOnSale && (
         <>
           <span className="line-through text-gray-400">{originalPrice}</span>
