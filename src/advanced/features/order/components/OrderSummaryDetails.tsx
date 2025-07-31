@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { calculateItemDiscountRate } from '@/advanced/features/cart/utils/discountUtils.js';
-import { BUSINESS_CONSTANTS } from '@/basic/shared/constants/business.ts';
-import { PRODUCTS } from '@/basic/features/product/constants/index.ts';
+import { BUSINESS_CONSTANTS } from '@/advanced/shared/constants/business.ts';
+import { PRODUCTS } from '@/advanced/features/product/constants/index.ts';
 
 interface CartItem {
   id: string;

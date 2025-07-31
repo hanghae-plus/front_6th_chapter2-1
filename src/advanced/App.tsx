@@ -3,6 +3,7 @@ import { Header } from './shared/components/Header.tsx';
 import HelpModal from './shared/components/HelpModal.tsx';
 import ProductSelector from './features/product/components/ProductSelector.tsx';
 import CartItem from './features/cart/components/CartItem.tsx';
+import OrderSummaryDetails from './features/order/components/OrderSummaryDetails.tsx';
 import { ELEMENT_IDS } from './shared/constants/elementIds.ts';
 import { initialProducts } from './features/product/constants/index.ts';
 
@@ -129,6 +130,23 @@ function App() {
     setItemCount(prev => prev - cartItem.quantity);
   };
 
+  // OrderSummaryDetails에 전달할 데이터 계산
+  const summaryData = {
+    cartItems: cartItems.map(item => ({
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      price: item.val,
+    })),
+    subtotal: cartItems.reduce(
+      (sum, item) => sum + item.val * item.quantity,
+      0,
+    ),
+    itemCount,
+    isTuesday: new Date().getDay() === 2,
+    hasBulkDiscount: itemCount >= 30,
+  };
+
   return (
     <>
       <Header itemCount={itemCount} />
@@ -181,7 +199,8 @@ function App() {
             Order Summary
           </h2>
           <div className='flex-1 flex flex-col'>
-            <div id='summary-details' className='space-y-3'></div>
+            {/* OrderSummaryDetails 컴포넌트로 교체 */}
+            <OrderSummaryDetails {...summaryData} />
             <div className='mt-auto'>
               <div id='discount-info' className='mb-4'></div>
               <div id='cart-total' className='pt-5 border-t border-white/10'>
