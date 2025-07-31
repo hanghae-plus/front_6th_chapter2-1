@@ -11,7 +11,6 @@ import { SelectorContainer } from "./components/selector/SelectorContainer";
 import { CartItemBox } from "./components/CartItemBox";
 import { StockInfoText } from "./components/selector/StockInfoText";
 import { useIntervalPromotion } from "./hooks/useIntervalPromotion";
-import { useEffect } from "react";
 
 // TODO: 추후 분리 예정
 const getStockInfoMessage = (productList) => {
@@ -122,6 +121,7 @@ function App() {
           />
           <CartItemBox
             cartItems={cartItems}
+            productList={productList}
             onClickRemove={removeFromCart}
             increaseCartItemQuantity={({ id }) =>
               changeCartItemQuantity({ id, change: 1 })

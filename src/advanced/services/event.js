@@ -7,7 +7,11 @@ export const getLuckySaleProduct = (productList) => {
   if (luckyProduct.quantity > 0 && !luckyProduct.onSale) {
     newProductList[luckyIndex] = {
       ...luckyProduct,
-      price: Math.round((luckyProduct.originalPrice * 80) / 100),
+      price: Math.round(
+        (luckyProduct.originalPrice *
+          (100 - 20 - (luckyProduct.suggestSale ? 5 : 0))) /
+          100
+      ),
       onSale: true,
     };
   } else {
@@ -27,23 +31,28 @@ export const getSuggestSaleProduct = (productList, lastSelectedItem) => {
     return null;
   }
 
-  const suggestProduct = productList.find(
+  const suggestProductIndex = productList.findIndex(
     (item) =>
       item.id !== lastSelectedItem.id && item.quantity > 0 && !item.suggestSale
   );
 
-  if (suggestProduct == null) {
+  if (suggestProductIndex === -1) {
     return null;
   }
 
-  newProductList[suggestProduct.index] = {
+  const suggestProduct = newProductList[suggestProductIndex];
+  newProductList[suggestProductIndex] = {
     ...suggestProduct,
-    price: Math.round((suggestProduct.price * (100 - 5)) / 100),
+    price: Math.round(
+      (suggestProduct.originalPrice *
+        (100 - 5 - (suggestProduct.onSale ? 20 : 0))) /
+        100
+    ),
     suggestSale: true,
   };
 
   return {
     suggestProduct,
-    productList: newProductList,
+    productList: [...newProductList],
   };
 };

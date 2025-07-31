@@ -53,6 +53,6 @@ export const useIntervalPromotion = ({
       interval: 60000,
       delay: randomBaseDelay * 2,
     },
-    [productList]
+    [productList, lastSelectedItem]
   );
 };
