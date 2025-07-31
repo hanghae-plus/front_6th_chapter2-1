@@ -1,344 +1,334 @@
 // ============================================
-// UI UPDATES - DOM 조작 및 UI 렌더링
+// UI UPDATES - HTML 문자열 반환 방식 (리액트 변환 준비)
 // ============================================
 
-import { calculateAllPoints, getStockStatusMessage } from './businessLogic.js';
-import { DISCOUNT_PERCENTAGES, QUANTITY_THRESHOLDS } from './constants.js';
-import { formatPrice, isTuesday } from './utils.js';
+import { calculateAllPoints } from './businessLogic.js';
+import { QUANTITY_THRESHOLDS } from './constants.js';
+
+// 전역 AppState 참조
+let AppState = null;
+
+// AppState 설정 함수
+export const setAppState = (state) => {
+  AppState = state;
+};
 
 // ============================================
-// RENDERING ENGINE - HTML 렌더링 처리
+// UI COMPONENTS - HTML 문자열 반환
 // ============================================
 
-// 렌더링 엔진 (임시로만 사용, 나중에 React로 대체)
-export const RenderingEngine = {
-  // HTML 컴포넌트를 DOM에 렌더링
-  render(componentHTML) {
-    // HTML 문자열만 반환, DOM 조작은 하지 않음
-    return componentHTML;
-  },
+// 아이템 카운트 컴포넌트
+const ItemCountComponent = (itemCount) => `🛍️ ${itemCount} items in cart`;
 
-  // 여러 컴포넌트를 한 번에 렌더링 - HTML 문자열만 반환
-  renderAll(components) {
-    return {
-      itemCount: components.itemCount || '',
-      total: components.total || '',
-      summary: components.summary || '',
-      discount: components.discount || '',
-      tuesdayBanner: components.tuesdayBanner || '',
-      stock: components.stock || '',
-      points: components.points || '',
-    };
-  },
+// 총액 컴포넌트
+const TotalComponent = (totalAmount) => `₩${totalAmount.toLocaleString()}`;
 
-  // React 방식으로 실제 DOM에 렌더링
-  renderToDOM(renderedHTML) {
-    const elements = {
-      itemCount: document.getElementById('item-count'),
-      totalDiv: document.querySelector('#cart-total .text-2xl'),
-      summaryDetails: document.getElementById('summary-details'),
-      discountInfo: document.getElementById('discount-info'),
-      tuesdaySpecial: document.getElementById('tuesday-special'),
-      stockInfo: document.getElementById('stock-status'),
-      loyaltyPoints: document.getElementById('loyalty-points'),
-    };
-
-    // 각 요소에 HTML 문자열 적용 (createElement 방식)
-    if (renderedHTML.itemCount && elements.itemCount) {
-      this.renderHTMLContent(elements.itemCount, renderedHTML.itemCount);
-    }
-    if (renderedHTML.total && elements.totalDiv) {
-      this.renderHTMLContent(elements.totalDiv, renderedHTML.total);
-    }
-    if (renderedHTML.summary && elements.summaryDetails) {
-      this.renderHTMLContent(elements.summaryDetails, renderedHTML.summary);
-    }
-    if (renderedHTML.discount && elements.discountInfo) {
-      this.renderHTMLContent(elements.discountInfo, renderedHTML.discount);
-    }
-    if (renderedHTML.tuesdayBanner && elements.tuesdaySpecial) {
-      this.renderHTMLContent(elements.tuesdaySpecial, renderedHTML.tuesdayBanner);
-      elements.tuesdaySpecial.classList.remove('hidden');
-    } else if (elements.tuesdaySpecial) {
-      elements.tuesdaySpecial.classList.add('hidden');
-    }
-    if (renderedHTML.stock && elements.stockInfo) {
-      this.renderHTMLContent(elements.stockInfo, renderedHTML.stock);
-    }
-    if (renderedHTML.points && elements.loyaltyPoints) {
-      this.renderHTMLContent(elements.loyaltyPoints, renderedHTML.points);
-    } else if (elements.loyaltyPoints) {
-      // 빈 장바구니일 때 포인트 섹션 숨김
-      elements.loyaltyPoints.style.display = 'none';
-    }
-  },
-
-  // HTML 콘텐츠 렌더링 (innerHTML 없이 createElement 사용)
-  renderHTMLContent(element, htmlString) {
-    if (element) {
-      // 기존 내용 제거
-      while (element.firstChild) {
-        element.removeChild(element.firstChild);
-      }
-
-      // HTML 문자열을 DOM 요소로 변환
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = htmlString;
-
-      // 모든 자식 요소를 실제 요소에 추가
-      while (tempDiv.firstChild) {
-        element.appendChild(tempDiv.firstChild);
-      }
-    }
-  },
-
-  // 장바구니 아이템 수량 업데이트 (innerHTML 없이)
-  updateCartItemQuantity(productId, newQuantity) {
-    const quantityElement = document.querySelector(`#${productId} .quantity-number`);
-    if (quantityElement) {
-      quantityElement.textContent = newQuantity;
-    }
-  },
-};
-
-// 모든 UI 업데이트를 한 곳에서 관리 (HTML 리턴 방식)
-export const updateAllUI = (cartState, AppState) => {
-  // HTML 컴포넌트들 생성
-  const itemCountHTML = ItemCountComponent(cartState.itemCount);
-  const totalHTML = TotalComponent(cartState.totalAmount);
-  const summaryHTML = SummaryDetailsComponent(
-    cartState.cartItems,
-    cartState.subtotal,
-    cartState.itemCount,
-    cartState.itemDiscounts,
-    cartState.totalAmount,
-    AppState.products,
-  );
-  const discountHTML = DiscountInfoComponent(
-    cartState.discountRate,
-    cartState.subtotal,
-    cartState.totalAmount,
-  );
-  const tuesdayBannerHTML = TuesdaySpecialBannerComponent(cartState.totalAmount);
-  const stockHTML = StockInfoComponent(AppState.products);
-  // 포인트 업데이트 - 실제 포인트 계산 결과를 전달
-  const pointsHTML = updateBasicPoints(
-    cartState.totalAmount,
-    cartState.cartItems,
-    cartState.itemCount,
-  );
-  // HTML 컴포넌트들을 객체로 리턴
-  return {
-    itemCount: itemCountHTML,
-    total: totalHTML,
-    summary: summaryHTML,
-    discount: discountHTML,
-    tuesdayBanner: tuesdayBannerHTML,
-    stock: stockHTML,
-    points: pointsHTML,
-  };
-};
-
-// 추가 계산 및 업데이트
-export const updateAdditionalCalculations = (AppState) => {
-  handleStockInfoUpdate(AppState);
-  handleRenderBonusPoints(AppState);
-};
-
-// 아이템 수 표시 컴포넌트
-const ItemCountComponent = (itemCount) =>
-  `<p class="text-sm text-gray-500 font-normal mt-3" data-changed="true">🛍️ ${itemCount} items in cart</p>`;
-
-// 총액 표시 컴포넌트
-const TotalComponent = (totalAmount) =>
-  `<div class="text-2xl tracking-tight">${formatPrice(totalAmount)}</div>`;
-
-// 주문 요약 상세 컴포넌트 (이미 HTML 리턴 방식)
-const SummaryDetailsComponent = (
-  cartItems,
-  subtotal,
-  itemCount,
-  itemDiscounts,
-  totalAmount,
-  products,
-) => {
-  if (subtotal <= 0) return '';
-
-  const cartItemSummaries = cartItems
-    .map((cartItem) => CartItemSummaryComponent(cartItem, products))
-    .join('');
-
-  const discountComponents =
-    itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE
-      ? BulkDiscountComponent()
-      : itemDiscounts.map((item) => IndividualDiscountComponent(item)).join('');
-
-  const tuesdayDiscount = isTuesday() && totalAmount > 0 ? TuesdayDiscountComponent() : '';
-
-  return `
-    ${cartItemSummaries}
-    ${SubtotalComponent(subtotal)}
-    ${discountComponents}
-    ${tuesdayDiscount}
-    ${ShippingInfoComponent()}
-  `;
-};
-
-// 할인 정보 컴포넌트 (이미 HTML 리턴 방식)
-const DiscountInfoComponent = (discountRate, originalTotal, totalAmount) => {
-  if (discountRate <= 0 || originalTotal <= 0) return '';
-
-  const discountAmount = originalTotal - totalAmount;
-  const discountPercentage = (discountRate * 100).toFixed(1);
-
-  return `
-    <div class="bg-green-500/20 rounded-lg p-3">
-      <div class="flex justify-between items-center mb-1">
-        <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-        <span class="text-sm font-medium text-green-400">${discountPercentage}%</span>
-      </div>
-      <div class="text-2xs text-gray-300">${formatPrice(discountAmount)} 할인되었습니다</div>
-    </div>
-  `;
-};
-
-// 화요일 특별 할인 배너 컴포넌트
-const TuesdaySpecialBannerComponent = (totalAmount) => {
-  if (isTuesday() && totalAmount > 0) {
-    return `
-      <div class="mt-4 p-3 bg-white/10 rounded-lg">
-        <div class="flex items-center gap-2">
-          <span class="text-2xs">🎉</span>
-          <span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
-        </div>
-      </div>
-    `;
-  }
-  return '';
-};
-
-// 기본 포인트 업데이트
-const updateBasicPoints = (totalAmount, cartItems, itemCount) => {
-  // 빈 장바구니일 때는 빈 문자열 반환 (리액트 변환을 위한 조건부 렌더링)
+// 요약 세부사항 컴포넌트 (원본 스타일)
+const SummaryDetailsComponent = (cartItems, products, cartState) => {
   if (cartItems.length === 0) {
     return '';
   }
 
-  // businessLogic.js의 calculateAllPoints를 사용
-  const { finalPoints, pointsDetail } = calculateAllPoints(totalAmount, cartItems, itemCount);
-  return updateLoyaltyPointsDisplay(finalPoints, pointsDetail, false);
-};
+  let summaryHTML = '';
 
-// 재고 정보 업데이트 핸들러
-const handleStockInfoUpdate = (AppState) => StockInfoComponent(AppState.products);
+  // 장바구니 아이템들
+  cartItems.forEach((item) => {
+    const product = products.find((p) => p.id === item.productId);
+    if (!product) return;
 
-// 포인트 렌더링 핸들러
-const handleRenderBonusPoints = (AppState) => {
-  const cartItems = AppState.cart.items;
+    const itemTotal = product.value * item.quantity;
+    summaryHTML += `
+      <div class="flex justify-between text-xs tracking-wide text-gray-400">
+        <span>${product.name} x ${item.quantity}</span>
+        <span>₩${itemTotal.toLocaleString()}</span>
+      </div>
+    `;
+  });
 
-  if (cartItems.length === 0) {
-    updateLoyaltyPointsDisplay(0, [], true);
-    return;
+  // 소계
+  const subtotal = cartItems.reduce((sum, item) => {
+    const product = products.find((p) => p.id === item.productId);
+    return sum + (product ? product.value * item.quantity : 0);
+  }, 0);
+
+  summaryHTML += `
+    <div class="border-t border-white/10 my-3"></div>
+    <div class="flex justify-between text-sm tracking-wide">
+      <span>Subtotal</span>
+      <span>₩${subtotal.toLocaleString()}</span>
+    </div>
+  `;
+
+  // 할인 정보 (원본 스타일)
+  const { individualDiscount, tuesdayDiscount } = cartState;
+  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  if (totalQuantity >= 30) {
+    // 대량구매 할인
+    summaryHTML += `
+      <div class="flex justify-between text-sm tracking-wide text-green-400">
+        <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
+        <span class="text-xs">-25%</span>
+      </div>
+    `;
+  } else if (individualDiscount > 0) {
+    // 개별 할인
+    cartItems.forEach((item) => {
+      const product = products.find((p) => p.id === item.productId);
+      if (product && item.quantity >= 10) {
+        let discountPercent = 0;
+        if (product.id === 'p1') discountPercent = 10;
+        else if (product.id === 'p2') discountPercent = 15;
+        else if (product.id === 'p3') discountPercent = 20;
+        else if (product.id === 'p5') discountPercent = 25;
+
+        if (discountPercent > 0) {
+          summaryHTML += `
+            <div class="flex justify-between text-sm tracking-wide text-green-400">
+              <span class="text-xs">${product.name} (10개↑)</span>
+              <span class="text-xs">-${discountPercent}%</span>
+            </div>
+          `;
+        }
+      }
+    });
   }
 
-  const { finalPoints, pointsDetail } = calculateAllPoints(
-    AppState.cart.totalAmount,
-    cartItems,
-    AppState.cart.itemCount,
-  );
+  // 화요일 할인
+  if (tuesdayDiscount > 0) {
+    summaryHTML += `
+      <div class="flex justify-between text-sm tracking-wide text-purple-400">
+        <span class="text-xs">🌟 화요일 추가 할인</span>
+        <span class="text-xs">-10%</span>
+      </div>
+    `;
+  }
 
-  AppState.cart.bonusPoints = finalPoints;
-  updateLoyaltyPointsDisplay(finalPoints, pointsDetail);
+  // 배송 정보
+  summaryHTML += `
+    <div class="flex justify-between text-sm tracking-wide text-gray-400">
+      <span>Shipping</span>
+      <span>Free</span>
+    </div>
+  `;
+
+  return summaryHTML;
 };
 
-// 포인트 표시 업데이트
-const updateLoyaltyPointsDisplay = (finalPoints, pointsDetail, hide = false) =>
-  LoyaltyPointsComponent(finalPoints, pointsDetail, hide);
+// 할인 정보 컴포넌트 (원본 스타일)
+const DiscountInfoComponent = (cartState) => {
+  const { originalTotal, totalAmount } = cartState;
+  const discRate = originalTotal > 0 ? (originalTotal - totalAmount) / originalTotal : 0;
+  const savedAmount = originalTotal - totalAmount;
 
-// ============================================
-// UI COMPONENTS - HTML 문자열 생성
-// ============================================
+  if (discRate <= 0 || totalAmount <= 0) {
+    return '';
+  }
 
-// 장바구니 아이템 요약 컴포넌트
-const CartItemSummaryComponent = (cartItem, products) => {
-  const currentProduct = findProductById(products, cartItem.productId);
-  const { quantity } = cartItem;
-  const itemTotal = currentProduct.value * quantity;
-
+  // 원본과 정확히 동일한 스타일
   return `
-    <div class="flex justify-between text-xs tracking-wide text-gray-400">
-      <span>${currentProduct.name} x ${quantity}</span>
-      <span>${formatPrice(itemTotal)}</span>
+    <div class="bg-green-500/20 rounded-lg p-3">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
+        <span class="text-sm font-medium text-green-400">${(discRate * 100).toFixed(1)}%</span>
+      </div>
+      <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
     </div>
   `;
 };
 
-// 소계 컴포넌트
-const SubtotalComponent = (subtotal) => `
-  <div class="border-t border-white/10 my-3"></div>
-  <div class="flex justify-between text-sm tracking-wide">
-    <span>Subtotal</span>
-    <span>${formatPrice(subtotal)}</span>
-  </div>
-`;
+// 화요일 특별 배너 컴포넌트 (원본 스타일)
+const TuesdaySpecialBannerComponent = (cartState) => {
+  const { tuesdayDiscount } = cartState;
+  if (tuesdayDiscount === 0) {
+    return '';
+  }
 
-// 대량구매 할인 컴포넌트
-const BulkDiscountComponent = () => `
-  <div class="flex justify-between text-sm tracking-wide text-green-400">
-    <span class="text-xs">🎉 대량구매 할인 (${QUANTITY_THRESHOLDS.BULK_PURCHASE}개 이상)</span>
-    <span class="text-xs">-${DISCOUNT_PERCENTAGES.BULK_PURCHASE}%</span>
-  </div>
-`;
-
-// 개별 할인 컴포넌트
-const IndividualDiscountComponent = (item) => `
-  <div class="flex justify-between text-sm tracking-wide text-green-400">
-    <span class="text-xs">${item.name} (${QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑)</span>
-    <span class="text-xs">-${item.discount}%</span>
-  </div>
-`;
-
-// 화요일 할인 컴포넌트
-const TuesdayDiscountComponent = () => `
-  <div class="flex justify-between text-sm tracking-wide text-purple-400">
-    <span class="text-xs">🌟 화요일 추가 할인</span>
-    <span class="text-xs">-${DISCOUNT_PERCENTAGES.TUESDAY}%</span>
-  </div>
-`;
-
-// 배송 정보 컴포넌트
-const ShippingInfoComponent = () => `
-  <div class="flex justify-between text-sm tracking-wide text-gray-400">
-    <span>Shipping</span>
-    <span>Free</span>
-  </div>
-`;
+  // 원본과 정확히 동일한 내용 (HTML에 이미 정의되어 있음)
+  return `
+    <div class="flex items-center gap-2">
+      <span class="text-2xs">🎉</span>
+      <span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
+    </div>
+  `;
+};
 
 // 재고 정보 컴포넌트
 const StockInfoComponent = (products) => {
-  const stockMessage = getStockStatusMessage(products);
-  return stockMessage || '';
-};
+  const totalStock = products.reduce((sum, product) => sum + product.stock, 0);
+  let infoMsg = '';
 
-// 포인트 컴포넌트
-const LoyaltyPointsComponent = (finalPoints, pointsDetail, hide = false) => {
-  if (hide) return '';
-
-  if (finalPoints > 0) {
-    return `<div>적립 포인트: <span class="font-bold">${finalPoints}p</span></div><div class="text-2xs opacity-70 mt-1">${pointsDetail.join(', ')}</div>`;
+  if (totalStock < QUANTITY_THRESHOLDS.LOW_STOCK) {
+    // 원본과 동일하게 빈 문자열 반환
   }
 
-  return '적립 포인트: 0p';
+  products.forEach((item) => {
+    if (item.stock < QUANTITY_THRESHOLDS.LOW_STOCK) {
+      if (item.stock > 0) {
+        infoMsg += `${item.name}: 재고 부족 (${item.stock}개 남음)\n`;
+      } else {
+        infoMsg += `${item.name}: 품절\n`;
+      }
+    }
+  });
+
+  return infoMsg;
 };
 
-// 장바구니 아이템 수량 컴포넌트 (HTML 리턴 방식)
-export const CartItemQuantityComponent = (productId, newQuantity) =>
-  `<span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">${newQuantity}</span>`;
+// 적립 포인트 컴포넌트 (원본 스타일)
+const LoyaltyPointsComponent = (finalPoints, pointsDetail, cartItems) => {
+  const displayStyle = cartItems.length === 0 ? 'display: none' : 'display: block';
 
-// 임시 함수들 (나중에 제거 예정)
-export const setAppState = () => {
-  // AppState 설정 (현재는 사용하지 않지만 나중에 필요할 수 있음)
+  if (finalPoints > 0) {
+    return `<div style="${displayStyle}">적립 포인트: <span class="font-bold">${finalPoints}p</span></div><div class="text-2xs opacity-70 mt-1">${pointsDetail.join(', ')}</div>`;
+  }
+  return `<div style="${displayStyle}">적립 포인트: <span class="font-bold">0p</span></div>`;
 };
 
-const findProductById = (products, productId) =>
-  products.find((product) => product.id === productId);
+// ============================================
+// UI UPDATE FUNCTIONS - HTML 문자열 반환
+// ============================================
+
+// 기본 포인트 업데이트 (원본 스타일)
+const updateBasicPoints = (totalAmount, cartItems, itemCount) => {
+  const { finalPoints, pointsDetail } = calculateAllPoints(totalAmount, cartItems, itemCount);
+  return LoyaltyPointsComponent(finalPoints, pointsDetail, cartItems);
+};
+
+// 전체 UI 업데이트 - HTML 컴포넌트 반환
+export const updateAllUI = (cartState, appState) => {
+  const { cart, products } = appState;
+  const { items, totalAmount, itemCount } = cart;
+
+  return {
+    itemCount: ItemCountComponent(itemCount),
+    total: TotalComponent(totalAmount),
+    summary: SummaryDetailsComponent(items, products, cartState),
+    discount: DiscountInfoComponent(cartState),
+    tuesdayBanner: TuesdaySpecialBannerComponent(cartState),
+    stock: StockInfoComponent(products),
+    points: updateBasicPoints(totalAmount, items, itemCount),
+  };
+};
+
+// 추가 계산 업데이트
+export const updateAdditionalCalculations = () => {
+  // 추가 계산 로직이 필요한 경우 여기에 구현
+};
+
+// ============================================
+// RENDERING ENGINE - 리액트 변환 준비
+// ============================================
+
+// 렌더링 엔진 (리액트 변환 시 이 부분만 교체)
+export const RenderingEngine = {
+  // HTML 문자열을 실제 DOM에 적용 (리액트 변환 시 제거)
+  renderAll(htmlComponents) {
+    return htmlComponents;
+  },
+
+  // 실제 DOM에 렌더링 (리액트 변환 시 제거)
+  renderToDOM(renderedHTML) {
+    // item-count 업데이트
+    const itemCountElement = document.getElementById('item-count');
+    if (itemCountElement && renderedHTML.itemCount) {
+      itemCountElement.innerHTML = renderedHTML.itemCount;
+    }
+
+    // cart-total 업데이트
+    const totalElement = document.getElementById('cart-total');
+    if (totalElement && renderedHTML.total) {
+      const totalTextElement = totalElement.querySelector('.text-2xl');
+      if (totalTextElement) {
+        totalTextElement.innerHTML = renderedHTML.total;
+      }
+    }
+
+    // summary-details 업데이트
+    const summaryElement = document.getElementById('summary-details');
+    if (summaryElement && renderedHTML.summary) {
+      summaryElement.innerHTML = renderedHTML.summary;
+    }
+
+    // discount-info 업데이트
+    const discountElement = document.getElementById('discount-info');
+    if (discountElement && renderedHTML.discount) {
+      discountElement.innerHTML = renderedHTML.discount;
+    }
+
+    // tuesday-special 업데이트
+    const tuesdayElement = document.getElementById('tuesday-special');
+    if (tuesdayElement) {
+      if (renderedHTML.tuesdayBanner) {
+        tuesdayElement.innerHTML = renderedHTML.tuesdayBanner;
+        tuesdayElement.classList.remove('hidden');
+      } else {
+        tuesdayElement.classList.add('hidden');
+      }
+    }
+
+    // stock-status 업데이트
+    const stockElement = document.getElementById('stock-status');
+    if (stockElement && renderedHTML.stock !== undefined) {
+      stockElement.innerHTML = renderedHTML.stock;
+    }
+
+    // loyalty-points 업데이트
+    const pointsElement = document.getElementById('loyalty-points');
+    if (pointsElement && renderedHTML.points) {
+      pointsElement.innerHTML = renderedHTML.points;
+      // 빈 장바구니일 때 포인트 섹션 숨김 (테스트 요구사항)
+      if (renderedHTML.points.includes('style="display: none"')) {
+        pointsElement.style.display = 'none';
+      } else {
+        pointsElement.style.display = 'block';
+      }
+    }
+  },
+
+  // 장바구니 아이템 수량 업데이트 (HTML 문자열 반환)
+  updateCartItemQuantity(productId, newQuantity) {
+    // 수량과 총액을 함께 업데이트
+    const quantityElement = document.querySelector(`#${productId} .quantity-number`);
+    const totalElement = document.querySelector(
+      `#${productId} .text-lg.mb-2.tracking-tight.tabular-nums`,
+    );
+
+    if (quantityElement) {
+      quantityElement.textContent = newQuantity;
+    }
+
+    if (totalElement) {
+      // 총액 계산 및 폰트 스타일 처리
+      const product = AppState.products.find((p) => p.id === productId);
+      if (product) {
+        const totalPrice = product.value * newQuantity;
+        totalElement.textContent = `₩${totalPrice.toLocaleString()}`;
+
+        // 폰트 스타일 설정 (10개 이상이면 볼드)
+        if (newQuantity >= 10) {
+          totalElement.style.fontWeight = 'bold';
+        } else {
+          totalElement.style.fontWeight = 'normal';
+        }
+      }
+    }
+
+    return { productId, newQuantity };
+  },
+
+  // 장바구니 아이템 추가 (HTML 문자열 반환)
+  addCartItem(cartItemHTML) {
+    return { cartItemHTML };
+  },
+
+  // 장바구니 아이템 제거 (HTML 문자열 반환)
+  removeCartItem(productId) {
+    return { productId, action: 'remove' };
+  },
+
+  // 셀렉트 옵션 업데이트 (HTML 문자열 반환)
+  updateSelectOptions(optionsHTML) {
+    return { optionsHTML };
+  },
+};

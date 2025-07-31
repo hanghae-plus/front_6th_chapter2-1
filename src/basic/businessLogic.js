@@ -30,6 +30,7 @@ export const calculateCartState = (cartItems, products) => {
     itemDiscounts,
     totalAmount,
     discountRate,
+    originalTotal: subtotal, // 할인 전 원래 총액 추가
   };
 };
 

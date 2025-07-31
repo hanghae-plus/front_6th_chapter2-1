@@ -483,20 +483,15 @@ const handleUpdateSelectOptions = () => {
   const { selectElement } = AppState.ui;
   if (!selectElement) return;
 
-  // innerHTML 완전 제거하고 createElement 방식으로
+  // HTML 문자열 생성
   const optionsHTML = SelectOptionsComponent();
 
-  // 기존 옵션들 제거
-  while (selectElement.firstChild) {
-    selectElement.removeChild(selectElement.firstChild);
-  }
+  // 렌더링 엔진으로 셀렉트 옵션 업데이트 (HTML 문자열 반환)
+  const update = RenderingEngine.updateSelectOptions(optionsHTML);
 
-  // HTML 문자열을 DOM 요소로 변환하여 추가
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = optionsHTML;
-
-  while (tempDiv.firstChild) {
-    selectElement.appendChild(tempDiv.firstChild);
+  // 실제 DOM 업데이트 (임시 - 리액트 변환 시 제거)
+  if (update.optionsHTML) {
+    selectElement.innerHTML = update.optionsHTML;
   }
 
   if (totalStock < 50) {
@@ -611,7 +606,7 @@ const handleUpdatePricesInCart = () => {
 // 15.1 Cart Item Creation
 
 // 장바구니 아이템 생성 함수
-const CartItemElement = (product) => {
+const CartItemElement = (product, quantity = 1) => {
   const saleIcon =
     product.onSale && product.suggestSale
       ? '⚡💝'
@@ -626,6 +621,14 @@ const CartItemElement = (product) => {
       ? `<span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span> <span class="${product.onSale && product.suggestSale ? 'text-purple-600' : product.onSale ? 'text-red-500' : 'text-blue-500'}">₩${product.value.toLocaleString()}</span>`
       : `₩${product.value.toLocaleString()}`;
 
+  // 수량에 따라 총액 스타일 결정 (10개 이상이면 볼드)
+  const totalPrice = product.value * quantity;
+  const totalPriceStyle = quantity >= 10 ? 'font-bold' : 'font-normal';
+  const totalPriceDisplay =
+    product.onSale || product.suggestSale
+      ? `<span class="line-through text-gray-400">₩${(product.originalValue * quantity).toLocaleString()}</span> <span class="${product.onSale && product.suggestSale ? 'text-purple-600' : product.onSale ? 'text-red-500' : 'text-blue-500'} ${totalPriceStyle}">₩${totalPrice.toLocaleString()}</span>`
+      : `<span class="${totalPriceStyle}">₩${totalPrice.toLocaleString()}</span>`;
+
   return `
     <div id="${product.id}" class="grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0">
       <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
@@ -637,12 +640,12 @@ const CartItemElement = (product) => {
         <p class="text-xs text-black mb-3">${priceDisplay}</p>
         <div class="flex items-center gap-4">
           <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="-1">−</button>
-          <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
+          <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">${quantity}</span>
           <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${product.id}" data-change="1">+</button>
         </div>
       </div>
       <div class="text-right">
-        <div class="text-lg mb-2 tracking-tight tabular-nums">${priceDisplay}</div>
+        <div class="text-lg mb-2 tracking-tight tabular-nums">${totalPriceDisplay}</div>
         <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${product.id}">Remove</a>
       </div>
     </div>
@@ -676,7 +679,7 @@ const addItemToCart = (productId) => {
   product.stock--;
 
   // HTML 리턴 방식 - DOM 조작 없이 HTML 문자열만 반환
-  return { productId, newItemHTML: CartItemElement(product), success: true };
+  return { productId, newItemHTML: CartItemElement(product, 1), success: true };
 };
 
 const updateItemQuantity = (productId, change) => {
@@ -755,18 +758,22 @@ const handleAddToCart = () => {
   const result = addItemToCart(selectedProductId);
   if (result && result.success) {
     if (result.newQuantity) {
-      // 기존 아이템 수량 증가
-      RenderingEngine.updateCartItemQuantity(selectedProductId, result.newQuantity);
-    } else if (result.newItemHTML) {
-      // 새 아이템 추가 (innerHTML 없이)
-      const cartDisplay = document.getElementById('cart-items');
-      if (cartDisplay) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = result.newItemHTML;
+      // 기존 아이템 수량 증가 (HTML 문자열 반환)
+      const update = RenderingEngine.updateCartItemQuantity(selectedProductId, result.newQuantity);
 
-        while (tempDiv.firstChild) {
-          cartDisplay.appendChild(tempDiv.firstChild);
-        }
+      // 실제 DOM 업데이트 (임시 - 리액트 변환 시 제거)
+      const quantityElement = document.querySelector(`#${update.productId} .quantity-number`);
+      if (quantityElement) {
+        quantityElement.textContent = update.newQuantity;
+      }
+    } else if (result.newItemHTML) {
+      // 새 아이템 추가 (HTML 문자열 반환)
+      const update = RenderingEngine.addCartItem(result.newItemHTML);
+
+      // 실제 DOM 업데이트 (임시 - 리액트 변환 시 제거)
+      const cartDisplay = document.getElementById('cart-items');
+      if (cartDisplay && update.cartItemHTML) {
+        cartDisplay.insertAdjacentHTML('beforeend', update.cartItemHTML);
       }
     }
     handleCalculateCartStuff();
@@ -777,8 +784,15 @@ const handleAddToCart = () => {
 const handleQuantityChange = (productId, change) => {
   const result = updateItemQuantity(productId, change);
   if (result && result.success) {
-    // HTML 리턴 방식으로 수량 업데이트
-    RenderingEngine.updateCartItemQuantity(productId, result.newQuantity);
+    // HTML 문자열 반환 방식으로 수량 업데이트
+    const update = RenderingEngine.updateCartItemQuantity(productId, result.newQuantity);
+
+    // 실제 DOM 업데이트 (임시 - 리액트 변환 시 제거)
+    const quantityElement = document.querySelector(`#${update.productId} .quantity-number`);
+    if (quantityElement) {
+      quantityElement.textContent = update.newQuantity;
+    }
+
     handleCalculateCartStuff();
     handleUpdateSelectOptions();
   }
