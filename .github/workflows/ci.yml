@@ -20,7 +20,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: ".nvmrc"
 
       - uses: pnpm/action-setup@v2
         with:
@@ -30,3 +30,24 @@ jobs:
         run: |
           pnpm install
           pnpm run test:basic
+
+  advacned:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: test advanced
+        run: |
+          pnpm install
+          pnpm run test:advanced
