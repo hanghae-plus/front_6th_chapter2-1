@@ -93,6 +93,21 @@ const handleCalculateCartStuff = useFunction(
       DiscountInfo(summary);
       TotalItemCount(summary);
       stockInfo.textContent = getStockInfoMessage();
+
+      const { isTuesday, totalDiscountedPrice, totalItemCount } = summary;
+      const tuesdaySpecial = document.getElementById("tuesday-special");
+      if (isTuesday) {
+        if (totalDiscountedPrice > 0) {
+          tuesdaySpecial.classList.remove("hidden");
+        } else {
+          tuesdaySpecial.classList.add("hidden");
+        }
+      } else {
+        tuesdaySpecial.classList.add("hidden");
+      }
+
+      document.getElementById("item-count").textContent =
+        `🛍️ ${totalItemCount} items in cart`;
     },
   }
 );

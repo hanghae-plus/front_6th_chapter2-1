@@ -57,21 +57,12 @@ export const getOrderSummary = ({ cartItems }) => {
 
   const today = new Date();
   const isTuesday = today.getDay() === 2;
-  const tuesdaySpecial = document.getElementById("tuesday-special");
   if (isTuesday) {
     if (totalDiscountedPrice > 0) {
       totalDiscountedPrice = (totalDiscountedPrice * 90) / 100;
       totalDiscountRate = 1 - totalDiscountedPrice / totalOriginalPrice;
-      tuesdaySpecial.classList.remove("hidden");
-    } else {
-      tuesdaySpecial.classList.add("hidden");
     }
-  } else {
-    tuesdaySpecial.classList.add("hidden");
   }
-
-  document.getElementById("item-count").textContent =
-    `🛍️ ${totalItemCount} items in cart`;
 
   return {
     cartItems,
