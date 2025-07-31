@@ -9,7 +9,7 @@
 		"start:advanced": "pnpm --filter @front-6th-chapter2-1/advanced run dev",
 		"test:original": "pnpm --filter @front-6th-chapter2-1/original run test",
 		"test:basic": "pnpm --filter @front-6th-chapter2-1/basic run test",
-		"test:advanced": "npm --filter @front-6th-chapter2-1/advanced run test",
+		"test:advanced": "pnpm --filter @front-6th-chapter2-1/advanced run test",
 		"test:ui:original": "pnpm --filter @front-6th-chapter2-1/original run test:ui",
 		"test:ui:basic": "pnpm --filter @front-6th-chapter2-1/basic run test:ui",
 		"test:ui:advanced": "pnpm --filter @front-6th-chapter2-1/advanced run test:ui",
