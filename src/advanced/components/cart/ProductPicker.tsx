@@ -2,14 +2,16 @@ import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
 
 import { useCartWithProduct } from '@/hooks/useCartWithProducts';
 import { useProductContext } from '@/store/ProductContext';
-import { toProductOption } from '@/utils/productUtils';
+import { getTotalStock, isLowTotalStock, toProductOption } from '@/utils/productUtils';
 
 const ProductPicker = () => {
   const { addToCart } = useCartWithProduct();
-
   const { products } = useProductContext();
+
   const options = products.map(toProductOption);
   const [selectedProductId, setSelectedProductId] = useState(options[0].id);
+
+  const notifyLowTotalStock = isLowTotalStock(getTotalStock(products));
 
   const handleChangeValue: ChangeEventHandler<HTMLSelectElement> = (e) => {
     const targetValue = e.target.value;
@@ -28,6 +30,9 @@ const ProductPicker = () => {
         onChange={handleChangeValue}
         id="product-select"
         className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
+        style={{
+          borderColor: notifyLowTotalStock ? 'orange' : undefined,
+        }}
       >
         {options.map((option) => (
           <option key={option.id} value={option.id} disabled={option.disabled}>
