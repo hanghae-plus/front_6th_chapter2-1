@@ -6,6 +6,14 @@ export const PRODUCT_ID = {
   SPEAKER: 'p5',
 };
 
+export const DISCOUNT_RATE = {
+  [PRODUCT_ID.KEYBOARD]: 0.1,
+  [PRODUCT_ID.MOUSE]: 0.15,
+  [PRODUCT_ID.MONITOR_ARM]: 0.2,
+  [PRODUCT_ID.POUCH]: 0.05,
+  [PRODUCT_ID.SPEAKER]: 0.25,
+};
+
 export const productList = [
   {
     id: PRODUCT_ID.KEYBOARD,

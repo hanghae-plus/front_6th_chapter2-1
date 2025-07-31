@@ -1,4 +1,4 @@
-import { PRODUCT_ID } from './constants';
+import { DISCOUNT_RATE } from './constants';
 
 /**
  * @typedef {Object} Product
@@ -83,15 +83,7 @@ export const getDiscountStatus = (product) => {
  * @return {number} 상품 할인율
  */
 export const getDiscountRate = (product) => {
-  const discountRate = {
-    [PRODUCT_ID.KEYBOARD]: 0.1,
-    [PRODUCT_ID.MOUSE]: 0.15,
-    [PRODUCT_ID.MONITOR_ARM]: 0.2,
-    [PRODUCT_ID.POUCH]: 0.05,
-    [PRODUCT_ID.SPEAKER]: 0.25,
-  };
-
-  return discountRate[product.id] ?? 0;
+  return DISCOUNT_RATE[product.id] ?? 0;
 };
 
 /**
