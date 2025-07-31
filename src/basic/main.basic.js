@@ -991,34 +991,94 @@ function updateCartDisplay() {
   renderBonusPointsDisplay();
 }
 
-function updateCartItemPrices() {
-  const cartItems = cartDisplayElement.children;
+/**
+ * 장바구니 아이템 가격 표시 데이터 계산 (순수 함수)
+ * @param {HTMLCollection} cartItems - 장바구니 DOM 아이템들
+ * @returns {Array} 아이템별 가격 표시 데이터 배열
+ */
+function calculateCartItemPricesData(cartItems) {
+  const itemsData = [];
 
   for (let i = 0; i < cartItems.length; i += 1) {
     const itemId = cartItems[i].id;
-
-    // ✅ findProductById로 교체
     const product = useProductData.findProductById(itemId);
 
     if (product) {
-      const priceDiv = cartItems[i].querySelector(".text-lg");
-      const nameDiv = cartItems[i].querySelector("h3");
+      let priceHTML;
+      let nameText;
+      let priceClassName;
 
+      // 상품 상태별 가격 표시 방식 결정
       if (product.onSale && product.suggestSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
-        nameDiv.textContent = `⚡💝${product.name}`;
+        priceHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
+        nameText = `⚡💝${product.name}`;
+        priceClassName = "text-purple-600";
       } else if (product.onSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.val.toLocaleString()}</span>`;
-        nameDiv.textContent = `⚡${product.name}`;
+        priceHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.val.toLocaleString()}</span>`;
+        nameText = `⚡${product.name}`;
+        priceClassName = "text-red-500";
       } else if (product.suggestSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.val.toLocaleString()}</span>`;
-        nameDiv.textContent = `💝${product.name}`;
+        priceHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.val.toLocaleString()}</span>`;
+        nameText = `💝${product.name}`;
+        priceClassName = "text-blue-500";
       } else {
-        priceDiv.textContent = `₩${product.val.toLocaleString()}`;
-        nameDiv.textContent = product.name;
+        priceHTML = `₩${product.val.toLocaleString()}`;
+        nameText = product.name;
+        priceClassName = "";
       }
+
+      itemsData.push({
+        itemIndex: i,
+        priceHTML,
+        nameText,
+        priceClassName,
+        isDiscounted: product.onSale || product.suggestSale,
+      });
     }
   }
+
+  return itemsData;
+}
+
+/**
+ * 장바구니 아이템 가격 렌더러 객체
+ * DOM 조작만 담당
+ */
+const CartItemPricesRenderer = {
+  /**
+   * 장바구니 아이템 가격 표시 렌더링
+   * @param {HTMLCollection} cartItems - 장바구니 DOM 아이템들
+   * @param {Array} itemsData - 아이템별 가격 표시 데이터
+   */
+  render(cartItems, itemsData) {
+    itemsData.forEach(function (itemData) {
+      const cartItem = cartItems[itemData.itemIndex];
+      const priceDiv = cartItem.querySelector(".text-lg");
+      const nameDiv = cartItem.querySelector("h3");
+
+      if (priceDiv) {
+        if (itemData.isDiscounted) {
+          priceDiv.innerHTML = itemData.priceHTML;
+        } else {
+          priceDiv.textContent = itemData.priceHTML;
+        }
+      }
+
+      if (nameDiv) {
+        nameDiv.textContent = itemData.nameText;
+      }
+    });
+  },
+};
+
+/**
+ * 장바구니 아이템 가격 업데이트 (리팩토링된 버전)
+ */
+function updateCartItemPrices() {
+  const cartItems = cartDisplayElement.children;
+  const itemsData = calculateCartItemPricesData(cartItems);
+
+  CartItemPricesRenderer.render(cartItems, itemsData);
   updateCartDisplay();
 }
 
