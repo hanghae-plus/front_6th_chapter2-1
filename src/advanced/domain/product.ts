@@ -6,5 +6,4 @@ export type Product = {
   quantity: number;
   onSale: boolean;
   suggestSale: boolean;
-  discountRate: number;
 };
