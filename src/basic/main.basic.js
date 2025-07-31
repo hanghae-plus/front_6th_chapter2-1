@@ -88,8 +88,6 @@ function main() {
  * doRenderBonusPoints, handleStockInfoUpdate 호출 중
  */
 function calculateCart() {
-  let originalTotal;
-
   const { subTotal, totalAfterItemDiscount, appliedItemDiscounts } = applyItemDiscount();
   totalAmount = totalAfterItemDiscount;
 
@@ -117,7 +115,7 @@ function calculateCart() {
 
   renderLoyaltyPoints({ totalAmount });
 
-  renderDiscountInfo({ finalDiscountRate, originalTotal, totalAmount });
+  renderDiscountInfo({ finalDiscountRate, subTotal, totalAmount });
 
   renderItemTotalCount({ totalCount: cartManager.getTotalItem() });
 

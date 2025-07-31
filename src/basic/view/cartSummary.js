@@ -91,12 +91,13 @@ export const renderSummaryDetails = ({ getProductById, getTotalItem, subTotal, a
     `;
 };
 
-export const renderDiscountInfo = ({ finalDiscountRate, originalTotal, totalAmount }) => {
+export const renderDiscountInfo = ({ finalDiscountRate, subTotal, totalAmount }) => {
   const discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
 
   if (finalDiscountRate > 0 && totalAmount > 0) {
-    const savedAmount = originalTotal - totalAmount;
+    const savedAmount = subTotal - totalAmount;
+
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
