@@ -4,6 +4,7 @@ import {
   LeftColumn,
   RightColumn,
 } from './components/layout';
+import { ProductSelector } from './components/ui';
 import {
   PRODUCT_KEYBOARD,
   PRODUCT_MOUSE,
@@ -193,32 +194,22 @@ function main() {
 
   rightColumn.innerHTML = OrderSummary();
   sum = rightColumn.querySelector('#cart-total');
-  // 상품 선택 요소들 생성
-  selectElement = document.createElement('select');
-  selectElement.id = 'product-select';
-  selectElement.className =
-    'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
 
+  const handleAddToCart = () => {
+    const selectedProduct = productList[selectElement.selectedIndex];
+    if (selectedProduct?.availableStock > 0) {
+      // Todo: 구현
+    }
+  };
   // 상품 선택 컨테이너
-  const selectorContainer = document.createElement('div');
-  selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
-
+  const selectorContainer = ProductSelector({ onAddToCart: handleAddToCart });
+  // 상품 선택 요소들 생성
+  selectElement = selectorContainer.querySelector('#product-select');
   // 장바구니 추가 버튼
-  addButton = document.createElement('button');
-  addButton.id = 'add-to-cart';
-  addButton.innerHTML = 'Add to Cart';
-  addButton.className =
-    'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
-
+  addButton = selectorContainer.querySelector('#add-to-cart');
   // 재고 상태 표시
-  stockInfo = document.createElement('div');
-  stockInfo.id = 'stock-status';
-  stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
+  stockInfo = selectorContainer.querySelector('#stock-status');
 
-  // 요소들 조립
-  selectorContainer.appendChild(selectElement);
-  selectorContainer.appendChild(addButton);
-  selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
 
   // 장바구니 표시 영역
