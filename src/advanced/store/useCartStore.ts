@@ -11,6 +11,9 @@ interface CartActions {
   addCartItem: (product: Product) => void;
 
   hasProductInCart: (product: Product) => boolean;
+
+  increaseProductQuantity: (product: Product) => void;
+  decreaseProductQuantity: (product: Product) => void;
 }
 
 const useCartStore = create<CartState & CartActions>((set, get) => ({

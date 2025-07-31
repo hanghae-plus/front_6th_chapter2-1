@@ -1,7 +1,5 @@
-import { ReactElement } from 'react';
-
 import ProductPrice from '@/advanced/components/cart/ProductPrice';
-import { useProductStore } from '@/advanced/store';
+import { useCartStore, useProductStore } from '@/advanced/store';
 import type { CartItem } from '@/advanced/types/cart.type';
 import { Product } from '@/advanced/types/product.type';
 import { getProductStatusIcon } from '@/advanced/utils/cart.util';
@@ -10,12 +8,16 @@ interface Props {
   item: CartItem;
 }
 
-export default function CartListItem({ item }: Props): ReactElement {
+export default function CartListItem({ item }: Props) {
   const { products } = useProductStore();
+  const { increaseProductQuantity, decreaseProductQuantity } = useCartStore();
 
-  const { id, name, quantity } = item;
+  const { id, quantity } = item;
 
   const product = products.find(product => product.id === id) as Product;
+
+  const handleClickIncrease = () => increaseProductQuantity(product);
+  const handleClickDecrease = () => decreaseProductQuantity(product);
 
   return (
     <div
@@ -28,20 +30,26 @@ export default function CartListItem({ item }: Props): ReactElement {
       <div>
         <h3 className="text-base font-normal mb-1 tracking-tight">
           {getProductStatusIcon(product)}
-          {name}
+          {product.name}
         </h3>
         <p className="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
         <p className="text-xs text-black mb-3">
           <ProductPrice product={product} size="sm" />
         </p>
         <div className="flex items-center gap-4">
-          <button className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white">
+          <button
+            onClick={handleClickDecrease}
+            className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
+          >
             −
           </button>
           <span className="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">
             {quantity}
           </span>
-          <button className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white">
+          <button
+            onClick={handleClickIncrease}
+            className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
+          >
             +
           </button>
         </div>
