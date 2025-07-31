@@ -15,6 +15,7 @@ export const DISCOUNT_POLICIES = {
   LIGHTNING_SALE_RATE: 0.2, // 번개세일 할인율
   RECOMMENDATION_RATE: 0.05, // 추천할인 할인율
   TOTAL_BULK_RATE: 0.25, // 전체 수량 할인율
+  SUPER_SALE_RATE: 0.25, // SUPER SALE 할인율 (번개세일 + 추천할인)
 } as const;
 
 // 할인 계산 결과
@@ -23,6 +24,20 @@ export interface DiscountResult {
   appliedDiscounts: Discount[];
   finalAmount: number;
   discountAmount: number;
+}
+
+// 할인 상태 관리
+export interface DiscountState {
+  lightningSale: {
+    isActive: boolean;
+    productId: string | null;
+    startTime: number | null;
+  };
+  recommendation: {
+    isActive: boolean;
+    productId: string | null;
+    startTime: number | null;
+  };
 }
 
 // 개별 상품 할인 계산
@@ -55,6 +70,32 @@ export const calculateTuesdayDiscount = (amount: number): number => {
   return 0;
 };
 
+// 번개세일 할인 계산
+export const calculateLightningSaleDiscount = (
+  productId: string,
+  price: number,
+  quantity: number,
+  lightningSaleProductId: string | null,
+): number => {
+  if (lightningSaleProductId === productId) {
+    return price * quantity * DISCOUNT_POLICIES.LIGHTNING_SALE_RATE;
+  }
+  return 0;
+};
+
+// 추천할인 계산
+export const calculateRecommendationDiscount = (
+  productId: string,
+  price: number,
+  quantity: number,
+  recommendationProductId: string | null,
+): number => {
+  if (recommendationProductId === productId) {
+    return price * quantity * DISCOUNT_POLICIES.RECOMMENDATION_RATE;
+  }
+  return 0;
+};
+
 // 할인 적용 순서 및 최종 계산
 export const calculateFinalDiscount = (
   subtotal: number,
@@ -71,11 +112,21 @@ export const calculateFinalDiscount = (
   // 전체 수량 할인 계산 (개별 할인과 중복 불가)
   const totalBulkDiscount = calculateTotalBulkDiscount(afterIndividualDiscount, totalQuantity);
 
-  // 번개세일과 추천할인은 중복 가능 (최대 25%)
-  const specialDiscount = Math.min(
-    lightningSaleDiscount + recommendationDiscount,
-    afterIndividualDiscount * 0.25,
-  );
+  // 번개세일과 추천할인이 같은 상품에 적용되면 SUPER SALE (25%)
+  const hasLightningSale = lightningSaleDiscount > 0;
+  const hasRecommendation = recommendationDiscount > 0;
+  const isSuperSale = hasLightningSale && hasRecommendation;
+
+  let specialDiscount = 0;
+  if (isSuperSale) {
+    // SUPER SALE: 25% 할인
+    const superSaleAmount = Math.max(lightningSaleDiscount, recommendationDiscount);
+    specialDiscount =
+      superSaleAmount * (DISCOUNT_POLICIES.SUPER_SALE_RATE / DISCOUNT_POLICIES.LIGHTNING_SALE_RATE);
+  } else {
+    // 개별 할인 적용
+    specialDiscount = lightningSaleDiscount + recommendationDiscount;
+  }
 
   // 화요일 할인은 모든 할인과 중복 가능
   const tuesdayDiscount = calculateTuesdayDiscount(
@@ -92,5 +143,38 @@ export const calculateFinalDiscount = (
     appliedDiscounts: [], // 실제 할인 객체는 별도로 관리
     finalAmount,
     discountAmount: totalDiscount,
+  };
+};
+
+// 할인 아이콘 및 스타일 가져오기
+export const getDiscountStyle = (
+  productId: string,
+  lightningSaleProductId: string | null,
+  recommendationProductId: string | null,
+): { icon: string; className: string } => {
+  const hasLightningSale = lightningSaleProductId === productId;
+  const hasRecommendation = recommendationProductId === productId;
+  const isSuperSale = hasLightningSale && hasRecommendation;
+
+  if (isSuperSale) {
+    return {
+      icon: '⚡💝',
+      className: 'font-bold text-purple-600',
+    };
+  } else if (hasLightningSale) {
+    return {
+      icon: '⚡',
+      className: 'font-bold text-red-600',
+    };
+  } else if (hasRecommendation) {
+    return {
+      icon: '💝',
+      className: 'font-bold text-blue-600',
+    };
+  }
+
+  return {
+    icon: '',
+    className: '',
   };
 };

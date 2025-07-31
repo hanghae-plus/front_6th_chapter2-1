@@ -1,9 +1,18 @@
 import { useState } from 'react';
-import { PRODUCTS } from '../../lib/product';
+
 import { useCart } from '../../contexts/CartContext';
+import { PRODUCTS } from '../../lib/product';
+import { Product } from '../../lib/product';
 
 const ProductPicker = () => {
-  const { products, addToCart, selectedProductId, setSelectedProduct } = useCart();
+  const {
+    products,
+    addToCart,
+    setSelectedProduct,
+    getDiscountStyle,
+    lightningSaleProductId,
+    recommendationProductId,
+  } = useCart();
   const [selectedProduct, setSelectedProductLocal] = useState<string>('');
 
   const handleProductSelect = (productId: string) => {
@@ -13,7 +22,6 @@ const ProductPicker = () => {
 
   const handleAddToCart = () => {
     if (selectedProduct) {
-      console.log('ProductPicker: handleAddToCart called with', selectedProduct);
       addToCart(selectedProduct);
     }
   };
@@ -22,6 +30,22 @@ const ProductPicker = () => {
     const product = products.find((p) => p.id === productId);
     if (!product) return '';
     return product.stock === 0 ? `${product.name}: 품절` : '';
+  };
+
+  const getProductDisplayName = (product: Product) => {
+    const discountStyle = getDiscountStyle(product.id);
+    const baseName = `${product.name} - ${product.price.toLocaleString()}원`;
+
+    if (discountStyle.icon) {
+      return `${discountStyle.icon} ${baseName}`;
+    }
+
+    return baseName;
+  };
+
+  const getProductClassName = (product: Product) => {
+    const discountStyle = getDiscountStyle(product.id);
+    return discountStyle.className || '';
   };
 
   return (
@@ -34,8 +58,8 @@ const ProductPicker = () => {
       >
         <option value="">상품을 선택하세요</option>
         {PRODUCTS.map((product) => (
-          <option key={product.id} value={product.id}>
-            {product.name} - {product.price.toLocaleString()}원
+          <option key={product.id} value={product.id} className={getProductClassName(product)}>
+            {getProductDisplayName(product)}
           </option>
         ))}
       </select>
@@ -49,6 +73,18 @@ const ProductPicker = () => {
       <div id="stock-status" className="text-xs text-red-500 mt-3 whitespace-pre-line">
         {selectedProduct && getStockStatus(selectedProduct)}
       </div>
+
+      {/* 할인 상태 표시 */}
+      {(lightningSaleProductId || recommendationProductId) && (
+        <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+          {lightningSaleProductId && (
+            <div className="text-red-600 font-medium">⚡ 번개세일 진행 중!</div>
+          )}
+          {recommendationProductId && (
+            <div className="text-blue-600 font-medium">💝 추천할인 진행 중!</div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

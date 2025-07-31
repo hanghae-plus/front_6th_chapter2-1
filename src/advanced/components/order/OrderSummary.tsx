@@ -1,7 +1,7 @@
 import { useCart } from '../../contexts/CartContext';
 
 const OrderSummary = () => {
-  const { cartItems, getDiscountedAmount, getDiscountBreakdown } = useCart();
+  const { cartItems, getDiscountedAmount, getDiscountBreakdown, getPoints } = useCart();
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
@@ -9,35 +9,9 @@ const OrderSummary = () => {
     }, 0);
   };
 
-  const calculatePoints = () => {
-    const subtotal = calculateSubtotal();
-    const basePoints = Math.floor(subtotal / 1000);
-
-    // 화요일 특별 포인트 (2배)
-    const today = new Date();
-    const isTuesday = today.getDay() === 2;
-    const tuesdayBonus = isTuesday ? basePoints : 0;
-
-    // 세트 구매 보너스 (키보드 + 마우스)
-    const hasKeyboard = cartItems.some((item) => item.product.id === 'p1');
-    const hasMouse = cartItems.some((item) => item.product.id === 'p2');
-    const setBonus = hasKeyboard && hasMouse ? 50 : 0;
-
-    // 풀세트 구매 보너스 (모든 상품)
-    const fullSetBonus = cartItems.length >= 5 ? 100 : 0;
-
-    return {
-      base: basePoints,
-      tuesday: tuesdayBonus,
-      set: setBonus,
-      fullSet: fullSetBonus,
-      total: basePoints + tuesdayBonus + setBonus + fullSetBonus,
-    };
-  };
-
   const subtotal = calculateSubtotal();
   const total = getDiscountedAmount();
-  const points = calculatePoints();
+  const points = getPoints();
   const isTuesday = new Date().getDay() === 2;
   const discountBreakdown = getDiscountBreakdown();
 
@@ -84,6 +58,20 @@ const OrderSummary = () => {
                 </div>
               )}
 
+              {discountBreakdown.lightningSaleDiscount > 0 && (
+                <div className="flex justify-between text-sm tracking-wide text-red-400">
+                  <span>⚡ 번개세일 할인</span>
+                  <span>-₩{discountBreakdown.lightningSaleDiscount.toLocaleString()}</span>
+                </div>
+              )}
+
+              {discountBreakdown.recommendationDiscount > 0 && (
+                <div className="flex justify-between text-sm tracking-wide text-blue-400">
+                  <span>💝 추천할인</span>
+                  <span>-₩{discountBreakdown.recommendationDiscount.toLocaleString()}</span>
+                </div>
+              )}
+
               {discountBreakdown.totalBulkDiscount > 0 && (
                 <div className="flex justify-between text-sm tracking-wide text-blue-400">
                   <span>전체 수량 할인 (30개 이상)</span>
@@ -118,7 +106,8 @@ const OrderSummary = () => {
                   적립 포인트: <span className="font-bold">{points.total}p</span>
                 </div>
                 <div className="text-2xs opacity-70 mt-1">
-                  기본: {points.base}p{points.set > 0 && `, 키보드+마우스 세트 +${points.set}p`}
+                  기본: {points.base}p{points.tuesday > 0 && `, 화요일 보너스 +${points.tuesday}p`}
+                  {points.set > 0 && `, 키보드+마우스 세트 +${points.set}p`}
                   {points.fullSet > 0 && `, 풀세트 구매 +${points.fullSet}p`}
                 </div>
               </div>
