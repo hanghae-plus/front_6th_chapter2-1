@@ -6,16 +6,7 @@
 import { calculateItemDiscountRate } from '@/advanced/features/cart/utils/discountUtils.ts';
 import { BUSINESS_CONSTANTS } from '@/advanced/shared/constants/business.ts';
 import { PRODUCTS } from '@/advanced/features/product/constants/index.ts';
-
-export interface CartItem {
-  id: string;
-  name: string;
-  val: number;
-  originalVal: number;
-  quantity: number;
-  onSale: boolean;
-  suggestSale: boolean;
-}
+import { CartItem } from '@/advanced/features/cart/types/index.ts';
 
 export interface CartCalculationResult {
   subtotal: number;
