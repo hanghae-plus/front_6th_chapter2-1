@@ -1,13 +1,17 @@
 import { App } from './App.js';
-import { AppInitializer } from './services/AppInitializer.js';
+import { initializeApp } from './services/AppInitializer.js';
 
 function main() {
-  const root = document.getElementById('app');
+  try {
+    // 1. 렌더링
+    const root = document.getElementById('app');
+    root.innerHTML = App();
 
-  root.innerHTML = App();
-
-  const appInitializer = new AppInitializer();
-  appInitializer.initialize();
+    // 2. 초기화
+    initializeApp();
+  } catch (error) {
+    console.error('Error initializing app:', error);
+  }
 }
 
 main();
