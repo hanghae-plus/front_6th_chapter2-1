@@ -48,10 +48,14 @@ export const validateStockQuantity = (
 ): ValidationResult => {
   const totalRequested = currentQuantity + requestedQuantity;
 
-  if (totalRequested > product.quantity) {
+  // product.quantity는 현재 남은 재고량이므로,
+  // 원래 총 재고량을 계산해야 합니다
+  const totalStock = product.quantity + currentQuantity;
+
+  if (totalRequested > totalStock) {
     return {
       isValid: false,
-      error: `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`,
+      error: `재고 부족: ${product.name}의 재고는 ${totalStock}개입니다.`,
     };
   }
 
