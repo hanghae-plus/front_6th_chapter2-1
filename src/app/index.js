@@ -61,6 +61,25 @@ gridContainer.className =
   "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
 root.appendChild(gridContainer);
 
+// Help button & modal
+import { createHelpModal } from "../ui/components/HelpModal.js";
+const helpButton = document.createElement("button");
+helpButton.className =
+  "fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50";
+helpButton.innerHTML = `
+  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  </svg>`;
+root.appendChild(helpButton);
+
+const { overlay: helpOverlay, panel: helpPanel } = createHelpModal();
+root.appendChild(helpOverlay);
+
+helpButton.addEventListener("click", () => {
+  helpOverlay.classList.toggle("hidden");
+  helpPanel.classList.toggle("translate-x-full");
+});
+
 // Left column (selector + cart)
 const leftColumn = document.createElement("div");
 leftColumn.className = "bg-white border border-gray-200 p-8 overflow-y-auto";

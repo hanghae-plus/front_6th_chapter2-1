@@ -35,8 +35,8 @@ export default class Product {
     return this.discountRate;
   }
 
-  /** 현재 판매가 */
+  /** 현재 판매가(프로모션 등 적용가) */
   get salePrice() {
-    return Math.round(this.originalPrice * (1 - this.getCurrentDiscountRate()));
+    return this.price;
   }
 }

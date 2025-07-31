@@ -28,7 +28,7 @@ export default class CartItem {
 
   decrement(delta = 1) {
     if (delta < 0) return this.increment(-delta);
-    if (this.quantity - delta <= 0) return false;
+    if (delta > this.quantity) return false;
     this.quantity -= delta;
     this.product.increaseStock(delta);
     return true;

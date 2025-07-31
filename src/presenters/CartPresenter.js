@@ -34,11 +34,21 @@ export default class CartPresenter {
       const delta = parseInt(target.dataset.change, 10);
       if (id && delta) {
         const ok = this.cart.changeQuantity(id, delta);
-        if (!ok) alert("재고가 부족합니다.");
-        if (this.cart.items.has(id) && this.cart.items.get(id).quantity === 0) {
-          // removed by reaching 0
+        if (!ok) {
+          alert("재고가 부족합니다.");
+          return;
         }
-        this.render();
+        // DOM 업데이트: 수량 숫자 & 제거 처리만, 전체 re-render 방지
+        const itemElem = this.refs.root.querySelector(`#${CSS.escape(id)}`);
+        if (itemElem) {
+          const qtySpan = itemElem.querySelector(".quantity-number");
+          if (qtySpan)
+            qtySpan.textContent = this.cart.items.get(id)?.quantity ?? "0";
+          if (!this.cart.items.has(id)) {
+            itemElem.remove();
+          }
+        }
+        // 재고 메시지 및 요약 갱신
         this.onUpdate();
       }
     } else if (target.classList.contains("remove-item")) {
