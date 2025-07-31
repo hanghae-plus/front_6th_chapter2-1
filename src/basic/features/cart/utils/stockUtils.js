@@ -39,10 +39,9 @@ export const stockValidators = {
   /**
    * 사용 가능한 재고가 있는지 확인
    * @param {string} productId - 상품 ID
-   * @param {number} price - 상품 가격 (사용하지 않음)
    * @returns {boolean} 재고 사용 가능 여부
    */
-  hasAvailableStock: (productId, price) => {
+  hasAvailableStock: productId => {
     const product = findProductById(productId, productState.products);
     return product && product.q > 0;
   },

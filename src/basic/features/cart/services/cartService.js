@@ -5,7 +5,6 @@
 
 import { renderCartTotal } from '@/basic/features/cart/components/CartTotal.js';
 import { calculateCart } from '@/basic/features/cart/services/cartCalculator.js';
-import { highlightDiscountableItems } from '@/basic/features/cart/services/cartUIService.js';
 import { PRODUCTS } from '@/basic/features/product/constants/index.js';
 import { productState } from '@/basic/features/product/store/productStore.js';
 import { BUSINESS_CONSTANTS } from '@/basic/shared/constants/business.js';
