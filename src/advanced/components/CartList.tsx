@@ -1,8 +1,7 @@
-import React from "react";
 import { useCart } from "../context/CartContext";
 import { CartItem } from "./CartItem";
 
-export const CartDisplay: React.FC = () => {
+const CartList = () => {
   const { state } = useCart();
   const { cartItems } = state;
 
@@ -11,10 +10,12 @@ export const CartDisplay: React.FC = () => {
   }
 
   return (
-    <div>
+    <div id="cart-items" className="cart-items">
       {cartItems.map(item => (
         <CartItem key={item.id} item={item} />
       ))}
     </div>
   );
 };
+
+export default CartList;
