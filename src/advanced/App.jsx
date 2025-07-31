@@ -47,24 +47,19 @@ function App() {
 
   // Cart에 상품이 담길 때 쓰일 예정
   const addToCart = (selected) => {
-    setCartItems((prev) => {
-      const selectedIndex = prev.findIndex((x) => x.id === selected.id);
-      if (selectedIndex !== -1) {
-        prev[selectedIndex].selectedQuantity++;
-        return [...prev];
-      }
+    const newCartItems = [...cartItems];
+    const selectedCartItem = newCartItems.find((x) => x.id === selected.id);
+    if (selectedCartItem == null) {
+      newCartItems.push({ ...selected, selectedQuantity: 1 });
+    } else {
+      selectedCartItem.selectedQuantity++;
+    }
+    setCartItems([...newCartItems]);
 
-      return [...prev, selected];
-    });
-
-    setProductList((prevProductList) => {
-      const selectedIndex = prevProductList.findIndex(
-        (x) => x.id === selected.id
-      );
-      prevProductList[selectedIndex].quantity--;
-
-      return [...prevProductList];
-    });
+    const newProductList = [...productList];
+    const selectedIndex = newProductList.findIndex((x) => x.id === selected.id);
+    newProductList[selectedIndex].quantity -= 1;
+    setProductList([...newProductList]);
   };
 
   useIntervalPromotion({

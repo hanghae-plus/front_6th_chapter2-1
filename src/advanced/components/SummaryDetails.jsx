@@ -1,6 +1,5 @@
 import { isTuesday } from "../utils/day";
 
-// cartItems는 productList 중에서 카드에 담긴 데이터 엔티티이며 얼마나 담았는지 수량을 추가로 갖고있다.
 export const SummaryDetails = ({
   cartItems,
   productList,
@@ -26,7 +25,7 @@ export const SummaryDetails = ({
             key={`cartItem-${cartItem.id}`}
           >
             <span>
-              ${currentItem.name} x ${selectedQuantity}
+              {currentItem.name} x {selectedQuantity}
             </span>
             <span>₩${itemTotal.toLocaleString()}</span>
           </div>
@@ -46,7 +45,10 @@ export const SummaryDetails = ({
         </div>
       ) : itemDiscounts.length > 0 ? (
         itemDiscounts.map((itemDiscount) => (
-          <div className="flex justify-between text-sm tracking-wide text-green-400">
+          <div
+            className="flex justify-between text-sm tracking-wide text-green-400"
+            key={`itemDiscount-${itemDiscount.name}`}
+          >
             <span className="text-xs">${itemDiscount.name} (10개↑)</span>
             <span className="text-xs">-${itemDiscount.discount}%</span>
           </div>
