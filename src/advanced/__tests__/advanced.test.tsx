@@ -210,9 +210,9 @@ describe("advanced 테스트", () => {
           renderWithProvider(<App />);
 
           const select = screen.getByRole("combobox");
-          
+
           fireEvent.change(select, { target: { value: "p1" } });
-          
+
           // 상품 선택 후 "Add to Cart" 버튼이 활성화될 때까지 기다림
           const addButton = await screen.findByRole("button", {
             name: /add to cart/i,
@@ -254,7 +254,7 @@ describe("advanced 테스트", () => {
 
     describe("4.2 추가 적립", () => {
       it("화요일 구매 시 기본 포인트 2배", async () => {
-        const tuesday = new Date("2024-10-15");
+        const tuesday = new Date("2025-07-29");
         vi.useFakeTimers();
         vi.setSystemTime(tuesday);
 

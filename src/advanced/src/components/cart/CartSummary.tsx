@@ -66,8 +66,9 @@ export const CartSummary = ({
                 </div>
               )}
 
-              {/* 아이템별 할인 정보 */}
-              {itemDiscounts.length > 0 &&
+              {/* 아이템별 할인 정보 (대량구매 할인이 없을 때만 표시) */}
+              {bulkDiscount === 0 &&
+                itemDiscounts.length > 0 &&
                 itemDiscounts.map((item, index) => (
                   <div
                     key={index}
