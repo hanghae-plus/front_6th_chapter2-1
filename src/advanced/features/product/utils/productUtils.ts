@@ -3,7 +3,7 @@
  * 상품 관련 순수 함수들
  */
 
-import { Product } from '@/advanced/features/cart/utils/stockUtils.ts';
+import { Product } from '@/advanced/features/product/types/index.ts';
 
 /**
  * 상품 ID로 상품 찾기
