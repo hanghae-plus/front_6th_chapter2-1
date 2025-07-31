@@ -152,6 +152,7 @@ function main() {
   setupEventListeners({
     addBtn: addToCartButton,
     cartDisp: cartItemsContainer,
+    productSelect: productSelect,
     onUpdateSelectOptions: () => onUpdateSelectOptions(productSelect),
     handleCalculateCartStuff: () => handleCalculateCartStuff(cartItemsContainer),
   });
