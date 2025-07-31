@@ -14,6 +14,7 @@ const App = () => {
   const {
     items,
     itemCount,
+    total,
     updateTotal,
     updateItemCount,
     updateOriginalTotal,
@@ -64,9 +65,7 @@ const App = () => {
             <SelectorContainer />
             <CartDisplay />
           </div>
-          <RightColumn total={
-            items.length > 0 ? items.reduce((sum, item) => sum + item.val * item.quantity, 0) : 0
-          } bonusPoints={totalPoints} pointsDetail={pointsDetail} />
+          <RightColumn total={total} bonusPoints={totalPoints} pointsDetail={pointsDetail} />
         </div>
         <ManualToggle />
         <ManualOverlay />
