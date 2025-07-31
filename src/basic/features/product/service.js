@@ -1,4 +1,4 @@
-import { DISCOUNT_RATE } from './constants';
+import { PRODUCT_DISCOUNT_RATE } from './constants';
 
 /**
  * @typedef {Object} Product
@@ -82,8 +82,8 @@ export const getDiscountStatus = (product) => {
  * @param {Product} product - 상품
  * @return {number} 상품 할인율
  */
-export const getDiscountRate = (product) => {
-  return DISCOUNT_RATE[product.id] ?? 0;
+export const getProductDiscountRate = (product) => {
+  return PRODUCT_DISCOUNT_RATE[product.id] ?? 0;
 };
 
 /**

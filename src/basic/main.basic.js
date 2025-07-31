@@ -1,7 +1,7 @@
 import { calculateBasePoint, getBulkBonusPoint, getSetBonusPoint } from './features/point/service';
 import { PRODUCT_ID, productList } from './features/product/constants';
 import { renderProductSelectOptions, renderStockInfo } from './features/product/render';
-import { getDiscountRate, getDiscountStatus } from './features/product/service';
+import { getDiscountStatus, getProductDiscountRate } from './features/product/service';
 import {
   DiscountInfo,
   Header,
@@ -178,7 +178,7 @@ function handleCalculateCartStuff() {
     });
 
     if (quantity >= 10) {
-      discount = getDiscountRate(product);
+      discount = getProductDiscountRate(product);
     }
 
     if (discount > 0) {

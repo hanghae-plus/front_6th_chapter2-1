@@ -6,7 +6,7 @@ export const PRODUCT_ID = {
   SPEAKER: 'p5',
 };
 
-export const DISCOUNT_RATE = {
+export const PRODUCT_DISCOUNT_RATE = {
   [PRODUCT_ID.KEYBOARD]: 0.1,
   [PRODUCT_ID.MOUSE]: 0.15,
   [PRODUCT_ID.MONITOR_ARM]: 0.2,
