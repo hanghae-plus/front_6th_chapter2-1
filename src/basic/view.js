@@ -339,3 +339,49 @@ export function updateTuesdaySpecial(totalAmount) {
     tuesdaySpecial.classList.add('hidden');
   }
 }
+
+export function renderCart(cartContainer, cart, products) {
+  cartContainer.innerHTML = ''; // 기존 아이템 삭제
+
+  cart.forEach((item) => {
+    const product = products.find((p) => p.id === item.productId);
+    if (!product) return;
+
+    const itemElement = document.createElement('div');
+    itemElement.className =
+      'flex items-center justify-between py-4 border-b border-gray-200';
+    itemElement.id = product.id;
+
+    const subtotal = product.val * item.quantity;
+
+    itemElement.innerHTML = `
+      <div class="flex items-center gap-4 flex-1">
+        <div class="w-16 h-16 bg-gradient-black rounded-lg flex-shrink-0"></div>
+        <div class="flex-1">
+          <h3 class="text-base font-semibold">${product.name}</h3>
+          <div class="text-sm text-gray-500">₩${product.val.toLocaleString()}</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <button data-product-id="${
+            product.id
+          }" data-change="-1" class="quantity-change w-8 h-8 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition-colors">-</button>
+          <span class="quantity-number text-base font-medium w-5 text-center">${
+            item.quantity
+          }</span>
+          <button data-product-id="${
+            product.id
+          }" data-change="1" class="quantity-change w-8 h-8 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition-colors">+</button>
+        </div>
+        <div class="text-base font-bold w-24 text-right">₩${subtotal.toLocaleString()}</div>
+        <button data-product-id="${
+          product.id
+        }" class="remove-item text-gray-400 hover:text-red-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+    `;
+    cartContainer.appendChild(itemElement);
+  });
+}

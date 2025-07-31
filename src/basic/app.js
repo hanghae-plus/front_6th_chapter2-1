@@ -58,10 +58,10 @@ function onUpdateSelectOptions(sel) {
     totalStock < STOCK.TOTAL_STOCK_WARNING_THRESHOLD ? 'orange' : '';
 }
 
-function handleCalculateCartStuff(cartDisp) {
-  const cartItems = Array.from(cartDisp.children).map((item) => ({
-    id: item.id,
-    quantity: parseInt(item.querySelector('.quantity-number').textContent),
+function handleCalculateCartStuff() {
+  const cartItems = state.cart.map((item) => ({
+    id: item.productId,
+    quantity: item.quantity,
   }));
 
   const subtotal = calculateSubtotal(cartItems, state.products);
@@ -113,7 +113,7 @@ function doUpdatePricesInCart(cartDisp) {
       }
     }
   }
-  handleCalculateCartStuff(cartDisp);
+  handleCalculateCartStuff();
 }
 
 // 애플리케이션의 메인 진입점
@@ -146,7 +146,7 @@ function main() {
 
   // 초기 렌더링 및 계산
   onUpdateSelectOptions(productSelect);
-  handleCalculateCartStuff(cartItemsContainer);
+  handleCalculateCartStuff();
 
   // 이벤트 리스너 설정
   setupEventListeners({
@@ -154,7 +154,7 @@ function main() {
     cartDisp: cartItemsContainer,
     productSelect: productSelect,
     onUpdateSelectOptions: () => onUpdateSelectOptions(productSelect),
-    handleCalculateCartStuff: () => handleCalculateCartStuff(cartItemsContainer),
+    handleCalculateCartStuff: () => handleCalculateCartStuff(),
   });
 
   // 비동기 서비스 시작
