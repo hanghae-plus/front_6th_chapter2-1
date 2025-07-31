@@ -26,7 +26,6 @@ export function updateUI({
     itemDiscountsApplied,
     isTuesdaySpecialApplied,
   } = calculateCartTotals(currentCartItems);
-
   const { points, details: pointsDetails } = calculateLoyaltyPoints(
     currentCartItems,
     finalTotal,

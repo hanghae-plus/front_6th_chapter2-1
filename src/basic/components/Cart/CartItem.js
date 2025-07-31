@@ -1,11 +1,9 @@
 import { getProductById } from '../../services/productService';
-import { formatCurrency } from '../../utils';
 
 // 개별 장바구니 아이템 컴포넌트
 export const CartItem = (cartItemData, onQuantityChange, onRemove) => {
   const itemToAdd = getProductById(cartItemData.id); // 상품 정보 가져오기
   if (!itemToAdd) return null; // 상품 없으면 null 반환
-
   const newItem = document.createElement('div');
   newItem.id = itemToAdd.id; // HTML ID 설정
   newItem.className =
@@ -21,18 +19,22 @@ export const CartItem = (cartItemData, onQuantityChange, onRemove) => {
           ? '💝'
           : '';
 
-  // 가격 표시 (할인 적용 여부에 따라 다르게 표시)
-  const priceHTML =
-    itemToAdd.onSale || itemToAdd.suggestSale
-      ? `<span class="line-through text-gray-400">${formatCurrency(itemToAdd.originalVal)}</span>
-         <span class="${
-           itemToAdd.onSale && itemToAdd.suggestSale
-             ? 'text-purple-600'
-             : itemToAdd.onSale
-               ? 'text-red-500'
-               : 'text-blue-500'
-         }">${formatCurrency(itemToAdd.val)}</span>`
-      : formatCurrency(itemToAdd.val);
+  // 가격을 단순 숫자+원으로 표기
+  const priceText = `${itemToAdd.val}원`;
+  const originalPriceText = `${itemToAdd.originalVal}원`;
+  let priceHTML;
+  if (itemToAdd.onSale || itemToAdd.suggestSale) {
+    priceHTML = `<span class="line-through text-gray-400">${originalPriceText}</span>
+      <span class="${
+        itemToAdd.onSale && itemToAdd.suggestSale
+          ? 'text-purple-600'
+          : itemToAdd.onSale
+            ? 'text-red-500'
+            : 'text-blue-500'
+      }">${priceText}</span>`;
+  } else {
+    priceHTML = priceText;
+  }
 
   newItem.innerHTML = `
     <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">

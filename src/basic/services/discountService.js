@@ -19,7 +19,6 @@ export const calculateCartTotals = (cartData) => {
   cartData.forEach((cartItem) => {
     const product = getProductById(cartItem.id);
     if (!product) return;
-
     const itemPrice = product.val;
     const itemQuantity = cartItem.quantity;
     const itemSubtotal = itemPrice * itemQuantity;

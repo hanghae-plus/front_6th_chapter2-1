@@ -14,6 +14,7 @@ export const ProductStockInfo = () => {
         infoMsg += `${item.name}: ${item.q > 0 ? `재고 부족 (${item.q}개 남음)` : '품절'}\n`;
       }
     });
+
     stockInfoDiv.textContent = infoMsg;
   };
 

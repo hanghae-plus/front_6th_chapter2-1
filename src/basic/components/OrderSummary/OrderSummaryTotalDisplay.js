@@ -1,4 +1,4 @@
-import { formatCurrency, formatPoints } from '../../utils';
+import { formatNumber } from '../../utils';
 
 export const OrderSummaryTotalDisplay = () => {
   const totalDivWrapper = document.createElement('div');
@@ -22,19 +22,17 @@ export const OrderSummaryTotalDisplay = () => {
 
   // 총액 및 포인트 정보를 업데이트하는 함수
   const updateTotal = (finalTotal, points, pointsDetails) => {
-    totalAmountSpan.textContent = formatCurrency(finalTotal); // 최종 금액 표시
+    totalAmountSpan.textContent = `₩${formatNumber(finalTotal)}`;
 
     if (points > 0) {
-      // 적립 포인트가 있으면 상세 내역과 함께 표시
       loyaltyPointsDiv.innerHTML = `
-        <div>적립 포인트: <span class="font-bold">${formatPoints(points)}</span></div>
+        <div>적립 포인트: <span class="font-bold">${points}p</span></div>
         <div class="text-2xs opacity-70 mt-1">${pointsDetails.join(', ')}</div>
       `;
       loyaltyPointsDiv.style.display = 'block';
     } else {
-      // 적립 포인트가 없으면 기본 메시지 표시
       loyaltyPointsDiv.textContent = '적립 포인트: 0p';
-      loyaltyPointsDiv.style.display = 'block';
+      loyaltyPointsDiv.style.display = 'none';
     }
   };
 

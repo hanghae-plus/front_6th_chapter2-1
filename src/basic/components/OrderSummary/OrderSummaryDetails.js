@@ -1,5 +1,4 @@
 import { getProductById } from '../../services/productService';
-import { formatCurrency } from '../../utils';
 
 export const OrderSummaryDetails = () => {
   const summaryDetailsDiv = document.createElement('div');
@@ -26,7 +25,7 @@ export const OrderSummaryDetails = () => {
       summaryDetailsDiv.innerHTML += `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
           <span>${product.name} x ${cartItem.quantity}</span>
-          <span>${formatCurrency(itemTotal)}</span>
+          <span>${itemTotal}원</span>
         </div>
       `;
     });
@@ -36,7 +35,7 @@ export const OrderSummaryDetails = () => {
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
         <span>Subtotal</span>
-        <span>${formatCurrency(subtotal)}</span>
+        <span>${subtotal}원</span>
       </div>
     `;
 
