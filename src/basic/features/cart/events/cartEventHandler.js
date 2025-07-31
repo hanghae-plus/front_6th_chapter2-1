@@ -1,7 +1,8 @@
-import { setTextContent } from '../../../shared/core/domUtils.js';
-import { productState } from '../../product/store/ProductStore.js';
-import { findProductById } from '../../product/utils/productUtils.js';
-import { renderCartItem } from '../components/CartItem.js';
+import { renderCartItem } from '@/basic/features/cart/components/CartItem.js';
+import { productState } from '@/basic/features/product/store/productStore.js';
+import { findProductById } from '@/basic/features/product/utils/productUtils.js';
+import { setTextContent } from '@/basic/shared/core/domUtils.js';
+
 
 const handleCartClick = (
   event,

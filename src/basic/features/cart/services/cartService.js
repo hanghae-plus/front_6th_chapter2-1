@@ -3,7 +3,15 @@
  * 장바구니 관련 비즈니스 로직과 UI 업데이트
  */
 
-import { BUSINESS_CONSTANTS } from '../../../shared/constants/business.js';
+import { renderCartTotal } from '@/basic/features/cart/components/CartTotal.js';
+import { calculateCart } from '@/basic/features/cart/services/cartCalculator.js';
+import { highlightDiscountableItems } from '@/basic/features/cart/services/cartUIService.js';
+import { PRODUCTS } from '@/basic/features/product/constants/index.js';
+import {
+  productState,
+  setProductState,
+} from '@/basic/features/product/store/productStore.js';
+import { BUSINESS_CONSTANTS } from '@/basic/shared/constants/business.js';
 import {
   findElement,
   setInnerHTML,
@@ -11,16 +19,7 @@ import {
   setTextContent,
   batchDOM,
   safeDOM,
-} from '../../../shared/core/domUtils.js';
-import { PRODUCTS } from '../../product/constants/index.js';
-import {
-  productState,
-  setProductState,
-} from '../../product/store/ProductStore.js';
-import { renderCartTotal } from '../components/CartTotal.js';
-
-import { calculateCart } from './cartCalculator.js';
-import { highlightDiscountableItems } from './cartUIService.js';
+} from '@/basic/shared/core/domUtils.js';
 
 /**
  * 장바구니 아이템 데이터 추출 (순수 함수)

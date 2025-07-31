@@ -1,36 +1,29 @@
-/**
- * 메인 애플리케이션
- * 애플리케이션 초기화 및 이벤트 설정
- */
-
-import { registerCartEvents } from './features/cart/events/cartEventHandler.js';
+import { registerCartEvents } from '@/basic/features/cart/events/cartEventHandler.js';
 import {
   calculateCartTotals,
   updateCartUI,
   renderCartTotalComponent,
-} from './features/cart/services/cartService.js';
+} from '@/basic/features/cart/services/cartService.js';
 import {
   initializeCartPromotion,
   setupFlashSaleTimer,
   setupRecommendationTimer,
-} from './features/cart/services/promotionService.js';
-import { updateOrderSummary } from './features/order/services/orderService.js';
-import { calculateAndRenderPoints } from './features/point/services/pointService.js';
-import { initialProducts } from './features/product/constants/index.js';
+} from '@/basic/features/cart/services/promotionService.js';
+import { initializeCartStore } from '@/basic/features/cart/store/cartStore.js';
+import { updateOrderSummary } from '@/basic/features/order/services/orderService.js';
+import { calculateAndRenderPoints } from '@/basic/features/point/services/pointService.js';
+import ProductSelector from '@/basic/features/product/components/ProductSelector.js';
+import { initialProducts } from '@/basic/features/product/constants/index.js';
 import {
   updateProductSelector,
   updateStockInfo,
   setProductState,
-} from './features/product/services/productService.js';
-import { App } from './shared/components/App.js';
-import { addEventListener } from './shared/core/domUtils.js';
-import { createState } from './shared/core/state.js';
-
-// 상태 관리
-const [, setAppState] = createState('app', {
-  isInitialized: false,
-  helpModal: null,
-});
+  initializeProductStore,
+  getProductState,
+} from '@/basic/features/product/services/productService.js';
+import { HelpModal } from '@/basic/shared/components/HelpModal.js';
+import { ELEMENT_IDS } from '@/basic/shared/constants/elementIds.js';
+import { addEventListener } from '@/basic/shared/core/domUtils.js';
 
 /**
  * 애플리케이션 초기화 (순수 함수)

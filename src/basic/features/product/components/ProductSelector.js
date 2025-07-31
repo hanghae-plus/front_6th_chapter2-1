@@ -1,5 +1,6 @@
-import { setInnerHTML } from '../../../shared/core/domUtils.js';
-import { htmlToElement } from '../../../shared/utils/dom.js';
+import { BUSINESS_CONSTANTS } from '@/basic/shared/constants/business.js';
+import { setInnerHTML } from '@/basic/shared/core/domUtils.js';
+import { htmlToElement } from '@/basic/shared/utils/dom.js';
 
 /**
  * ProductSelector Component

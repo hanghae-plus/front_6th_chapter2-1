@@ -3,12 +3,11 @@
  * 포인트 관련 비즈니스 로직
  */
 
-import { BUSINESS_CONSTANTS } from '../../../shared/constants/business.js';
-import { findElement } from '../../../shared/core/domUtils.js';
-import { PRODUCTS } from '../../product/constants/index.js';
-import { productState } from '../../product/store/ProductStore.js';
-
-import { calculateAndRenderPoints as calculatePointsFunction } from './PointsCalculator.js';
+import { calculateAndRenderPoints as calculatePointsFunction } from '@/basic/features/point/services/pointsCalculator.js';
+import { PRODUCTS } from '@/basic/features/product/constants/index.js';
+import { productState } from '@/basic/features/product/store/productStore.js';
+import { BUSINESS_CONSTANTS } from '@/basic/shared/constants/business.js';
+import { findElement } from '@/basic/shared/core/domUtils.js';
 
 /**
  * 포인트 계산 및 렌더링 (순수 함수)

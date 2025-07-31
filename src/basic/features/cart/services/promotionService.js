@@ -3,12 +3,14 @@
  * 프로모션 관련 비즈니스 로직
  */
 
-import { BUSINESS_CONSTANTS } from '../../../shared/constants/business.js';
-import { findElement } from '../../../shared/core/domUtils.js';
-import { updateProductSelector } from '../../product/services/productService.js';
-import { productState } from '../../product/store/ProductStore.js';
-
-import { applyFlashSale, applySuggestSale } from './promotionPriceService.js';
+import {
+  applyFlashSale,
+  applySuggestSale,
+} from '@/basic/features/cart/services/promotionPriceService.js';
+import { updateProductSelector } from '@/basic/features/product/services/productService.js';
+import { productState } from '@/basic/features/product/store/productStore.js';
+import { BUSINESS_CONSTANTS } from '@/basic/shared/constants/business.js';
+import { findElement } from '@/basic/shared/core/domUtils.js';
 
 /**
  * 프로모션 서비스 초기화

@@ -1,4 +1,4 @@
-import { htmlToElement } from '../utils/dom.js';
+import { htmlToElement } from '@/basic/shared/utils/dom.js';
 
 /**
  * Pure HelpModal Component - JSX-like Template

@@ -3,7 +3,7 @@
  * UI 업데이트 관련 로직
  */
 
-import { setStyle } from '../../../shared/core/domUtils.js';
+import { setStyle } from '@/basic/shared/core/domUtils.js';
 
 /**
  * 할인 가능 아이템 하이라이트 (선언적)

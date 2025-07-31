@@ -3,8 +3,8 @@
  * 프로모션 관련 가격 업데이트 로직
  */
 
-import { setInnerHTML, setTextContent } from '../../../shared/core/domUtils.js';
-import { findProductById } from '../../product/utils/productUtils.js';
+import { findProductById } from '@/basic/features/product/utils/productUtils.js';
+import { setInnerHTML, setTextContent } from '@/basic/shared/core/domUtils.js';
 
 /**
  * 장바구니의 모든 가격 업데이트 (메인 함수)

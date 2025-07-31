@@ -1,5 +1,5 @@
-import { ELEMENT_IDS } from '../../../shared/constants/element-ids.js';
-import { setInnerHTML } from '../../../shared/core/domUtils.js';
+import { ELEMENT_IDS } from '@/basic/shared/constants/elementIds.js';
+import { setInnerHTML } from '@/basic/shared/core/domUtils.js';
 
 /**
  * OrderSummaryDetails Component - Pure HTML Template

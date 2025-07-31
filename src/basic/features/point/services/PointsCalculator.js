@@ -3,17 +3,17 @@
  * 리액트 친화적인 순수 함수들로 구성
  */
 
-import { ELEMENT_IDS } from '../../../shared/constants/element-ids.js';
-import {
-  setStyle,
-  setTextContent,
-  setInnerHTML,
-} from '../../../shared/core/domUtils.js';
 import {
   calculateBasePoints,
   isTuesday,
   getProductIdsFromCart,
-} from '../utils/pointsUtils.js';
+} from '@/basic/features/point/utils/pointsUtils.js';
+import { ELEMENT_IDS } from '@/basic/shared/constants/elementIds.js';
+import {
+  setStyle,
+  setTextContent,
+  setInnerHTML,
+} from '@/basic/shared/core/domUtils.js';
 
 /**
  * 포인트 계산 및 렌더링 (메인 함수)

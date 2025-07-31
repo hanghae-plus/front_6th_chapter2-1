@@ -4,16 +4,20 @@
  */
 
 import {
+  setProductState,
+  initializeProductStore,
+  getProductState,
+} from '@/basic/features/product/store/productStore.js';
+import {
+  getTotalStock,
+  generateStockStatusMessage,
+} from '@/basic/features/product/utils/productUtils.js';
+import {
   findElement,
   setStyle,
   setTextContent,
   safeDOM,
-} from '../../../shared/core/domUtils.js';
-import { productState, setProductState } from '../store/ProductStore.js';
-import {
-  getTotalStock,
-  generateStockStatusMessage,
-} from '../utils/productUtils.js';
+} from '@/basic/shared/core/domUtils.js';
 
 /**
  * 상품 선택기 업데이트 (선언적)

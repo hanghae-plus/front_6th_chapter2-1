@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/basic/*": ["src/basic/*"],
+      "@/advanced/*": ["src/advanced/*"],
+      "@/shared/*": ["src/basic/shared/*"],
+      "@/features/*": ["src/basic/features/*"],
+      "@/components/*": ["src/basic/shared/components/*"],
+      "@/constants/*": ["src/basic/shared/constants/*"],
+      "@/core/*": ["src/basic/shared/core/*"],
+      "@/utils/*": ["src/basic/shared/utils/*"],
+      "@/product/*": ["src/basic/features/product/*"],
+      "@/cart/*": ["src/basic/features/cart/*"],
+      "@/order/*": ["src/basic/features/order/*"],
+      "@/point/*": ["src/basic/features/point/*"],
+      "@/product/components/*": ["src/basic/features/product/components/*"],
+      "@/product/services/*": ["src/basic/features/product/services/*"],
+      "@/product/store/*": ["src/basic/features/product/store/*"],
+      "@/product/utils/*": ["src/basic/features/product/utils/*"],
+      "@/product/constants/*": ["src/basic/features/product/constants/*"],
+      "@/cart/components/*": ["src/basic/features/cart/components/*"],
+      "@/cart/services/*": ["src/basic/features/cart/services/*"],
+      "@/cart/store/*": ["src/basic/features/cart/store/*"],
+      "@/cart/events/*": ["src/basic/features/cart/events/*"],
+      "@/cart/utils/*": ["src/basic/features/cart/utils/*"],
+      "@/order/components/*": ["src/basic/features/order/components/*"],
+      "@/order/services/*": ["src/basic/features/order/services/*"],
+      "@/point/components/*": ["src/basic/features/point/components/*"],
+      "@/point/services/*": ["src/basic/features/point/services/*"],
+      "@/point/utils/*": ["src/basic/features/point/utils/*"],
+      "@/point/constants/*": ["src/basic/features/point/constants/*"],
+      "@/tests/*": ["src/basic/__tests__/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

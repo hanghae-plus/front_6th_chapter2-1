@@ -1,4 +1,4 @@
-import { htmlToElement } from '../utils/dom.js';
+import { htmlToElement } from '@/basic/shared/utils/dom.js';
 
 /**
  * Pure Header Component - JSX-like Template

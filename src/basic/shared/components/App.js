@@ -1,13 +1,12 @@
-import ProductSelector from '../../features/product/components/ProductSelector.js';
+import ProductSelector from '@/basic/features/product/components/ProductSelector.js';
 import {
   productState,
   setProductState,
-} from '../../features/product/store/ProductStore.js';
-import { ELEMENT_IDS } from '../constants/element-ids.js';
-import { htmlToElement } from '../utils/dom.js';
-
-import { Header } from './Header.js';
-import { HelpModal } from './HelpModal.js';
+} from '@/basic/features/product/store/productStore.js';
+import { Header } from '@/basic/shared/components/Header.js';
+import { HelpModal } from '@/basic/shared/components/HelpModal.js';
+import { ELEMENT_IDS } from '@/basic/shared/constants/elementIds.js';
+import { htmlToElement } from '@/basic/shared/utils/dom.js';
 
 /**
  * Main App Component - JSX-like Template
