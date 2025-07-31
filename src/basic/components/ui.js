@@ -163,11 +163,65 @@ function DiscountSummary(discountRate = 0, totalAmount = 0, originalTotal = 0) {
   return container;
 }
 
+function OrderSummary() {
+  const container = document.createElement('div');
+  container.innerHTML = `
+   <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
+    <div class="flex-1 flex flex-col">
+      <div id="summary-details" class="space-y-3"></div>
+      <div class="mt-auto">
+        <div id="discount-info" class="mb-4"></div>
+        <div id="cart-total" class="pt-5 border-t border-white/10">
+          <div class="flex justify-between items-baseline">
+            <span class="text-sm uppercase tracking-wider">Total</span>
+            <div class="text-2xl tracking-tight">₩0</div>
+          </div>
+          <div id="loyalty-points" class="text-xs text-blue-400 mt-2 text-right">적립 포인트: 0p</div>
+        </div>
+        <div id="tuesday-special" class="mt-4 p-3 bg-white/10 rounded-lg hidden">
+          <div class="flex items-center gap-2">
+            <span class="text-2xs">🎉</span>
+            <span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">
+      Proceed to Checkout
+    </button>
+    <p class="mt-4 text-2xs text-white/60 text-center leading-relaxed">
+      Free shipping on all orders.<br>
+      <span id="points-notice">Earn loyalty points with purchase.</span>
+    </p>
+  `;
+  return container;
+}
+
+function PriceSummary(targetElement, product) {
+  if (!targetElement) return;
+  const container = document.createElement('span');
+
+  if (product.onSale && product.suggestSale) {
+    priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
+  } else if (product.onSale) {
+    priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.val.toLocaleString()}</span>`;
+  } else if (product.suggestSale) {
+    priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.val.toLocaleString()}</span>`;
+  } else {
+    priceDiv.textContent = `₩${product.val.toLocaleString()}`;
+  }
+
+  targetElement.innerHTML = '';
+  targetElement.appendChild(container);
+}
+
 export {
   ProductSelector,
   generateProductOptions,
   CartContainer,
   CartItem,
   PointSummary,
+  OrderSummary,
   DiscountSummary,
+  PriceSummary,
 };
