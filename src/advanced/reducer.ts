@@ -18,7 +18,7 @@ export interface CartItem {
 }
 
 export interface Notification {
-  id: number;
+  id: Date;
   message: string;
 }
 
@@ -49,7 +49,7 @@ type ActionMap = {
   START_SUGGEST_SALE: { productId: string };
   SET_SELECTED_PRODUCT: { productId: string };
   SET_LAST_SELECTED: { productId: string };
-  REMOVE_NOTIFICATION: { notificationId: number };
+  REMOVE_NOTIFICATION: { notificationId: Date };
 };
 
 // 모든 액션 타입을 하나로 묶는 유니언 타입 생성
@@ -119,7 +119,7 @@ export function reducer(state: State, action: Action) {
       const { productId } = payload;
       const product = state.products.find((p) => p.id === productId);
 
-      if (product.quantity <= 0) {
+      if (product && product.quantity <= 0) {
         return {
           ...state,
           notifications: [
@@ -164,6 +164,8 @@ export function reducer(state: State, action: Action) {
           : p,
       );
       const product = newProducts.find((p) => p.id === luckyItem.id);
+
+      if (!product) return state;
 
       return {
         ...state,
@@ -225,6 +227,7 @@ export function reducer(state: State, action: Action) {
 export const getProducts = (state) => state.products;
 export const getCartList = (state) => state.cartList;
 export const getSelectedId = (state) => state.selectedProductId;
+export const getNotifications = (state) => state.notifications;
 export const getIsTuesday = () => new Date().getDay() === 2;
 
 export const getCartDetails = (state) => {

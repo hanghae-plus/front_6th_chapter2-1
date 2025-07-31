@@ -3,12 +3,14 @@ import { Header } from './components/header/Header';
 import { Manual } from './components/manual/Manual';
 import { OrderSummary } from './components/order-summary/OrderSummary';
 import { useCartDispatch } from './contexts/CartContext';
+import { useNotifications } from './hooks/useNotifications';
 import { useSaleTimers } from './hooks/useSaleTimers';
 
 function App() {
   const dispatch = useCartDispatch();
 
   useSaleTimers(dispatch!);
+  useNotifications();
 
   return (
     <>
