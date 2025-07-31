@@ -2,11 +2,14 @@ import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
 
 import { useCartWithProduct } from '@/hooks/useCartWithProducts';
 import { useProductContext } from '@/store/ProductContext';
+import { toProductOption } from '@/utils/productUtils';
 
 const ProductPicker = () => {
-  const { products } = useProductContext();
   const { addToCart } = useCartWithProduct();
-  const [selectedProductId, setSelectedProductId] = useState(products[0].id);
+
+  const { products } = useProductContext();
+  const options = products.map(toProductOption);
+  const [selectedProductId, setSelectedProductId] = useState(options[0].id);
 
   const handleChangeValue: ChangeEventHandler<HTMLSelectElement> = (e) => {
     const targetValue = e.target.value;
@@ -26,9 +29,9 @@ const ProductPicker = () => {
         id="product-select"
         className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
       >
-        {products.map((product) => (
-          <option key={product.id} value={product.id}>
-            {product.name} - {product.price}원
+        {options.map((option) => (
+          <option key={option.id} value={option.id} disabled={option.disabled}>
+            {option.message}
           </option>
         ))}
       </select>
