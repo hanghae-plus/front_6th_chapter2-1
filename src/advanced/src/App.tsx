@@ -1,14 +1,22 @@
 import { useEffect } from 'react';
-import { useCartStore, usePointsStore } from './store';
-import { Header } from './components/layout/Header';
+
 import { GridContainer } from './components/layout/GridContainer';
-import { ManualToggle } from './components/manual/ManualToggle';
+import { Header } from './components/layout/Header';
 import { ManualOverlay } from './components/manual/ManualOverlay';
+import { ManualToggle } from './components/manual/ManualToggle';
 import { calculateCart } from './services/CartCalculationService';
 import { createPointsCalculationService } from './services/PointsCalculationService';
+import { useCartStore, usePointsStore } from './store';
 
 const App = () => {
-  const { items, itemCount, updateTotal, updateItemCount, updateOriginalTotal, updateDiscountRate } = useCartStore();
+  const {
+    items,
+    itemCount,
+    updateTotal,
+    updateItemCount,
+    updateOriginalTotal,
+    updateDiscountRate,
+  } = useCartStore();
   const { updateTotalPoints, updatePointsDetail } = usePointsStore();
   const pointsCalculationService = createPointsCalculationService();
 
@@ -35,14 +43,24 @@ const App = () => {
     const pointsResult = pointsCalculationService.calculateBonusPoints(items, cartResult.totalAmt);
     updateTotalPoints(pointsResult.bonusPoints);
     updatePointsDetail(pointsResult.pointsDetail);
-  }, [items, updateTotal, updateItemCount, updateOriginalTotal, updateDiscountRate, updateTotalPoints, updatePointsDetail]);
+  }, [
+    items,
+    updateTotal,
+    updateItemCount,
+    updateOriginalTotal,
+    updateDiscountRate,
+    updateTotalPoints,
+    updatePointsDetail,
+  ]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className='min-h-screen bg-gray-50 p-8'>
+      <div className='max-w-7xl mx-auto'>
         <Header itemCount={itemCount} />
-        <GridContainer 
-          total={items.length > 0 ? items.reduce((sum, item) => sum + (item.val * item.quantity), 0) : 0}
+        <GridContainer
+          total={
+            items.length > 0 ? items.reduce((sum, item) => sum + item.val * item.quantity, 0) : 0
+          }
           bonusPoints={0}
           pointsDetail={[]}
         />

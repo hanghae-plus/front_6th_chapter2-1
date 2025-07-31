@@ -7,6 +7,7 @@ import importPlugin from 'eslint-plugin-import';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 import vitestPlugin from 'eslint-plugin-vitest';
 import globals from 'globals';
 
@@ -37,6 +38,7 @@ export default [
       prettier: eslintPluginPrettier,
       react,
       'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
       '@typescript-eslint': typescript,
       compat,
       import: importPlugin,
@@ -64,6 +66,10 @@ export default [
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
       'react-hooks/rules-of-hooks': 'error',
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
 
       // TypeScript 관련 규칙
       '@typescript-eslint/no-explicit-any': 'warn',
