@@ -1,0 +1,137 @@
+import { useState, useCallback } from 'react';
+import { Product, CartItem, initialProducts } from '../lib/product';
+
+interface UseCartReturn {
+  products: Product[];
+  cartItems: CartItem[];
+  selectedProductId: string | null;
+  addToCart: (productId: string) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  setSelectedProduct: (productId: string | null) => void;
+  getCartItemCount: () => number;
+  getTotalAmount: () => number;
+}
+
+export const useCart = (): UseCartReturn => {
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+
+  // 장바구니에 상품 추가
+  const addToCart = useCallback(
+    (productId: string) => {
+      const product = products.find((p) => p.id === productId);
+      if (!product || product.stock === 0) return;
+
+      setCartItems((prevItems) => {
+        const existingItem = prevItems.find((item) => item.product.id === productId);
+
+        if (existingItem) {
+          // 이미 있는 상품이면 수량 증가
+          if (existingItem.quantity < product.stock) {
+            return prevItems.map((item) =>
+              item.product.id === productId ? { ...item, quantity: item.quantity + 1 } : item,
+            );
+          }
+          return prevItems; // 재고 부족
+        } else {
+          // 새 상품 추가
+          return [
+            ...prevItems,
+            {
+              product,
+              quantity: 1,
+              appliedDiscounts: [],
+            },
+          ];
+        }
+      });
+
+      // 재고 감소
+      setProducts((prevProducts) =>
+        prevProducts.map((p) => (p.id === productId ? { ...p, stock: p.stock - 1 } : p)),
+      );
+    },
+    [products],
+  );
+
+  // 장바구니에서 상품 제거
+  const removeFromCart = useCallback((productId: string) => {
+    setCartItems((prevItems) => {
+      const itemToRemove = prevItems.find((item) => item.product.id === productId);
+      if (!itemToRemove) return prevItems;
+
+      // 재고 복구
+      setProducts((prevProducts) =>
+        prevProducts.map((p) =>
+          p.id === productId ? { ...p, stock: p.stock + itemToRemove.quantity } : p,
+        ),
+      );
+
+      return prevItems.filter((item) => item.product.id !== productId);
+    });
+  }, []);
+
+  // 수량 변경
+  const updateQuantity = useCallback(
+    (productId: string, newQuantity: number) => {
+      if (newQuantity <= 0) {
+        removeFromCart(productId);
+        return;
+      }
+
+      const product = products.find((p) => p.id === productId);
+      if (!product) return;
+
+      const currentItem = cartItems.find((item) => item.product.id === productId);
+      if (!currentItem) return;
+
+      const quantityDiff = newQuantity - currentItem.quantity;
+      const availableStock = product.stock + currentItem.quantity;
+
+      if (newQuantity > availableStock) return; // 재고 초과
+
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
+          item.product.id === productId ? { ...item, quantity: newQuantity } : item,
+        ),
+      );
+
+      // 재고 조정
+      setProducts((prevProducts) =>
+        prevProducts.map((p) => (p.id === productId ? { ...p, stock: p.stock - quantityDiff } : p)),
+      );
+    },
+    [products, cartItems, removeFromCart],
+  );
+
+  // 선택된 상품 설정
+  const setSelectedProduct = useCallback((productId: string | null) => {
+    setSelectedProductId(productId);
+  }, []);
+
+  // 장바구니 아이템 개수
+  const getCartItemCount = useCallback(() => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  }, [cartItems]);
+
+  // 총 금액 계산 (할인 적용 전)
+  const getTotalAmount = useCallback(() => {
+    return cartItems.reduce((total, item) => {
+      return total + item.product.price * item.quantity;
+    }, 0);
+  }, [cartItems]);
+
+  return {
+    products,
+    cartItems,
+    selectedProductId,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    setSelectedProduct,
+    getCartItemCount,
+    getTotalAmount,
+  };
+};
