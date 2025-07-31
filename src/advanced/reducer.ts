@@ -155,13 +155,15 @@ export function reducer(state: State, action: Action) {
     }
 
     case 'START_LIGHTNING_SALE': {
-      const { productId } = payload;
+      const luckyIdx = Math.floor(Math.random() * state.products.length);
+      const luckyItem = state.products[luckyIdx];
+
       const newProducts = state.products.map((p) =>
-        p.id === productId
+        p.id === luckyItem.id
           ? { ...p, price: Math.round((p.originalPrice * 80) / 100), onSale: true }
           : p,
       );
-      const product = newProducts.find((p) => p.id === productId);
+      const product = newProducts.find((p) => p.id === luckyItem.id);
 
       return {
         ...state,
@@ -174,13 +176,17 @@ export function reducer(state: State, action: Action) {
     }
 
     case 'START_SUGGEST_SALE': {
-      const { productId } = payload;
-      const newProducts = state.products.map((p) =>
-        p.id === productId
-          ? { ...p, price: Math.round((p.originalPrice * 80) / 100), onSale: true }
-          : p,
+      if (!state.lastSelectedId) return state;
+
+      const luckyItem = state.products.find(
+        (p) => p.id !== state.lastSelectedId && p.quantity > 0 && !p.suggestSale,
       );
-      const product = newProducts.find((p) => p.id === productId);
+
+      if (!luckyItem) return state;
+
+      const newProducts = state.products.map((p) =>
+        p.id === luckyItem.id ? { ...p, price: Math.round(p.price * 0.95), suggestSale: true } : p,
+      );
 
       return {
         ...state,
@@ -189,7 +195,7 @@ export function reducer(state: State, action: Action) {
           ...state.notifications,
           {
             id: Date.now(),
-            message: `💝 ${product.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`,
+            message: `💝 ${luckyItem.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`,
           },
         ],
       };

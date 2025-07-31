@@ -2,8 +2,14 @@ import { CartContainer } from './components/cart-section/CartContainer';
 import { Header } from './components/header/Header';
 import { Manual } from './components/manual/Manual';
 import { OrderSummary } from './components/order-summary/OrderSummary';
+import { useCartDispatch } from './contexts/CartContext';
+import { useSaleTimers } from './hooks/useSaleTimers';
 
 function App() {
+  const dispatch = useCartDispatch();
+
+  useSaleTimers(dispatch!);
+
   return (
     <>
       <Header />
