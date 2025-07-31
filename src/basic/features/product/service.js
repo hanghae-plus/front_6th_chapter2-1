@@ -160,3 +160,50 @@ export const getDiscountIcon = (product) => {
       return '';
   }
 };
+
+/**
+ * @description 상품들 중 하나를 랜덤으로 번개세일 적용
+ *
+ * @param {Product[]} products
+ * @returns {{updatedProduct: Product, message: string}}
+ */
+export const applyLightningSale = (products) => {
+  const luckyIdx = Math.floor(Math.random() * products.length);
+  const luckyItem = products[luckyIdx];
+
+  if (luckyItem.quantity > 0 && !luckyItem.onSale) {
+    luckyItem.value = Math.round(luckyItem.originalValue * 0.8);
+    luckyItem.onSale = true;
+
+    return {
+      updatedProduct: luckyItem,
+      message: `⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`,
+    };
+  }
+
+  return null;
+};
+
+/**
+ * @description 추천 상품이 아닌 상품에 추천세일 적용
+ *
+ * @param {Product[]} products
+ * @returns {{updatedProduct: Product, message: string}}
+ */
+export const applySuggestSale = (products, lastSelectedId) => {
+  const suggest = products.find((product) => {
+    return product.id !== lastSelectedId && product.quantity > 0 && !product.suggestSale;
+  });
+
+  if (suggest) {
+    suggest.value = Math.round(suggest.value * 0.95);
+    suggest.suggestSale = true;
+
+    return {
+      updatedProduct: suggest,
+      message: `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`,
+    };
+  }
+
+  return null;
+};
