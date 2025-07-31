@@ -849,25 +849,9 @@ const handleRenderBonusPoints = () => {
   updateLoyaltyPointsDisplay(finalPoints, pointsDetail);
 };
 
-const handleGetStockTotal = () =>
-  AppState.products.reduce((sum, currentProduct) => sum + currentProduct.stock, 0);
-
 const handleStockInfoUpdate = () => {
-  let infoMessage = '';
-  const totalStock = handleGetStockTotal();
-  if (totalStock < 30) {
-    // 재고 부족 시 추가 처리 가능
-  }
-  AppState.products.forEach((item) => {
-    if (item.stock < QUANTITY_THRESHOLDS.LOW_STOCK) {
-      if (item.stock > 0) {
-        infoMessage += `${item.name}: 재고 부족 (${item.stock}개 남음)\n`;
-      } else {
-        infoMessage += `${item.name}: 품절\n`;
-      }
-    }
-  });
-  AppState.ui.stockInfo.textContent = infoMessage;
+  if (!AppState.ui.stockInfo) return;
+  AppState.ui.stockInfo.textContent = StockInfoComponent();
 };
 
 const CartItemPriceComponent = (product) => {
