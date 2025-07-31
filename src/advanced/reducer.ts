@@ -250,7 +250,7 @@ export const getStockMessages = (state: State) => {
   return products
     .filter((p) => p.quantity < 5)
     .map((p) =>
-      p.quantity > 0 ? `${p.name}: 재고 부족 (${p.quantity}개 남음)` : `${p.name}: 품절`,
+      p.quantity > 0 ? `${p.name}: 재고 부족 (${p.quantity}개 남음)\n` : `${p.name}: 품절\n`,
     );
 };
 
