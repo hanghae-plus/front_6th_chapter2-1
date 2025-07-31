@@ -1,0 +1,42 @@
+// 상품 ID 상수
+export const PRODUCT_IDS = {
+  KEYBOARD: 'p1',
+  MOUSE: 'p2',
+  MONITOR_ARM: 'p3',
+  LAPTOP_CASE: 'p4',
+  SPEAKER: 'p5',
+};
+
+// 할인율 상수
+export const DISCOUNT_RATES = {
+  BULK_PURCHASE_THRESHOLD: 10,
+  TUESDAY_DISCOUNT: 0.1,
+  LIGHTNING_SALE_DISCOUNT: 0.2,
+  SUGGESTION_DISCOUNT: 0.05,
+};
+
+// 포인트 적립 상수
+export const POINT_RATES = {
+  BASE_RATE: 0.001, // 구매액의 0.1%
+  TUESDAY_MULTIPLIER: 2,
+  KEYBOARD_MOUSE_BONUS: 50,
+  FULL_SET_BONUS: 100,
+};
+
+// 재고 관련 상수
+export const STOCK_THRESHOLDS = {
+  LOW_STOCK_WARNING: 5,
+  TOTAL_STOCK_WARNING: 50,
+};
+
+// 시간 관련 상수
+export const TIME_INTERVALS = {
+  LIGHTNING_SALE_DELAY: 30000, // 30초
+  SUGGESTION_DELAY: 60000, // 60초
+  LIGHTNING_SALE_INITIAL_DELAY: 10000, // 10초
+};
+
+// 요일 상수
+export const DAYS_OF_WEEK = {
+  TUESDAY: 2,
+};
