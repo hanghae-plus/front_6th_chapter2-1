@@ -1,90 +1,12 @@
 import { renderCartItem } from '@/basic/features/cart/components/CartItem.js';
+import {
+  stockValidators,
+  quantityManagers,
+  stockManagers,
+} from '@/basic/features/cart/utils/stockUtils.js';
 import { productState } from '@/basic/features/product/store/productStore.js';
 import { findProductById } from '@/basic/features/product/utils/productUtils.js';
-import { setTextContent } from '@/basic/shared/core/domUtils.js';
-
-// 재고 검증 함수들
-const stockValidators = {
-  /**
-   * 재고 부족 여부 확인
-   * @param {number} currentQuantity - 현재 수량
-   * @param {number} newQuantity - 새 수량
-   * @param {number} availableStock - 사용 가능한 재고
-   * @returns {boolean} 재고 부족 여부
-   */
-  isInsufficientStock: (currentQuantity, newQuantity, availableStock) => {
-    return newQuantity > currentQuantity + availableStock;
-  },
-
-  /**
-   * 품절 여부 확인
-   * @param {number} stock - 재고 수량
-   * @returns {boolean} 품절 여부
-   */
-  isOutOfStock: stock => stock <= 0,
-
-  /**
-   * 수량 증가 가능 여부 확인
-   * @param {number} change - 변경 수량
-   * @param {number} availableStock - 사용 가능한 재고
-   * @returns {boolean} 증가 가능 여부
-   */
-  canIncreaseQuantity: (change, availableStock) => {
-    return change <= 0 || availableStock >= change;
-  },
-};
-
-// 수량 관리 함수들
-const quantityManagers = {
-  /**
-   * 수량 요소에서 현재 수량 추출
-   * @param {HTMLElement} quantityElement - 수량 요소
-   * @returns {number} 현재 수량
-   */
-  getCurrentQuantity: quantityElement => {
-    return parseInt(quantityElement.textContent, 10);
-  },
-
-  /**
-   * 수량 요소 업데이트
-   * @param {HTMLElement} quantityElement - 수량 요소
-   * @param {number} newQuantity - 새 수량
-   */
-  updateQuantityDisplay: (quantityElement, newQuantity) => {
-    setTextContent(quantityElement, newQuantity);
-  },
-
-  /**
-   * 새 수량 계산
-   * @param {number} currentQuantity - 현재 수량
-   * @param {number} change - 변경 수량
-   * @returns {number} 새 수량
-   */
-  calculateNewQuantity: (currentQuantity, change) => {
-    return currentQuantity + change;
-  },
-};
-
-// 재고 관리 함수들
-const stockManagers = {
-  /**
-   * 재고 감소
-   * @param {object} product - 상품 정보
-   * @param {number} amount - 감소할 수량
-   */
-  decreaseStock: (product, amount = 1) => {
-    product.q -= amount;
-  },
-
-  /**
-   * 재고 증가
-   * @param {object} product - 상품 정보
-   * @param {number} amount - 증가할 수량
-   */
-  increaseStock: (product, amount) => {
-    product.q += amount;
-  },
-};
+import { ELEMENT_IDS } from '@/basic/shared/constants/elementIds.js';
 
 // DOM 조작 함수들
 const domManagers = {
@@ -135,7 +57,9 @@ const cartItemManagers = {
    * @returns {boolean} 성공 여부
    */
   updateItemQuantity: (product, existingItem) => {
-    const quantityElement = existingItem.querySelector('.quantity-number');
+    const quantityElement = existingItem.querySelector(
+      `.${ELEMENT_IDS.QUANTITY_NUMBER}`,
+    );
     const currentQuantity =
       quantityManagers.getCurrentQuantity(quantityElement);
     const newQuantity = quantityManagers.calculateNewQuantity(
@@ -220,7 +144,9 @@ const cartItemManagers = {
    * @param {HTMLElement} itemElement - 제거할 아이템 요소
    */
   removeItem: (product, itemElement) => {
-    const quantityElement = itemElement.querySelector('.quantity-number');
+    const quantityElement = itemElement.querySelector(
+      `.${ELEMENT_IDS.QUANTITY_NUMBER}`,
+    );
     const quantity = quantityManagers.getCurrentQuantity(quantityElement);
     stockManagers.increaseStock(product, quantity);
     domManagers.removeCartItem(itemElement);
@@ -245,7 +171,7 @@ const eventHandlers = {
    * 장바구니 추가 처리
    */
   handleAddToCart: () => {
-    const productSelector = document.getElementById('product-select');
+    const productSelector = document.getElementById(ELEMENT_IDS.PRODUCT_SELECT);
     const selectedProductId = productSelector.value;
     const product = findProductById(selectedProductId, productState.products);
 
@@ -317,7 +243,7 @@ export const registerCartEvents = (onCalculate, onUpdateOptions) => {
     });
   }
 
-  const cartContainer = document.getElementById('cart-items');
+  const cartContainer = document.getElementById(ELEMENT_IDS.CART_ITEMS);
   if (cartContainer) {
     cartContainer.addEventListener('click', event => {
       handleCartClick(event, {

@@ -2,6 +2,7 @@ export const ELEMENT_IDS = {
   APP: 'app',
 
   PRODUCT_SELECT: 'product-select',
+  QUANTITY_NUMBER: 'quantity-number',
   ADD_TO_CART: 'add-to-cart',
   STOCK_STATUS: 'stock-status',
 
