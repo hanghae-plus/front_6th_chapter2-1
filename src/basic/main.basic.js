@@ -1,6 +1,7 @@
 import { calculateBasePoint, getBulkBonusPoint, getSetBonusPoint } from './features/point/service';
 import { productIds, productList } from './features/product/constants';
 import { renderProductSelectOptions, renderStockInfo } from './features/product/render';
+import { getSaleStatus } from './features/product/service';
 import { isTuesday } from './utils/date';
 
 let itemCount;
@@ -491,20 +492,21 @@ function doUpdatePricesInCart() {
     if (product) {
       const priceDiv = cartItems[i].querySelector('.text-lg');
       const nameDiv = cartItems[i].querySelector('h3');
+      const status = getSaleStatus(product);
 
-      if (product.onSale && product.suggestSale) {
+      if (status === 'SUPER') {
         priceDiv.innerHTML = `
           <span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span>
           <span class="text-purple-600">₩${product.value.toLocaleString()}</span>
         `;
         nameDiv.textContent = `⚡💝${product.name}`;
-      } else if (product.onSale) {
+      } else if (status === 'SALE') {
         priceDiv.innerHTML = `
           <span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span>
           <span class="text-red-500">₩${product.value.toLocaleString()}</span>
         `;
         nameDiv.textContent = `⚡${product.name}`;
-      } else if (product.suggestSale) {
+      } else if (status === 'SUGGEST') {
         priceDiv.innerHTML = `
           <span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span>
           <span class="text-blue-500">₩${product.value.toLocaleString()}</span>
