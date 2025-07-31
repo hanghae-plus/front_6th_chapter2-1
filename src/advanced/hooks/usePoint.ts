@@ -1,4 +1,3 @@
-import { POINT_POLICY_MAP } from '@/advanced/data/point.data';
 import { PRODUCT_1, PRODUCT_2, PRODUCT_3 } from '@/advanced/data/product.data';
 import {
   MIN_QUANTITY_FOR_POINT_BONUS_TIER1,
@@ -10,13 +9,14 @@ import useOrderSummary from '@/advanced/hooks/useOrderSummary';
 import { useCartStore } from '@/advanced/store';
 import { PointPolicy } from '@/advanced/types/point.type';
 import { getCartTotalCount } from '@/advanced/utils/cart.util';
+import { getPointCalculator } from '@/advanced/utils/point.util';
 
 export default function usePoint() {
   const { totalPrice } = useOrderSummary();
   const { cartItems } = useCartStore();
   const { isTuesday } = useDiscount();
 
-  const defaultPoint = POINT_POLICY_MAP[PointPolicy.DEFAULT](0, totalPrice);
+  const defaultPoint = getPointCalculator(PointPolicy.DEFAULT)(0, totalPrice);
 
   const getPointPolicies = () => {
     const policies: PointPolicy[] = [];
@@ -63,7 +63,7 @@ export default function usePoint() {
 
     // 각 정책을 순차적으로 적용
     applicablePolicies.forEach(policy => {
-      currentPoint = POINT_POLICY_MAP[policy](currentPoint, totalPrice);
+      currentPoint = getPointCalculator(policy)(currentPoint, totalPrice);
     });
 
     return currentPoint;

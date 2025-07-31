@@ -16,16 +16,6 @@ const POINT_POLICY = {
   BULK_BONUS_30: 'bulk-bonus-30',
 };
 
-const POINT_POLICY_MAP = {
-  [POINT_POLICY.DEFAULT]: (_, totalPrice) => Math.floor(totalPrice / POINT_RATE_BASE),
-  [POINT_POLICY.TUESDAY]: originalPoint => originalPoint * POINT_MULTIPLIER_TUESDAY,
-  [POINT_POLICY.KEYBOARD_SET]: originalPoint => originalPoint + POINT_BONUS_KEYBOARD_MOUSE_SET,
-  [POINT_POLICY.FULL_SET]: originalPoint => originalPoint + POINT_BONUS_FULL_SET,
-  [POINT_POLICY.BULK_BONUS_10]: originalPoint => originalPoint + POINT_BONUS_QUANTITY_TIER1,
-  [POINT_POLICY.BULK_BONUS_20]: originalPoint => originalPoint + POINT_BONUS_QUANTITY_TIER2,
-  [POINT_POLICY.BULK_BONUS_30]: originalPoint => originalPoint + POINT_BONUS_QUANTITY_TIER3,
-};
-
 export {
   POINT_BONUS_FULL_SET,
   POINT_BONUS_KEYBOARD_MOUSE_SET,
@@ -33,6 +23,5 @@ export {
   POINT_BONUS_QUANTITY_TIER2,
   POINT_BONUS_QUANTITY_TIER3,
   POINT_MULTIPLIER_TUESDAY,
-  POINT_POLICY_MAP,
   POINT_RATE_BASE,
 };

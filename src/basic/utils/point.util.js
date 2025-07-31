@@ -107,3 +107,17 @@ export function calculateTotalPoints(totalAmount, cartItems, productList, itemCo
     details: allDetails,
   };
 }
+
+export function getPointCalculator(policy) {
+  const calculator = {
+    [POINT_POLICY.DEFAULT]: (_, totalPrice) => Math.floor(totalPrice / POINT_RATE_BASE),
+    [POINT_POLICY.TUESDAY]: originalPoint => originalPoint * POINT_MULTIPLIER_TUESDAY,
+    [POINT_POLICY.KEYBOARD_SET]: originalPoint => originalPoint + POINT_BONUS_KEYBOARD_MOUSE_SET,
+    [POINT_POLICY.FULL_SET]: originalPoint => originalPoint + POINT_BONUS_FULL_SET,
+    [POINT_POLICY.BULK_BONUS_10]: originalPoint => originalPoint + POINT_BONUS_QUANTITY_TIER1,
+    [POINT_POLICY.BULK_BONUS_20]: originalPoint => originalPoint + POINT_BONUS_QUANTITY_TIER2,
+    [POINT_POLICY.BULK_BONUS_30]: originalPoint => originalPoint + POINT_BONUS_QUANTITY_TIER3,
+  };
+
+  return calculator[policy];
+}
