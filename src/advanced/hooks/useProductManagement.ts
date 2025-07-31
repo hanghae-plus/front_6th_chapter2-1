@@ -72,7 +72,7 @@ export const useProductManagement = () => {
       
       if (availableProducts.length === 0) return prevProducts;
 
-      const suggestProduct = availableProducts[0];
+      const [suggestProduct] = availableProducts;
       const alertMessage = `💝 ${suggestProduct.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`;
       
       // 같은 메시지가 이미 표시되었는지 확인
