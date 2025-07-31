@@ -105,7 +105,7 @@ function calculateCart() {
 
   if (subTotal > 0) {
     renderSummaryDetails({
-      getProductById: productManager.getProductById,
+      getProductById: (id) => productManager.getProductById(id),
       getTotalItem: cartManager.getTotalItem,
       appliedItemDiscounts,
       subTotal,

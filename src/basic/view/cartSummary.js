@@ -1,4 +1,4 @@
-import { CART_TOTAL_BENEFIT_THRESHOLD, PER_ITEM_DISCOUNT_THRESHOLD } from '../const/discount';
+import { CART_TOTAL_DISCOUNT_THRESHOLD, PER_ITEM_DISCOUNT_THRESHOLD } from '../const/discount';
 import { isTuesday } from '../utils/dateUtil';
 import { globalElements } from './globalElements';
 
@@ -27,6 +27,7 @@ export const renderSummaryDetails = ({ getProductById, getTotalItem, subTotal, a
 
   try {
     for (let i = 0; i < cartItems.length; i++) {
+      console.log('이것.. 안도나요??', cartItems[i].id);
       const curItem = getProductById(cartItems[i].id);
 
       const quantityElement = cartItems[i].querySelector('.quantity-number');
@@ -53,7 +54,7 @@ export const renderSummaryDetails = ({ getProductById, getTotalItem, subTotal, a
       </div>
     `;
 
-  if (getTotalItem() >= CART_TOTAL_BENEFIT_THRESHOLD) {
+  if (getTotalItem() >= CART_TOTAL_DISCOUNT_THRESHOLD) {
     summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
