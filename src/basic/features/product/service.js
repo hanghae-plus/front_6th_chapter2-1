@@ -47,10 +47,12 @@ export const getSalesInfoText = (product) => {
 
 /**
  * @description 상품 판매 상태에 따라 `<option>` 요소에 적용할 CSS 반환
- * @param {SaleStatus} status - 상품 판매 상태
+ * @param {Product} product - 상품
  * @returns {string} tailwind CSS 클래스명
  */
-export const getProductOptionStyle = (status) => {
+export const getProductOptionStyle = (product) => {
+  const status = getSaleStatus(product);
+
   switch (status) {
     case 'SUPER':
       return 'text-purple-600 font-bold';
