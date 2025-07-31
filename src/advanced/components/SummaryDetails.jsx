@@ -2,11 +2,11 @@ import { isTuesday } from "../utils/day";
 
 // cartItems는 prodList 중에서 카드에 담긴 데이터 엔티티이며 얼마나 담았는지 수량을 추가로 갖고있다.
 export const SummaryDetails = ({
-  totalOriginalPrice,
   cartItems,
   prodList,
-  totalItemCount,
   itemDiscounts,
+  totalItemCount,
+  totalOriginalPrice,
   totalDiscountedPrice,
 }) => {
   if (totalOriginalPrice <= 0) {

@@ -10,8 +10,8 @@ function usePrevious(value) {
   return ref.current;
 }
 
-export const Header = ({ itemCount = 0 }) => {
-  const prevItemCount = usePrevious(itemCount);
+export const Header = ({ totalItemCount = 0 }) => {
+  const prevItemCount = usePrevious(totalItemCount);
 
   return (
     <div className="mb-8">
@@ -22,9 +22,9 @@ export const Header = ({ itemCount = 0 }) => {
       <p
         id="item-count"
         className="text-sm text-gray-500 font-normal mt-3"
-        data-changed={itemCount !== prevItemCount}
+        data-changed={totalItemCount !== prevItemCount}
       >
-        🛍️ {itemCount} items in cart
+        🛍️ {totalItemCount} items in cart
       </p>
     </div>
   );

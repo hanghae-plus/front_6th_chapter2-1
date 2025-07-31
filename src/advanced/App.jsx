@@ -6,10 +6,18 @@ import { prodList } from "./data";
 import { useState } from "react";
 import { useMemo } from "react";
 import { RightColumn } from "./components/RightColumn";
+import { useOrderSummary } from "./services/order";
 
 function App() {
   const [productList, setProductList] = useState(prodList);
   const [cartItems, setCartItems] = useState([]);
+  const {
+    itemDiscounts,
+    totalItemCount,
+    totalDiscountRate,
+    totalOriginalPrice,
+    totalDiscountedPrice,
+  } = useOrderSummary(cartItems);
 
   const isLowStock = useMemo(
     () => productList.reduce((acc, cur) => acc + cur.quantity, 0) < 50,
@@ -22,10 +30,18 @@ function App() {
 
   return (
     <>
-      <Header />
+      <Header totalItemCount={totalItemCount} />
       <GridContainer>
         <LeftColumn isLowStock={isLowStock} productList={productList} />
-        <RightColumn productList={productList} cartItems={cartItems} />
+        <RightColumn
+          productList={productList}
+          cartItems={cartItems}
+          itemDiscounts={itemDiscounts}
+          totalItemCount={totalItemCount}
+          totalDiscountRate={totalDiscountRate}
+          totalOriginalPrice={totalOriginalPrice}
+          totalDiscountedPrice={totalDiscountedPrice}
+        />
       </GridContainer>
       <Manual />
     </>
