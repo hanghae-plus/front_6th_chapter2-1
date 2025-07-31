@@ -1,4 +1,43 @@
-import { DISCOUNT } from './constants.js';
+import { STOCK, DISCOUNT } from './constants.js';
+
+export function onUpdateSelectOptions(sel, products) {
+  let totalStock = 0;
+  for (const product of products) {
+    totalStock += product.q;
+  }
+
+  sel.innerHTML = '';
+  for (const item of products) {
+    const opt = document.createElement('option');
+    opt.value = item.id;
+    let discountText = '';
+    if (item.onSale) discountText += ' ⚡SALE';
+    if (item.suggestSale) discountText += ' 💝추천';
+
+    if (item.q === 0) {
+      opt.textContent = `${item.name} - ${item.val}원 (품절)${discountText}`;
+      opt.disabled = true;
+      opt.className = 'text-gray-400';
+    } else {
+      if (item.onSale && item.suggestSale) {
+        opt.textContent = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)`;
+        opt.className = 'text-purple-600 font-bold';
+      } else if (item.onSale) {
+        opt.textContent = `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)`;
+        opt.className = 'text-red-500 font-bold';
+      } else if (item.suggestSale) {
+        opt.textContent = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)`;
+        opt.className = 'text-blue-500 font-bold';
+      } else {
+        opt.textContent = `${item.name} - ${item.val}원${discountText}`;
+      }
+    }
+    sel.appendChild(opt);
+  }
+
+  sel.style.borderColor =
+    totalStock < STOCK.TOTAL_STOCK_WARNING_THRESHOLD ? 'orange' : '';
+}
 
 export function createInitialDOM() {
   const root = document.getElementById('app');
@@ -384,4 +423,33 @@ export function renderCart(cartContainer, cart, products) {
     `;
     cartContainer.appendChild(itemElement);
   });
+}
+
+export function doUpdatePricesInCart(
+  cartDisp,
+  products,
+  handleCalculateCartStuff
+) {
+  const cartItems = Array.from(cartDisp.children);
+  for (const cartItem of cartItems) {
+    const product = products.find((p) => p.id === cartItem.id);
+    if (product) {
+      const priceDiv = cartItem.querySelector('.text-lg');
+      const nameDiv = cartItem.querySelector('h3');
+      if (product.onSale && product.suggestSale) {
+        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
+        nameDiv.textContent = `⚡💝${product.name}`;
+      } else if (product.onSale) {
+        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.val.toLocaleString()}</span>`;
+        nameDiv.textContent = `⚡${product.name}`;
+      } else if (product.suggestSale) {
+        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.val.toLocaleString()}</span>`;
+        nameDiv.textContent = `💝${product.name}`;
+      } else {
+        priceDiv.textContent = `₩${product.val.toLocaleString()}`;
+        nameDiv.textContent = product.name;
+      }
+    }
+  }
+  handleCalculateCartStuff();
 }

@@ -8,6 +8,9 @@ import {
   updateLoyaltyPoints,
   updateStockStatus,
   updateTuesdaySpecial,
+  renderCart,
+  onUpdateSelectOptions,
+  doUpdatePricesInCart,
 } from './view.js';
 import { setupEventListeners } from './events.js';
 import { startTimers } from './services.js';
@@ -17,46 +20,6 @@ import {
   calculateTotal,
   calculatePoints,
 } from './calculator.js';
-
-// DOM 요소를 인자로 받아 사용하는 함수들
-function onUpdateSelectOptions(sel) {
-  let totalStock = 0;
-  for (const product of state.products) {
-    totalStock += product.q;
-  }
-
-  sel.innerHTML = '';
-  for (const item of state.products) {
-    const opt = document.createElement('option');
-    opt.value = item.id;
-    let discountText = '';
-    if (item.onSale) discountText += ' ⚡SALE';
-    if (item.suggestSale) discountText += ' 💝추천';
-
-    if (item.q === 0) {
-      opt.textContent = `${item.name} - ${item.val}원 (품절)${discountText}`;
-      opt.disabled = true;
-      opt.className = 'text-gray-400';
-    } else {
-      if (item.onSale && item.suggestSale) {
-        opt.textContent = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)`;
-        opt.className = 'text-purple-600 font-bold';
-      } else if (item.onSale) {
-        opt.textContent = `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)`;
-        opt.className = 'text-red-500 font-bold';
-      } else if (item.suggestSale) {
-        opt.textContent = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)`;
-        opt.className = 'text-blue-500 font-bold';
-      } else {
-        opt.textContent = `${item.name} - ${item.val}원${discountText}`;
-      }
-    }
-    sel.appendChild(opt);
-  }
-
-  sel.style.borderColor =
-    totalStock < STOCK.TOTAL_STOCK_WARNING_THRESHOLD ? 'orange' : '';
-}
 
 function handleCalculateCartStuff() {
   const cartItems = state.cart.map((item) => ({
@@ -91,31 +54,6 @@ function handleCalculateCartStuff() {
   updateLoyaltyPoints(points);
 }
 
-function doUpdatePricesInCart(cartDisp) {
-  const cartItems = Array.from(cartDisp.children);
-  for (const cartItem of cartItems) {
-    const product = state.products.find((p) => p.id === cartItem.id);
-    if (product) {
-      const priceDiv = cartItem.querySelector('.text-lg');
-      const nameDiv = cartItem.querySelector('h3');
-      if (product.onSale && product.suggestSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
-        nameDiv.textContent = `⚡💝${product.name}`;
-      } else if (product.onSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.val.toLocaleString()}</span>`;
-        nameDiv.textContent = `⚡${product.name}`;
-      } else if (product.suggestSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.val.toLocaleString()}</span>`;
-        nameDiv.textContent = `💝${product.name}`;
-      } else {
-        priceDiv.textContent = `₩${product.val.toLocaleString()}`;
-        nameDiv.textContent = product.name;
-      }
-    }
-  }
-  handleCalculateCartStuff();
-}
-
 // 애플리케이션의 메인 진입점
 function main() {
   const dom = createInitialDOM();
@@ -145,7 +83,8 @@ function main() {
   };
 
   // 초기 렌더링 및 계산
-  onUpdateSelectOptions(productSelect);
+  renderCart(cartItemsContainer, state.cart, state.products);
+  onUpdateSelectOptions(productSelect, state.products);
   handleCalculateCartStuff();
 
   // 이벤트 리스너 설정
@@ -153,14 +92,21 @@ function main() {
     addBtn: addToCartButton,
     cartDisp: cartItemsContainer,
     productSelect: productSelect,
-    onUpdateSelectOptions: () => onUpdateSelectOptions(productSelect),
+    onUpdateSelectOptions: () =>
+      onUpdateSelectOptions(productSelect, state.products),
     handleCalculateCartStuff: () => handleCalculateCartStuff(),
   });
 
   // 비동기 서비스 시작
   startTimers({
-    onUpdateSelectOptions: () => onUpdateSelectOptions(productSelect),
-    doUpdatePricesInCart: () => doUpdatePricesInCart(cartItemsContainer),
+    onUpdateSelectOptions: () =>
+      onUpdateSelectOptions(productSelect, state.products),
+    doUpdatePricesInCart: () =>
+      doUpdatePricesInCart(
+        cartItemsContainer,
+        state.products,
+        handleCalculateCartStuff
+      ),
     cartDisp: cartItemsContainer,
   });
 }
