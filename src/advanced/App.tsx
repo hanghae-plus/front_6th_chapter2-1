@@ -22,8 +22,8 @@ const App: React.FC = () => {
     selectedProduct,
     setSelectedProduct,
     updateProductPrices,
-    triggerLightningSale,
-    triggerRecommendationSale
+    handleLightningSale,
+    handleRecommendationSale
   } = useProductManagement();
 
   const {
@@ -59,7 +59,7 @@ const App: React.FC = () => {
     
     lightningTimerId = setTimeout(() => {
       lightningIntervalId = setInterval(() => {
-        triggerLightningSale();
+        handleLightningSale();
       }, TIMER_CONFIG.LIGHTNING_SALE_INTERVAL);
     }, lightningDelay);
 
@@ -90,7 +90,7 @@ const App: React.FC = () => {
       recommendationIntervalId = setInterval(() => {
         // 원본과 동일: 마지막 선택한 상품이 있을 때만 추천할인
         if (selectedProduct) {
-          triggerRecommendationSale(selectedProduct);
+          handleRecommendationSale(selectedProduct);
         }
       }, TIMER_CONFIG.RECOMMENDATION_INTERVAL);
     }, recommendationDelay);
@@ -109,7 +109,7 @@ const App: React.FC = () => {
   }, [selectedProduct]); // selectedProduct만 의존성으로 설정
 
   return (
-    <div className="max-w-screen-xl h-screen max-h-800 mx-auto p-8 flex flex-col">
+    <>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xs font-medium tracking-extra-wide uppercase mb-2">
@@ -128,15 +128,15 @@ const App: React.FC = () => {
           <ProductSelector
             products={products}
             selectedProduct={selectedProduct}
-            onProductSelect={setSelectedProduct}
-            onAddToCart={addToCart}
+            handleProductSelect={setSelectedProduct}
+            handleAddToCart={addToCart}
           />
           <CartDisplay
             cartItems={cartItems}
             products={products}
-            onUpdateQuantity={updateQuantity}
-            onRemoveItem={removeFromCart}
-            onUpdatePrices={updateProductPrices}
+            handleQuantityUpdate={updateQuantity}
+            handleItemRemove={removeFromCart}
+            handlePriceUpdate={updateProductPrices}
           />
         </div>
 
@@ -158,7 +158,7 @@ const App: React.FC = () => {
 
       {/* Manual Toggle Button */}
       <ManualOverlay />
-    </div>
+    </>
   );
 };
 
