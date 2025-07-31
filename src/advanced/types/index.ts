@@ -1,9 +1,9 @@
 export interface Product {
   id: string;
   name: string;
-  val: number;
-  originalVal: number;
-  q: number;
+  price: number;
+  originalPrice: number;
+  quantity: number;
   onSale: boolean;
   suggestSale: boolean;
 }

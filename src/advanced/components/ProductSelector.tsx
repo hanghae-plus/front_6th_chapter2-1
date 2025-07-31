@@ -14,7 +14,6 @@ export default function ProductSelector() {
   const handleAddToCart = () => {
     if (selectedProduct) {
       addToCart(selectedProduct);
-      setSelectedProduct("");
     }
   };
 
@@ -22,16 +21,16 @@ export default function ProductSelector() {
     let text = product.name;
 
     if (product.onSale && product.suggestSale) {
-      text = `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (25% SUPER SALE!)`;
+      text = `⚡💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (25% SUPER SALE!)`;
     } else if (product.onSale) {
-      text = `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (20% SALE!)`;
+      text = `⚡${product.name} - ${product.originalPrice}원 → ${product.price}원 (20% SALE!)`;
     } else if (product.suggestSale) {
-      text = `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (5% 추천할인!)`;
+      text = `💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (5% 추천할인!)`;
     } else {
-      text = `${product.name} - ${product.val}원`;
+      text = `${product.name} - ${product.price}원`;
     }
 
-    if (product.q === 0) {
+    if (product.quantity === 0) {
       text += " (품절)";
     }
 
@@ -39,7 +38,7 @@ export default function ProductSelector() {
   };
 
   const getProductClassName = (product: Product): string => {
-    if (product.q === 0) {
+    if (product.quantity === 0) {
       return "text-gray-400";
     }
 
@@ -54,15 +53,15 @@ export default function ProductSelector() {
     return "";
   };
 
-  const totalStock = products.reduce((sum, product) => sum + product.q, 0);
+  const totalStock = products.reduce((sum, product) => sum + product.quantity, 0);
   const hasLowStock = totalStock < 50;
 
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">
-      <select value={selectedProduct} onChange={handleProductChange} className={`w-full p-3 border border-gray-300 rounded-lg text-base mb-3 ${hasLowStock ? "border-orange-500" : ""}`}>
+      <select value={selectedProduct} onChange={handleProductChange} className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3" style={{ borderColor: hasLowStock ? "orange" : "" }}>
         <option value="">상품을 선택하세요</option>
         {products.map(product => (
-          <option key={product.id} value={product.id} disabled={product.q === 0} className={getProductClassName(product)}>
+          <option key={product.id} value={product.id} disabled={product.quantity === 0} className={getProductClassName(product)}>
             {getProductDisplayText(product)}
           </option>
         ))}
@@ -71,15 +70,15 @@ export default function ProductSelector() {
       <button
         onClick={handleAddToCart}
         disabled={!selectedProduct}
-        className="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
+        className={`w-full py-3 text-white text-sm font-medium uppercase tracking-wider transition-all ${!selectedProduct ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800"}`}
       >
         Add to Cart
       </button>
 
       <div className="text-xs text-red-500 mt-3 whitespace-pre-line">
         {products
-          .filter(product => product.q < 5)
-          .map(product => (product.q > 0 ? `${product.name}: 재고 부족 (${product.q}개 남음)\n` : `${product.name}: 품절\n`))
+          .filter(product => product.quantity < 5)
+          .map(product => (product.quantity > 0 ? `${product.name}: 재고 부족 (${product.quantity}개 남음)\n` : `${product.name}: 품절\n`))
           .join("")}
       </div>
     </div>
