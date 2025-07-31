@@ -1,3 +1,5 @@
+import { isTuesday } from '../utils';
+
 function ProductSelector({ onAddToCart }) {
   const container = document.createElement('div');
   container.className = 'mb-6 pb-6 border-b border-gray-200';
@@ -197,6 +199,86 @@ function OrderSummary() {
   return container;
 }
 
+function OrderSummaryDetails({
+  findProductById,
+  cartItems,
+  subTotal,
+  itemCount,
+  itemDiscounts,
+  totalAmount,
+}) {
+  const container = document.createElement('div');
+  let html = '';
+
+  if (subTotal > 0) {
+    // 각 상품별 요약 표시
+    for (let i = 0; i < cartItems.length; i++) {
+      const currentItem = findProductById(cartItems[i].id);
+      const quantityElem = cartItems[i].querySelector('.quantity-number');
+      const q = parseInt(quantityElem.textContent);
+      const itemTotal = currentItem.val * q;
+
+      html += `
+        <div class="flex justify-between text-xs tracking-wide text-gray-400">
+          <span>${currentItem.name} x ${q}</span>
+          <span>₩${itemTotal.toLocaleString()}</span>
+        </div>
+      `;
+    }
+
+    // 소계 표시
+    html += `
+     <div class="border-t border-white/10 my-3"></div>
+     <div class="flex justify-between text-sm tracking-wide">
+       <span>Subtotal</span>
+       <span>₩${subTotal.toLocaleString()}</span>
+     </div>
+   `;
+
+    // 할인 정보 표시
+    if (itemCount >= 30) {
+      html += `
+        <div class="flex justify-between text-sm tracking-wide text-green-400">
+          <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
+          <span class="text-xs">-25%</span>
+        </div>
+      `;
+    } else if (itemDiscounts.length > 0) {
+      itemDiscounts.forEach(function (item) {
+        html += `
+          <div class="flex justify-between text-sm tracking-wide text-green-400">
+            <span class="text-xs">${item.name} (10개↑)</span>
+            <span class="text-xs">-${item.discount}%</span>
+          </div>
+        `;
+      });
+    }
+
+    // 화요일 할인 표시
+    if (isTuesday) {
+      if (totalAmount > 0) {
+        html += `
+          <div class="flex justify-between text-sm tracking-wide text-purple-400">
+            <span class="text-xs">🌟 화요일 추가 할인</span>
+            <span class="text-xs">-10%</span>
+          </div>
+        `;
+      }
+    }
+
+    // 배송비 표시
+    html += `
+      <div class="flex justify-between text-sm tracking-wide text-gray-400">
+        <span>Shipping</span>
+        <span>Free</span>
+      </div>
+    `;
+
+    container.innerHTML = html;
+  }
+  return container;
+}
+
 function PriceSummary(targetElement, product) {
   if (!targetElement) return;
   const container = document.createElement('span');
@@ -222,6 +304,7 @@ export {
   CartItem,
   PointSummary,
   OrderSummary,
+  OrderSummaryDetails,
   DiscountSummary,
   PriceSummary,
 };
