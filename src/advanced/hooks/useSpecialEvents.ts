@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { Product } from "../types";
 import { SPECIAL_EVENTS, DISCOUNT_RATES } from "../constants";
+import { useToast } from "../context/ToastContext";
 
 interface UseSpecialEventsProps {
   products: Product[];
@@ -9,6 +10,8 @@ interface UseSpecialEventsProps {
 }
 
 export const useSpecialEvents = ({ products, onProductUpdate, selectedProductId }: UseSpecialEventsProps) => {
+  const { addToast } = useToast();
+
   const triggerLightningSale = useCallback(() => {
     const availableProducts = products.filter(p => p.quantity > 0 && !p.onSale);
     if (availableProducts.length === 0) return;
@@ -23,8 +26,12 @@ export const useSpecialEvents = ({ products, onProductUpdate, selectedProductId 
       onSale: true,
     });
 
-    alert(`⚡번개세일! ${luckyProduct.name}이(가) ${DISCOUNT_RATES.LIGHTNING_DISCOUNT}% 할인 중입니다!`);
-  }, [products, onProductUpdate]);
+    addToast({
+      type: "info",
+      message: `⚡번개세일! ${luckyProduct.name}이(가) ${DISCOUNT_RATES.LIGHTNING_DISCOUNT}% 할인 중입니다!`,
+      duration: 4000,
+    });
+  }, [products, onProductUpdate, addToast]);
 
   const triggerSuggestSale = useCallback(() => {
     if (!selectedProductId) return;
@@ -41,8 +48,12 @@ export const useSpecialEvents = ({ products, onProductUpdate, selectedProductId 
       suggestSale: true,
     });
 
-    alert(`💝 ${suggestProduct.name}은(는) 어떠세요? 지금 구매하시면 ${DISCOUNT_RATES.SUGGEST_DISCOUNT}% 추가 할인!`);
-  }, [products, selectedProductId, onProductUpdate]);
+    addToast({
+      type: "success",
+      message: `💝 ${suggestProduct.name}은(는) 어떠세요? 지금 구매하시면 ${DISCOUNT_RATES.SUGGEST_DISCOUNT}% 추가 할인!`,
+      duration: 4000,
+    });
+  }, [products, selectedProductId, onProductUpdate, addToast]);
 
   useEffect(() => {
     // 번개세일 타이머
