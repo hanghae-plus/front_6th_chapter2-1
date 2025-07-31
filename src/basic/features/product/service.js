@@ -137,3 +137,25 @@ export const getProductOptionStyle = (product) => {
       return '';
   }
 };
+
+/**
+ * @description 상품 할인 상태에 따라 할인 아이콘 반환
+ *
+ * @param {Product} product - 상품
+ * @returns {string} 할인 아이콘
+ */
+export const getDiscountIcon = (product) => {
+  const status = getDiscountStatus(product);
+
+  switch (status) {
+    case 'SUPER':
+      return '⚡💝';
+    case 'SALE':
+      return '⚡';
+    case 'SUGGEST':
+      return '💝';
+    case 'NO_SALE':
+    default:
+      return '';
+  }
+};
