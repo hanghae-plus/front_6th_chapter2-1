@@ -170,23 +170,12 @@ const onUpdateSelectOptions = () => {
   productSelector.style.borderColor = totalStock < 50 ? "orange" : "";
 };
 
-const getHasItemInCart = (cartItems, prodList) => {
-  const hasItemInfo = {
-    hasKeyboard: false,
-    hasMouse: false,
-    hasMonitorArm: false,
+const getHasItemInCart = (cartItems) => {
+  return {
+    hasKeyboard: cartItems.some((item) => item.id === PRODUCT_ONE),
+    hasMouse: cartItems.some((item) => item.id === PRODUCT_TWO),
+    hasMonitorArm: cartItems.some((item) => item.id === PRODUCT_THREE),
   };
-
-  cartItems.forEach((cartItem) => {
-    const product = prodList.find((item) => item.id === cartItem.id);
-    hasItemInfo.hasKeyboard =
-      hasItemInfo.hasKeyboard || product.id === PRODUCT_ONE;
-    hasItemInfo.hasMouse = hasItemInfo.hasMouse || product.id === PRODUCT_TWO;
-    hasItemInfo.hasMonitorArm =
-      hasItemInfo.hasMonitorArm || product.id === PRODUCT_THREE;
-  });
-
-  return hasItemInfo;
 };
 
 const getCalculatePoints = ({
@@ -247,10 +236,7 @@ const doRenderBonusPoints = ({
     return;
   }
 
-  const { hasKeyboard, hasMouse, hasMonitorArm } = getHasItemInCart(
-    cartItems,
-    prodList
-  );
+  const { hasKeyboard, hasMouse, hasMonitorArm } = getHasItemInCart(cartItems);
 
   const { finalPoints, pointsDetail } = getCalculatePoints({
     totalItemCount,
