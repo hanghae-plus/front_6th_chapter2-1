@@ -1,9 +1,12 @@
 import { useCartState } from '../../../contexts/CartContext';
-import { getCartSummary } from '../../../reducer';
+import { getDiscountResult, getSubtotal } from '../../../reducer';
 
 export const DiscountInfo = () => {
   const state = useCartState();
-  const { savedAmount, totalDiscountRate } = getCartSummary(state);
+  const { finalTotal } = getDiscountResult(state);
+  const subtotal = getSubtotal(state);
+  const savedAmount = subtotal - finalTotal;
+  const totalDiscountRate = subtotal > 0 ? savedAmount / subtotal : 0;
 
   if (savedAmount <= 0) return '';
 

@@ -1,9 +1,7 @@
-import { useCartState } from '../../../contexts/CartContext';
-import { getCartSummary } from '../../../reducer';
+import { getIsTuesday } from '../../../reducer';
 
 export const TuesdaySpecial = () => {
-  const state = useCartState();
-  const { isTuesday } = getCartSummary(state);
+  const isTuesday = getIsTuesday();
 
   if (!isTuesday) return '';
 

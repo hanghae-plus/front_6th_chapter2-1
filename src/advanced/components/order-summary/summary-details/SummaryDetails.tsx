@@ -1,13 +1,13 @@
 import { ItemDetails } from './ItemDetails';
 import { PriceDetails } from './PriceDetails';
 import { useCartState } from '../../../contexts/CartContext';
-import { getCartSummary } from '../../../reducer';
+import { getTotalQuantity } from '../../../reducer';
 
 export const SummaryDetails = () => {
   const state = useCartState();
-  const summary = getCartSummary(state);
+  const totalQuantity = getTotalQuantity(state);
 
-  if (summary.totalQuantity === 0) return '';
+  if (totalQuantity === 0) return '';
 
   return (
     <>

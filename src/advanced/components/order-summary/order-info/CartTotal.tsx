@@ -1,10 +1,11 @@
 import { LoyaltyPoints } from './LoyaltyPoints';
 import { useCartState } from '../../../contexts/CartContext';
-import { getCartSummary } from '../../../reducer';
+import { getBonusPoints, getDiscountResult } from '../../../reducer';
 
 export const CartTotal = () => {
   const state = useCartState();
-  const { finalTotal, bonusPoints, pointsDetail } = getCartSummary(state);
+  const { bonusPoints, pointsDetail } = getBonusPoints(state);
+  const { finalTotal } = getDiscountResult(state);
 
   return (
     <div id='cart-total' className='pt-5 border-t border-white/10'>

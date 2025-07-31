@@ -1,9 +1,10 @@
 import { useCartState } from '../../../contexts/CartContext';
-import { getCartSummary } from '../../../reducer';
+import { getDiscountResult, getSubtotal } from '../../../reducer';
 
 export const PriceDetails = () => {
   const state = useCartState();
-  const { subtotal, discounts } = getCartSummary(state);
+  const subtotal = getSubtotal(state);
+  const { discounts } = getDiscountResult(state);
 
   return (
     <>

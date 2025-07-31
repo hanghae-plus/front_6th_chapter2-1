@@ -320,28 +320,3 @@ export const getBonusPoints = (state: State) => {
 
   return { bonusPoints: totalBonusPoints, pointsDetail };
 };
-
-export const getCartSummary = (state: State) => {
-  const { finalTotal, discounts } = getDiscountResult(state);
-  const { bonusPoints, pointsDetail } = getBonusPoints(state);
-  const subtotal = getSubtotal(state);
-  const savedAmount = subtotal - finalTotal;
-
-  return {
-    subtotal,
-    finalTotal,
-    discounts,
-    savedAmount,
-    bonusPoints,
-    pointsDetail,
-    totalQuantity: getTotalQuantity(state),
-    isTuesday: getIsTuesday(),
-    stockMessages: getStockMessages(state),
-    totalDiscountRate: subtotal > 0 ? savedAmount / subtotal : 0,
-    cartItemsForDisplay: getCartDetails(state).map((item) => ({
-      name: item.product ? item.product.name : '',
-      quantity: item.quantity,
-      totalPrice: item.itemTotal,
-    })),
-  };
-};

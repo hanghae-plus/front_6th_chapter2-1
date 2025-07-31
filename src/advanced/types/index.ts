@@ -20,12 +20,6 @@ export interface Notification {
   message: string;
 }
 
-export interface CartItemForDisplay {
-  name: string;
-  quantity: number;
-  totalPrice: number;
-}
-
 // --- 전체 상태(State) 타입 정의 ---
 
 export interface State {
