@@ -36,7 +36,7 @@ const AppState = {
         name: '버그 없애는 키보드',
         value: 10000,
         originalValue: 10000,
-        quantity: 50,
+        stock: 50,
         onSale: false,
         suggestSale: false,
       },
@@ -45,7 +45,7 @@ const AppState = {
         name: '생산성 폭발 마우스',
         value: 20000,
         originalValue: 20000,
-        quantity: 30,
+        stock: 30,
         onSale: false,
         suggestSale: false,
       },
@@ -54,7 +54,7 @@ const AppState = {
         name: '거북목 탈출 모니터암',
         value: 30000,
         originalValue: 30000,
-        quantity: 20,
+        stock: 20,
         onSale: false,
         suggestSale: false,
       },
@@ -63,7 +63,7 @@ const AppState = {
         name: '에러 방지 노트북 파우치',
         value: 15000,
         originalValue: 15000,
-        quantity: 0,
+        stock: 0,
         onSale: false,
         suggestSale: false,
       },
@@ -72,7 +72,7 @@ const AppState = {
         name: `코딩할 때 듣는 Lo-Fi 스피커`,
         value: 25000,
         originalValue: 25000,
-        quantity: 10,
+        stock: 10,
         onSale: false,
         suggestSale: false,
       },
@@ -107,7 +107,7 @@ const ProductSelector = () => {
       if (product.onSale) discountText += ' ⚡SALE';
       if (product.suggestSale) discountText += ' 💝추천';
 
-      if (product.quantity === 0) {
+      if (product.stock === 0) {
         return `<option value="${product.id}" disabled class="text-gray-400">${product.name} - ${product.value}원 (품절)${discountText}</option>`;
       }
       if (product.onSale && product.suggestSale) {
@@ -333,7 +333,7 @@ const setupLightningSaleTimer = () => {
 
       const luckyIndex = Math.floor(Math.random() * AppState.products.length);
       const luckyItem = AppState.products[luckyIndex];
-      if (luckyItem.quantity > 0 && !luckyItem.onSale) {
+      if (luckyItem.stock > 0 && !luckyItem.onSale) {
         luckyItem.value = Math.round(luckyItem.originalValue * (1 - DISCOUNT_RATES.LIGHTNING_SALE));
         luckyItem.onSale = true;
         alert(
@@ -356,7 +356,7 @@ const setupRecommendationTimer = () => {
         const suggest = AppState.products.find(
           (product) =>
             product.id !== AppState.ui.lastSelectedProduct &&
-            product.quantity > 0 &&
+            product.stock > 0 &&
             !product.suggestSale,
         );
 
@@ -407,7 +407,7 @@ const SelectOptionsComponent = () =>
       if (item.onSale) discountText += ' ⚡SALE';
       if (item.suggestSale) discountText += ' 💝추천';
 
-      if (item.quantity === 0) {
+      if (item.stock === 0) {
         return `<option value="${item.id}" disabled class="text-gray-400">${item.name} - ${item.value}원 (품절)${discountText}</option>`;
       }
       if (item.onSale && item.suggestSale) {
@@ -424,7 +424,7 @@ const SelectOptionsComponent = () =>
     .join('');
 
 const handleUpdateSelectOptions = () => {
-  const totalStock = AppState.products.reduce((sum, product) => sum + product.quantity, 0);
+  const totalStock = AppState.products.reduce((sum, product) => sum + product.stock, 0);
 
   if (!AppState.ui.selectElement) return;
 
@@ -466,10 +466,10 @@ const calculateTuesdayDiscount = (totalAmount) =>
 
 const getStockStatusMessage = () =>
   AppState.products
-    .filter((product) => product.quantity < QUANTITY_THRESHOLDS.LOW_STOCK)
+    .filter((product) => product.stock < QUANTITY_THRESHOLDS.LOW_STOCK)
     .map((product) => {
-      if (product.quantity > 0) {
-        return `${product.name}: 재고 부족 (${product.quantity}개 남음)`;
+      if (product.stock > 0) {
+        return `${product.name}: 재고 부족 (${product.stock}개 남음)`;
       }
       return `${product.name}: 품절`;
     })
@@ -850,7 +850,7 @@ const handleRenderBonusPoints = () => {
 };
 
 const handleGetStockTotal = () =>
-  AppState.products.reduce((sum, currentProduct) => sum + currentProduct.quantity, 0);
+  AppState.products.reduce((sum, currentProduct) => sum + currentProduct.stock, 0);
 
 const handleStockInfoUpdate = () => {
   let infoMessage = '';
@@ -859,9 +859,9 @@ const handleStockInfoUpdate = () => {
     // 재고 부족 시 추가 처리 가능
   }
   AppState.products.forEach((item) => {
-    if (item.quantity < QUANTITY_THRESHOLDS.LOW_STOCK) {
-      if (item.quantity > 0) {
-        infoMessage += `${item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
+    if (item.stock < QUANTITY_THRESHOLDS.LOW_STOCK) {
+      if (item.stock > 0) {
+        infoMessage += `${item.name}: 재고 부족 (${item.stock}개 남음)\n`;
       } else {
         infoMessage += `${item.name}: 품절\n`;
       }
@@ -960,7 +960,7 @@ const CartItemElement = (product) => {
 // 상태 변경 함수들 (비즈니스 로직)
 const addItemToCart = (productId) => {
   const product = findProductByIdLocal(productId);
-  if (!product || product.quantity <= 0) {
+  if (!product || product.stock <= 0) {
     return false;
   }
 
@@ -971,9 +971,9 @@ const addItemToCart = (productId) => {
     const currentQuantity = parseInt(quantityElement.textContent);
     const newQuantity = currentQuantity + 1;
 
-    if (newQuantity <= product.quantity + currentQuantity) {
+    if (newQuantity <= product.stock + currentQuantity) {
       quantityElement.textContent = newQuantity;
-      product.quantity--;
+      product.stock--;
       return true;
     }
     alert('재고가 부족합니다.');
@@ -983,7 +983,7 @@ const addItemToCart = (productId) => {
   // 새 아이템 추가
   const newItemHTML = CartItemElement(product);
   AppState.ui.cartDisplay.insertAdjacentHTML('beforeend', newItemHTML);
-  product.quantity--;
+  product.stock--;
   return true;
 };
 
@@ -999,15 +999,15 @@ const updateItemQuantity = (productId, change) => {
   const currentQuantity = parseInt(quantityElement.textContent);
   const newQuantity = currentQuantity + change;
 
-  if (newQuantity > 0 && newQuantity <= product.quantity + currentQuantity) {
+  if (newQuantity > 0 && newQuantity <= product.stock + currentQuantity) {
     quantityElement.textContent = newQuantity;
-    product.quantity -= change;
+    product.stock -= change;
     return true;
   }
 
   if (newQuantity <= 0) {
     // 아이템 제거
-    product.quantity += currentQuantity;
+    product.stock += currentQuantity;
     itemElement.remove();
     return true;
   }
@@ -1026,7 +1026,7 @@ const removeItemFromCart = (productId) => {
 
   const quantityElement = itemElement.querySelector('.quantity-number');
   const removeQuantity = parseInt(quantityElement.textContent);
-  product.quantity += removeQuantity;
+  product.stock += removeQuantity;
   itemElement.remove();
   return true;
 };
