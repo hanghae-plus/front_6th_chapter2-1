@@ -6,6 +6,7 @@ import {
   extractProductInfo,
   generateStockStatusMessage 
 } from '../utils';
+import { QUANTITY_THRESHOLDS, DISCOUNT_PERCENTAGES } from '../constants';
 
 interface ProductSelectorProps {
   products: Product[];
@@ -43,7 +44,7 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({
       <select
         id="product-select"
         className={`w-full p-3 border border-gray-300 rounded-lg text-base mb-3 ${
-          totalStockCount < 50 ? 'border-orange-500' : ''
+          totalStockCount < QUANTITY_THRESHOLDS.STOCK_WARNING ? 'border-orange-500' : ''
         }`}
         value={selectedProduct}
         onChange={(e) => {
@@ -57,7 +58,7 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({
           if (product.hasLightningDiscount) discountText += ' ⚡SALE';
           if (product.hasRecommendationDiscount) discountText += ' 💝추천';
 
-          if (product.quantity === 0) {
+          if (product.quantity === QUANTITY_THRESHOLDS.OUT_OF_STOCK) {
             return (
               <option key={product.id} value={product.id} disabled className="text-gray-400">
                 {product.name} - {product.price}원 (품절){discountText}
@@ -69,13 +70,13 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({
           let optionClassName = '';
 
           if (product.hasLightningDiscount && product.hasRecommendationDiscount) {
-            optionText = `⚡💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (25% SUPER SALE!)`;
+            optionText = `⚡💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (${DISCOUNT_PERCENTAGES.SUPER_SALE}% SUPER SALE!)`;
             optionClassName = 'text-purple-600 font-bold';
           } else if (product.hasLightningDiscount) {
-            optionText = `⚡${product.name} - ${product.originalPrice}원 → ${product.price}원 (20% SALE!)`;
+            optionText = `⚡${product.name} - ${product.originalPrice}원 → ${product.price}원 (${DISCOUNT_PERCENTAGES.LIGHTNING_SALE}% SALE!)`;
             optionClassName = 'text-red-500 font-bold';
           } else if (product.hasRecommendationDiscount) {
-            optionText = `💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (5% 추천할인!)`;
+            optionText = `💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (${DISCOUNT_PERCENTAGES.RECOMMENDATION}% 추천할인!)`;
             optionClassName = 'text-blue-500 font-bold';
           } else {
             optionText = `${product.name} - ${product.price}원${discountText}`;

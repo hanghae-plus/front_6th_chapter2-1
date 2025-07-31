@@ -26,7 +26,7 @@ export const useProductManagement = () => {
   const handleLightningSale = useCallback(() => {
     const now = Date.now();
     // 이미 알럿이 표시되었거나 2초 내에 같은 알럿이 표시되지 않도록 방지
-    if (lightningAlertShown || now - lastLightningAlertTime < 2000) return;
+    if (lightningAlertShown || now - lastLightningAlertTime < TIMER_CONFIG.ALERT_DEBOUNCE) return;
     
     setProducts(prevProducts => {
       // 재고가 있고, 아직 번개세일이 적용되지 않은 상품만 필터링
@@ -54,7 +54,7 @@ export const useProductManagement = () => {
       setTimeout(() => {
         lightningAlertShown = false;
         lightningAlertMessage = '';
-      }, 5000);
+      }, TIMER_CONFIG.ALERT_RESET);
       
       return updatedProducts;
     });
@@ -63,7 +63,7 @@ export const useProductManagement = () => {
   const handleRecommendationSale = useCallback((currentProductId: string) => {
     const now = Date.now();
     // 이미 알럿이 표시되었거나 2초 내에 같은 알럿이 표시되지 않도록 방지
-    if (recommendationAlertShown || now - lastRecommendationAlertTime < 2000) return;
+    if (recommendationAlertShown || now - lastRecommendationAlertTime < TIMER_CONFIG.ALERT_DEBOUNCE) return;
     
     setProducts(prevProducts => {
             const availableProducts = getAvailableForRecommendationSale(prevProducts, currentProductId);
@@ -82,7 +82,7 @@ export const useProductManagement = () => {
           if (product.hasLightningDiscount) {
             return { 
               ...product, 
-              price: Math.round(product.originalPrice * 0.75), // 25% 할인
+              price: Math.round(product.originalPrice * (1 - DISCOUNT_RATES.SUPER_SALE)), // 25% 할인
               hasRecommendationDiscount: true 
             };
           } else {
@@ -106,7 +106,7 @@ export const useProductManagement = () => {
       setTimeout(() => {
         recommendationAlertShown = false;
         recommendationAlertMessage = '';
-      }, 5000);
+      }, TIMER_CONFIG.ALERT_RESET);
       
       return updatedProducts;
     });

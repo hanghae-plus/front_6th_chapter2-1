@@ -1,5 +1,6 @@
 import { CartItem, Product } from '../types';
 import { findProductByCartItem, isTuesday, isBulkPurchaseEligible, calculateTotalCartQuantity } from '../utils';
+import { QUANTITY_THRESHOLDS, DISCOUNT_PERCENTAGES } from '../constants';
 
 interface OrderSummaryProps {
   cartItems: CartItem[];
@@ -63,14 +64,14 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               {/* Bulk discount (원본과 동일한 순서) */}
               {isBulkPurchaseEligible(cartItems) ? (
                 <div className="flex justify-between text-sm tracking-wide text-green-400">
-                  <span className="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-                  <span className="text-xs">-25%</span>
+                  <span className="text-xs">🎉 대량구매 할인 ({QUANTITY_THRESHOLDS.BULK_PURCHASE}개 이상)</span>
+                  <span className="text-xs">-{DISCOUNT_PERCENTAGES.BULK_PURCHASE}%</span>
                 </div>
               ) : (
                 /* Individual discounts (대량구매 할인이 없을 때만 표시) */
                 itemDiscounts.map((discount, index) => (
                   <div key={index} className="flex justify-between text-sm tracking-wide text-green-400">
-                    <span className="text-xs">{discount.name} (10개↑)</span>
+                    <span className="text-xs">{discount.name} ({QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑)</span>
                     <span className="text-xs">-{discount.discount}%</span>
                   </div>
                 ))
@@ -80,7 +81,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               {isTuesdayToday && finalTotal > 0 && (
                 <div className="flex justify-between text-sm tracking-wide text-purple-400">
                   <span className="text-xs">🌟 화요일 추가 할인</span>
-                  <span className="text-xs">-10%</span>
+                  <span className="text-xs">-{DISCOUNT_PERCENTAGES.TUESDAY}%</span>
                 </div>
               )}
               
@@ -138,7 +139,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
             <div id="tuesday-special" data-testid="tuesday-special" className="mt-4 p-3 bg-white/10 rounded-lg">
               <div className="flex items-center gap-2">
                 <span className="text-2xs">🎉</span>
-                <span className="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
+                                  <span className="text-xs uppercase tracking-wide">Tuesday Special {DISCOUNT_PERCENTAGES.TUESDAY}% Applied</span>
               </div>
             </div>
           )}

@@ -3,7 +3,12 @@
 // ============================================
 
 import { calculateAllPoints } from './businessLogic.js';
-import { QUANTITY_THRESHOLDS } from './constants.js';
+import {
+  QUANTITY_THRESHOLDS,
+  PRODUCT_IDS,
+  DISCOUNT_RATES,
+  DISCOUNT_PERCENTAGES,
+} from './constants.js';
 
 // 전역 AppState 참조
 let AppState = null;
@@ -11,6 +16,23 @@ let AppState = null;
 // AppState 설정 함수
 export const setAppState = (state) => {
   AppState = state;
+};
+
+// 개별 상품 할인 계산 함수
+const calculateIndividualDiscount = (productId, quantity) => {
+  if (quantity < QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
+    return 0;
+  }
+
+  const discountRates = {
+    [PRODUCT_IDS.KEYBOARD]: DISCOUNT_RATES.KEYBOARD,
+    [PRODUCT_IDS.MOUSE]: DISCOUNT_RATES.MOUSE,
+    [PRODUCT_IDS.MONITOR_ARM]: DISCOUNT_RATES.MONITOR_ARM,
+    [PRODUCT_IDS.LAPTOP_POUCH]: DISCOUNT_RATES.LAPTOP_POUCH,
+    [PRODUCT_IDS.SPEAKER]: DISCOUNT_RATES.SPEAKER,
+  };
+
+  return discountRates[productId] || 0;
 };
 
 // ============================================
@@ -36,19 +58,29 @@ const SummaryDetailsComponent = (cartItems, products, cartState) => {
     const product = products.find((p) => p.id === item.productId);
     if (!product) return;
 
-    const itemTotal = product.value * item.quantity;
+    // 개별 할인 계산 (10개 이상 구매 시)
+    const individualDiscount = calculateIndividualDiscount(product.id, item.quantity);
+    const discountedPrice =
+      individualDiscount > 0 ? product.value * (1 - individualDiscount) : product.value;
+    const itemTotal = discountedPrice * item.quantity;
+
     summaryHTML += `
       <div class="flex justify-between text-xs tracking-wide text-gray-400">
         <span>${product.name} x ${item.quantity}</span>
-        <span>₩${itemTotal.toLocaleString()}</span>
+        <span>₩${Math.round(itemTotal).toLocaleString()}</span>
       </div>
     `;
   });
 
-  // 소계
+  // 소계 (할인 적용된 가격으로 계산)
   const subtotal = cartItems.reduce((sum, item) => {
     const product = products.find((p) => p.id === item.productId);
-    return sum + (product ? product.value * item.quantity : 0);
+    if (!product) return sum;
+
+    const individualDiscount = calculateIndividualDiscount(product.id, item.quantity);
+    const discountedPrice =
+      individualDiscount > 0 ? product.value * (1 - individualDiscount) : product.value;
+    return sum + discountedPrice * item.quantity;
   }, 0);
 
   summaryHTML += `
@@ -63,29 +95,25 @@ const SummaryDetailsComponent = (cartItems, products, cartState) => {
   const { individualDiscount, tuesdayDiscount } = cartState;
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  if (totalQuantity >= 30) {
+  if (totalQuantity >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
     // 대량구매 할인
     summaryHTML += `
       <div class="flex justify-between text-sm tracking-wide text-green-400">
-        <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-        <span class="text-xs">-25%</span>
+        <span class="text-xs">🎉 대량구매 할인 (${QUANTITY_THRESHOLDS.BULK_PURCHASE}개 이상)</span>
+        <span class="text-xs">-${DISCOUNT_PERCENTAGES.BULK_PURCHASE}%</span>
       </div>
     `;
   } else if (individualDiscount > 0) {
     // 개별 할인
     cartItems.forEach((item) => {
       const product = products.find((p) => p.id === item.productId);
-      if (product && item.quantity >= 10) {
-        let discountPercent = 0;
-        if (product.id === 'p1') discountPercent = 10;
-        else if (product.id === 'p2') discountPercent = 15;
-        else if (product.id === 'p3') discountPercent = 20;
-        else if (product.id === 'p5') discountPercent = 25;
+      if (product && item.quantity >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
+        const discountPercent = calculateIndividualDiscount(product.id, item.quantity) * 100;
 
         if (discountPercent > 0) {
           summaryHTML += `
             <div class="flex justify-between text-sm tracking-wide text-green-400">
-              <span class="text-xs">${product.name} (10개↑)</span>
+              <span class="text-xs">${product.name} (${QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑)</span>
               <span class="text-xs">-${discountPercent}%</span>
             </div>
           `;
@@ -99,7 +127,7 @@ const SummaryDetailsComponent = (cartItems, products, cartState) => {
     summaryHTML += `
       <div class="flex justify-between text-sm tracking-wide text-purple-400">
         <span class="text-xs">🌟 화요일 추가 할인</span>
-        <span class="text-xs">-10%</span>
+        <span class="text-xs">-${DISCOUNT_PERCENTAGES.TUESDAY}%</span>
       </div>
     `;
   }
@@ -144,11 +172,11 @@ const TuesdaySpecialBannerComponent = (cartState) => {
     return '';
   }
 
-  // 원본과 정확히 동일한 내용 (HTML에 이미 정의되어 있음)
+  // 원본과 정확히 동일한 구조
   return `
     <div class="flex items-center gap-2">
       <span class="text-2xs">🎉</span>
-      <span class="text-xs uppercase tracking-wide">Tuesday Special 10% Applied</span>
+              <span class="text-xs uppercase tracking-wide">Tuesday Special ${DISCOUNT_PERCENTAGES.TUESDAY}% Applied</span>
     </div>
   `;
 };
@@ -220,101 +248,65 @@ export const updateAdditionalCalculations = () => {
 // RENDERING ENGINE - 리액트 변환 준비
 // ============================================
 
-// 렌더링 엔진 (리액트 변환 시 이 부분만 교체)
+// HTML 문자열 반환 방식으로 변경 (DOM 조작 제거)
 export const RenderingEngine = {
-  // HTML 문자열을 실제 DOM에 적용 (리액트 변환 시 제거)
-  renderAll(htmlComponents) {
-    return htmlComponents;
-  },
+  // HTML 문자열만 반환 (DOM 조작 없음)
+  renderToDOM: (elements, renderedHTML) => ({
+    itemCount: renderedHTML.itemCount,
+    total: renderedHTML.total,
+    summary: renderedHTML.summary,
+    discount: renderedHTML.discount,
+    tuesdayBanner: renderedHTML.tuesdayBanner,
+    stock: renderedHTML.stock,
+    points: renderedHTML.points,
+  }),
 
-  // 실제 DOM에 렌더링 (리액트 변환 시 제거)
-  renderToDOM(renderedHTML) {
-    // item-count 업데이트
-    const itemCountElement = document.getElementById('item-count');
-    if (itemCountElement && renderedHTML.itemCount) {
-      itemCountElement.innerHTML = renderedHTML.itemCount;
-    }
-
-    // cart-total 업데이트
-    const totalElement = document.getElementById('cart-total');
-    if (totalElement && renderedHTML.total) {
-      const totalTextElement = totalElement.querySelector('.text-2xl');
-      if (totalTextElement) {
-        totalTextElement.innerHTML = renderedHTML.total;
-      }
-    }
-
-    // summary-details 업데이트
-    const summaryElement = document.getElementById('summary-details');
-    if (summaryElement && renderedHTML.summary) {
-      summaryElement.innerHTML = renderedHTML.summary;
-    }
-
-    // discount-info 업데이트
-    const discountElement = document.getElementById('discount-info');
-    if (discountElement && renderedHTML.discount) {
-      discountElement.innerHTML = renderedHTML.discount;
-    }
-
-    // tuesday-special 업데이트
-    const tuesdayElement = document.getElementById('tuesday-special');
-    if (tuesdayElement) {
-      if (renderedHTML.tuesdayBanner) {
-        tuesdayElement.innerHTML = renderedHTML.tuesdayBanner;
-        tuesdayElement.classList.remove('hidden');
-      } else {
-        tuesdayElement.classList.add('hidden');
-      }
-    }
-
-    // stock-status 업데이트
-    const stockElement = document.getElementById('stock-status');
-    if (stockElement && renderedHTML.stock !== undefined) {
-      stockElement.innerHTML = renderedHTML.stock;
-    }
-
-    // loyalty-points 업데이트
-    const pointsElement = document.getElementById('loyalty-points');
-    if (pointsElement && renderedHTML.points) {
-      pointsElement.innerHTML = renderedHTML.points;
-      // 빈 장바구니일 때 포인트 섹션 숨김 (테스트 요구사항)
-      if (renderedHTML.points.includes('style="display: none"')) {
-        pointsElement.style.display = 'none';
-      } else {
-        pointsElement.style.display = 'block';
-      }
-    }
-  },
+  // HTML 컴포넌트들을 받아서 HTML 문자열 반환
+  renderAll: (uiComponents) => ({
+    itemCount: uiComponents.itemCount,
+    total: uiComponents.total,
+    summary: uiComponents.summary,
+    discount: uiComponents.discount,
+    tuesdayBanner: uiComponents.tuesdayBanner,
+    stock: uiComponents.stock,
+    points: uiComponents.points,
+  }),
 
   // 장바구니 아이템 수량 업데이트 (HTML 문자열 반환)
   updateCartItemQuantity(productId, newQuantity) {
-    // 수량과 총액을 함께 업데이트
-    const quantityElement = document.querySelector(`#${productId} .quantity-number`);
-    const totalElement = document.querySelector(
-      `#${productId} .text-lg.mb-2.tracking-tight.tabular-nums`,
-    );
+    const product = AppState.products.find((p) => p.id === productId);
+    if (!product) return { success: false };
 
-    if (quantityElement) {
-      quantityElement.textContent = newQuantity;
+    // HTML 문자열만 반환 (DOM 조작 없음)
+    if (product.onSale || product.suggestSale) {
+      // 할인 적용된 경우: 원가(취소선) + 할인가
+      const priceClass =
+        product.onSale && product.suggestSale
+          ? 'text-purple-600'
+          : product.onSale
+            ? 'text-red-500'
+            : 'text-blue-500';
+
+      const totalPriceStyle =
+        newQuantity >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT ? 'font-bold' : 'font-normal';
+
+      return {
+        success: true,
+        productId,
+        newQuantity,
+        totalPriceHTML: `<span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span> <span class="${priceClass} ${totalPriceStyle}">₩${product.value.toLocaleString()}</span>`,
+      };
     }
 
-    if (totalElement) {
-      // 총액 계산 및 폰트 스타일 처리
-      const product = AppState.products.find((p) => p.id === productId);
-      if (product) {
-        const totalPrice = product.value * newQuantity;
-        totalElement.textContent = `₩${totalPrice.toLocaleString()}`;
-
-        // 폰트 스타일 설정 (10개 이상이면 볼드)
-        if (newQuantity >= 10) {
-          totalElement.style.fontWeight = 'bold';
-        } else {
-          totalElement.style.fontWeight = 'normal';
-        }
-      }
-    }
-
-    return { productId, newQuantity };
+    // 할인 미적용: 단가만 표시
+    const totalPriceStyle =
+      newQuantity >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT ? 'font-bold' : 'font-normal';
+    return {
+      success: true,
+      productId,
+      newQuantity,
+      totalPriceHTML: `<span class="${totalPriceStyle}">₩${product.value.toLocaleString()}</span>`,
+    };
   },
 
   // 장바구니 아이템 추가 (HTML 문자열 반환)

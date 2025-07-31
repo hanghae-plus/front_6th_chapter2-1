@@ -31,6 +31,8 @@ export const calculateCartState = (cartItems, products) => {
     totalAmount,
     discountRate,
     originalTotal: subtotal, // 할인 전 원래 총액 추가
+    tuesdayDiscount: calculateTuesdayDiscount(totalAmount), // 화요일 할인 추가
+    individualDiscount: itemDiscounts.length > 0, // 개별 할인이 있는지 여부
   };
 };
 
@@ -61,7 +63,7 @@ const calculateCartItems = (cartItems, products) => {
       const { name } = currentProduct;
       itemDiscounts.push({
         name,
-        discount: discount * 100,
+        discount: discount * 100, // 퍼센트로 변환
       });
       totalAmount += itemTotal * (1 - discount); // 개별 할인 적용
     } else {

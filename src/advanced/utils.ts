@@ -1,4 +1,5 @@
 import { Product, CartItem } from './types';
+import { QUANTITY_THRESHOLDS, WEEKDAYS } from './constants';
 
 /**
  * 상품 ID로 상품을 찾는 유틸 함수
@@ -31,7 +32,7 @@ export const calculateTotalCartQuantity = (cartItems: CartItem[]): number => {
 /**
  * 재고 부족 상품들을 필터링하는 유틸 함수
  */
-export const getLowStockProducts = (products: Product[], threshold: number = 5): Product[] => {
+export const getLowStockProducts = (products: Product[], threshold: number = QUANTITY_THRESHOLDS.LOW_STOCK): Product[] => {
   return products.filter(product => product.quantity < threshold && product.quantity > 0);
 };
 
@@ -39,7 +40,7 @@ export const getLowStockProducts = (products: Product[], threshold: number = 5):
  * 품절 상품들을 필터링하는 유틸 함수
  */
 export const getOutOfStockProducts = (products: Product[]): Product[] => {
-  return products.filter(product => product.quantity === 0);
+  return products.filter(product => product.quantity === QUANTITY_THRESHOLDS.OUT_OF_STOCK);
 };
 
 /**
@@ -92,19 +93,19 @@ export const generateStockStatusMessage = (products: Product[]): string => {
  * 화요일인지 확인하는 유틸 함수
  */
 export const isTuesday = (): boolean => {
-  return new Date().getDay() === 2;
+  return new Date().getDay() === WEEKDAYS.TUESDAY;
 };
 
 /**
  * 대량구매 할인 적용 가능한지 확인하는 유틸 함수
  */
 export const isBulkPurchaseEligible = (cartItems: CartItem[]): boolean => {
-  return calculateTotalCartQuantity(cartItems) >= 30;
+  return calculateTotalCartQuantity(cartItems) >= QUANTITY_THRESHOLDS.BULK_PURCHASE;
 };
 
 /**
  * 개별 상품 할인 적용 가능한지 확인하는 유틸 함수
  */
 export const isIndividualDiscountEligible = (quantity: number): boolean => {
-  return quantity >= 10;
+  return quantity >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT;
 }; 

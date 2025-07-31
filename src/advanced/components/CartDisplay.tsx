@@ -2,6 +2,7 @@ import React from 'react';
 
 import { CartItem, Product } from '../types';
 import { findProductByCartItem } from '../utils';
+import { QUANTITY_THRESHOLDS } from '../constants';
 
 interface CartDisplayProps {
   cartItems: CartItem[];
@@ -122,7 +123,7 @@ const CartItemComponent: React.FC<CartItemComponentProps> = ({
       <div className="text-right">
         <div 
           className="text-lg mb-2 tracking-tight tabular-nums"
-          style={{ fontWeight: item.quantity >= 10 ? 'bold' : 'normal' }}
+          style={{ fontWeight: item.quantity >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT ? 'bold' : 'normal' }}
         >
           {getProductDisplayPrice()}
         </div>

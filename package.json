@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://adds9810.github.io/front_6th_chapter2-1/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

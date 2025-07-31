@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import { QUANTITY_THRESHOLDS, DISCOUNT_PERCENTAGES, POINTS_CONFIG } from '../constants';
+
 export const ManualOverlay: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -56,24 +58,24 @@ export const ManualOverlay: React.FC = () => {
               <div className="bg-gray-100 rounded-lg p-3">
                 <p className="font-semibold text-sm mb-1">개별 상품</p>
                 <p className="text-gray-700 text-xs pl-2">
-                  • 키보드 10개↑: 10%<br/>
-                  • 마우스 10개↑: 15%<br/>
-                  • 모니터암 10개↑: 20%<br/>
-                  • 스피커 10개↑: 25%
+                  • 키보드 {QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑: {DISCOUNT_PERCENTAGES.KEYBOARD}%<br/>
+                  • 마우스 {QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑: {DISCOUNT_PERCENTAGES.MOUSE}%<br/>
+                  • 모니터암 {QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑: {DISCOUNT_PERCENTAGES.MONITOR_ARM}%<br/>
+                  • 스피커 {QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑: {DISCOUNT_PERCENTAGES.SPEAKER}%
                 </p>
               </div>
               
               <div className="bg-gray-100 rounded-lg p-3">
                 <p className="font-semibold text-sm mb-1">전체 수량</p>
-                <p className="text-gray-700 text-xs pl-2">• 30개 이상: 25%</p>
+                <p className="text-gray-700 text-xs pl-2">• {QUANTITY_THRESHOLDS.BULK_PURCHASE}개 이상: {DISCOUNT_PERCENTAGES.BULK_PURCHASE}%</p>
               </div>
               
               <div className="bg-gray-100 rounded-lg p-3">
                 <p className="font-semibold text-sm mb-1">특별 할인</p>
                 <p className="text-gray-700 text-xs pl-2">
-                  • 화요일: +10%<br/>
-                  • ⚡번개세일: 20%<br/>
-                  • 💝추천할인: 5%
+                  • 화요일: +{DISCOUNT_PERCENTAGES.TUESDAY}%<br/>
+                  • ⚡번개세일: {DISCOUNT_PERCENTAGES.LIGHTNING_SALE}%<br/>
+                  • 💝추천할인: {DISCOUNT_PERCENTAGES.RECOMMENDATION}%
                 </p>
               </div>
             </div>
@@ -84,16 +86,16 @@ export const ManualOverlay: React.FC = () => {
             <div className="space-y-3">
               <div className="bg-gray-100 rounded-lg p-3">
                 <p className="font-semibold text-sm mb-1">기본</p>
-                <p className="text-gray-700 text-xs pl-2">• 구매액의 0.1%</p>
+                <p className="text-gray-700 text-xs pl-2">• 구매액의 {(POINTS_CONFIG.POINTS_DIVISOR / 10000).toFixed(1)}%</p>
               </div>
               
               <div className="bg-gray-100 rounded-lg p-3">
                 <p className="font-semibold text-sm mb-1">추가</p>
                 <p className="text-gray-700 text-xs pl-2">
-                  • 화요일: 2배<br/>
-                  • 키보드+마우스: +50p<br/>
-                  • 풀세트: +100p<br/>
-                  • 10개↑: +20p / 20개↑: +50p / 30개↑: +100p
+                  • 화요일: {POINTS_CONFIG.TUESDAY_MULTIPLIER}배<br/>
+                  • 키보드+마우스: +{POINTS_CONFIG.KEYBOARD_MOUSE_BONUS}p<br/>
+                  • 풀세트: +{POINTS_CONFIG.FULL_SET_BONUS}p<br/>
+                  • {QUANTITY_THRESHOLDS.POINTS_BONUS_10}개↑: +{POINTS_CONFIG.BONUS_10_ITEMS}p / {QUANTITY_THRESHOLDS.POINTS_BONUS_20}개↑: +{POINTS_CONFIG.BONUS_20_ITEMS}p / {QUANTITY_THRESHOLDS.BULK_PURCHASE}개↑: +{POINTS_CONFIG.BONUS_30_ITEMS}p
                 </p>
               </div>
             </div>

@@ -17,6 +17,7 @@ export const DISCOUNT_RATES = {
   RECOMMENDATION: 0.05, // 5% 추천할인
   TUESDAY: 0.1, // 10% 화요일 할인
   BULK_PURCHASE: 0.25, // 25% 대량구매
+  SUPER_SALE: 0.25, // 25% SUPER SALE (번개세일 + 추천할인)
 } as const;
 
 export const DISCOUNT_PERCENTAGES = {
@@ -36,6 +37,8 @@ export const QUANTITY_THRESHOLDS = {
   INDIVIDUAL_DISCOUNT: 10,
   BULK_PURCHASE: 30,
   LOW_STOCK: 5,
+  OUT_OF_STOCK: 0,
+  STOCK_WARNING: 50,
   POINTS_BONUS_10: 10,
   POINTS_BONUS_20: 20,
 } as const;
@@ -55,6 +58,8 @@ export const TIMER_CONFIG = {
   LIGHTNING_SALE_INTERVAL: 30000,  // 30초마다 (원본과 동일)
   RECOMMENDATION_DELAY: 20000,  // 0~20초 랜덤 지연 (원본과 동일)
   RECOMMENDATION_INTERVAL: 60000,  // 60초마다 (원본과 동일)
+  ALERT_DEBOUNCE: 2000,  // 2초 알럿 디바운스
+  ALERT_RESET: 5000,  // 5초 알럿 리셋
 } as const;
 
 export const WEEKDAYS = {
