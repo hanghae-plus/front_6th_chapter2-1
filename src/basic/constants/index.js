@@ -1,9 +1,9 @@
 // 상품 ID
-export const PRODUCT_ONE = 'product-one';
-export const PRODUCT_TWO = 'product-two';
-export const PRODUCT_THREE = 'product-three';
-export const PRODUCT_FOUR = 'product-four';
-export const PRODUCT_FIVE = 'product-five';
+export const PRODUCT_ONE = 'p1';
+export const PRODUCT_TWO = 'p2';
+export const PRODUCT_THREE = 'p3';
+export const PRODUCT_FOUR = 'p4';
+export const PRODUCT_FIVE = 'p5';
 
 // 할인율 관련 상수
 export const DISCOUNT_RATES = {
