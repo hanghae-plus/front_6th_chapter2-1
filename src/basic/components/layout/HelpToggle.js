@@ -1,6 +1,6 @@
-import Component from "../lib/Component.js";
+import Component from '../../lib/Component.js';
 
-export default class ManualToggle extends Component {
+export default class HelpToggle extends Component {
   template() {
     return /* HTML */ `
       <button

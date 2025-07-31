@@ -1,6 +1,6 @@
-import Component from "../lib/Component";
-import OrderSummary from "./OrderSummary";
-import ProductSelector from "./ProductSelector";
+import Component from '../../lib/Component.js';
+import OrderSummary from '../order/OrderSummary.js';
+import ProductSection from '../product/ProductSection.js';
 
 /**
  * 메인 레이아웃 컴포넌트 생성 함수
@@ -9,12 +9,12 @@ import ProductSelector from "./ProductSelector";
 export default class MainLayout extends Component {
   mounted() {
     this.renderChildren({
-      productSelector: {
-        selector: "#leftColumn",
-        Component: ProductSelector,
+      productSection: {
+        selector: '#leftColumn',
+        Component: ProductSection,
       },
       orderSummary: {
-        selector: "#rightColumn",
+        selector: '#rightColumn',
         Component: OrderSummary,
       },
     });

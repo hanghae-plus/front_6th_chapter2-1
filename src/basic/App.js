@@ -1,45 +1,45 @@
-import Header from "./components/Header.js";
-import MainLayout from "./components/MainLayout.js";
-import ManualOverlay from "./components/ManualOverlay.js";
-import ManualToggle from "./components/ManualToggle.js";
-import Component from "./lib/Component.js";
+import Header from './components/layout/Header.js';
+import ManualOverlay from './components/layout/HelpOverlay.js';
+import ManualToggle from './components/layout/HelpToggle.js';
+import MainLayout from './components/layout/MainLayout.js';
+import Component from './lib/Component.js';
 
 export default class App extends Component {
   mounted() {
     this.renderChildren({
       header: {
-        selector: "#header",
+        selector: '#header',
         Component: Header,
       },
       mainLayout: {
-        selector: "#main-layout",
+        selector: '#main-layout',
         Component: MainLayout,
       },
       manualToggle: {
-        selector: "#manual-toggle",
+        selector: '#manual-toggle',
         Component: ManualToggle,
       },
       manualOverlay: {
-        selector: "#manual-overlay",
+        selector: '#manual-overlay',
         Component: ManualOverlay,
       },
     });
   }
 
   setEvent() {
-    const $manualToggle = document.querySelector("#manualToggle");
-    const $manualOverlay = document.querySelector("#manualOverlay");
-    const $manualColumn = document.querySelector("#manualColumn");
+    const $manualToggle = document.querySelector('#manualToggle');
+    const $manualOverlay = document.querySelector('#manualOverlay');
+    const $manualColumn = document.querySelector('#manualColumn');
 
-    $manualToggle.addEventListener("click", () => {
-      $manualOverlay.classList.toggle("hidden");
-      $manualColumn.classList.toggle("translate-x-full");
+    $manualToggle.addEventListener('click', () => {
+      $manualOverlay.classList.toggle('hidden');
+      $manualColumn.classList.toggle('translate-x-full');
     });
 
-    $manualOverlay.addEventListener("click", e => {
+    $manualOverlay.addEventListener('click', e => {
       if (e.target === $manualOverlay) {
-        $manualOverlay.classList.add("hidden");
-        $manualColumn.classList.add("translate-x-full");
+        $manualOverlay.classList.add('hidden');
+        $manualColumn.classList.add('translate-x-full');
       }
     });
   }

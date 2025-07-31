@@ -1,6 +1,6 @@
-import { DISCOUNT_RATE_SUGGESTION } from "../data/discount.data.js";
-import { PRODUCT_LIST } from "../data/product.data.js";
-import { SUGGESTION_SALE_INTERVAL, SUGGESTION_SALE_MAX_DELAY } from "../data/time.data.js";
+import { DISCOUNT_RATE_SUGGESTION } from '../../data/discount.data.js';
+import { PRODUCT_LIST } from '../../data/product.data.js';
+import { SUGGESTION_SALE_INTERVAL, SUGGESTION_SALE_MAX_DELAY } from '../../data/time.data.js';
 
 /**
  * 추천할인 타이머를 관리하는 컴포넌트
@@ -34,11 +34,11 @@ export function createSuggestionSaleTimer(doUpdatePricesInCart, state) {
 
     if (suggest) {
       alert(
-        "💝 " +
+        '💝 ' +
           suggest.name +
-          "은(는) 어떠세요? 지금 구매하시면 " +
+          '은(는) 어떠세요? 지금 구매하시면 ' +
           DISCOUNT_RATE_SUGGESTION +
-          "% 추가 할인!"
+          '% 추가 할인!'
       );
 
       suggest.val = Math.round((suggest.val * (100 - DISCOUNT_RATE_SUGGESTION)) / 100);

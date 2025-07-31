@@ -1,11 +1,14 @@
 import App from './App.js';
-import { createTimerManager } from './components/TimerManager.js';
 import CartItem from './components/cart/CartItem.js';
 import ProductPrice from './components/cart/ProductPrice.js';
+import Divider from './components/layout/Divider.js';
+import { createTimerManager } from './components/layout/TimerManager.js';
 import { DISCOUNT_RATE_TUESDAY } from './data/discount.data.js';
 import { PRODUCT_LIST } from './data/product.data.js';
 import { MIN_QUANTITY_FOR_DISCOUNT } from './data/quantity.data.js';
 import { useDiscount, useOrderSummary, usePoint, useStock } from './hooks/index.js';
+import AppState from './store/appStore.js';
+import DOMManager from './store/domManager.js';
 import {
   getCartItemsArray,
   hasValidProduct,
@@ -18,60 +21,6 @@ import {
 import { isProductDiscountEligible } from './utils/discount.util.js';
 import { createProductName, findProductById } from './utils/product.util.js';
 import { validateStockAvailability } from './utils/stock.util.js';
-
-// ============================================================================
-// 애플리케이션 상태 관리
-// ============================================================================
-class AppState {
-  constructor() {
-    this.totalQuantity = 0;
-    this.lastSelectedProductId = null;
-    this.totalPrice = 0;
-  }
-
-  updateState(newState) {
-    Object.assign(this, newState);
-  }
-
-  getState() {
-    return {
-      totalQuantity: this.totalQuantity,
-      lastSelectedProductId: this.lastSelectedProductId,
-      totalPrice: this.totalPrice,
-    };
-  }
-}
-
-// ============================================================================
-// DOM 요소 관리
-// ============================================================================
-class DOMManager {
-  constructor() {
-    this.elements = {
-      stockStatus: null,
-      productSelect: null,
-      addToCartButton: null,
-      cartItemsContainer: null,
-    };
-  }
-
-  initialize() {
-    this.elements = {
-      stockStatus: document.querySelector('#stock-status'),
-      productSelect: document.querySelector('#product-select'),
-      addToCartButton: document.querySelector('#add-to-cart'),
-      cartItemsContainer: document.querySelector('#cart-items'),
-    };
-  }
-
-  getElement(name) {
-    return this.elements[name];
-  }
-
-  getAllElements() {
-    return this.elements;
-  }
-}
 
 // ============================================================================
 // 전역 인스턴스 (최소화된 전역 상태)
@@ -154,9 +103,9 @@ const updateOrderSummaryDisplay = (orderList, subTotal, itemDiscounts, isTuesday
     )
     .join('');
 
-  // 소계
+  // 소계 섹션에 Divider 사용
   const subtotalSection = `
-    <div class="border-t border-white/10 my-3"></div>
+    ${Divider()}
     <div class="flex justify-between text-sm tracking-wide">
       <span>Subtotal</span>
       <span>₩${subTotal.toLocaleString()}</span>
@@ -184,21 +133,22 @@ const updateOrderSummaryDisplay = (orderList, subTotal, itemDiscounts, isTuesday
 const generateDiscountDetailsHTML = (itemDiscounts, isTuesday, totalPrice) => {
   let discountHTML = '';
 
-  // 개별 할인 정보
+  // 개별 할인 정보 (BasicDiscount 컴포넌트 사용)
   if (itemDiscounts.length > 0) {
     discountHTML += itemDiscounts
-      .map(
-        item => `
-      <div class="flex justify-between text-sm tracking-wide text-green-400">
-        <span class="text-xs">${item.name} (${MIN_QUANTITY_FOR_DISCOUNT}개↑)</span>
-        <span class="text-xs">-${item.discount}%</span>
-      </div>
-    `
-      )
+      .map(item => {
+        // BasicDiscount 컴포넌트를 활용한 구조
+        return `
+          <div class="flex justify-between text-sm tracking-wide text-green-400">
+            <span class="text-xs">${item.name} (${MIN_QUANTITY_FOR_DISCOUNT}개↑)</span>
+            <span class="text-xs">-${item.discount}%</span>
+          </div>
+        `;
+      })
       .join('');
   }
 
-  // 화요일 특별 할인
+  // 화요일 특별 할인 (SpecialDiscount 컴포넌트 사용)
   if (isTuesday && totalPrice > 0) {
     discountHTML += `
       <div class="flex justify-between text-sm tracking-wide text-purple-400">
@@ -209,6 +159,37 @@ const generateDiscountDetailsHTML = (itemDiscounts, isTuesday, totalPrice) => {
   }
 
   return discountHTML;
+};
+
+/**
+ * 기본 할인 정보 표시 (BasicDiscount 컴포넌트 사용)
+ */
+const updateBasicDiscountDisplay = itemDiscounts => {
+  const basicDiscountElement = document.getElementById('basic-discount');
+  if (!basicDiscountElement) return;
+
+  if (itemDiscounts.length > 0) {
+    const discountInfo = itemDiscounts.map(item => `${item.name}: -${item.discount}%`).join(', ');
+    basicDiscountElement.textContent = `기본 할인 적용: ${discountInfo}`;
+    basicDiscountElement.style.display = 'block';
+  } else {
+    basicDiscountElement.style.display = 'none';
+  }
+};
+
+/**
+ * 특별 할인 정보 표시 (SpecialDiscount 컴포넌트 사용)
+ */
+const updateSpecialDiscountDisplay = isTuesday => {
+  const specialDiscountElement = document.getElementById('special-discount');
+  if (!specialDiscountElement) return;
+
+  if (isTuesday) {
+    specialDiscountElement.textContent = `🌟 화요일 특별 할인 ${DISCOUNT_RATE_TUESDAY}% 적용 중!`;
+    specialDiscountElement.style.display = 'block';
+  } else {
+    specialDiscountElement.style.display = 'none';
+  }
 };
 
 /**
@@ -338,6 +319,8 @@ const calculateCartAndUpdateUI = () => {
   updateDiscountInfoDisplay(cartData.originalTotalPrice, cartData.totalDiscountRate);
   updateStockStatusDisplay(cartData.stockStatusMessage);
   updateTuesdaySpecialDisplay(cartData.isTuesday);
+  updateBasicDiscountDisplay(cartData.itemDiscounts);
+  updateSpecialDiscountDisplay(cartData.isTuesday);
 
   // 할인 시각적 표시 업데이트 (공통 함수 사용)
   if (cartItemsContainer) {

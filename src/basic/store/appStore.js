@@ -1,13 +1,21 @@
-import Store from "../lib/Store";
+class AppState {
+  constructor() {
+    this.totalQuantity = 0;
+    this.lastSelectedProductId = null;
+    this.totalPrice = 0;
+  }
 
-const appState = {
-  itemCounts: 0,
-  lastSelect: null,
-  totalAmount: 0,
-};
+  updateState(newState) {
+    Object.assign(this, newState);
+  }
 
-const appStore = new Store(appState);
+  getState() {
+    return {
+      totalQuantity: this.totalQuantity,
+      lastSelectedProductId: this.lastSelectedProductId,
+      totalPrice: this.totalPrice,
+    };
+  }
+}
 
-export const resetAppStore = () => appStore.setState(appState);
-
-export default appStore;
+export default AppState;

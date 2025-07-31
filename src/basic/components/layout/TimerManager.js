@@ -1,5 +1,5 @@
-import { createLightningSaleTimer } from "./LightningSaleTimer.js";
-import { createSuggestionSaleTimer } from "./SuggestionSaleTimer.js";
+import { createLightningSaleTimer } from './LightningSaleTimer.js';
+import { createSuggestionSaleTimer } from './SuggestionSaleTimer.js';
 
 /**
  * 모든 타이머를 통합 관리하는 컴포넌트

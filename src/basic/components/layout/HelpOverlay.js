@@ -1,22 +1,22 @@
-import Component from "../lib/Component.js";
+import Component from '../../lib/Component.js';
 
-export default class ManualOverlay extends Component {
+export default class HelpOverlay extends Component {
   setEvent() {
-    const closeBtn = this.$target.querySelector(".close-btn");
-    const manualOverlay = this.$target.querySelector("#manualOverlay");
-    const manualColumn = this.$target.querySelector("#manualColumn");
+    const closeBtn = this.$target.querySelector('.close-btn');
+    const manualOverlay = this.$target.querySelector('#manualOverlay');
+    const manualColumn = this.$target.querySelector('#manualColumn');
 
     // 닫기 버튼 클릭 이벤트
-    closeBtn?.addEventListener("click", () => {
-      manualOverlay?.classList.add("hidden");
-      manualColumn?.classList.add("translate-x-full");
+    closeBtn?.addEventListener('click', () => {
+      manualOverlay?.classList.add('hidden');
+      manualColumn?.classList.add('translate-x-full');
     });
 
     // 배경 클릭 이벤트
-    manualOverlay?.addEventListener("click", e => {
+    manualOverlay?.addEventListener('click', e => {
       if (e.target === manualOverlay) {
-        manualOverlay.classList.add("hidden");
-        manualColumn?.classList.add("translate-x-full");
+        manualOverlay.classList.add('hidden');
+        manualColumn?.classList.add('translate-x-full');
       }
     });
   }

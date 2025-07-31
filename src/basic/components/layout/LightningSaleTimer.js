@@ -1,6 +1,6 @@
-import { DISCOUNT_RATE_LIGHTNING } from "../data/discount.data.js";
-import { PRODUCT_LIST } from "../data/product.data.js";
-import { LIGHTNING_SALE_MAX_DELAY, LIGHTNING_SALE_INTERVAL } from "../data/time.data.js";
+import { DISCOUNT_RATE_LIGHTNING } from '../../data/discount.data.js';
+import { PRODUCT_LIST } from '../../data/product.data.js';
+import { LIGHTNING_SALE_INTERVAL, LIGHTNING_SALE_MAX_DELAY } from '../../data/time.data.js';
 
 /**
  * 번개세일 타이머를 관리하는 컴포넌트
@@ -24,7 +24,7 @@ export function createLightningSaleTimer(doUpdatePricesInCart) {
       luckyItem.onSale = true;
 
       alert(
-        "⚡번개세일! " + luckyItem.name + "이(가) " + DISCOUNT_RATE_LIGHTNING + "% 할인 중입니다!"
+        '⚡번개세일! ' + luckyItem.name + '이(가) ' + DISCOUNT_RATE_LIGHTNING + '% 할인 중입니다!'
       );
 
       doUpdatePricesInCart();
