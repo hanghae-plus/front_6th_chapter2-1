@@ -21,10 +21,7 @@ import {
   generateProductOptions,
   CartContainer,
   CartItem,
-  PointSummary,
   OrderSummary,
-  OrderSummaryDetails,
-  DiscountSummary,
   PriceSummary,
 } from './components/ui';
 import {
@@ -44,8 +41,8 @@ import {
   attachManualEventListener,
   attachAddToCartEventListener,
 } from './eventListeners';
-import { calculateTotalBonusPoints } from './pointsUtils';
 import { lightningTimer, recommendTimer } from './timer';
+import { updateCartUI } from './uiEffects';
 import { createCartHandlers, createManualHandlers } from './useCartHandlers';
 import {
   isTuesday,
@@ -251,161 +248,33 @@ function handleCalculateCartStuff() {
     tuesdaySpecial.classList.add('hidden');
   }
 
-  // ----------------------------------------
   // UI 업데이트
-  // ----------------------------------------
-
-  // 아이템 수량 표시
-  document.getElementById('item-count').textContent =
-    `🛍️ ${itemCount} items in cart`;
-
-  // 주문 요약 세부사항 업데이트
-  const summaryDetails = document.getElementById('summary-details');
-  summaryDetails.innerHTML = '';
-  summaryDetails.appendChild(
-    OrderSummaryDetails({
-      findProductById,
-      cartItems,
-      subTotal,
-      itemCount,
-      itemDiscounts,
-      totalAmount,
-    }),
-  );
-
-  // ----------------------------------------
-  // 총액 및 포인트 업데이트
-  // ----------------------------------------
-
-  // 총액 표시
-  const totalDiv = sum.querySelector('.text-2xl');
-  if (totalDiv) {
-    totalDiv.textContent = `₩${Math.round(totalAmount).toLocaleString()}`;
-  }
-
-  // 적립 포인트 표시
-  const loyaltyPointsDiv = document.getElementById('loyalty-points');
-  if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmount / 1000);
-    if (points > 0) {
-      loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
-      loyaltyPointsDiv.style.display = 'block';
-    } else {
-      loyaltyPointsDiv.textContent = '적립 포인트: 0p';
-      loyaltyPointsDiv.style.display = 'block';
-    }
-  }
-
-  // 할인 정보 표시
-  const discountInfoDiv = document.getElementById('discount-info');
-  discountInfoDiv.innerHTML = '';
-  discountInfoDiv.appendChild(
-    DiscountSummary(discountRate, totalAmount, originalTotal),
-  );
-
-  // 아이템 카운트 업데이트
-  const itemCountElement = document.getElementById('item-count');
-  if (itemCountElement) {
-    previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
-    itemCountElement.textContent = `🛍️ ${itemCount} items in cart`;
-    if (previousCount !== itemCount) {
-      itemCountElement.setAttribute('data-changed', 'true');
-    }
-  }
-
-  // ----------------------------------------
-  // 재고 상태 메시지 업데이트
-  // ----------------------------------------
-  stockMsg = '';
-  for (let stockIdx = 0; stockIdx < productList.length; stockIdx++) {
-    const item = productList[stockIdx];
-    if (item.availableStock < 5) {
-      if (item.availableStock > 0) {
-        stockMsg = `${stockMsg + item.name}: 재고 부족 (${item.availableStock}개 남음)\n`;
-      } else {
-        stockMsg = `${stockMsg + item.name}: 품절\n`;
-      }
-    }
-  }
-  stockInfo.textContent = stockMsg;
-
-  handleStockInfoUpdate();
-  doRenderBonusPoints();
-}
-
-// ========================================
-// 보너스 포인트 계산 및 렌더링 함수
-// ========================================
-
-const doRenderBonusPoints = () => {
-  // 보너스 포인트 계산 (순수 함수 사용)
-  const cartItems = Array.from(cartContainer.children);
-  const bonusPointsResult = calculateTotalBonusPoints(
-    totalAmount,
-    cartItems,
+  const uiUpdateResult = updateCartUI({
+    // 계산된 데이터
     itemCount,
-    isTuesday(),
+    subTotal,
+    totalAmount,
+    originalTotal,
+    discountRate,
+    itemDiscounts,
+    cartItems,
+
+    // 의존성
+    productList,
     findProductById,
-  );
+    showTuesdaySpecial: tuesdayDiscountResult.showTuesdaySpecial,
 
-  // UI 업데이트 (사이드 이펙트)
-  const pointsTag = document.getElementById('loyalty-points');
+    // DOM 요소들
+    sumElement: sum,
+    stockInfoElement: stockInfo,
 
-  if (!bonusPointsResult.shouldShow) {
-    pointsTag.style.display = 'none';
-    return;
-  }
-
-  bonusPoints = bonusPointsResult.totalPoints;
-  pointsTag.innerHTML = '';
-  const pointSummary = PointSummary({
-    bonusPoints: bonusPointsResult.totalPoints,
-    pointsDetail: bonusPointsResult.pointsDetail,
+    // 이전 상태 (최적화용)
+    previousCount,
   });
-  pointsTag.appendChild(pointSummary);
-  pointsTag.style.display = 'block';
-};
 
-// ========================================
-// 재고 관리 함수들
-// ========================================
-
-function onGetStockTotal() {
-  let sum;
-  let i;
-  let currentProduct;
-
-  sum = 0;
-  for (i = 0; i < productList.length; i++) {
-    currentProduct = productList[i];
-    sum += currentProduct.availableStock;
-  }
-  return sum;
+  // 전역 상태 업데이트
+  bonusPoints = uiUpdateResult.bonusPoints || 0;
 }
-
-const handleStockInfoUpdate = () => {
-  let infoMsg = '';
-  let messageOptimizer;
-
-  const totalStock = onGetStockTotal();
-
-  // 재고 부족 경고 체크
-  if (totalStock < 30) {
-  }
-
-  // 각 상품별 재고 상태 메시지 생성
-  productList.forEach(function (item) {
-    if (item.availableStock < 5) {
-      if (item.availableStock > 0) {
-        infoMsg = `${infoMsg + item.name}: 재고 부족 (${item.availableStock}개 남음)\n`;
-      } else {
-        infoMsg = `${infoMsg + item.name}: 품절\n`;
-      }
-    }
-  });
-
-  stockInfo.textContent = infoMsg;
-};
 
 // ========================================
 // 장바구니 가격 업데이트 함수
