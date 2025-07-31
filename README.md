@@ -1,6 +1,12 @@
 # Chapter 2-1. 클린코드와 리팩토링
 
-## 기본과제: 더티코드 개선
+## 🚀 배포 정보
+
+- **Live Demo**: [https://jangrubin2.github.io/front_6th_chapter2-1/](https://jangrubin2.github.io/front_6th_chapter2-1/)
+- **Basic Version**: [https://jangrubin2.github.io/front_6th_chapter2-1/index.basic.html](https://jangrubin2.github.io/front_6th_chapter2-1/index.basic.html)
+- **Advanced Version**: [https://jangrubin2.github.io/front_6th_chapter2-1/index.advanced.html](https://jangrubin2.github.io/front_6th_chapter2-1/index.advanced.html)
+
+## 📋 프로젝트 개요
 
 이번 과제는 더티코드를 클린코드의 형태로 개선을 하는 과제입니다. 주어진 테스트를 통과하면서 원래 기능과 동일한 동작을 하는 코드를 만들어주세요. basic과제는 제공되는 더티코드를 클린코드와 리팩토링 원칙에 입각해서 더 나은 코드로 만들어보세요. 주어진 테스트를 참고삼아 좋은 이름, 좋은 모양, 좋은 구조를 가지는 코드로 만들어 보세요.
 
