@@ -1,4 +1,6 @@
-export const useDelayedInterval = (fn, { delay = 0, interval = 30000 }) => {
+import { useEffect } from "react";
+
+export const useIntervalEffect = (fn, { delay = 0, interval = 30000 }) => {
   let intervalId, delayId;
 
   useEffect(() => {
