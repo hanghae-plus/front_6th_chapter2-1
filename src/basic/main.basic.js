@@ -46,6 +46,7 @@ import {
 } from './eventListeners';
 import { calculateTotalBonusPoints } from './pointsUtils';
 import { lightningTimer, recommendTimer } from './timer';
+import { createCartHandlers, createManualHandlers } from './useCartHandlers';
 import {
   isTuesday,
   getProductDiscountRate,
@@ -106,15 +107,27 @@ function main() {
   const manualToggle = ManualToggle();
   const manualOverlay = ManualOverlay();
   const manualColumn = ManualColumn();
-  attachAddToCartEventListener(addButton, handleAddToCart);
-  // 장바구니 이벤트 리스너
-  attachCartEventListener(
+
+  // 장바구니 핸들러 초기화
+  const cartHandlers = createCartHandlers({
+    productList,
     cartContainer,
+    selectElement,
     findProductById,
     handleCalculateCartStuff,
     onUpdateSelectOptions,
-  );
-  attachManualEventListener(manualToggle, manualOverlay, manualColumn);
+    setLastSelectedProductId: (id) => {
+      lastSelectedProductId = id;
+    },
+  });
+
+  // 도움말 모달 핸들러 초기화
+  const manualHandlers = createManualHandlers(manualOverlay, manualColumn);
+
+  // 이벤트 리스너 연결
+  attachAddToCartEventListener(addButton, cartHandlers);
+  attachCartEventListener(cartContainer, cartHandlers);
+  attachManualEventListener(manualToggle, manualOverlay, manualHandlers);
 
   // ----------------------------------------
   // DOM 구조 조립
@@ -446,62 +459,8 @@ function doUpdatePricesInCart() {
   handleCalculateCartStuff();
 }
 
-// ========================================
-// 메인 실행 및 이벤트 리스너 설정
-// ========================================
-
 // 애플리케이션 초기화
 main();
-
-// ----------------------------------------
-// 장바구니 추가 버튼 이벤트
-// ----------------------------------------
-function handleAddToCart() {
-  const selItem = selectElement.value;
-  let hasItem = false;
-
-  // 선택된 상품 유효성 검사
-  for (let idx = 0; idx < productList.length; idx++) {
-    if (productList[idx].id === selItem) {
-      hasItem = true;
-      break;
-    }
-  }
-
-  if (!selItem || !hasItem) {
-    return;
-  }
-
-  // 선택된 상품 정보 가져오기
-  const itemToAdd = findProductById(selItem);
-
-  if (itemToAdd && itemToAdd.availableStock > 0) {
-    const item = document.getElementById(itemToAdd['id']);
-
-    // 이미 장바구니에 있는 상품인 경우 수량 증가
-    if (item) {
-      const quantityElem = item.querySelector('.quantity-number');
-      const newQuantity = parseInt(quantityElem['textContent']) + 1;
-      if (
-        newQuantity <=
-        itemToAdd.availableStock + parseInt(quantityElem.textContent)
-      ) {
-        quantityElem.textContent = newQuantity;
-        itemToAdd['availableStock']--;
-      } else {
-        alert('재고가 부족합니다.');
-      }
-    } else {
-      // 새로운 상품을 장바구니에 추가
-      const newItem = CartItem(itemToAdd);
-      cartContainer.appendChild(newItem);
-      itemToAdd.availableStock--;
-    }
-
-    handleCalculateCartStuff();
-    lastSelectedProductId = selItem;
-  }
-}
 
 function findProductById(productId) {
   return productList.find((product) => product.id === productId);
