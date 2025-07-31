@@ -3,13 +3,14 @@ import { PRODUCT_ID, productList } from './features/product/constants';
 import { renderCartProduct, renderProductSelectOptions, renderStockInfo } from './features/product/render';
 import { applyLightningSale, applySuggestSale, getProductDiscountRate } from './features/product/service';
 import {
+  addButton,
+  cartContainerEl,
   DiscountInfo,
-  Header,
   LoyaltyPoints,
-  ManualColumn,
-  ManualToggle,
   NewCartProduct,
-  RightColumn,
+  selector,
+  setupDom,
+  stockInfo,
 } from './templates';
 import { isTuesday } from './utils/date';
 
@@ -18,83 +19,13 @@ let lastSelector;
 let sum;
 let totalAmount = 0;
 
-const stockInfo = document.createElement('div');
-stockInfo.id = 'stock-status';
-stockInfo.className = `text-xs text-red-500 mt-3 whitespace-pre-line`;
-
-const selector = document.createElement('select');
-selector.id = 'product-select';
-selector.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
-
-const addButton = document.createElement('button');
-addButton.id = 'add-to-cart';
-addButton.className = `w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all`;
-addButton.innerHTML = 'Add to Cart';
-
-const cartContainerEl = document.createElement('div');
-cartContainerEl.id = 'cart-items';
-
-const header = document.createElement('div');
-header.className = 'mb-8';
-header.innerHTML = Header();
-
-const rightColumn = document.createElement('div');
-rightColumn.className = `bg-black text-white p-8 flex flex-col`;
-rightColumn.innerHTML = RightColumn();
-
-const selectorContainer = document.createElement('div');
-selectorContainer.className = `mb-6 pb-6 border-b border-gray-200`;
-
-const gridContainer = document.createElement('div');
-gridContainer.className = `grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden`;
-
-const manualColumn = document.createElement('div');
-manualColumn.className = `fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300`;
-manualColumn.innerHTML = ManualColumn();
-
-const leftColumn = document.createElement('div');
-leftColumn.className = `bg-white border border-gray-200 p-8 overflow-y-auto`;
-
-const manualToggle = document.createElement('button');
-manualToggle.className = `fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50`;
-manualToggle.innerHTML = ManualToggle();
-
-const manualOverlay = document.createElement('div');
-manualOverlay.className = `fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300`;
-
 function main() {
-  const root = document.getElementById('app');
+  setupDom();
 
   totalAmount = 0;
   itemCount = 0;
   lastSelector = null;
-  sum = rightColumn.querySelector('#cart-total');
-
-  selectorContainer.appendChild(selector);
-  selectorContainer.appendChild(addButton);
-  selectorContainer.appendChild(stockInfo);
-  leftColumn.appendChild(selectorContainer);
-  leftColumn.appendChild(cartContainerEl);
-
-  manualToggle.onclick = function () {
-    manualOverlay.classList.toggle('hidden');
-    manualColumn.classList.toggle('translate-x-full');
-  };
-
-  manualOverlay.onclick = function (e) {
-    if (e.target === manualOverlay) {
-      manualOverlay.classList.add('hidden');
-      manualColumn.classList.add('translate-x-full');
-    }
-  };
-
-  gridContainer.appendChild(leftColumn);
-  gridContainer.appendChild(rightColumn);
-  manualOverlay.appendChild(manualColumn);
-  root.appendChild(header);
-  root.appendChild(gridContainer);
-  root.appendChild(manualToggle);
-  root.appendChild(manualOverlay);
+  sum = document.querySelector('#cart-total');
 
   renderProductSelectOptions(selector, productList);
   handleCalculateCartStuff();
