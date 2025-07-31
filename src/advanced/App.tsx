@@ -1,10 +1,11 @@
+import { Header } from './shared/components/Header.tsx';
 import { ELEMENT_IDS } from './shared/constants/elementIds.ts';
 
 function App() {
   return (
     <div className='bg-gray-100 p-8'>
       <div className='max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-8'>
-        {/* Header will be inserted here */}
+        <Header itemCount={0} />
 
         {/* Main Grid Layout */}
         <div className='grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden'>
