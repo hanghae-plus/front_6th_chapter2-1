@@ -98,14 +98,15 @@ export const getSalesInfoText = (product) => {
   }
 
   const status = getDiscountStatus(product);
+  const icon = getDiscountIcon(product);
 
   switch (status) {
     case 'SUPER':
-      return `⚡💝${product.name} - ${product.originalValue}원 → ${product.value}원 (25% SUPER SALE!)`;
+      return `${icon}${product.name} - ${product.originalValue}원 → ${product.value}원 (25% SUPER SALE!)`;
     case 'SALE':
-      return `⚡${product.name} - ${product.originalValue}원 → ${product.value}원 (20% SALE!)`;
+      return `${icon}${product.name} - ${product.originalValue}원 → ${product.value}원 (20% SALE!)`;
     case 'SUGGEST':
-      return `💝${product.name} - ${product.originalValue}원 → ${product.value}원 (5% 추천할인!)`;
+      return `${icon}${product.name} - ${product.originalValue}원 → ${product.value}원 (5% 추천할인!)`;
     case 'NO_SALE':
     default:
       return `${product.name} - ${product.value}원`;
