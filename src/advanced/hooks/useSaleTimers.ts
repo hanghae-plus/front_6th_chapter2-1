@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { LIGHTNING_DELAY, LIGHTNING_INTERVAL, SUGGEST_DELAY, SUGGEST_INTERVAL } from '../constant';
-import type { Action } from '../reducer';
+import type { Action } from '../types';
 
 export function useSaleTimers(dispatch: React.Dispatch<Action>) {
   useEffect(() => {

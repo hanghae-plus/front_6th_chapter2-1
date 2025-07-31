@@ -1,4 +1,4 @@
-import { Product } from '../../../reducer';
+import type { Product } from '../../../types';
 
 interface ProductOptionProps {
   product: Product;

@@ -1,7 +1,7 @@
 import { ReactNode, Dispatch, createContext, useContext, useReducer } from 'react';
 
-import type { Action, State } from '../reducer';
 import { reducer, initialState } from '../reducer';
+import { Action, State } from '../types';
 
 const CartStateContext = createContext<State | undefined>(undefined);
 const CartDispatchContext = createContext<Dispatch<Action> | undefined>(undefined);
@@ -17,9 +17,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
 }
 
 export function useCartState() {
-  return useContext(CartStateContext);
+  const context = useContext(CartStateContext);
+  if (context === undefined) {
+    throw new Error('useCartState must be used within a CartProvider');
+  }
+  return context;
 }
 
 export function useCartDispatch() {
-  return useContext(CartDispatchContext);
+  const context = useContext(CartDispatchContext);
+  if (context === undefined) {
+    throw new Error('useCartDispatch must be used within a CartProvider');
+  }
+  return context;
 }

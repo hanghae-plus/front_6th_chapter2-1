@@ -1,5 +1,5 @@
 import { useCartState, useCartDispatch } from '../../../contexts/CartContext';
-import type { Product } from '../../../reducer';
+import type { Product } from '../../../types';
 
 interface CartItemProps {
   productId: string;

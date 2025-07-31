@@ -1,7 +1,7 @@
 import { ProductOption } from './ProductOption';
 import { useCartState, useCartDispatch } from '../../../contexts/CartContext';
-import type { Product } from '../../../reducer';
 import { getProducts, getSelectedId } from '../../../reducer';
+import type { Product } from '../../../types';
 
 export const ProductSelector = () => {
   const state = useCartState();
