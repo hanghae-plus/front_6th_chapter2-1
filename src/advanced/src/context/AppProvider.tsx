@@ -6,6 +6,12 @@ import {
   getLowStockItems,
   createStockStatusMessage,
 } from "../utils/stockUtils";
+import {
+  startLightningSaleTimer,
+  startRecommendationTimer,
+  showStockAlert,
+  clearAllTimers,
+} from "../services/alertService";
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -27,6 +33,30 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setStockStatus(stockMessage);
   }, [products]);
 
+  // 알럿 타이머 초기화 (한 번만 실행)
+  useEffect(() => {
+    const updateProducts = () => {
+      setProducts((prev) => [...prev]); // 강제 리렌더링
+    };
+
+    // 번개세일 타이머 시작
+    startLightningSaleTimer({
+      products,
+      onProductUpdate: updateProducts,
+    });
+
+    // 추천할인 타이머 시작
+    startRecommendationTimer({
+      products,
+      onProductUpdate: updateProducts,
+    });
+
+    // 클린업 함수
+    return () => {
+      clearAllTimers();
+    };
+  }, []);
+
   // Actions
   const addToCart = useCallback(
     (productId: string) => {
@@ -40,6 +70,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (product.quantity === 0) {
         const errorMessage = `재고 부족: ${product.name}은(는) 품절입니다.`;
         setStockError(errorMessage);
+        showStockAlert(errorMessage);
         return;
       }
 
@@ -51,6 +82,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (newQuantity > product.quantity + currentQuantity) {
         const errorMessage = `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`;
         setStockError(errorMessage);
+        showStockAlert(errorMessage);
         return;
       }
 
@@ -109,6 +141,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (product && quantity > product.quantity + currentQuantity) {
         const errorMessage = `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`;
         setStockError(errorMessage);
+        showStockAlert(errorMessage);
         return;
       }
 
