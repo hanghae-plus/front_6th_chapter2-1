@@ -1,4 +1,9 @@
-import { calculateCartTotals, calculateDiscountedTotal } from './cartUtils';
+import {
+  calculateCartTotals,
+  calculateDiscountedTotal,
+  applyBulkDiscount,
+  applyTuesdayDiscount,
+} from './cartUtils';
 import {
   Header,
   GridContainer,
@@ -145,10 +150,7 @@ function main() {
   );
 }
 
-// ========================================
 // 상품 옵션 업데이트 함수
-// ========================================
-
 function onUpdateSelectOptions() {
   generateProductOptions({ selectElement, productList });
 }
@@ -195,9 +197,7 @@ function handleCalculateCartStuff() {
     }
   }
 
-  // ----------------------------------------
   // 장바구니 아이템별 계산 (순수 함수 사용)
-  // ----------------------------------------
   const {
     subTotal: calculatedSubTotal,
     itemCount: calculatedItemCount,
@@ -210,30 +210,29 @@ function handleCalculateCartStuff() {
   // 개별 상품 할인 적용된 총액 계산
   totalAmount = calculateDiscountedTotal(cartItems, findProductById);
 
-  // ----------------------------------------
-  // 대량 구매 할인 적용
-  // ----------------------------------------
-  let discountRate = 0;
+  // 대량 구매 할인 적용 (순수 함수 사용)
   originalTotal = subTotal;
-  if (itemCount >= 30) {
-    totalAmount = (subTotal * 75) / 100;
-    discountRate = 25 / 100;
-  } else {
-    discountRate = (subTotal - totalAmount) / subTotal;
-  }
+  const bulkDiscountResult = applyBulkDiscount(
+    itemCount,
+    totalAmount,
+    subTotal,
+  );
+  totalAmount = bulkDiscountResult.discountedAmount;
+  let { discountRate } = bulkDiscountResult;
 
-  // ----------------------------------------
-  // 화요일 특별 할인 적용
-  // ----------------------------------------
+  // 화요일 특별 할인 적용 (순수 함수 사용)
+  const tuesdayDiscountResult = applyTuesdayDiscount(
+    totalAmount,
+    originalTotal,
+    isTuesday(),
+  );
+  totalAmount = tuesdayDiscountResult.discountedAmount;
+  discountRate = tuesdayDiscountResult.finalDiscountRate;
+
+  // UI 업데이트 (사이드 이펙트)
   const tuesdaySpecial = document.getElementById('tuesday-special');
-  if (isTuesday()) {
-    if (totalAmount > 0) {
-      totalAmount = (totalAmount * 90) / 100;
-      discountRate = 1 - totalAmount / originalTotal;
-      tuesdaySpecial.classList.remove('hidden');
-    } else {
-      tuesdaySpecial.classList.add('hidden');
-    }
+  if (tuesdayDiscountResult.showTuesdaySpecial) {
+    tuesdaySpecial.classList.remove('hidden');
   } else {
     tuesdaySpecial.classList.add('hidden');
   }
