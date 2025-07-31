@@ -28,53 +28,28 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     updateQuantity,
     removeFromCart,
     setStockError,
-  } = useCart(products);
+  } = useCart(products, updateProductQuantity, restoreProductQuantity);
 
-  // Actions
+  // Actions - 이제 useCart에서 재고 관리를 직접 처리하므로 단순히 전달만 함
   const handleAddToCart = useCallback(
     (productId: string) => {
       addToCart(productId);
-      // 상품이 성공적으로 추가되면 재고 감소
-      const product = products.find((p) => p.id === productId);
-      if (product && product.quantity > 0) {
-        updateProductQuantity(productId, -1);
-      }
     },
-    [addToCart, updateProductQuantity, products]
+    [addToCart]
   );
 
   const handleUpdateQuantity = useCallback(
     (id: string, quantity: number) => {
-      const existingItem = cart.find((item) => item.id === id);
-      if (!existingItem) return;
-
-      const currentQuantity = existingItem.quantity;
-      const quantityChange = quantity - currentQuantity;
-
-      if (quantity === 0) {
-        // 장바구니에서 제거하고 재고 복원
-        restoreProductQuantity(id, currentQuantity);
-        updateQuantity(id, quantity);
-        return;
-      }
-
-      // 재고 업데이트
-      updateProductQuantity(id, -quantityChange);
       updateQuantity(id, quantity);
     },
-    [cart, updateQuantity, updateProductQuantity, restoreProductQuantity]
+    [updateQuantity]
   );
 
   const handleRemoveFromCart = useCallback(
     (id: string) => {
-      const existingItem = cart.find((item) => item.id === id);
-      if (existingItem) {
-        // 재고 복원
-        restoreProductQuantity(id, existingItem.quantity);
-      }
       removeFromCart(id);
     },
-    [cart, removeFromCart, restoreProductQuantity]
+    [removeFromCart]
   );
 
   const toggleManual = useCallback(() => {

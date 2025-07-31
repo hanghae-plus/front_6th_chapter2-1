@@ -2,7 +2,11 @@ import { useState, useCallback } from "react";
 import type { CartItem, Product } from "../types";
 import { showStockAlert } from "../services/alertService";
 
-export const useCart = (products: Product[]) => {
+export const useCart = (
+  products: Product[],
+  updateProductQuantity: (productId: string, quantityChange: number) => void,
+  restoreProductQuantity: (productId: string, quantity: number) => void
+) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [stockError, setStockError] = useState("");
 
@@ -32,7 +36,7 @@ export const useCart = (products: Product[]) => {
       const currentQuantity = existingItem ? existingItem.quantity : 0;
       const newQuantity = currentQuantity + 1;
 
-      // 재고 확인 (기존 수량을 고려한 검증)
+      // 재고 확인 (장바구니에 있는 수량을 고려한 검증)
       if (newQuantity > product.quantity + currentQuantity) {
         const errorMessage = `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`;
         setStockError(errorMessage);
@@ -42,6 +46,9 @@ export const useCart = (products: Product[]) => {
 
       // 재고 에러 초기화
       setStockError("");
+
+      // 재고 감소
+      updateProductQuantity(productId, -1);
 
       if (existingItem) {
         setCart((prev) =>
@@ -73,11 +80,13 @@ export const useCart = (products: Product[]) => {
       const quantityChange = quantity - currentQuantity;
 
       if (quantity === 0) {
+        // 장바구니에서 제거하고 재고 복원
+        restoreProductQuantity(id, currentQuantity);
         setCart((prev) => prev.filter((item) => item.id !== id));
         return;
       }
 
-      // 재고 확인 (기존 수량을 고려한 검증)
+      // 재고 확인 (실제 재고와 비교)
       const product = products.find((p) => p.id === id);
       if (product && quantity > product.quantity + currentQuantity) {
         const errorMessage = `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`;
@@ -89,16 +98,27 @@ export const useCart = (products: Product[]) => {
       // 재고 에러 초기화
       setStockError("");
 
+      // 재고 업데이트
+      updateProductQuantity(id, -quantityChange);
+
       setCart((prev) =>
         prev.map((item) => (item.id === id ? { ...item, quantity } : item))
       );
     },
-    [products, cart]
+    [products, cart, updateProductQuantity, restoreProductQuantity]
   );
 
-  const removeFromCart = useCallback((id: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  }, []);
+  const removeFromCart = useCallback(
+    (id: string) => {
+      const existingItem = cart.find((item) => item.id === id);
+      if (existingItem) {
+        // 재고 복원
+        restoreProductQuantity(id, existingItem.quantity);
+      }
+      setCart((prev) => prev.filter((item) => item.id !== id));
+    },
+    [cart, restoreProductQuantity]
+  );
 
   return {
     cart,

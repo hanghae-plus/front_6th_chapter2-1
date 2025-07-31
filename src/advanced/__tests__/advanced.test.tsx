@@ -180,6 +180,8 @@ describe("advanced 테스트", () => {
 
         // 250,000원 -> 187,500원 (25% 할인)
         const totalElement = screen.getByText(/Total/).closest("div");
+
+        // 250,000원 -> 187,500원 (25% 할인)
         expect(totalElement).toHaveTextContent("₩187,500");
       });
     });
@@ -220,7 +222,9 @@ describe("advanced 테스트", () => {
           expect(totalElement).toHaveTextContent("₩10,000");
 
           // 화요일 특별 할인 배너가 표시되지 않아야 함
-          const tuesdayBanner = screen.queryByText(/Tuesday Special 10% Applied/);
+          const tuesdayBanner = screen.queryByText(
+            /Tuesday Special 10% Applied/
+          );
           expect(tuesdayBanner).not.toBeInTheDocument();
         });
 
@@ -244,7 +248,9 @@ describe("advanced 테스트", () => {
           expect(totalElement).toHaveTextContent("₩10,000");
 
           // 화요일 특별 할인 배너가 표시되지 않아야 함
-          const tuesdayBanner = screen.queryByText(/Tuesday Special 10% Applied/);
+          const tuesdayBanner = screen.queryByText(
+            /Tuesday Special 10% Applied/
+          );
           expect(tuesdayBanner).not.toBeInTheDocument();
 
           vi.useRealTimers();
