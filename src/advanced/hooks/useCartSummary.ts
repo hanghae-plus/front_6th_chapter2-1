@@ -1,3 +1,4 @@
+import { CART_TOTAL_DISCOUNT_THRESHOLD } from '@/const/discount';
 import {
   applyItemDiscount,
   applyTotalDiscount,
@@ -15,9 +16,19 @@ export default () => {
   const totalDiscount: TotalDiscountResult = applyTotalDiscount(itemDiscount, cartItems.length);
   const bonusPoints = calculateBonusPoints(cartItems, totalDiscount.finalTotal);
 
+  const isAppliedItemDiscount = !!totalDiscount.itemDiscounts.length;
+  const isAppliedTotalDiscount = cartItems.length >= CART_TOTAL_DISCOUNT_THRESHOLD;
+  const isAppliedDiscount = isAppliedItemDiscount || isAppliedTotalDiscount;
+
   return {
-    itemDiscount,
-    totalDiscount,
+    subTotal: itemDiscount.subTotal,
+    totalAfterItemDiscount: itemDiscount.totalAfterItemDiscount,
+    finalTotal: totalDiscount.finalTotal,
+    finalDiscountRate: totalDiscount.finalDiscountRate,
+    appliedItemDiscountList: totalDiscount.itemDiscounts,
+    isAppliedItemDiscount,
+    isAppliedTotalDiscount,
+    isAppliedDiscount,
     bonusPoints,
   };
 };
