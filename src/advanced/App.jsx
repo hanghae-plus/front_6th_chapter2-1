@@ -7,10 +7,10 @@ import { useState } from "react";
 import { useMemo } from "react";
 import { RightColumn } from "./components/RightColumn";
 import { useOrderSummary } from "./services/order";
-import { useIntervalEffect } from "./utils/hooks";
 import { SelectorContainer } from "./components/selector/SelectorContainer";
 import { CartItemBox } from "./components/CartItemBox";
 import { StockInfoText } from "./components/selector/StockInfoText";
+import { useIntervalPromotion } from "./hooks/useIntervalPromotion";
 import { useEffect } from "react";
 
 // TODO: 추후 분리 예정
@@ -28,7 +28,6 @@ const getStockInfoMessage = (productList) => {
 };
 
 function App() {
-  const randomBaseDelay = Math.random() * 10000;
   const [lastSelectedItem, setLastSelectedItem] = useState(null);
 
   const [productList, setProductList] = useState(prodList);
@@ -68,58 +67,10 @@ function App() {
     });
   };
 
-  const luckySaleEvent = () => {
-    const luckyIdx = Math.floor(Math.random() * prodList.length);
-    const luckyItem = productList[luckyIdx];
-
-    if (luckyItem.quantity > 0 && !luckyItem.onSale) {
-      setProductList((prevProductList) => {
-        prevProductList[luckyIdx].price = Math.round(
-          (luckyItem.originalPrice * 80) / 100
-        );
-        prevProductList[luckyIdx].onSale = true;
-        return [...prevProductList];
-      });
-
-      alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
-    }
-  };
-
-  const suggestSaleEvent = () => {
-    if (lastSelectedItem == null) {
-      return;
-    }
-
-    const suggestItemIndex = productList.findIndex(
-      (item) =>
-        item.id !== lastSelectedItem.id &&
-        item.quantity > 0 &&
-        !item.suggestSale
-    );
-
-    if (suggestItemIndex === -1) {
-      return;
-    }
-
-    setProductList((prevProductList) => {
-      const suggestedItem = prevProductList[suggestItemIndex];
-      suggestedItem.price = Math.round((suggestedItem.price * (100 - 5)) / 100);
-      suggestedItem.suggestSale = true;
-
-      return [...prevProductList];
-    });
-
-    alert(`💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
-  };
-
-  useIntervalEffect(luckySaleEvent, {
-    interval: 30000,
-    delay: randomBaseDelay,
-  });
-
-  useIntervalEffect(suggestSaleEvent, {
-    interval: 60000,
-    delay: randomBaseDelay * 2,
+  useIntervalPromotion({
+    productList,
+    setProductList,
+    lastSelectedItem,
   });
 
   return (
