@@ -1,5 +1,6 @@
 import { PRODUCT_LIST } from "../../data/product.js";
 import { updateOrderSummary } from "../../components/OrderSummary.js";
+import { ORDER_SUMMARY_UPDATED, ORDER_CALCULATION_REQUESTED, ORDER_SUMMARY_CALCULATED, ORDER_UI_UPDATED } from "../../constants/events.js";
 
 // 주문 관련 이벤트 리스너
 export class OrderEventListeners {
@@ -11,14 +12,14 @@ export class OrderEventListeners {
 
   initOrderEventListeners() {
     // 주문 요약 업데이트 이벤트
-    this.uiEventBus.on("order:summary:updated", data => {
+    this.uiEventBus.on(ORDER_SUMMARY_UPDATED, data => {
       if (data.success) {
         this.handleOrderSummaryUpdate(data.cartItems, data.totalAmount, data.isTuesday, data.itemCount);
       }
     });
 
     // 주문 계산 요청 이벤트
-    this.uiEventBus.on("order:calculation:requested", data => {
+    this.uiEventBus.on(ORDER_CALCULATION_REQUESTED, data => {
       if (data.success) {
         this.handleOrderCalculation(data.cartItems, data.totalAmount, data.isTuesday, data.itemCount);
       }
@@ -40,14 +41,14 @@ export class OrderEventListeners {
     const { orderSummary, pointsResult } = this.calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount);
 
     // 계산 결과를 이벤트로 emit
-    this.uiEventBus.emit("order:summary:calculated", {
+    this.uiEventBus.emit(ORDER_SUMMARY_CALCULATED, {
       orderSummary,
       pointsResult,
       success: true,
     });
 
     // UI 업데이트 이벤트 emit
-    this.uiEventBus.emit("order:ui:updated", {
+    this.uiEventBus.emit(ORDER_UI_UPDATED, {
       orderSummary,
       pointsResult,
       success: true,
@@ -65,8 +66,6 @@ export class OrderEventListeners {
   }
 
   renderOrderSummary(orderSummary, pointsResult) {
-    console.log("orderSummary", orderSummary);
-    console.log("pointsResult", pointsResult);
     const orderState = {
       ...orderSummary,
       cartItems: orderSummary.cartItems || [],

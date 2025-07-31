@@ -1,5 +1,5 @@
 import { uiEventBus } from "../core/eventBus.js";
-import { PRODUCT_OPTIONS_UPDATED } from "../constants/events.js";
+import { PRODUCT_OPTIONS_UPDATED, PRODUCT_PRICES_UPDATED } from "../constants/events.js";
 
 export class TimerService {
   constructor(productService, discountService) {
@@ -94,7 +94,7 @@ export class TimerService {
     });
 
     // 가격 업데이트 이벤트 발송
-    uiEventBus.emit("product:prices:updated", {
+    uiEventBus.emit(PRODUCT_PRICES_UPDATED, {
       itemsToUpdate,
       success: true,
     });

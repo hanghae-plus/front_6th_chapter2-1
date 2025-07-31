@@ -144,7 +144,7 @@ export class ProductService {
 
   hasStock(productId, requiredQuantity = 1) {
     const { products } = this.productStore.getState();
-    const product = products.find(product => product.id === productId);
+    const product = products.find(item => item.id === productId);
     return product && product.quantity >= requiredQuantity;
   }
 

@@ -19,6 +19,7 @@ import { uiEventBus } from "./core/eventBus.js";
 import { CartEventListeners } from "./events/listeners/cartListeners.js";
 import { ProductEventListeners } from "./events/listeners/productListeners.js";
 import { OrderEventListeners } from "./events/listeners/orderListeners.js";
+import { CART_ADD_REQUESTED } from "./constants/events.js";
 
 // Event Bus 이벤트 리스너 초기화
 function initEventBusListeners(serviceManager) {
@@ -59,7 +60,7 @@ function main() {
     products: productsWithDiscounts,
     discountInfos: calculateProductDiscountInfos(productsWithDiscounts, discountService),
     onAddToCart: () => {
-      uiEventBus.emit("cart:add:requested");
+      uiEventBus.emit(CART_ADD_REQUESTED);
     },
   });
 
