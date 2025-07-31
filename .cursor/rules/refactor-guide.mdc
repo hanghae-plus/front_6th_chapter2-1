@@ -1,0 +1,260 @@
+---
+alwaysApply: false
+---
+
+# Vanilla JS Clean Code Rules (React-inspired)
+
+## Core Principles
+
+- Write self-documenting code that explains its intent without comments
+- Follow single responsibility principle for functions and modules
+- Maintain immutability and minimize side effects
+- Use modern ES6+ syntax consistently
+- Structure code for testability and maintainability
+
+## Code Formatting & Style
+
+- Use Prettier for consistent formatting
+- Add blank lines to separate logical code blocks
+
+## Naming Conventions
+
+- Use camelCase for variables and functions: `getUserData`, `isActive`
+- Use PascalCase for constructors/classes: `UserManager`, `DataProcessor`
+- Use UPPER_SNAKE_CASE for constants: `API_BASE_URL`, `MAX_RETRY_COUNT`
+- Use descriptive names that explain purpose: `handleUserClick` not `onClick`
+- Prefix boolean variables with `is`, `has`, `should`: `isLoading`, `hasPermission`
+
+## Constants & Magic Values
+
+- Extract all magic numbers to named constants
+- Group related constants in configuration objects
+- Use enums for related constant groups
+
+```javascript
+const CONFIG = {
+  MAX_RETRIES: 3,
+  TIMEOUT: 5000,
+  API_VERSION: 'v1',
+};
+
+const STATUS = {
+  LOADING: 'loading',
+  SUCCESS: 'success',
+  ERROR: 'error',
+};
+```
+
+## Function Design
+
+- Keep functions small (< 20 lines ideally)
+- One function, one responsibility
+- Use pure functions when possible (same input → same output)
+- Extract complex conditions into descriptive function names
+- Use early returns to reduce nesting
+
+```javascript
+// Good
+function validateUser(user) {
+  if (!user) return { valid: false, error: 'User required' };
+  if (!user.email) return { valid: false, error: 'Email required' };
+
+  return { valid: true };
+}
+```
+
+## Modern JavaScript Features
+
+- Use `const` by default, `let` when reassignment needed, avoid `var`
+- Use arrow functions for short operations and callbacks
+- Use destructuring for object/array access
+- Use template literals instead of string concatenation
+- Use optional chaining (`?.`) and nullish coalescing (`??`)
+- Use array methods (`map`, `filter`, `reduce`) over traditional loops
+
+## State Management (React-inspired)
+
+- Create state management utilities that mimic React hooks
+- Keep state updates immutable
+- Use computed values instead of storing derived state
+
+```javascript
+// State utility (React useState-like)
+function createState(initialValue) {
+  let value = initialValue;
+  const listeners = new Set();
+
+  const setState = (newValue) => {
+    const nextValue = typeof newValue === 'function' ? newValue(value) : newValue;
+    if (nextValue !== value) {
+      value = nextValue;
+      listeners.forEach((listener) => listener(value));
+    }
+  };
+
+  const getState = () => value;
+  const subscribe = (listener) => {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  };
+
+  return [getState, setState, subscribe];
+}
+```
+
+## Component-like Structure
+
+- Organize UI logic into reusable component functions
+- Separate creation, update, and cleanup logic
+- Use factory patterns for component instances
+
+```javascript
+function createButton({ text, onClick, className = '' }) {
+  const element = document.createElement('button');
+  element.textContent = text;
+  element.className = `btn ${className}`;
+  element.addEventListener('click', onClick);
+
+  return {
+    element,
+    update: ({ text: newText, className: newClassName }) => {
+      if (newText) element.textContent = newText;
+      if (newClassName) element.className = `btn ${newClassName}`;
+    },
+    destroy: () => {
+      element.removeEventListener('click', onClick);
+      element.remove();
+    },
+  };
+}
+```
+
+## Error Handling
+
+- Use try-catch for async operations
+- Create custom error types for different scenarios
+- Always handle promise rejections
+- Provide meaningful error messages
+
+```javascript
+class ValidationError extends Error {
+  constructor(field, message) {
+    super(`Validation failed for ${field}: ${message}`);
+    this.name = 'ValidationError';
+    this.field = field;
+  }
+}
+
+async function fetchUserData(id) {
+  try {
+    const response = await fetch(`/api/users/${id}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch user data:', error);
+    throw error;
+  }
+}
+```
+
+## Module Organization
+
+- Use ES6 modules for code organization
+- Export only what's necessary (prefer named exports)
+- Group related functionality in single files
+- Keep modules focused on single responsibility
+
+```javascript
+// userService.js
+export const userService = {
+  async getUser(id) {
+    /* ... */
+  },
+  async updateUser(id, data) {
+    /* ... */
+  },
+  async deleteUser(id) {
+    /* ... */
+  },
+};
+
+// utils/validation.js
+export const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+export const isValidPassword = (password) => password.length >= 8;
+```
+
+## Performance Considerations
+
+- Use debouncing/throttling for frequent events
+- Implement virtual scrolling for large lists
+- Use document fragments for multiple DOM insertions
+- Cache expensive computations
+- Remove event listeners on cleanup
+
+```javascript
+// Debounce utility
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+```
+
+## Testing Structure
+
+- Write functions that are easy to test (pure functions)
+- Separate DOM manipulation from business logic
+- Use dependency injection for external services
+- Mock external dependencies in tests
+
+```javascript
+// Testable structure
+function calculateTotal(items, taxRate = 0.1) {
+  return items.reduce((sum, item) => sum + item.price, 0) * (1 + taxRate);
+}
+
+function updateTotalDisplay(total, element = document.getElementById('total')) {
+  element.textContent = `$${total.toFixed(2)}`;
+}
+```
+
+## Refactoring Guidelines
+
+- Make small, incremental changes
+- Maintain existing functionality while improving structure
+- Extract reusable utilities gradually
+- Update tests alongside refactoring
+- Use feature flags for major changes
+- Review changes thoroughly before merging
+
+## Code Review Checklist
+
+- [ ] Functions follow single responsibility principle
+- [ ] Variables and functions have descriptive names
+- [ ] Magic numbers/strings extracted to constants
+- [ ] No code duplication
+- [ ] Error handling implemented
+- [ ] Performance considerations addressed
+- [ ] Code is self-documenting
+- [ ] Separation of concerns maintained
+- [ ] Tests are comprehensive and pass
+- [ ] Refactoring preserves existing functionality
+
+## Anti-Patterns to Avoid
+
+- ❌ Deeply nested conditions (max 3 levels)
+- ❌ Functions longer than 20 lines
+- ❌ Global state mutations
+- ❌ Mixing DOM manipulation with business logic
+- ❌ Using `var` or implicit globals
+- ❌ Callback hell (use async/await)
+- ❌ Modifying function parameters directly
+- ❌ Ignoring error cases

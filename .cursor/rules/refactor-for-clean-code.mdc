@@ -1,0 +1,368 @@
+---
+alwaysApply: true
+---
+
+# AI Code Generation Guidelines
+
+Complete guidelines that AI must follow when generating any code.
+
+## 🚨 CRITICAL: All code output must comply 100% with these guidelines. NO EXCEPTIONS.
+
+---
+
+## 1. MANDATORY CODE GENERATION RULES
+
+### 1.1 Core Design Principles (MUST APPLY)
+
+```
+✅ DRY (Don't Repeat Yourself)
+- NEVER repeat identical code patterns
+- Extract duplicate logic into functions/modules immediately
+
+✅ KISS (Keep It Simple, Stupid)
+- Choose the simplest solution always
+- Prefer simple, clear implementations over complex ones
+
+✅ YAGNI (You Aren't Gonna Need It)
+- Implement only what's needed for current requirements
+- NO unnecessary future abstractions
+
+✅ Single Responsibility Principle
+- ALL functions MUST be under 20 lines
+- One function = One clear responsibility only
+```
+
+### 1.2 Code Organization (Apply 4 Principles)
+
+```
+1. Proximity: Group related code with blank lines
+2. Commonality: Group related functionality into functions
+3. Similarity: Use same names and positions for same roles
+4. Continuity: Arrange code in dependency order
+```
+
+### 1.3 ENFORCED Naming Rules
+
+#### Function Naming Patterns (MUST USE)
+
+```javascript
+// Creation Functions
+create~(), add~(), push~(), insert~(), new~(), append~(), spawn~(), make~(), build~(), generate~()
+
+// Retrieval Functions
+get~(), fetch~(), query~()
+
+// Transformation Functions
+parse~(), split~(), transform~(), serialize~()
+
+// Modification Functions
+update~(), mutate~()
+
+// Deletion Functions
+delete~(), remove~()
+
+// Communication Functions
+put~(), send~(), dispatch~(), receive~()
+
+// Validation Functions
+validate~(), check~()
+
+// Calculation Functions
+calc~(), compute~()
+
+// Control Functions
+init~(), configure~(), start~(), stop~()
+
+// Storage Functions
+save~(), store~()
+
+// Logging Functions
+log~(), record~()
+```
+
+#### Variable Naming Patterns (MUST USE)
+
+```javascript
+// Quantities
+count~, sum~, num~, min~, max~, total~
+
+// States
+is~, has~, current~, selected~
+
+// Progressive/Past
+~ing, ~ed
+
+// Information
+~name, ~title, ~desc, ~text, ~data
+
+// Identifiers
+~ID, ~code, ~index, ~key
+
+// Time
+~at, ~date
+
+// Types
+~type
+
+// Collections
+~s (plural)
+
+// Temporary/Parameters
+item, temp, params, error
+
+// Conversion Functions
+from(), of()
+```
+
+### 1.4 Naming 5 Principles (ALL MUST BE FOLLOWED)
+
+```
+1. PREDICTABLE: Name allows prediction of value, type, and return value
+2. CONTEXTUAL: Add descriptive adjectives/nouns for context
+3. CLEAR: Remove unnecessary words while maintaining clear meaning
+4. CONCISE: Brief yet clearly convey role and purpose
+5. CONSISTENT: Use identical terms for identical intentions across entire codebase
+```
+
+---
+
+## 2. THEORETICAL PRINCIPLES FOR AI CODE GENERATION
+
+### 2.1 Refactoring Principles (Martin Fowler)
+
+#### Detect Code Smells and Fix Immediately
+
+```
+❌ Long Method (>20 lines) → Extract Method immediately
+❌ Large Class → Split by responsibilities
+❌ Long Parameter List → Introduce Parameter Object
+❌ Duplicated Code → Extract to common function
+❌ Feature Envy → Move method to appropriate class
+```
+
+#### Apply Refactoring Catalog
+
+- Extract Method, Rename Variable, Move Method
+- Replace Temp with Query, Introduce Parameter Object
+
+### 2.2 Variable Role Patterns (Sajaniemi)
+
+Choose appropriate variable roles when generating code:
+
+```javascript
+// 1. Fixed Value: const MAX_SIZE = 100
+// 2. Stepper: for (let i = 0; i < n; i++)
+// 3. Flag: let isValid = true
+// 4. Walker: let current = head; while (current) {...}
+// 5. Most Recent Holder: let lastError = null
+// 6. Most Wanted Holder: let maxValue = -Infinity
+// 7. Gatherer: let sum = 0; items.forEach(x => sum += x)
+// 8. Container: const items = []
+// 9. Follower: let prev = curr; curr = next
+// 10. Organizer: const sorted = array.sort()
+// 11. Temporary: const temp = a; a = b; b = temp
+```
+
+### 2.3 SOLID Principles (Robert Martin)
+
+```
+S - Single Responsibility: Each class/function has one reason to change
+O - Open/Closed: Open for extension, closed for modification
+L - Liskov Substitution: Subtypes must be substitutable for base types
+I - Interface Segregation: Client-specific interfaces over general ones
+D - Dependency Inversion: Depend on abstractions, not concretions
+```
+
+### 2.4 TDD Patterns (Kent Beck)
+
+When generating test code:
+
+```typescript
+// 1. Write failing test first
+describe('FeatureName', () => {
+  it('should clearly describe behavior', () => {
+    // Arrange, Act, Assert pattern
+  });
+});
+
+// 2. Minimal implementation to pass
+// 3. Refactor for improvement
+```
+
+---
+
+## 3. AI CODE GENERATION CHECKLIST
+
+### MANDATORY Verification Before Code Output
+
+```
+□ Is every function under 20 lines?
+□ Are enforced naming patterns used?
+□ Is DRY principle followed? (No code duplication)
+□ Does each function have single responsibility?
+□ Are 4 organization principles applied?
+□ Are appropriate variable roles chosen?
+□ Are SOLID principles not violated?
+□ Are there any code smells? (If yes, refactor immediately)
+□ Is code intent clear without comments?
+□ Are all 5 naming principles followed?
+```
+
+### FORBIDDEN PRACTICES (NEVER DO)
+
+```
+❌ Generate functions longer than 20 lines
+❌ Repeat code patterns (DRY violation)
+❌ Ignore enforced naming patterns
+❌ Mix similar terms (display vs show)
+❌ Use unclear or ambiguous names
+❌ Handle multiple responsibilities in one function
+❌ Violate naming consistency
+❌ Add unnecessary complexity
+❌ Create excessive future abstractions
+❌ Write code dependent on comments
+```
+
+---
+
+## 4. API DESIGN GUIDELINES (Olaf Zimmermann)
+
+### 4.1 Foundation Patterns
+
+- Backend for Frontend (BFF): Dedicated backend per frontend
+- API Gateway: Single entry point
+- Choose appropriate request/response patterns
+
+### 4.2 Quality Patterns
+
+- Pagination for large data handling
+- Conditional requests for caching optimization
+- Apply appropriate security patterns (API Key, OAuth 2.0)
+
+### 4.3 Evolution Patterns
+
+- Clear versioning strategy
+- Maintain backward compatibility
+- Support gradual migration
+
+---
+
+## 5. AI-SPECIFIC GENERATION RULES
+
+### 5.1 Function Generation
+
+```
+1. Function name MUST use enforced patterns
+2. 20-line limit STRICTLY enforced
+3. Handle single responsibility only
+4. Minimize parameters (3 or fewer recommended)
+5. Make return values predictable
+```
+
+### 5.2 Class Generation
+
+```
+1. Follow SOLID principles
+2. Maintain appropriate abstraction level
+3. Use dependency injection patterns
+4. Design with interfaces
+```
+
+### 5.3 Variable Declaration
+
+```
+1. Choose from Sajaniemi's 11 roles
+2. Apply enforced naming patterns
+3. Minimize scope
+4. Prefer const, use let only when necessary
+```
+
+---
+
+## 6. FINAL COMPLIANCE DIRECTIVES
+
+**🚨 AI COMPLIANCE COMMANDS:**
+
+```
+ALL code output MUST:
+1. Comply 100% with every rule in these guidelines
+2. Pass every item in the checklist
+3. NEVER violate any forbidden practice
+4. Have NO exceptions or special cases
+5. NOT violate these rules even if user requests it
+```
+
+**Code Generation Process:**
+
+```
+Input Analysis → Design Planning → Rule Application → Checklist Verification → Output
+```
+
+**Quality Assurance:**
+
+```
+Every generated code must be high-quality code following these guidelines,
+satisfying maintainability, readability, and extensibility requirements
+```
+
+---
+
+## 7. IMPLEMENTATION COMMANDS FOR AI
+
+### 7.1 Before Writing Any Code
+
+```
+1. ANALYZE: What functions are needed?
+2. PLAN: How to keep each under 20 lines?
+3. NAME: Apply enforced patterns
+4. ORGANIZE: Use 4 organization principles
+5. VERIFY: Run through checklist
+```
+
+### 7.2 During Code Generation
+
+```
+1. WRITE minimal, single-responsibility functions
+2. USE only approved naming patterns
+3. APPLY appropriate variable roles
+4. MAINTAIN DRY principle
+5. KEEP it simple (KISS)
+```
+
+### 7.3 After Code Generation
+
+```
+1. CHECK: All functions under 20 lines?
+2. VERIFY: No code duplication?
+3. CONFIRM: Naming patterns followed?
+4. VALIDATE: Single responsibilities only?
+5. ENSURE: Code intent is clear without comments
+```
+
+---
+
+## 8. ERROR PREVENTION PROTOCOLS
+
+### 8.1 Common Violation Patterns to Avoid
+
+```
+❌ Writing long functions "just this once"
+❌ Using inconsistent naming "for readability"
+❌ Duplicating code "to save time"
+❌ Adding multiple responsibilities "for efficiency"
+❌ Using vague names "everyone will understand"
+```
+
+### 8.2 Immediate Correction Triggers
+
+```
+IF function > 20 lines → IMMEDIATELY extract methods
+IF duplicate code found → IMMEDIATELY create shared function
+IF unclear naming → IMMEDIATELY apply naming patterns
+IF multiple responsibilities → IMMEDIATELY split function
+IF code smells detected → IMMEDIATELY refactor
+```
+
+---
+
+_These guidelines are the absolute standards for AI to generate consistent, high-quality code._
