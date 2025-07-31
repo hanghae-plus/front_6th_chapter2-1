@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ProductSelector } from './components/ProductSelector';
 import { Cart } from './components/Cart';
 import { AddToCartButton } from './components/AddToCartButton';
+import { OrderSummary } from './components/OrderSummary';
+import { TuesdayBanner } from './components/TuesdayBanner';
 import { useProducts } from './hooks/useProducts';
 import { useCart } from './hooks/useCart';
 import { Product } from './types';
@@ -71,6 +73,9 @@ function App() {
 
       {/* 메인 컨텐츠 */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* 화요일 할인 배너 */}
+        <TuesdayBanner />
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* 좌측: 상품 선택 및 장바구니 */}
           <div className="space-y-6">
@@ -100,19 +105,7 @@ function App() {
           {/* 우측: 주문 요약 */}
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-2xl font-semibold mb-4">주문 요약</h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">총 상품 수:</span>
-                  <span className="font-semibold">{totalItems}개</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">총 금액:</span>
-                  <span className="text-2xl font-bold text-blue-600">
-                    ₩{totalAmount.toLocaleString()}
-                  </span>
-                </div>
-              </div>
+              <OrderSummary cartItems={cartItems} />
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
