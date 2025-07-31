@@ -28,11 +28,11 @@ export const updateProductSelector = () => {
 
   // 상품 선택기 업데이트
   productSelector.updateProducts(
-    productState.products,
-    productState.lastSelectedProduct,
+    getProductState().products,
+    getProductState().lastSelectedProduct,
   );
 
-  const totalStock = getTotalStock(productState.products);
+  const totalStock = getTotalStock(getProductState().products);
   const borderColor = totalStock < 50 ? 'orange' : '';
 
   safeDOM('#product-select', element =>
@@ -44,10 +44,10 @@ export const updateProductSelector = () => {
  * 재고 정보 업데이트 (선언적)
  */
 export const updateStockInfo = () => {
-  const infoMsg = generateStockStatusMessage(productState.products, 5);
+  const infoMsg = generateStockStatusMessage(getProductState().products, 5);
 
   safeDOM('#stock-status', element => setTextContent(element, infoMsg));
 };
 
-// setProductState를 외부에서 사용할 수 있도록 export
-export { setProductState };
+// 스토어 함수들을 외부에서 사용할 수 있도록 export
+export { setProductState, initializeProductStore, getProductState };
