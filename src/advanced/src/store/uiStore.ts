@@ -31,4 +31,4 @@ export const useUiStore = create<UiStore>((set, get) => ({
   reset: () => {
     set(initialState);
   },
-})); 
+}));
