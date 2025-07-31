@@ -9,15 +9,23 @@ interface Props {
 }
 
 export default function CartListItem({ item }: Props) {
-  const { products } = useProductStore();
+  const { products, increaseStock, decreaseStock } = useProductStore();
   const { increaseProductQuantity, decreaseProductQuantity } = useCartStore();
 
   const { id, quantity } = item;
 
   const product = products.find(product => product.id === id) as Product;
 
-  const handleClickIncrease = () => increaseProductQuantity(product);
-  const handleClickDecrease = () => decreaseProductQuantity(product);
+  const handleClickIncrease = () => {
+    if (product.stock === 0) return;
+
+    decreaseStock(product.id);
+    increaseProductQuantity(product);
+  };
+  const handleClickDecrease = () => {
+    increaseStock(product.id);
+    decreaseProductQuantity(product);
+  };
 
   return (
     <div

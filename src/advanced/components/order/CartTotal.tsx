@@ -1,3 +1,4 @@
+import PointInfo from '@/advanced/components/order/PointInfo';
 import useOrderSummary from '@/advanced/hooks/useOrderSummary';
 import formatPrice from '@/advanced/utils/format.util';
 
@@ -12,9 +13,7 @@ export default function CartTotal() {
         <span className="text-sm uppercase tracking-wider">Total</span>
         <div className="text-2xl tracking-tight">{formattedTotalPrice}</div>
       </div>
-      <div id="loyalty-points" className="text-xs text-blue-400 mt-2 text-right">
-        적립 포인트: 0p
-      </div>
+      <PointInfo />
     </div>
   );
 }
