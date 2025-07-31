@@ -13,7 +13,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "gh-pages": "pnpm run build && gh-pages -d dist"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
     "@clean-code/eslint": "workspace:*",
     "@clean-code/prettier": "workspace:*",
     "clsx": "^2.1.1",
+    "gh-pages": "^6.3.0",
     "react": "catalog:react",
     "react-dom": "catalog:react",
     "vite": "catalog:vite",
