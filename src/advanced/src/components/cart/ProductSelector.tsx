@@ -28,7 +28,6 @@ export const ProductSelector = ({
         onChange={(e) => onProductSelect(e.target.value)}
         className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
       >
-        <option value="">상품을 선택하세요</option>
         {products.map((product) => {
           const optionData = createOption(product);
           return (
