@@ -52,11 +52,7 @@ export default function CartItem({
           {name}
         </h3>
         <p className="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-        <PriceDisplay
-          originalPrice={originalPrice}
-          price={price}
-          className="text-xs text-black mb-3"
-        />
+        <PriceDisplay originalPrice={originalPrice} price={price} />
         <QuantityControls
           quantity={quantity}
           onQuantityChange={handleQuantityChange}
@@ -66,7 +62,7 @@ export default function CartItem({
         <PriceDisplay
           originalPrice={originalPrice}
           price={price}
-          className="text-lg mb-2 tracking-tight tabular-nums"
+          showDiscount
         />
         <button
           className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
