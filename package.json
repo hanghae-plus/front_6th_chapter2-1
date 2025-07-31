@@ -3,9 +3,11 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://angielxx.github.io/front_6th_chapter2-1/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:advanced": "vite build --config vite.config.advanced.js",
     "preview": "vite preview",
     "start:basic": "vite serve --open ./index.basic.html",
     "start:advanced": "vite serve --open ./index.advanced.html",
@@ -19,7 +21,8 @@
     "format:check": "prettier --check .",
     "check": "pnpm run lint && pnpm run format:check",
     "fix": "pnpm run lint:fix && pnpm run format",
-    "prepare": "husky"
+    "prepare": "husky",
+    "gh-pages": "pnpm run build:advanced && mv dist/index.advanced.html dist/index.html && gh-pages -d dist"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
@@ -37,6 +40,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.3",
+    "gh-pages": "^6.3.0",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
