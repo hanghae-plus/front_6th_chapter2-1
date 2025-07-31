@@ -7,8 +7,10 @@ import { ManualOverlay } from './components/manual/ManualOverlay';
 import { ManualToggle } from './components/manual/ManualToggle';
 import { RightColumn } from './components/summary/RightColumn';
 import { calculateCart } from './services/CartCalculationService';
+import { createLightningSaleService } from './services/LightningSaleService';
 import { createPointsCalculationService } from './services/PointsCalculationService';
-import { useCartStore, usePointsStore } from './store';
+import { createSuggestSaleService } from './services/SuggestSaleService';
+import { useCartStore, usePointsStore, useProductStore } from './store';
 
 const App = () => {
   const {
@@ -21,7 +23,22 @@ const App = () => {
     updateDiscountRate,
   } = useCartStore();
   const { totalPoints, pointsDetail, updateTotalPoints, updatePointsDetail } = usePointsStore();
+  const { products, selectedProduct, updateProducts } = useProductStore();
   const pointsCalculationService = createPointsCalculationService();
+  const lightningSaleService = createLightningSaleService(products, updateProducts);
+  const suggestSaleService = createSuggestSaleService(products, selectedProduct, updateProducts);
+
+  // 앱 초기화 시 타이머 시작
+  useEffect(() => {
+    lightningSaleService.startLightningSaleTimer();
+    suggestSaleService.startSuggestSaleTimer();
+
+    // 컴포넌트 언마운트 시 타이머 정리
+    return () => {
+      lightningSaleService.stopLightningSaleTimer();
+      suggestSaleService.stopSuggestSaleTimer();
+    };
+  }, [lightningSaleService, suggestSaleService]);
 
   // 장바구니 변경 시 계산 수행
   useEffect(() => {
