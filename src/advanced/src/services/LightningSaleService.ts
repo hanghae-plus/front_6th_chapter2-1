@@ -7,8 +7,8 @@ import type { Product } from '../types';
 
 // 타이머 상태를 관리하는 객체
 const timerState = {
-  lightningSaleInterval: null as NodeJS.Timeout | null,
-  lightningSaleTimeout: null as NodeJS.Timeout | null,
+  lightningSaleInterval: null as ReturnType<typeof setTimeout> | null,
+  lightningSaleTimeout: null as ReturnType<typeof setTimeout> | null,
 };
 
 /**

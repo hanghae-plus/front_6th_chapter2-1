@@ -3,8 +3,8 @@ import type { Product } from '../types';
 
 // 타이머 상태를 관리하는 객체
 const timerState = {
-  suggestSaleInterval: null as NodeJS.Timeout | null,
-  suggestSaleTimeout: null as NodeJS.Timeout | null,
+  suggestSaleInterval: null as ReturnType<typeof setTimeout> | null,
+  suggestSaleTimeout: null as ReturnType<typeof setTimeout> | null,
 };
 
 /**
