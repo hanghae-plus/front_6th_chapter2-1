@@ -22,15 +22,12 @@ import {
 import { bindEventListeners } from './events/bindings.js';
 import { CartCalculationService } from './services/CartCalculationService.js';
 import { PointsCalculationService } from './services/PointsCalculationService.js';
+import { PriceUpdateService } from './services/PriceUpdateService.js';
 import { cartState } from './states/cartState.js';
 import { productState } from './states/productState.js';
 import { stateActions, subscribeToState } from './states/state.js';
 import { uiState } from './states/uiState.js';
-import {
-  findProductById,
-  getProductDiscountIcon,
-  getProductDiscountStyle,
-} from './utils/product.js';
+import { getProductDiscountIcon, getProductDiscountStyle } from './utils/product.js';
 import { generateStockWarningMessage, getLowStockProducts } from './utils/stock.js';
 
 // ================================================
@@ -617,50 +614,13 @@ function main() {
   }
 
   function doUpdatePricesInCart() {
-    const cartItems = cartDisp.children;
-    for (let i = 0; i < cartItems.length; i++) {
-      const itemId = cartItems[i].id;
-      const product = findProductById(productList, itemId);
-      if (product) {
-        const priceDiv = cartItems[i].querySelector('.text-lg');
-        const nameDiv = cartItems[i].querySelector('h3');
-        if (product.onSale && product.suggestSale) {
-          priceDiv.innerHTML = `
-            <span class="line-through text-gray-400">
-              ₩${product.originalVal.toLocaleString()}
-            </span>
-            <span class="text-purple-600">
-              ₩${product.val.toLocaleString()}
-            </span>
-          `;
-          nameDiv.textContent = `⚡💝${product.name}`;
-        } else if (product.onSale) {
-          priceDiv.innerHTML = `
-            <span class="line-through text-gray-400">
-              ₩${product.originalVal.toLocaleString()}
-            </span>
-            <span class="text-red-500">
-              ₩${product.val.toLocaleString()}
-            </span>
-          `;
-          nameDiv.textContent = `⚡${product.name}`;
-        } else if (product.suggestSale) {
-          priceDiv.innerHTML = `
-            <span class="line-through text-gray-400">
-              ₩${product.originalVal.toLocaleString()}
-            </span>
-            <span class="text-blue-500">
-              ₩${product.val.toLocaleString()}
-            </span>
-          `;
-          nameDiv.textContent = `💝${product.name}`;
-        } else {
-          priceDiv.textContent = `₩${product.val.toLocaleString()}`;
-          nameDiv.textContent = product.name;
-        }
-      }
-    }
-    handleCalculateCartStuff();
+    const priceUpdateService = new PriceUpdateService(
+      productList,
+      cartDisp,
+      handleCalculateCartStuff
+    );
+
+    priceUpdateService.updatePricesInCart();
   }
 
   // 컨텍스트 객체 생성
