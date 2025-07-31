@@ -322,4 +322,4 @@ export const getCartSummary = (state) => {
   };
 };
 
-export { state, subscribe, dispatch, getCartSummary };
+export { state, subscribe, dispatch };
