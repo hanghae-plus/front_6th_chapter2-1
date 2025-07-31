@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode } from "react";
+import { createContext, useContext, useReducer, ReactNode } from "react";
 import { AppState, CartContextType, Cart, Product } from "../types";
 import { calculateTotalDiscount, calculateFinalPrice } from "../services/discountService";
 import { calculateTotalPoints } from "../services/pointService";
@@ -177,8 +177,13 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     dispatch({ type: "SET_SELECTED_PRODUCT", productId });
   };
 
-  // 계산된 값들
-  const subtotal = state.cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  // 계산된 값들 - 실시간 상품 가격 반영
+  const subtotal = state.cartItems.reduce((sum, item) => {
+    // 현재 상품 정보에서 최신 가격 가져오기
+    const currentProduct = state.products.find(p => p.id === item.id);
+    const currentPrice = currentProduct ? currentProduct.price : item.product.price;
+    return sum + currentPrice * item.quantity;
+  }, 0);
 
   const discounts = calculateTotalDiscount(state.cartItems, subtotal);
   const totalAmount = calculateFinalPrice(subtotal, discounts);
