@@ -9,7 +9,7 @@ export const initialState = {
   selectedProductId: PRODUCT_IDS.P1,
 };
 
-export function reducer(state: State, action: Action) {
+export function reducer(state: State, action: Action): State {
   const { type, payload } = action;
 
   switch (type) {
@@ -22,7 +22,7 @@ export function reducer(state: State, action: Action) {
           ...state,
           notifications: [
             ...state.notifications,
-            { id: Date.now(), message: '재고가 부족합니다.' },
+            { id: new Date(), message: '재고가 부족합니다.' },
           ],
         };
       }
@@ -65,7 +65,7 @@ export function reducer(state: State, action: Action) {
           ...state,
           notifications: [
             ...state.notifications,
-            { id: Date.now(), message: '재고가 부족합니다.' },
+            { id: new Date(), message: '재고가 부족합니다.' },
           ],
         };
       }
@@ -113,7 +113,7 @@ export function reducer(state: State, action: Action) {
         products: newProducts,
         notifications: [
           ...state.notifications,
-          { id: Date.now(), message: `⚡번개세일! ${product.name}이(가) 20% 할인 중입니다!` },
+          { id: new Date(), message: `⚡번개세일! ${product.name}이(가) 20% 할인 중입니다!` },
         ],
       };
     }
@@ -137,7 +137,7 @@ export function reducer(state: State, action: Action) {
         notifications: [
           ...state.notifications,
           {
-            id: Date.now(),
+            id: new Date(),
             message: `💝 ${luckyItem.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`,
           },
         ],
