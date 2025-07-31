@@ -6,28 +6,21 @@ import CartItem from './features/cart/components/CartItem.tsx';
 import OrderSummaryDetails from './features/order/components/OrderSummaryDetails.tsx';
 import { ELEMENT_IDS } from './shared/constants/elementIds.ts';
 import { initialProducts } from './features/product/constants/index.ts';
-
-interface CartItemData {
-  id: string;
-  name: string;
-  val: number;
-  originalVal: number;
-  quantity: number;
-  onSale: boolean;
-  suggestSale: boolean;
-}
+import { useCartStore } from './features/cart/store/cartStore.ts';
 
 function App() {
   const [products, setProducts] = useState(initialProducts);
-  const [selectedProductId, setSelectedProductId] = useState('');
-  const [cartItems, setCartItems] = useState<CartItemData[]>([]);
-  const [itemCount, setItemCount] = useState(0);
+  const [selectedProductId, setSelectedProductId] = useState(
+    initialProducts[0]?.id || '',
+  );
+
+  const { cartItems, itemCount, addItem, removeItem, updateQuantity } =
+    useCartStore();
 
   const handleProductSelection = (productId: string) => {
     setSelectedProductId(productId);
   };
 
-  // Add to Cart 기능
   const handleAddToCart = () => {
     if (!selectedProductId) return;
 
@@ -37,47 +30,29 @@ function App() {
       return;
     }
 
-    // 기존 장바구니에 있는지 확인
     const existingItem = cartItems.find(item => item.id === selectedProductId);
 
     if (existingItem) {
-      // 기존 아이템 수량 증가
-      if (existingItem.quantity >= selectedProduct.q + existingItem.quantity) {
+      if (existingItem.quantity >= selectedProduct.q) {
         alert('재고가 부족합니다.');
         return;
       }
-
-      setCartItems(prev =>
-        prev.map(item =>
-          item.id === selectedProductId
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        ),
-      );
-    } else {
-      // 새 아이템 추가
-      const newItem: CartItemData = {
-        id: selectedProduct.id,
-        name: selectedProduct.name,
-        val: selectedProduct.val,
-        originalVal: selectedProduct.originalVal,
-        quantity: 1,
-        onSale: selectedProduct.onSale,
-        suggestSale: selectedProduct.suggestSale,
-      };
-      setCartItems(prev => [...prev, newItem]);
     }
 
-    // 재고 감소
+    addItem({
+      id: selectedProduct.id,
+      name: selectedProduct.name,
+      val: selectedProduct.val,
+      originalVal: selectedProduct.originalVal,
+      onSale: selectedProduct.onSale,
+      suggestSale: selectedProduct.suggestSale,
+    });
+
     setProducts(prev =>
       prev.map(p => (p.id === selectedProductId ? { ...p, q: p.q - 1 } : p)),
     );
-
-    // 총 아이템 수 업데이트
-    setItemCount(prev => prev + 1);
   };
 
-  // 수량 변경
   const handleQuantityChange = (id: string, change: number) => {
     const product = products.find(p => p.id === id);
     const cartItem = cartItems.find(item => item.id === id);
@@ -87,7 +62,6 @@ function App() {
     const newQuantity = cartItem.quantity + change;
 
     if (newQuantity <= 0) {
-      // 아이템 제거
       handleRemoveItem(id);
       return;
     }
@@ -97,40 +71,24 @@ function App() {
       return;
     }
 
-    // 수량 변경
-    setCartItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item,
-      ),
-    );
+    updateQuantity(id, newQuantity);
 
-    // 재고 조정
     setProducts(prev =>
       prev.map(p => (p.id === id ? { ...p, q: p.q - change } : p)),
     );
-
-    // 총 아이템 수 업데이트
-    setItemCount(prev => prev + change);
   };
 
-  // 아이템 제거
   const handleRemoveItem = (id: string) => {
     const cartItem = cartItems.find(item => item.id === id);
     if (!cartItem) return;
 
-    // 장바구니에서 제거
-    setCartItems(prev => prev.filter(item => item.id !== id));
+    removeItem(id);
 
-    // 재고 복원
     setProducts(prev =>
       prev.map(p => (p.id === id ? { ...p, q: p.q + cartItem.quantity } : p)),
     );
-
-    // 총 아이템 수 업데이트
-    setItemCount(prev => prev - cartItem.quantity);
   };
 
-  // OrderSummaryDetails에 전달할 데이터 계산
   const summaryData = {
     cartItems: cartItems.map(item => ({
       id: item.id,
@@ -174,7 +132,6 @@ function App() {
             ></div>
           </div>
 
-          {/* Cart Items */}
           <div id={ELEMENT_IDS.CART_ITEMS} className='space-y-3'>
             {cartItems.map(item => (
               <CartItem
@@ -199,7 +156,6 @@ function App() {
             Order Summary
           </h2>
           <div className='flex-1 flex flex-col'>
-            {/* OrderSummaryDetails 컴포넌트로 교체 */}
             <OrderSummaryDetails {...summaryData} />
             <div className='mt-auto'>
               <div id='discount-info' className='mb-4'></div>
