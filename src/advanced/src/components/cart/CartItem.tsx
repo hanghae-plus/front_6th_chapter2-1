@@ -1,7 +1,7 @@
 interface CartItemProps {
   id: string;
   name: string;
-  price: number;
+  val: number;
   quantity: number;
   discount: number;
   onQuantityChange: (id: string, quantity: number) => void;
@@ -11,13 +11,13 @@ interface CartItemProps {
 export const CartItem = ({
   id,
   name,
-  price,
+  val,
   quantity,
   discount,
   onQuantityChange,
   onRemove,
 }: CartItemProps) => {
-  const discountedPrice = price * (1 - discount / 100);
+  const discountedPrice = val * (1 - discount / 100);
   const totalPrice = discountedPrice * quantity;
 
   return (
@@ -25,9 +25,7 @@ export const CartItem = ({
       <div className="flex-1">
         <h3 className="font-medium text-gray-900">{name}</h3>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-sm text-gray-500">
-            ₩{price.toLocaleString()}
-          </span>
+          <span className="text-sm text-gray-500">₩{val.toLocaleString()}</span>
           {discount > 0 && (
             <>
               <span className="text-xs text-red-500">-{discount}%</span>

@@ -3,7 +3,7 @@ import { CartItem } from "./CartItem";
 interface CartItemData {
   id: string;
   name: string;
-  price: number;
+  val: number;
   quantity: number;
   discount: number;
 }

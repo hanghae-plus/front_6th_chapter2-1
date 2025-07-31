@@ -1,9 +1,5 @@
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-}
+import type { Product } from "../../constants";
+import { createOption } from "../../utils/optionUtils";
 
 interface ProductSelectorProps {
   products: Product[];
@@ -28,12 +24,19 @@ export const ProductSelector = ({
         className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
       >
         <option value="">상품을 선택하세요</option>
-        {products.map((product) => (
-          <option key={product.id} value={product.id}>
-            {product.name} - ₩{product.price.toLocaleString()} (재고:{" "}
-            {product.stock}개)
-          </option>
-        ))}
+        {products.map((product) => {
+          const optionData = createOption(product);
+          return (
+            <option
+              key={product.id}
+              value={product.id}
+              disabled={optionData.disabled}
+              className={optionData.className}
+            >
+              {optionData.text}
+            </option>
+          );
+        })}
       </select>
 
       <button
