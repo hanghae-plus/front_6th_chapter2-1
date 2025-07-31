@@ -1,7 +1,16 @@
-import { PRODUCT_ONE, PRODUCT_THREE, PRODUCT_TWO } from '../constants/enum';
+import {
+  ITEM_COUNT_BONUS,
+  KEYBOARD_MOUSE_ARM_BONUS,
+  KEYBOARD_MOUSE_BONUS,
+  POINTS_PER_ITEM,
+  PRODUCT_ONE,
+  PRODUCT_THREE,
+  PRODUCT_TWO,
+  TUESDAY,
+} from '../constants/enum';
 
 function calBonusPoints(totalAmount, itemCount) {
-  const basePoints = Math.floor(totalAmount / 1000);
+  const basePoints = Math.floor(totalAmount / POINTS_PER_ITEM);
 
   let finalPoints = 0;
 
@@ -9,7 +18,7 @@ function calBonusPoints(totalAmount, itemCount) {
     finalPoints = basePoints;
   }
 
-  const isTuesday = new Date().getDay() === 2; // 화요일
+  const isTuesday = new Date().getDay() === TUESDAY; // 화요일
 
   if (isTuesday) {
     if (basePoints > 0) {
@@ -25,21 +34,21 @@ function calBonusPoints(totalAmount, itemCount) {
   const hasMonitorArm = !!cartItemList.find((item) => item.id === PRODUCT_THREE);
 
   if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + 50;
+    finalPoints = finalPoints + KEYBOARD_MOUSE_BONUS;
   }
 
   if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + 100;
+    finalPoints = finalPoints + KEYBOARD_MOUSE_ARM_BONUS;
   }
 
   if (itemCount >= 30) {
-    finalPoints = finalPoints + 100;
+    finalPoints = finalPoints + ITEM_COUNT_BONUS[30];
   } else {
     if (itemCount >= 20) {
-      finalPoints = finalPoints + 50;
+      finalPoints = finalPoints + ITEM_COUNT_BONUS[20];
     } else {
       if (itemCount >= 10) {
-        finalPoints = finalPoints + 20;
+        finalPoints = finalPoints + ITEM_COUNT_BONUS[10];
       }
     }
   }
@@ -48,7 +57,7 @@ function calBonusPoints(totalAmount, itemCount) {
 }
 
 function getBonusPointsDetail(totalAmount, itemCount) {
-  const basePoints = Math.floor(totalAmount / 1000);
+  const basePoints = Math.floor(totalAmount / POINTS_PER_ITEM);
   const pointsDetail = [];
 
   if (basePoints > 0) {

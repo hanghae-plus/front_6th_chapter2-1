@@ -64,7 +64,7 @@ function applyTuesdayDiscount({ finalAmount, originalTotal, isTuesday }) {
   let discountRate = 0;
 
   if (isTuesday && finalAmount > 0) {
-    finalAmount = (finalAmount * 90) / 100;
+    finalAmount = finalAmount * NINETY_PERCENT;
     discountRate = 1 - finalAmount / originalTotal;
   }
 

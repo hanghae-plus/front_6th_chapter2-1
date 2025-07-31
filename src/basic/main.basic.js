@@ -23,6 +23,13 @@ import {
 import store from './store';
 import { checkTuesday, getStockInfoMessage } from './utils';
 import { applyAdditionalDiscounts, getCartSummary } from './utils/cart';
+import {
+  DISCOUNT_ALERT_INTERVAL,
+  DISCOUNT_DELAY_MIN,
+  EIGHTY_PERCENT,
+  LIGHTNING_ALERT_INTERVAL,
+  LIGHTNING_DELAY_MIN,
+} from './constants/enum';
 
 const { productStore } = store;
 
@@ -80,7 +87,7 @@ function updateDiscountPrices() {
 }
 
 function setLightningDiscountAlert() {
-  const lightningDelay = Math.random() * 10000;
+  const lightningDelay = Math.random() * LIGHTNING_DELAY_MIN;
 
   setTimeout(() => {
     setInterval(() => {
@@ -90,7 +97,7 @@ function setLightningDiscountAlert() {
       const luckyItem = productList[luckyIdx];
 
       if (luckyItem.quantity > 0 && !luckyItem.onSale) {
-        luckyItem.value = Math.round((luckyItem.originalVal * 80) / 100);
+        luckyItem.value = Math.round(luckyItem.originalVal * EIGHTY_PERCENT);
         luckyItem.onSale = true;
 
         alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
@@ -98,7 +105,7 @@ function setLightningDiscountAlert() {
         renderSelectorOption(productList, $selector);
         updateDiscountPrices();
       }
-    }, 30000);
+    }, LIGHTNING_ALERT_INTERVAL);
   }, lightningDelay);
 }
 
@@ -123,8 +130,8 @@ function setDiscountAlert() {
           updateDiscountPrices();
         }
       }
-    }, 60000);
-  }, Math.random() * 20000);
+    }, DISCOUNT_ALERT_INTERVAL);
+  }, Math.random() * DISCOUNT_DELAY_MIN);
 }
 
 function handleClickAddButton() {

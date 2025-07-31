@@ -1,12 +1,12 @@
 import Option from '../components/Option';
-import { VOLUME_ORDER_COUNT } from '../constants/enum';
+import { POINTS_PER_ITEM, STOCK_LIMIT_WARNING, VOLUME_ORDER_COUNT } from '../constants/enum';
 import { calBonusPoints, getBonusPointsDetail } from './bonus';
 
 // 재고 기준 미달 시 Selector border 색상 변경
 function renderStockLimitWarning(productList, $selector) {
   const totalStock = productList.reduce((acc, item) => acc + item.quantity, 0);
 
-  if (totalStock < 50) {
+  if (totalStock < STOCK_LIMIT_WARNING) {
     $selector.style.borderColor = 'orange';
   } else {
     $selector.style.borderColor = '';
@@ -124,7 +124,7 @@ function renderLoyaltyPoints(finalAmount) {
 
   if (!$loyaltyPoints) return;
 
-  const points = Math.floor(finalAmount / 1000);
+  const points = Math.floor(finalAmount / POINTS_PER_ITEM);
   $loyaltyPoints.textContent = `적립 포인트: ${points > 0 ? points : 0}p`;
   $loyaltyPoints.style.display = 'block';
 }

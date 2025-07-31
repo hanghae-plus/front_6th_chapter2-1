@@ -1,3 +1,5 @@
+import { STOCK_WARNING_THRESHOLD, TUESDAY } from '../constants/enum';
+
 /**
  *
  * @param {{
@@ -13,7 +15,7 @@
  */
 function getStockInfoMessage(productList) {
   const infoMessage = productList.reduce((message, product) => {
-    if (product.quantity < 5) {
+    if (product.quantity < STOCK_WARNING_THRESHOLD) {
       if (product.quantity > 0) {
         return `${message}${product.name}: 재고 부족 (${product.quantity}개 남음)\n`;
       }
@@ -29,7 +31,7 @@ function getStockInfoMessage(productList) {
 
 // 화요일 판별 함수
 function checkTuesday(date = new Date()) {
-  return date.getDay() === 2;
+  return date.getDay() === TUESDAY;
 }
 
 export { getStockInfoMessage, checkTuesday };
