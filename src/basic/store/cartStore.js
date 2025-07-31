@@ -7,6 +7,10 @@ export const cartStore = {
 };
 
 export const cartStoreActions = {
+  getProducts() {
+    return cartStore.products;
+  },
+
   setProducts(products) {
     cartStore.products = products.map((p) => ({
       ...p,
