@@ -24,10 +24,15 @@ import {
   DISCOUNT_STANDARD_COUNT,
   VOLUME_ORDER_COUNT,
 } from './constants/enum';
-import { renderBonusPoints, renderSelectorOption } from './render';
+import {
+  renderBonusPoints,
+  renderCartSummaryDetails,
+  renderDiscountInfo,
+  renderLoyaltyPoints,
+  renderSelectorOption,
+} from './render';
 import store from './store';
 import { getStockInfoMessage } from './utils';
-import { getProductDiscount } from './utils/discount';
 
 const { productStore } = store;
 
@@ -38,77 +43,87 @@ const $addButton = AddButton();
 const $cartItems = CartItems();
 const $stockStatus = StockStatus();
 
-function calcCart() {
-  let totalAmount = 0;
-  let itemCount = 0;
-  let subTotal = 0;
-
-  const cartItemList = Array.from($cartItems.children);
-
+// 1. 가격·수량 계산 및 할인 정보 추출
+function getCartSummary(cartItemList, productStore) {
+  let itemCount = 0,
+    subTotal = 0,
+    totalAmount = 0;
   const itemDiscounts = [];
-
-  const productList = productStore.getProductList();
 
   cartItemList.forEach((cartItem) => {
     const product = productStore.getProductById(cartItem.id);
-
-    const $quantityNumber = cartItem.querySelector('.quantity-number');
-
-    const quantity = parseInt($quantityNumber.textContent);
+    const quantity = parseInt(cartItem.querySelector('.quantity-number').textContent);
     const itemTotal = product.value * quantity;
-
     let discount = 0;
 
     itemCount += quantity;
     subTotal += itemTotal;
 
-    const $price = cartItem.querySelectorAll('.text-lg, .text-xs');
-    $price.forEach((element) => {
-      if (element.classList.contains('text-lg')) {
-        element.style.fontWeight = quantity >= DISCOUNT_STANDARD_COUNT ? 'bold' : 'normal';
-      }
-    });
-
     if (quantity >= DISCOUNT_STANDARD_COUNT) {
-      if (product.id === PRODUCT_ONE) {
-        discount = TEN_PERCENT;
-      } else if (product.id === PRODUCT_TWO) {
-        discount = FIFTEEN_PERCENT;
-      } else if (product.id === PRODUCT_THREE) {
-        discount = TWENTY_PERCENT;
-      } else if (product.id === PRODUCT_FOUR) {
-        discount = FIVE_PERCENT;
-      } else if (product.id === PRODUCT_FIVE) {
-        discount = TWENTY_FIVE_PERCENT;
-      }
-
-      if (discount > 0) {
-        itemDiscounts.push({ name: product.name, discount: discount * 100 });
-      }
+      if (product.id === PRODUCT_ONE) discount = TEN_PERCENT;
+      else if (product.id === PRODUCT_TWO) discount = FIFTEEN_PERCENT;
+      else if (product.id === PRODUCT_THREE) discount = TWENTY_PERCENT;
+      else if (product.id === PRODUCT_FOUR) discount = FIVE_PERCENT;
+      else if (product.id === PRODUCT_FIVE) discount = TWENTY_FIVE_PERCENT;
+      if (discount > 0) itemDiscounts.push({ name: product.name, discount: discount * 100 });
     }
 
     totalAmount += itemTotal * (1 - discount);
   });
 
-  let discountRate = 0;
-  const originalTotal = subTotal;
+  return { itemCount, subTotal, totalAmount, itemDiscounts };
+}
+
+// 2. 대량/화요일 할인 적용 및 화요일 배너 표시
+function applyAdditionalDiscounts({ subTotal, totalAmount, itemCount, isTuesday }) {
+  let discountRate = 0,
+    finalAmount = totalAmount,
+    originalTotal = subTotal;
 
   if (itemCount >= VOLUME_ORDER_COUNT) {
-    totalAmount = (subTotal * 75) / 100;
+    finalAmount = (subTotal * 75) / 100;
     discountRate = TWENTY_FIVE_PERCENT;
   } else {
     discountRate = (subTotal - totalAmount) / subTotal;
   }
 
+  // 화요일 배너 표시 관련 변수는 여기서 못 처리하므로 돌아온 후 calcCart에서 처리
+
+  if (isTuesday && finalAmount > 0) {
+    finalAmount = (finalAmount * 90) / 100;
+    discountRate = 1 - finalAmount / originalTotal;
+  }
+
+  return { finalAmount, discountRate, originalTotal };
+}
+
+function updateStockInfo(productList) {
+  $stockStatus.textContent = getStockInfoMessage(productList);
+}
+
+// 장바구니 계산 컨트롤러
+function calcCart() {
+  const cartItemList = Array.from($cartItems.children);
+  const productList = productStore.getProductList();
   const today = new Date();
-  const isTuesday = today.getDay() === 2; // TODO 화요일
+  const isTuesday = today.getDay() === 2;
   const $tuesdaySpecial = document.getElementById('tuesday-special');
 
-  if (isTuesday) {
-    if (totalAmount > 0) {
-      totalAmount = (totalAmount * 90) / 100;
+  const { itemCount, subTotal, totalAmount, itemDiscounts } = getCartSummary(
+    cartItemList,
+    productStore,
+  );
 
-      discountRate = 1 - totalAmount / originalTotal;
+  let { finalAmount, discountRate, originalTotal } = applyAdditionalDiscounts({
+    subTotal,
+    totalAmount,
+    itemCount,
+    isTuesday,
+  });
+
+  // tuesday-special 배너 표시 처리
+  if (isTuesday) {
+    if (finalAmount > 0) {
       $tuesdaySpecial.classList.remove('hidden');
     } else {
       $tuesdaySpecial.classList.add('hidden');
@@ -118,335 +133,21 @@ function calcCart() {
   }
 
   const $itemCount = document.getElementById('item-count');
-  $itemCount.textContent = `🛍️ ${itemCount} items in cart`;
+  if ($itemCount) $itemCount.textContent = `🛍️ ${itemCount} items in cart`;
 
-  const $summaryDetails = document.getElementById('summary-details');
-  $summaryDetails.innerHTML = '';
-
-  if (subTotal > 0) {
-    cartItemList.forEach((cartItem) => {
-      const product = productStore.getProductById(cartItem.id);
-
-      const $quantityNumber = cartItem.querySelector('.quantity-number');
-      const quantity = parseInt($quantityNumber.textContent);
-      const itemTotal = product.value * quantity;
-
-      $summaryDetails.innerHTML += `
-      <div class="flex justify-between text-xs tracking-wide text-gray-400">
-        <span>${product.name} x ${quantity}</span>
-        <span>₩${itemTotal.toLocaleString()}</span>
-      </div>
-      `;
-    });
-
-    $summaryDetails.innerHTML += `
-      <div class="border-t border-white/10 my-3"></div>
-      <div class="flex justify-between text-sm tracking-wide">
-        <span>Subtotal</span>
-        <span>₩${subTotal.toLocaleString()}</span>
-      </div>
-    `;
-
-    if (itemCount >= VOLUME_ORDER_COUNT) {
-      $summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-          <span class="text-xs">-25%</span>
-        </div>
-      `;
-    } else if (itemDiscounts.length > 0) {
-      itemDiscounts.forEach(function (item) {
-        $summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-green-400">
-            <span class="text-xs">${item.name} (10개↑)</span>
-            <span class="text-xs">-${item.discount}%</span>
-          </div>
-        `;
-      });
-    }
-
-    if (isTuesday) {
-      if (totalAmount > 0) {
-        $summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-purple-400">
-            <span class="text-xs">🌟 화요일 추가 할인</span>
-            <span class="text-xs">-10%</span>
-          </div>
-        `;
-      }
-    }
-
-    $summaryDetails.innerHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-gray-400">
-        <span>Shipping</span>
-        <span>Free</span>
-      </div>
-    `;
-  }
-
-  const $cartTotal = document.querySelector('#cart-total .text-2xl');
-
-  if ($cartTotal) {
-    $cartTotal.textContent = `₩${Math.round(totalAmount).toLocaleString()}`;
-  }
-
-  const $loyaltyPoints = document.getElementById('loyalty-points');
-
-  if ($loyaltyPoints) {
-    const points = Math.floor(totalAmount / 1000);
-
-    if (points > 0) {
-      $loyaltyPoints.textContent = `적립 포인트: ${points}p`;
-      $loyaltyPoints.style.display = 'block';
-    } else {
-      $loyaltyPoints.textContent = '적립 포인트: 0p';
-      $loyaltyPoints.style.display = 'block';
-    }
-  }
-
-  const $discountInfo = document.getElementById('discount-info');
-  $discountInfo.innerHTML = '';
-
-  if (discountRate > 0 && totalAmount > 0) {
-    const savedAmount = originalTotal - totalAmount;
-    $discountInfo.innerHTML = `
-      <div class="bg-green-500/20 rounded-lg p-3">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(discountRate * 100).toFixed(1)}%</span>
-        </div>
-        <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
-      </div>
-    `;
-  }
-
-  if ($itemCount) {
-    const previousCount = parseInt($itemCount.textContent.match(/\d+/) || 0);
-    $itemCount.textContent = `🛍️ ${itemCount} items in cart`;
-    if (previousCount !== itemCount) {
-      $itemCount.setAttribute('data-changed', 'true');
-    }
-  }
-
-  $stockStatus.textContent = getStockInfoMessage(productList);
-
-  renderBonusPoints(totalAmount, itemCount);
-}
-
-// 메인 엔트리 포인트
-function calcCart() {
-  const cartItemList = Array.from($cartItems.children);
-  const productList = productStore.getProductList();
-
-  // 상품 데이터, 총수량, 할인 추출
-  const { items, itemCount, subTotal, itemDiscounts } = getCartItemsData(
-    cartItemList,
-    productStore,
-  );
-
-  // 대량주문 할인 우선 적용
-  let totalAmount = subTotal;
-  let discountRate = 0;
-  let volumeDiscountApplied = false;
-  const originalTotal = subTotal;
-
-  if (itemCount >= VOLUME_ORDER_COUNT) {
-    totalAmount = (subTotal * 75) / 100;
-    discountRate = 0.25;
-    volumeDiscountApplied = true;
-  } else {
-    // 상품별 할인 적용
-    totalAmount = items.reduce((acc, curr) => acc + curr.discountedTotal, 0);
-    discountRate = subTotal > 0 ? (subTotal - totalAmount) / subTotal : 0;
-  }
-
-  // 화요일 추가 할인
-  const isTuesday = new Date().getDay() === 2;
-  if (isTuesday && totalAmount > 0) {
-    totalAmount = (totalAmount * 90) / 100;
-    discountRate = 1 - totalAmount / originalTotal;
-    showTuesdaySpecial(true);
-  } else {
-    showTuesdaySpecial(false);
-  }
-
-  // UI들을 조합/출력
-  updateItemCountDisplay(itemCount);
-  renderSummaryDetails({
-    items,
-    subTotal,
-    itemCount,
-    itemDiscounts,
-    totalAmount,
-    volumeDiscountApplied,
+  renderCartSummaryDetails(cartItemList, productStore, subTotal, itemCount, itemDiscounts, {
     isTuesday,
+    finalAmount,
   });
-  showDiscountInfo(discountRate, originalTotal, totalAmount);
-  updateStockStatus(productList);
-  updateLoyaltyPointsDisplay(totalAmount, itemCount);
-  renderBonusPoints(totalAmount, itemCount);
-}
+  renderLoyaltyPoints(finalAmount);
+  renderDiscountInfo(originalTotal, finalAmount, discountRate);
 
-// 개별 상품별 정보+할인 계산
-function getCartItemsData(cartItemList, productStore) {
-  let subTotal = 0;
-  let itemCount = 0;
-  const items = [];
-  const itemDiscounts = [];
-
-  cartItemList.forEach((cartItem) => {
-    const product = productStore.getProductById(cartItem.id);
-    const quantity = parseInt(cartItem.querySelector('.quantity-number').textContent);
-
-    let discount = getProductDiscount(product, quantity);
-    const itemTotal = product.value * quantity;
-    const discountedTotal = itemTotal * (1 - discount);
-
-    subTotal += itemTotal;
-    itemCount += quantity;
-
-    // 가격 글꼴 강조 표기
-    cartItem.querySelectorAll('.text-lg, .text-xs').forEach((element) => {
-      if (element.classList.contains('text-lg')) {
-        element.style.fontWeight = quantity >= DISCOUNT_STANDARD_COUNT ? 'bold' : 'normal';
-      }
-    });
-
-    // 할인 내역 저장
-    if (discount > 0)
-      itemDiscounts.push({ name: product.name, discount: Math.round(discount * 100) });
-
-    items.push({
-      id: product.id,
-      name: product.name,
-      quantity,
-      itemTotal,
-      discount,
-      discountedTotal,
-    });
-  });
-
-  return { items, itemCount, subTotal, itemDiscounts };
-}
-
-// 화요일 스페셜 배너 노출
-function showTuesdaySpecial(visible) {
-  const $tuesdaySpecial = document.getElementById('tuesday-special');
-  if ($tuesdaySpecial) $tuesdaySpecial.classList.toggle('hidden', !visible);
-}
-
-// 장바구니 상품 수 표시(R)
-function updateItemCountDisplay(itemCount) {
-  const $itemCount = document.getElementById('item-count');
-  if ($itemCount) {
-    const previousCount = parseInt($itemCount.textContent.match(/\d+/) || 0);
-    $itemCount.textContent = `🛍️ ${itemCount} items in cart`;
-    if (previousCount !== itemCount) $itemCount.setAttribute('data-changed', 'true');
-  }
-}
-
-// 결제 요약 정보 렌더링
-function renderSummaryDetails({
-  items,
-  subTotal,
-  itemCount,
-  itemDiscounts,
-  totalAmount,
-  volumeDiscountApplied,
-  isTuesday,
-}) {
-  const $summaryDetails = document.getElementById('summary-details');
-  if (!$summaryDetails) return;
-  $summaryDetails.innerHTML = '';
-  if (subTotal === 0) return;
-
-  items.forEach(({ name, quantity, itemTotal }) => {
-    $summaryDetails.innerHTML += `
-      <div class="flex justify-between text-xs tracking-wide text-gray-400">
-        <span>${name} x ${quantity}</span>
-        <span>₩${itemTotal.toLocaleString()}</span>
-      </div>
-    `;
-  });
-
-  $summaryDetails.innerHTML += `
-    <div class="border-t border-white/10 my-3"></div>
-    <div class="flex justify-between text-sm tracking-wide">
-      <span>Subtotal</span>
-      <span>₩${subTotal.toLocaleString()}</span>
-    </div>
-  `;
-
-  if (volumeDiscountApplied) {
-    $summaryDetails.innerHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-green-400">
-        <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-        <span class="text-xs">-25%</span>
-      </div>
-    `;
-  } else if (itemDiscounts.length > 0) {
-    itemDiscounts.forEach((item) => {
-      $summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">${item.name} (10개↑)</span>
-          <span class="text-xs">-${item.discount}%</span>
-        </div>
-      `;
-    });
-  }
-
-  if (isTuesday && totalAmount > 0) {
-    $summaryDetails.innerHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-purple-400">
-        <span class="text-xs">🌟 화요일 추가 할인</span>
-        <span class="text-xs">-10%</span>
-      </div>
-    `;
-  }
-
-  $summaryDetails.innerHTML += `
-    <div class="flex justify-between text-sm tracking-wide text-gray-400">
-      <span>Shipping</span>
-      <span>Free</span>
-    </div>
-  `;
-
-  // 최종 결제금액 표시
   const $cartTotal = document.querySelector('#cart-total .text-2xl');
-  if ($cartTotal) $cartTotal.textContent = `₩${Math.round(totalAmount).toLocaleString()}`;
-}
+  if ($cartTotal) $cartTotal.textContent = `₩${Math.round(finalAmount).toLocaleString()}`;
 
-// 할인 정보 표시
-function showDiscountInfo(discountRate, originalTotal, totalAmount) {
-  const $discountInfo = document.getElementById('discount-info');
-  if (!$discountInfo) return;
-  $discountInfo.innerHTML = '';
-  if (discountRate > 0 && totalAmount > 0) {
-    const savedAmount = originalTotal - totalAmount;
-    $discountInfo.innerHTML = `
-      <div class="bg-green-500/20 rounded-lg p-3">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(discountRate * 100).toFixed(1)}%</span>
-        </div>
-        <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
-      </div>
-    `;
-  }
-}
+  updateStockInfo(productList);
 
-// 적립 포인트
-function updateLoyaltyPointsDisplay(totalAmount, itemCount) {
-  const $loyaltyPoints = document.getElementById('loyalty-points');
-  if (!$loyaltyPoints) return;
-  const points = Math.floor(totalAmount / 1000);
-  $loyaltyPoints.textContent = `적립 포인트: ${points > 0 ? points : 0}p`;
-  $loyaltyPoints.style.display = 'block';
-}
-
-// 재고 상태 메시지
-function updateStockStatus(productList) {
-  $stockStatus.textContent = getStockInfoMessage(productList);
+  renderBonusPoints(finalAmount, itemCount);
 }
 
 function updateDiscountPrices() {
