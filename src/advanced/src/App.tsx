@@ -69,11 +69,11 @@ function App() {
   };
 
   return (
-    <div>
+    <>
       <Header appState={appState} />
       <CartLayout productList={productList} cartList={cartList} appState={appState} />
       <ManualButton />
-    </div>
+    </>
   );
 }
 
