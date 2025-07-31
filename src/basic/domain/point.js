@@ -1,18 +1,28 @@
-import { CART_TOTAL_BENEFIT_THRESHOLD } from '../const/discount';
+import {
+  BONUS_BASE_UNIT,
+  BONUS_FULL_SET,
+  BONUS_KEYBOARD_MOUSE,
+  BONUS_POINTS_TIER1,
+  BONUS_POINTS_TIER2,
+  BONUS_POINTS_TIER3,
+  BONUS_THRESHOLD_TIER1,
+  BONUS_THRESHOLD_TIER2,
+  BONUS_THRESHOLD_TIER3,
+} from '../const/point';
+import { isTuesday } from '../utils/dateUtil';
 import { PRODUCT_ONE, PRODUCT_THREE, PRODUCT_TWO } from './product';
 
-/** @logic */
-export const calculateBonusPoints = (cartItems, totalAmount, today = new Date()) => {
+export const calculateBonusPoints = (cartItems, totalAmount) => {
   let points = 0;
   const detail = [];
 
-  const base = Math.floor(totalAmount / 1000);
+  const base = Math.floor(totalAmount / BONUS_BASE_UNIT);
   if (base > 0) {
     points = base;
     detail.push(`기본: ${base}p`);
   }
 
-  if (today.getDay() === 2 && base > 0) {
+  if (isTuesday() && base > 0) {
     points = base * 2;
     detail.push('화요일 2배');
   }
@@ -23,26 +33,25 @@ export const calculateBonusPoints = (cartItems, totalAmount, today = new Date())
   const hasMonitorArm = productIds.includes(PRODUCT_THREE);
 
   if (hasKeyboard && hasMouse) {
-    points += 50;
-    detail.push('키보드+마우스 세트 +50p');
+    points += BONUS_KEYBOARD_MOUSE;
+    detail.push(`키보드+마우스 세트 +${BONUS_KEYBOARD_MOUSE}p`);
   }
 
   if (hasKeyboard && hasMouse && hasMonitorArm) {
-    points += 100;
-    detail.push('풀세트 구매 +100p');
+    points += BONUS_FULL_SET;
+    detail.push(`풀세트 구매 +${BONUS_FULL_SET}p`);
   }
 
-  /** 이거 사실 cartManager의 getTotal 저시기 써야 하는데.. */
   const totalItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  if (totalItemCount >= CART_TOTAL_BENEFIT_THRESHOLD) {
-    points += 100;
-    detail.push('대량구매(30개+) +100p');
-  } else if (totalItemCount >= 20) {
-    points += 50;
-    detail.push('대량구매(20개+) +50p');
-  } else if (totalItemCount >= 10) {
-    points += 20;
-    detail.push('대량구매(10개+) +20p');
+  if (totalItemCount >= BONUS_THRESHOLD_TIER3) {
+    points += BONUS_POINTS_TIER3;
+    detail.push(`대량구매(${BONUS_THRESHOLD_TIER3}개+) +${BONUS_POINTS_TIER3}p`);
+  } else if (totalItemCount >= BONUS_THRESHOLD_TIER2) {
+    points += BONUS_POINTS_TIER2;
+    detail.push(`대량구매(${BONUS_THRESHOLD_TIER2}개+) +${BONUS_POINTS_TIER2}p`);
+  } else if (totalItemCount >= BONUS_THRESHOLD_TIER1) {
+    points += BONUS_POINTS_TIER1;
+    detail.push(`대량구매(${BONUS_THRESHOLD_TIER1}개+) +${BONUS_POINTS_TIER1}p`);
   }
 
   return { total: points, detail };
