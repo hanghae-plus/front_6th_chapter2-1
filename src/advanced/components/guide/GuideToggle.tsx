@@ -1,12 +1,22 @@
-import { useState } from 'react';
+import { MouseEvent, useState } from 'react';
 
 import ShoppingGuide from './ShoppingGuide';
 
 const GuideToggle = () => {
   const [isToggleOpen, setIsToggleOpen] = useState(false);
 
+  const overlayClassName = isToggleOpen
+    ? 'fixed inset-0 bg-black/50 z-40 transition-opacity duration-300'
+    : 'fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 hidden';
+
   const handleOpenToggle = () => {
     setIsToggleOpen((prev) => !prev);
+  };
+
+  const handleClickOutside = (e: MouseEvent<HTMLDivElement>) => {
+    if (e.currentTarget === e.target) {
+      setIsToggleOpen(false);
+    }
   };
 
   return (
@@ -24,7 +34,9 @@ const GuideToggle = () => {
           />
         </svg>
       </button>
-      {isToggleOpen && <ShoppingGuide />}
+      <div className={overlayClassName} onClick={handleClickOutside}>
+        <ShoppingGuide isOpen={isToggleOpen} />
+      </div>
     </>
   );
 };
