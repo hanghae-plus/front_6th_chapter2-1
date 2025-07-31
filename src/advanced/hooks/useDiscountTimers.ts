@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { TIMER_CONFIG, DISCOUNT_RATES } from '../constants/config';
+import { TIMER_CONFIG } from '../constants/config';
 
 interface UseDiscountTimersProps {
   onLightningSale: () => void;

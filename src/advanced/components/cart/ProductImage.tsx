@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function ProductImage() {
   return (
     <div className="w-20 h-20 bg-gradient-black relative overflow-hidden">

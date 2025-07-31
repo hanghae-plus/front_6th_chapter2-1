@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Product } from '../types';
-import { DISCOUNT_RATES, PRICE_CONFIG } from '../constants/config';
+import { PRICE_CONFIG } from '../constants/config';
 
 export function useProducts(initialProducts: Product[]) {
   const [products, setProducts] = useState<Product[]>(initialProducts);

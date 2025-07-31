@@ -1,11 +1,6 @@
-import React from 'react';
 import Button from './button';
 import { CartItem } from '../../types';
-import {
-  QUANTITY_THRESHOLDS,
-  DISCOUNT_RATES,
-  WEEKDAYS,
-} from '../../constants/config';
+import { QUANTITY_THRESHOLDS, DISCOUNT_RATES } from '../../constants/config';
 import { CartTotals } from '../../services/discountService';
 
 interface OrderSummaryProps {
@@ -21,10 +16,8 @@ interface OrderSummaryProps {
 export default function OrderSummary({
   total = 0,
   loyaltyPoints = 0,
-  discountInfo = '',
   showTuesdaySpecial = false,
   onCheckout,
-  cartItems = [],
   cartTotals,
 }: OrderSummaryProps) {
   return (

@@ -1,4 +1,3 @@
-import React from 'react';
 import { CartItem as CartItemType } from '../../types';
 import ProductImage from './ProductImage';
 import FormatPrice from '../../utils/formatPrice';

@@ -1,4 +1,4 @@
-import { Product, ProductId, Money } from '../product/types';
+import { Product, Money } from '../product/types';
 
 // 장바구니 도메인 타입
 export interface CartItemId {
