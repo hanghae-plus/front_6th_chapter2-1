@@ -1,4 +1,5 @@
 import { CartItem, Product } from '../types';
+import { findProductByCartItem, isTuesday, isBulkPurchaseEligible, calculateTotalCartQuantity } from '../utils';
 
 interface OrderSummaryProps {
   cartItems: CartItem[];
@@ -23,8 +24,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   pointsDetail,
   itemDiscounts
 }) => {
-  const today = new Date();
-  const isTuesday = today.getDay() === 2;
+  const isTuesdayToday = isTuesday();
 
   return (
     <>
@@ -35,10 +35,10 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
       <div className="flex-1 flex flex-col">
         <div id="summary-details" className="space-y-3">
           {cartItems.map((item) => {
-            const product = products.find(p => p.id === item.productId);
+            const product = findProductByCartItem(products, item);
             if (!product) return null;
             
-            const itemTotal = product.val * item.quantity;
+            const itemTotal = product.price * item.quantity;
             return (
               <div key={item.productId} className="flex justify-between text-xs tracking-wide text-gray-400">
                 <span>{product.name} x {item.quantity}</span>
@@ -61,7 +61,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
             <>
               
               {/* Bulk discount (원본과 동일한 순서) */}
-              {cartItems.reduce((sum, item) => sum + item.quantity, 0) >= 30 ? (
+              {isBulkPurchaseEligible(cartItems) ? (
                 <div className="flex justify-between text-sm tracking-wide text-green-400">
                   <span className="text-xs">🎉 대량구매 할인 (30개 이상)</span>
                   <span className="text-xs">-25%</span>
@@ -77,7 +77,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
               )}
               
               {/* Tuesday special */}
-              {isTuesday && finalTotal > 0 && (
+              {isTuesdayToday && finalTotal > 0 && (
                 <div className="flex justify-between text-sm tracking-wide text-purple-400">
                   <span className="text-xs">🌟 화요일 추가 할인</span>
                   <span className="text-xs">-10%</span>
@@ -134,7 +134,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           </div>
           
           {/* Tuesday special notice */}
-          {isTuesday && finalTotal > 0 && (
+          {isTuesdayToday && finalTotal > 0 && (
             <div id="tuesday-special" data-testid="tuesday-special" className="mt-4 p-3 bg-white/10 rounded-lg">
               <div className="flex items-center gap-2">
                 <span className="text-2xs">🎉</span>

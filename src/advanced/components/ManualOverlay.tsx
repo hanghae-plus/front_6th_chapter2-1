@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 export const ManualOverlay: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleManual = () => {
+  const handleManualToggle = () => {
     setIsOpen(!isOpen);
   };
 
-  const closeManual = () => {
+  const handleManualClose = () => {
     setIsOpen(false);
   };
 
@@ -17,7 +17,7 @@ export const ManualOverlay: React.FC = () => {
       id="manual-toggle"
       data-testid="manual-toggle"
       className="fixed top-4 right-4 bg-black text-white p-3 rounded-full hover:bg-gray-900 transition-colors z-50"
-      onClick={toggleManual}
+      onClick={handleManualToggle}
     >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -30,7 +30,7 @@ export const ManualOverlay: React.FC = () => {
         className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
-        onClick={closeManual}
+        onClick={handleManualClose}
       >
         <div 
           id="manual-column"
@@ -41,7 +41,7 @@ export const ManualOverlay: React.FC = () => {
         >
           <button 
             className="absolute top-4 right-4 text-gray-500 hover:text-black"
-            onClick={closeManual}
+            onClick={handleManualClose}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>

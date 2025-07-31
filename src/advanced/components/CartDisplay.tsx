@@ -1,31 +1,32 @@
 import React from 'react';
 
 import { CartItem, Product } from '../types';
+import { findProductByCartItem } from '../utils';
 
 interface CartDisplayProps {
   cartItems: CartItem[];
   products: Product[];
-  onUpdateQuantity: (productId: string, change: number) => void;
-  onRemoveItem: (productId: string) => void;
-  onUpdatePrices: () => void;
+  handleQuantityUpdate: (productId: string, change: number) => void;
+  handleItemRemove: (productId: string) => void;
+  handlePriceUpdate: () => void;
 }
 
 export const CartDisplay: React.FC<CartDisplayProps> = ({
   cartItems,
   products,
-  onUpdateQuantity,
-  onRemoveItem
+  handleQuantityUpdate,
+  handleItemRemove
 }) => (
   // 원본과 동일하게 빈 장바구니일 때는 빈 div만 표시
   <div id="cart-items" data-testid="cart-items">
     {cartItems.map((item) => (
-      <CartItemComponent
-        key={item.productId}
-        item={item}
-        products={products}
-        onUpdateQuantity={onUpdateQuantity}
-        onRemoveItem={onRemoveItem}
-      />
+              <CartItemComponent
+          key={item.productId}
+          item={item}
+          products={products}
+          handleQuantityUpdate={handleQuantityUpdate}
+          handleItemRemove={handleItemRemove}
+        />
     ))}
   </div>
 );
@@ -33,52 +34,52 @@ export const CartDisplay: React.FC<CartDisplayProps> = ({
 interface CartItemComponentProps {
   item: CartItem;
   products: Product[];
-  onUpdateQuantity: (productId: string, change: number) => void;
-  onRemoveItem: (productId: string) => void;
+  handleQuantityUpdate: (productId: string, change: number) => void;
+  handleItemRemove: (productId: string) => void;
 }
 
 const CartItemComponent: React.FC<CartItemComponentProps> = ({
   item,
   products,
-  onUpdateQuantity,
-  onRemoveItem
+  handleQuantityUpdate,
+  handleItemRemove
 }) => {
-  const product = products.find(p => p.id === item.productId);
+  const product = findProductByCartItem(products, item);
   if (!product) return null;
 
-  const getDisplayName = () => {
-    if (product.onSale && product.suggestSale) {
+  const getProductDisplayName = () => {
+    if (product.hasLightningDiscount && product.hasRecommendationDiscount) {
       return `⚡💝${product.name}`;
     }
-    if (product.onSale) {
+    if (product.hasLightningDiscount) {
       return `⚡${product.name}`;
     }
-    if (product.suggestSale) {
+    if (product.hasRecommendationDiscount) {
       return `💝${product.name}`;
     }
     return product.name;
   };
 
-  const getDisplayPrice = () => {
-    if (product.onSale || product.suggestSale) {
-      const colorClass = product.onSale && product.suggestSale 
+  const getProductDisplayPrice = () => {
+    if (product.hasLightningDiscount || product.hasRecommendationDiscount) {
+      const colorClass = product.hasLightningDiscount && product.hasRecommendationDiscount 
         ? 'text-purple-600' 
-        : product.onSale 
+        : product.hasLightningDiscount 
         ? 'text-red-500' 
         : 'text-blue-500';
       
       return (
         <>
           <span className="line-through text-gray-400">
-            ₩{product.originalVal.toLocaleString()}
+            ₩{product.originalPrice.toLocaleString()}
           </span>{' '}
           <span className={colorClass}>
-            ₩{product.val.toLocaleString()}
+            ₩{product.price.toLocaleString()}
           </span>
         </>
       );
     }
-    return `₩${product.val.toLocaleString()}`;
+    return `₩${product.price.toLocaleString()}`;
   };
 
   return (
@@ -89,18 +90,18 @@ const CartItemComponent: React.FC<CartItemComponentProps> = ({
       
       <div>
         <h3 className="text-base font-normal mb-1 tracking-tight">
-          {getDisplayName()}
+          {getProductDisplayName()}
         </h3>
         <p className="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
         <p className="text-xs text-black mb-3">
-          {getDisplayPrice()}
+          {getProductDisplayPrice()}
         </p>
         <div className="flex items-center gap-4">
           <button
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
             data-product-id={item.productId}
             data-change="-1"
-            onClick={() => onUpdateQuantity(item.productId, -1)}
+            onClick={() => handleQuantityUpdate(item.productId, -1)}
           >
             −
           </button>
@@ -111,7 +112,7 @@ const CartItemComponent: React.FC<CartItemComponentProps> = ({
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
             data-product-id={item.productId}
             data-change="1"
-            onClick={() => onUpdateQuantity(item.productId, 1)}
+            onClick={() => handleQuantityUpdate(item.productId, 1)}
           >
             +
           </button>
@@ -123,12 +124,12 @@ const CartItemComponent: React.FC<CartItemComponentProps> = ({
           className="text-lg mb-2 tracking-tight tabular-nums"
           style={{ fontWeight: item.quantity >= 10 ? 'bold' : 'normal' }}
         >
-          {getDisplayPrice()}
+          {getProductDisplayPrice()}
         </div>
         <button
           className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
           data-product-id={item.productId}
-          onClick={() => onRemoveItem(item.productId)}
+          onClick={() => handleItemRemove(item.productId)}
         >
           Remove
         </button>
