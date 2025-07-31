@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .tracking-extra-wide {
+    letter-spacing: 0.2em;
+  }
+
+  .tracking-super-wide {
+    letter-spacing: 0.3em;
+  }
+
+  .text-2xs {
+    font-size: 0.625rem;
+    line-height: 0.75rem;
+  }
+}
