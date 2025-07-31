@@ -2,20 +2,20 @@
 export const renderBonusPoints = (appState) => {
   const { totalPoints, pointsDetail } = appState;
 
-  const ptsTag = document.getElementById('loyalty-points');
-  if (!ptsTag) return;
+  const pointDiv = document.getElementById('loyalty-points');
+  if (!pointDiv) return;
 
   if (totalPoints > 0) {
-    ptsTag.innerHTML =
+    pointDiv.innerHTML =
       '<div>적립 포인트: <span class="font-bold">' +
       totalPoints +
       'p</span></div>' +
       '<div class="text-2xs opacity-70 mt-1">' +
       pointsDetail.join(', ') +
       '</div>';
-    ptsTag.style.display = 'block';
+    pointDiv.style.display = 'block';
   } else {
-    ptsTag.textContent = '적립 포인트: 0p';
-    ptsTag.style.display = 'none';
+    pointDiv.textContent = '적립 포인트: 0p';
+    pointDiv.style.display = 'none';
   }
 };

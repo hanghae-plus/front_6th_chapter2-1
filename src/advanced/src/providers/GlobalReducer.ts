@@ -1,6 +1,6 @@
 import type { Product, CartProduct, AppState } from '../type';
 import { PRODUCT, DISCOUNT_RATE, MESSAGE } from '../constants';
-import { findProductById } from '../lib/findProductById';
+import { findProductById } from '../libs/findProductById';
 import { calculateCartSummary } from '../services/calculateCartSummary';
 import { calculateBonusPoint } from '../services/calculateBonusPoint';
 

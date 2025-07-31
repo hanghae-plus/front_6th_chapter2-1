@@ -1,8 +1,8 @@
-import { MESSAGE } from '../../constants/constants';
-import { getRandomNumber } from '../../utils/getRandomNumber';
+import { MESSAGE } from '../constants/constants';
+import { getRandomNumber } from '../utils/getRandomNumber';
 import { applyFlashSale, applySuggestSale } from '../states/productState';
 import { renderProductOptionList } from '../render/renderProductOptionList';
-import { findSuggestedProduct } from '../../libs/findSuggestedProduct';
+import { findSuggestedProduct } from '../libs/findSuggestedProduct';
 import { updateCartStatus } from './updateCartStatus';
 
 export const applySaleAlert = ({ state, appState }) => {

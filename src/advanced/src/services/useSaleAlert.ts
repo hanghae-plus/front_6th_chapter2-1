@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useGlobalState, useGlobalDispatch } from '../providers/useGlobal';
 import { getRandomNumber } from '../utils/getRandomNumber';
-import { findSuggestedProduct } from '../lib/findSuggestProduct';
+import { findSuggestedProduct } from '../libs/findSuggestProduct';
 import { MESSAGE } from '../constants';
 
 export const useSaleAlert = () => {

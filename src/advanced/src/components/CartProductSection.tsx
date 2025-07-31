@@ -1,6 +1,6 @@
 import { useGlobalDispatch } from '../providers/useGlobal';
 import type { CartProduct, Product } from '../type';
-import { findProductById } from '../lib/findProductById';
+import { findProductById } from '../libs/findProductById';
 import CartProductItem from './CartProductItem';
 
 interface CartProductSectionProps {

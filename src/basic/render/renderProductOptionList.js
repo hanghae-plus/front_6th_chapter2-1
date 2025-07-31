@@ -1,4 +1,4 @@
-import { getTotalStock } from '../../utils/getTotalStock';
+import { getTotalStock } from '../libs/getTotalStock';
 import { createProductOption } from '../components/ProductOption';
 
 export const renderProductOptionList = (state) => {

@@ -1,7 +1,7 @@
 import { isTodayTuesday } from '../utils/isTodayTuesday';
-import { findProductById } from '../lib/findProductById';
-import { getQuantityDiscount } from '../lib/getQuantityDiscount';
-import { getCartQuantityDiscountRate } from '../lib/getCartQuantityDiscountRate';
+import { findProductById } from '../libs/findProductById';
+import { getQuantityDiscount } from '../libs/getQuantityDiscount';
+import { getCartQuantityDiscountRate } from '../libs/getCartQuantityDiscountRate';
 import { DISCOUNT_RATE } from '../constants';
 import type { Product, CartProduct } from '../type';
 

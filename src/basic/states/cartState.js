@@ -1,5 +1,5 @@
 import { MESSAGE } from '../constants/constants';
-import { findProductById } from '../../utils/findProductById';
+import { findProductById } from '../libs/findProductById';
 
 export const changeQuantity = (state, productId, delta) => {
   const { cartState, productState } = state;

@@ -1,4 +1,4 @@
-import { findProductById } from '../../utils/findProductById';
+import { findProductById } from '../libs/findProductById';
 import { createCartProduct } from '../components/CartProduct';
 
 export const renderCartProductList = (state) => {

@@ -1,4 +1,4 @@
-import { DISCOUNT_RATE, DISCOUNT_THRESHOLD } from '../html/constants/constants';
+import { DISCOUNT_RATE, DISCOUNT_THRESHOLD } from '../constants/constants';
 
 // 10개 이상 구매 시 할인율 적용
 export const getQuantityDiscount = (productId, quantity) => {

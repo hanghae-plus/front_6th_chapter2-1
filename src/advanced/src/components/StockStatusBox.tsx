@@ -1,5 +1,5 @@
 import type { Product } from '../type';
-import { getStockMessages } from '../lib/getStockMessage';
+import { getStockMessages } from '../libs/getStockMessage';
 
 interface StockStatusBoxProps {
   productList: Product[];

@@ -1,7 +1,7 @@
 import { useGlobalState } from '../providers/useGlobal';
 import { DISCOUNT_THRESHOLD } from '../constants';
 import { isTodayTuesday } from '../utils/isTodayTuesday';
-import { findProductById } from '../lib/findProductById';
+import { findProductById } from '../libs/findProductById';
 
 export const CartSummary = () => {
   const { productList, cartList, appState } = useGlobalState();

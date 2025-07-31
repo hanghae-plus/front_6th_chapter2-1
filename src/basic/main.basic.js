@@ -11,11 +11,11 @@ import { createProductSelector } from './components/ProductSelector';
 import { createCartProductList } from './components/CartProductList';
 import { createStockStatus } from './components/StockStatus';
 
-import { PRODUCT } from './html/constants/constants';
-import { applySaleAlert } from './html/services/applySaleAlert';
-import { changeQuantity, removeFromCart } from './html/states/cartState';
-import { updateProductSelector } from './html/services/updateProductSeletor';
-import { updateCartStatus } from './html/services/updateCartStatus';
+import { PRODUCT } from './constants/constants';
+import { applySaleAlert } from './services/applySaleAlert';
+import { changeQuantity, removeFromCart } from './states/cartState';
+import { updateProductSelector } from './services/updateProductSeletor';
+import { updateCartStatus } from './services/updateCartStatus';
 
 // 상품 목록 - 전역 상태 관리 필요
 const productList = [

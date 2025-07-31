@@ -1,4 +1,4 @@
-import { LOW_STOCK_THRESHOLD } from '../html/constants/constants';
+import { LOW_STOCK_THRESHOLD } from '../constants/constants';
 
 export const getStockMessages = (productList) => {
   const messages = [];
