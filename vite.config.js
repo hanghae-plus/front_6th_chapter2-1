@@ -1,19 +1,21 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+const base = '/front_6th_chapter2-1/';
 
 export default defineConfig({
   plugins: [react()],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-      '@/advanced': resolve(__dirname, './src/advanced'),
-      '@/basic': resolve(__dirname, './src/basic'),
-    },
-  },
+
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: 'src/setupTests.js',
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+      },
+    },
   },
 });
