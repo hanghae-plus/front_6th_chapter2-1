@@ -32,7 +32,10 @@ import {
   PRODUCT_DEFAULT_DISCOUNT_RATES,
 } from './constants';
 import { initProductList } from './data';
-import { attachCartEventListener } from './eventListeners';
+import {
+  attachCartEventListener,
+  attachManualEventListener,
+} from './eventListeners';
 import {
   isTuesday,
   getProductDiscountRate,
@@ -85,11 +88,8 @@ function main() {
   };
   // 상품 선택 컨테이너
   const selectorContainer = ProductSelector({ onAddToCart: handleAddToCart });
-  // 상품 선택 요소들 생성
   selectElement = selectorContainer.querySelector('#product-select');
-  // 장바구니 추가 버튼
   addButton = selectorContainer.querySelector('#add-to-cart');
-  // 재고 상태 표시
   stockInfo = selectorContainer.querySelector('#stock-status');
 
   leftColumn.appendChild(selectorContainer);
@@ -101,19 +101,22 @@ function main() {
   // ----------------------------------------
   // 도움말 모달 생성
   // ----------------------------------------
-  const handleManualToggle = () => {
-    manualOverlay.classList.toggle('hidden');
-    manualColumn.classList.toggle('translate-x-full');
-  };
+  // const handleManualToggle = () => {
+  //   manualOverlay.classList.toggle('hidden');
+  //   manualColumn.classList.toggle('translate-x-full');
+  // };
 
-  const handleManualClose = () => {
-    manualOverlay.classList.add('hidden');
-    manualColumn.classList.add('translate-x-full');
-  };
+  // const handleManualClose = () => {
+  //   manualOverlay.classList.add('hidden');
+  //   manualColumn.classList.add('translate-x-full');
+  // };
 
-  const manualToggle = ManualToggle({ onToggle: handleManualToggle });
-  const manualOverlay = ManualOverlay({ onClose: handleManualClose });
+  // const manualToggle = ManualToggle({ onToggle: handleManualToggle });
+  // const manualOverlay = ManualOverlay({ onClose: handleManualClose });
+  const manualToggle = ManualToggle();
+  const manualOverlay = ManualOverlay();
   const manualColumn = ManualColumn();
+  attachManualEventListener(manualToggle, manualOverlay, manualColumn);
 
   // ----------------------------------------
   // DOM 구조 조립

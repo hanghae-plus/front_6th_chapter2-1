@@ -1,4 +1,4 @@
-export function attachCartEventListener(
+function attachCartEventListener(
   cartContainer,
   findProductById,
   handleCalculateCartStuff,
@@ -53,3 +53,19 @@ export function attachCartEventListener(
     }
   });
 }
+
+function attachManualEventListener(manualToggle, manualOverlay, manualColumn) {
+  manualToggle.addEventListener('click', function (event) {
+    manualOverlay.classList.toggle('hidden');
+    manualColumn.classList.toggle('translate-x-full');
+  });
+
+  manualOverlay.addEventListener('click', function (event) {
+    if (event.target === manualOverlay) {
+      manualOverlay.classList.add('hidden');
+      manualColumn.classList.add('translate-x-full');
+    }
+  });
+}
+
+export { attachCartEventListener, attachManualEventListener };
