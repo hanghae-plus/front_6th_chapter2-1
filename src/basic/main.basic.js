@@ -36,13 +36,13 @@ function main() {
   // Service Manager 초기화
   const serviceManager = new ServiceManager();
 
+  const discountService = new DiscountService();
   // Service 등록 (의존성 순서 고려)
-  serviceManager.register("product", new ProductService());
+  serviceManager.register("product", new ProductService(discountService));
   serviceManager.register("cart", new CartService());
-  serviceManager.register("discount", new DiscountService());
+  serviceManager.register("discount", discountService);
 
   // OrderService 생성 시 discountService 주입
-  const discountService = serviceManager.get("discount");
   serviceManager.register("order", new OrderService(discountService));
 
   const { productService } = serviceManager.getAllServices();

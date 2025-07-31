@@ -1,11 +1,11 @@
 import { ProductStore } from "../store/productStore.js";
 import { QUANTITY_THRESHOLDS, DISCOUNT_RATES } from "../constants/index.js";
-import { discountService } from "./discountService.js";
 
 // 상품 관련 비즈니스 로직 서비스
 export class ProductService {
-  constructor() {
+  constructor(discountService) {
     this.productStore = new ProductStore();
+    this.discountService = discountService;
   }
 
   // 상품 검증 (비즈니스 로직)
@@ -107,8 +107,8 @@ export class ProductService {
   calculateProductDiscountInfos(products) {
     return products.map(product => ({
       productId: product.id,
-      rate: discountService.calculateProductDiscountRate(product),
-      status: discountService.getProductDiscountStatus(product),
+      rate: this.discountService.calculateProductDiscountRate(product),
+      status: this.discountService.getProductDiscountStatus(product),
     }));
   }
 

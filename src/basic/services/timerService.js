@@ -1,5 +1,4 @@
 import { uiEventBus } from "../core/eventBus.js";
-import { discountService } from "./discountService.js";
 
 export class TimerService {
   constructor(productService, discountService) {
