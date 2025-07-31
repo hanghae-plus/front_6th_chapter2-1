@@ -484,64 +484,58 @@ const renderPricesInCart = () => {
 main();
 
 addButton.addEventListener('click', function () {
-  const selItem = selector.value;
-  let hasItem = false;
-  for (let idx = 0; idx < productList.length; idx++) {
-    if (productList[idx].id === selItem) {
-      hasItem = true;
-      break;
-    }
-  }
-  if (!selItem || !hasItem) {
+  const selectedProductId = selector.value;
+  const selectedProduct = productList.find((product) => product.id === selectedProductId);
+
+  if (!selectedProductId || !selectedProduct) {
     return;
   }
-  let itemToAdd = null;
-  for (let j = 0; j < productList.length; j++) {
-    if (productList[j].id === selItem) {
-      itemToAdd = productList[j];
-      break;
-    }
-  }
-  if (itemToAdd && itemToAdd.quantity > 0) {
-    const item = document.getElementById(itemToAdd['id']);
-    if (item) {
-      const quantityElem = item.querySelector('.quantity-number');
-      const newQuantity = parseInt(quantityElem['textContent']) + 1;
-      if (newQuantity <= itemToAdd.quantity + parseInt(quantityElem.textContent)) {
-        quantityElem.textContent = newQuantity;
-        itemToAdd['quantity']--;
+
+  if (selectedProduct && selectedProduct.quantity > 0) {
+    const selectedProductEl = document.getElementById(selectedProduct.id);
+
+    if (selectedProductEl) {
+      const quantityEl = selectedProductEl.querySelector('.quantity-number');
+      const quantity = parseInt(quantityEl.textContent);
+      const newQuantity = quantity + 1;
+
+      if (newQuantity <= selectedProduct.quantity + quantity) {
+        quantityEl.textContent = newQuantity;
+        selectedProduct['quantity']--;
       } else {
         alert('재고가 부족합니다.');
       }
     } else {
       const newItem = document.createElement('div');
-      newItem.id = itemToAdd.id;
-      newItem.className =
-        'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
+      newItem.id = selectedProduct.id;
+
+      newItem.className = `grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0`;
       newItem.innerHTML = `
         <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
           <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
         </div>
         <div>
-          <h3 class="text-base font-normal mb-1 tracking-tight">${itemToAdd.onSale && itemToAdd.suggestSale ? '⚡💝' : itemToAdd.onSale ? '⚡' : itemToAdd.suggestSale ? '💝' : ''}${itemToAdd.name}</h3>
+          <h3 class="text-base font-normal mb-1 tracking-tight">${selectedProduct.onSale && selectedProduct.suggestSale ? '⚡💝' : selectedProduct.onSale ? '⚡' : selectedProduct.suggestSale ? '💝' : ''}${selectedProduct.name}</h3>
           <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-          <p class="text-xs text-black mb-3">${itemToAdd.onSale || itemToAdd.suggestSale ? '<span class="line-through text-gray-400">₩' + itemToAdd.originalValue.toLocaleString() + '</span> <span class="' + (itemToAdd.onSale && itemToAdd.suggestSale ? 'text-purple-600' : itemToAdd.onSale ? 'text-red-500' : 'text-blue-500') + '">₩' + itemToAdd.value.toLocaleString() + '</span>' : '₩' + itemToAdd.value.toLocaleString()}</p>
+          <p class="text-xs text-black mb-3">${selectedProduct.onSale || selectedProduct.suggestSale ? '<span class="line-through text-gray-400">₩' + selectedProduct.originalValue.toLocaleString() + '</span> <span class="' + (selectedProduct.onSale && selectedProduct.suggestSale ? 'text-purple-600' : selectedProduct.onSale ? 'text-red-500' : 'text-blue-500') + '">₩' + selectedProduct.value.toLocaleString() + '</span>' : '₩' + selectedProduct.value.toLocaleString()}</p>
           <div class="flex items-center gap-4">
-            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="-1">−</button>
+            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${selectedProduct.id}" data-change="-1">−</button>
             <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="1">+</button>
+            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${selectedProduct.id}" data-change="1">+</button>
           </div>
         </div>
         <div class="text-right">
-          <div class="text-lg mb-2 tracking-tight tabular-nums">${itemToAdd.onSale || itemToAdd.suggestSale ? '<span class="line-through text-gray-400">₩' + itemToAdd.originalValue.toLocaleString() + '</span> <span class="' + (itemToAdd.onSale && itemToAdd.suggestSale ? 'text-purple-600' : itemToAdd.onSale ? 'text-red-500' : 'text-blue-500') + '">₩' + itemToAdd.value.toLocaleString() + '</span>' : '₩' + itemToAdd.value.toLocaleString()}</div>
-          <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemToAdd.id}">Remove</a>
+          <div class="text-lg mb-2 tracking-tight tabular-nums">${selectedProduct.onSale || selectedProduct.suggestSale ? '<span class="line-through text-gray-400">₩' + selectedProduct.originalValue.toLocaleString() + '</span> <span class="' + (selectedProduct.onSale && selectedProduct.suggestSale ? 'text-purple-600' : selectedProduct.onSale ? 'text-red-500' : 'text-blue-500') + '">₩' + selectedProduct.value.toLocaleString() + '</span>' : '₩' + selectedProduct.value.toLocaleString()}</div>
+          <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${selectedProduct.id}">Remove</a>
         </div>
       `;
+
       cartContainerEl.appendChild(newItem);
-      itemToAdd.quantity--;
+      selectedProduct.quantity--;
     }
+
     handleCalculateCartStuff();
-    lastSelector = selItem;
+    lastSelector = selectedProductId;
   }
 });
 
