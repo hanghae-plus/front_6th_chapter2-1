@@ -1,5 +1,25 @@
 # Chapter 2-1. 클린코드와 리팩토링
 
+## 🚀 Live Demo
+
+- **Basic Version**: [https://jun17183.github.io/front_6th_chapter2-1/index.basic.html](https://jun17183.github.io/front_6th_chapter2-1/index.basic.html)
+- **Advanced Version**: [https://jun17183.github.io/front_6th_chapter2-1/index.advanced.html](https://jun17183.github.io/front_6th_chapter2-1/index.advanced.html)
+
+## 📋 프로젝트 개요
+
+이 프로젝트는 더티코드를 클린코드로 개선하고, React + TypeScript로 고도화하는 리팩토링 과제입니다.
+
+### 🏗️ 프로젝트 구조
+
+```
+├── src/
+│   ├── basic/          # 바닐라 JavaScript 버전 (클린코드로 리팩토링)
+│   └── advanced/       # React + TypeScript 버전 (고도화 리팩토링)
+├── docs/               # 프로젝트 문서
+├── index.basic.html    # Basic 버전 실행 파일
+└── index.advanced.html # Advanced 버전 실행 파일
+```
+
 ## 기본과제: 더티코드 개선
 
 이번 과제는 더티코드를 클린코드의 형태로 개선을 하는 과제입니다. 주어진 테스트를 통과하면서 원래 기능과 동일한 동작을 하는 코드를 만들어주세요. basic과제는 제공되는 더티코드를 클린코드와 리팩토링 원칙에 입각해서 더 나은 코드로 만들어보세요. 주어진 테스트를 참고삼아 좋은 이름, 좋은 모양, 좋은 구조를 가지는 코드로 만들어 보세요.
@@ -37,6 +57,49 @@
 - Typescript가 어떻게 유지보수하기 좋은 코드로 만들어주는지 이해하기
 - 내가 추구하는 좋은 코드와 React가 추구하는 코드와 어떻게 다른지 이해하기
 
+## 🛠️ 개발 환경 설정
+
+### 설치 및 실행
+
+```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 실행 (Basic 버전)
+npm run start:basic
+
+# 개발 서버 실행 (Advanced 버전)
+npm run start:advanced
+
+# 테스트 실행
+npm test
+
+# 빌드
+npm run build
+```
+
+### 배포
+
+```bash
+# GitHub Pages에 배포
+npm run deploy
+```
+
+## 📚 주요 개선사항
+
+### Basic 버전 (바닐라 JavaScript)
+- ✅ 함수 분리 및 단일 책임 원칙 적용
+- ✅ 상수 분리 및 하드코딩 제거
+- ✅ HTML 템플릿에 `/*html*/` 주석 추가
+- ✅ 내부 함수와 외부 함수 분리
+- ✅ JSDoc 주석 추가
+
+### Advanced 버전 (React + TypeScript)
+- ✅ 컴포넌트 분리 및 재사용성 향상
+- ✅ TypeScript 타입 안정성 확보
+- ✅ 커스텀 훅을 통한 로직 분리
+- ✅ 유틸리티 함수 모듈화
+- ✅ 테스트 커버리지 유지
 
 ## 요청사항
 

@@ -34,6 +34,7 @@ describe('basic 테스트', () => {
     let sel, addBtn, cartDisp, sum, stockInfo, itemCount, loyaltyPoints, discountInfo;
 
     beforeEach(async () => {
+      // 기본적으로 실제 시간 사용 (화요일이 아닌 경우)
       vi.useRealTimers();
       vi.spyOn(window, 'alert').mockImplementation(() => {});
 
@@ -101,40 +102,73 @@ describe('basic 테스트', () => {
     describe('3. 할인 정책', () => {
       describe('3.1 개별 상품 할인', () => {
         it('상품1: 10개 이상 구매 시 10% 할인', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           addItemsToCart(sel, addBtn, 'p1', 10);
 
           // 100,000원 -> 90,000원
           expect(sum.textContent).toContain('₩90,000');
           expect(discountInfo.textContent).toContain('10.0%');
+
+          vi.useRealTimers();
         });
 
         it('상품2: 10개 이상 구매 시 15% 할인', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           addItemsToCart(sel, addBtn, 'p2', 10);
 
           // 200,000원 -> 170,000원
           expect(sum.textContent).toContain('₩170,000');
           expect(discountInfo.textContent).toContain('15.0%');
+
+          vi.useRealTimers();
         });
 
         it('상품3: 10개 이상 구매 시 20% 할인', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           addItemsToCart(sel, addBtn, 'p3', 10);
 
           // 300,000원 -> 240,000원
           expect(sum.textContent).toContain('₩240,000');
           expect(discountInfo.textContent).toContain('20.0%');
+
+          vi.useRealTimers();
         });
 
         it('상품5: 10개 이상 구매 시 25% 할인', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           addItemsToCart(sel, addBtn, 'p5', 10);
 
           // 250,000원 -> 187,500원
           expect(sum.textContent).toContain('₩187,500');
           expect(discountInfo.textContent).toContain('25.0%');
+
+          vi.useRealTimers();
         });
       });
 
       describe('3.2 전체 수량 할인', () => {
         it('전체 30개 이상 구매 시 25% 할인 (개별 할인 무시)', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           // 상품1 10개, 상품2 10개, 상품3 10개 = 총 30개
           addItemsToCart(sel, addBtn, 'p1', 10);
           addItemsToCart(sel, addBtn, 'p2', 10);
@@ -143,6 +177,8 @@ describe('basic 테스트', () => {
           // 600,000원 -> 450,000원 (25% 할인)
           expect(sum.textContent).toContain('₩450,000');
           expect(discountInfo.textContent).toContain('25.0%');
+
+          vi.useRealTimers();
         });
       });
 
@@ -156,13 +192,33 @@ describe('basic 테스트', () => {
             sel.value = 'p1';
             addBtn.click();
 
-            // 10,000원 -> 9,000원 (10% 할인)
+            // 10,000원 -> 9,000원 (화요일 10% 할인)
             expect(sum.textContent).toContain('₩9,000');
             expect(discountInfo.textContent).toContain('10.0%');
 
             // 화요일 특별 할인 배너 표시
             const tuesdayBanner = document.getElementById('tuesday-special');
             expect(tuesdayBanner.classList.contains('hidden')).toBe(false);
+
+            vi.useRealTimers();
+          });
+
+          it('화요일이 아닌 경우 화요일 할인 미적용', () => {
+            // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+            const monday = new Date('2024-10-14'); // 월요일
+            vi.useFakeTimers();
+            vi.setSystemTime(monday);
+
+            sel.value = 'p1';
+            addBtn.click();
+
+            // 10,000원 (할인 없음)
+            expect(sum.textContent).toContain('₩10,000');
+            expect(discountInfo.textContent).not.toContain('10.0%');
+
+            // 화요일 특별 할인 배너 숨김
+            const tuesdayBanner = document.getElementById('tuesday-special');
+            expect(tuesdayBanner.classList.contains('hidden')).toBe(true);
 
             vi.useRealTimers();
           });
@@ -177,6 +233,25 @@ describe('basic 테스트', () => {
             // 100,000원 -> 90,000원 (개별 10%) -> 81,000원 (화요일 10% 추가)
             expect(sum.textContent).toContain('₩81,000');
             expect(discountInfo.textContent).toContain('19.0%'); // 총 19% 할인
+
+            vi.useRealTimers();
+          });
+
+          it('화요일이 아닌 경우 개별 할인만 적용', () => {
+            // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+            const monday = new Date('2024-10-14'); // 월요일
+            vi.useFakeTimers();
+            vi.setSystemTime(monday);
+
+            addItemsToCart(sel, addBtn, 'p1', 10);
+
+            // 100,000원 -> 90,000원 (개별 10%만)
+            expect(sum.textContent).toContain('₩90,000');
+            expect(discountInfo.textContent).toContain('10.0%'); // 개별 할인만
+
+            // 화요일 특별 할인 배너 숨김
+            const tuesdayBanner = document.getElementById('tuesday-special');
+            expect(tuesdayBanner.classList.contains('hidden')).toBe(true);
 
             vi.useRealTimers();
           });
@@ -236,11 +311,18 @@ describe('basic 테스트', () => {
     describe('4. 포인트 적립 시스템', () => {
       describe('4.1 기본 적립', () => {
         it('최종 결제 금액의 0.1% 포인트 적립', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           sel.value = 'p1';
           addBtn.click();
 
           // 10,000원 -> 10포인트
           expect(loyaltyPoints.textContent).toContain('10p');
+
+          vi.useRealTimers();
         });
       });
 
@@ -260,7 +342,28 @@ describe('basic 테스트', () => {
           vi.useRealTimers();
         });
 
+        it('화요일이 아닌 경우 기본 포인트만 적립', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
+          sel.value = 'p1';
+          addBtn.click();
+
+          // 10,000원 -> 10포인트 (화요일 2배 없음)
+          expect(loyaltyPoints.textContent).toContain('10p');
+          expect(loyaltyPoints.textContent).not.toContain('화요일 2배');
+
+          vi.useRealTimers();
+        });
+
         it('키보드+마우스 세트 구매 시 +50p', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           sel.value = 'p1';
           addBtn.click();
 
@@ -270,9 +373,16 @@ describe('basic 테스트', () => {
           // 30,000원 -> 30포인트 + 50포인트 = 80포인트
           expect(loyaltyPoints.textContent).toContain('80p');
           expect(loyaltyPoints.textContent).toContain('키보드+마우스 세트');
+
+          vi.useRealTimers();
         });
 
         it('풀세트(키보드+마우스+모니터암) 구매 시 +100p', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           sel.value = 'p1';
           addBtn.click();
 
@@ -285,30 +395,53 @@ describe('basic 테스트', () => {
           // 60,000원 -> 60포인트 + 50포인트(세트) + 100포인트(풀세트) = 210포인트
           expect(loyaltyPoints.textContent).toContain('210p');
           expect(loyaltyPoints.textContent).toContain('풀세트 구매');
+
+          vi.useRealTimers();
         });
 
         it('수량별 보너스 - 10개 이상 +20p', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           addItemsToCart(sel, addBtn, 'p1', 10);
 
           // 90,000원 (10% 할인) -> 90포인트 + 20포인트 = 110포인트
           expect(loyaltyPoints.textContent).toContain('110p');
           expect(loyaltyPoints.textContent).toContain('대량구매(10개+)');
+
+          vi.useRealTimers();
         });
 
         it('수량별 보너스 - 20개 이상 +50p', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           addItemsToCart(sel, addBtn, 'p1', 20);
 
           // 180,000원 (10% 할인) -> 180포인트 + 50포인트 = 230포인트
           expect(loyaltyPoints.textContent).toContain('230p');
           expect(loyaltyPoints.textContent).toContain('대량구매(20개+)');
+
+          vi.useRealTimers();
         });
 
         it('수량별 보너스 - 30개 이상 +100p', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           addItemsToCart(sel, addBtn, 'p1', 30);
 
           // 225,000원 (25% 할인) -> 225포인트 + 100포인트 = 325포인트
           expect(loyaltyPoints.textContent).toContain('325p');
           expect(loyaltyPoints.textContent).toContain('대량구매(30개+)');
+
+          vi.useRealTimers();
         });
       });
 
@@ -479,11 +612,11 @@ describe('basic 테스트', () => {
           const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
 
           // 증가
-          await userEvent.click(increaseBtn);
+          increaseBtn.click(); // userEvent.click() 대신 일반 click() 사용
           expect(cartDisp.querySelector('.quantity-number').textContent).toBe('2');
 
           // 감소
-          await userEvent.click(decreaseBtn);
+          decreaseBtn.click(); // userEvent.click() 대신 일반 click() 사용
           expect(cartDisp.querySelector('.quantity-number').textContent).toBe('1');
         });
 
@@ -494,7 +627,7 @@ describe('basic 테스트', () => {
           const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
           const qtyBefore = getCartItemQuantity(cartDisp, 'p5');
           
-          await userEvent.click(increaseBtn);
+          increaseBtn.click(); // userEvent.click() 대신 일반 click() 사용
           
           const qtyAfter = getCartItemQuantity(cartDisp, 'p5');
           expect(qtyAfter).toBe(qtyBefore); // 수량이 증가하지 않아야 함
@@ -505,7 +638,7 @@ describe('basic 테스트', () => {
           addBtn.click();
 
           const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
-          await userEvent.click(decreaseBtn);
+          decreaseBtn.click(); // userEvent.click() 대신 일반 click() 사용
 
           expect(cartDisp.children.length).toBe(0);
         });
@@ -517,7 +650,7 @@ describe('basic 테스트', () => {
           addBtn.click();
 
           const removeBtn = cartDisp.querySelector('.remove-item');
-          await userEvent.click(removeBtn);
+          removeBtn.click(); // userEvent.click() 대신 일반 click() 사용
 
           expect(cartDisp.children.length).toBe(0);
         });
@@ -527,7 +660,7 @@ describe('basic 테스트', () => {
           addItemsToCart(sel, addBtn, 'p5', 5);
 
           const removeBtn = cartDisp.querySelector('.remove-item');
-          await userEvent.click(removeBtn);
+          removeBtn.click(); // userEvent.click() 대신 일반 click() 사용
           
           // 재고가 복구되어야 하지만 원본 코드에서는 제대로 업데이트되지 않음
         });
@@ -535,34 +668,55 @@ describe('basic 테스트', () => {
 
       describe('6.4 실시간 계산', () => {
         it('수량 변경 시 즉시 재계산', async () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           sel.value = 'p1';
           addBtn.click();
 
           expect(sum.textContent).toContain('₩10,000');
 
           const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
-          await userEvent.click(increaseBtn);
+          increaseBtn.click(); // userEvent.click() 대신 일반 click() 사용
 
           expect(sum.textContent).toContain('₩20,000');
+
+          vi.useRealTimers();
         });
 
         it('할인 정책 자동 적용', () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           addItemsToCart(sel, addBtn, 'p1', 10);
 
           expect(discountInfo.textContent).toContain('10.0%');
           expect(sum.textContent).toContain('₩90,000');
+
+          vi.useRealTimers();
         });
 
         it('포인트 실시간 업데이트', async () => {
+          // 명시적으로 화요일이 아닌 날짜 설정 (월요일)
+          const monday = new Date('2024-10-14'); // 월요일
+          vi.useFakeTimers();
+          vi.setSystemTime(monday);
+
           sel.value = 'p1';
           addBtn.click();
 
           expect(loyaltyPoints.textContent).toContain('10p');
 
           const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
-          await userEvent.click(increaseBtn);
+          increaseBtn.click(); // userEvent.click() 대신 일반 click() 사용
 
           expect(loyaltyPoints.textContent).toContain('20p');
+
+          vi.useRealTimers();
         });
       });
 
@@ -604,7 +758,7 @@ describe('basic 테스트', () => {
           addItemsToCart(sel, addBtn, 'p5', 10);
 
           const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
-          await userEvent.click(increaseBtn);
+          increaseBtn.click(); // userEvent.click() 대신 일반 click() 사용
 
           expect(window.alert).toHaveBeenCalledWith('재고가 부족합니다.');
         });
