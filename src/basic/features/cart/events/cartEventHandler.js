@@ -136,10 +136,20 @@ const cartItemManagers = {
    */
   updateItemQuantity: (product, existingItem) => {
     const quantityElement = existingItem.querySelector('.quantity-number');
-    const currentQuantity = quantityManagers.getCurrentQuantity(quantityElement);
-    const newQuantity = quantityManagers.calculateNewQuantity(currentQuantity, 1);
+    const currentQuantity =
+      quantityManagers.getCurrentQuantity(quantityElement);
+    const newQuantity = quantityManagers.calculateNewQuantity(
+      currentQuantity,
+      1,
+    );
 
-    if (stockValidators.isInsufficientStock(currentQuantity, newQuantity, product.q)) {
+    if (
+      stockValidators.isInsufficientStock(
+        currentQuantity,
+        newQuantity,
+        product.q,
+      )
+    ) {
       notifiers.showInsufficientStockAlert();
       return false;
     }
@@ -183,8 +193,12 @@ const cartItemManagers = {
    */
   changeItemQuantity: (product, itemElement, change) => {
     const quantityElement = itemElement.querySelector('.quantity-number');
-    const currentQuantity = quantityManagers.getCurrentQuantity(quantityElement);
-    const newQuantity = quantityManagers.calculateNewQuantity(currentQuantity, change);
+    const currentQuantity =
+      quantityManagers.getCurrentQuantity(quantityElement);
+    const newQuantity = quantityManagers.calculateNewQuantity(
+      currentQuantity,
+      change,
+    );
 
     if (newQuantity <= 0) {
       cartItemManagers.removeItem(product, itemElement);
