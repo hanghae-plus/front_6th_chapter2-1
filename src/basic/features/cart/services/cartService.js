@@ -1,12 +1,16 @@
 /**
- * 장바구니 서비스 - React-ready 구조
- * 순수 함수 중심, DOM 조작 최소화
+ * 장바구니 서비스
+ * 순수 함수 중심으로 데이터 변환에 집중
  */
 
 import { renderCartTotal } from '@/basic/features/cart/components/CartTotal.js';
 import { calculateCart } from '@/basic/features/cart/services/cartCalculator.js';
+import { highlightDiscountableItems } from '@/basic/features/cart/services/cartUIService.js';
 import { PRODUCTS } from '@/basic/features/product/constants/index.js';
-import { productState } from '@/basic/features/product/store/productStore.js';
+import {
+  productState,
+  getProductState,
+} from '@/basic/features/product/store/productStore.js';
 import { BUSINESS_CONSTANTS } from '@/basic/shared/constants/business.js';
 
 /**
@@ -117,6 +121,16 @@ export const updateCartUI = cartResults => {
   updateDiscountInfo(cartResults);
   updateTuesdaySpecial(cartResults);
   updateHeaderItemCount(cartResults);
+
+  const cartItems = document.getElementById('cart-items')?.children;
+  if (cartItems && cartItems.length > 0) {
+    const { products } = getProductState();
+    highlightDiscountableItems(
+      Array.from(cartItems),
+      products,
+      BUSINESS_CONSTANTS,
+    );
+  }
 };
 
 /**
