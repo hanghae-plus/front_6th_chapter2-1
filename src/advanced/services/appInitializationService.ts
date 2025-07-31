@@ -1,11 +1,13 @@
 // ==========================================
-// 애플리케이션 초기화 서비스
+// 애플리케이션 초기화 서비스 (TypeScript)
 // ==========================================
+
+import type { DOMElements } from '../types';
 
 /**
  * DOM 요소 캐시 초기화
  */
-export function initializeDomElements() {
+export function initializeDomElements(): DOMElements {
   return {
     loyaltyPoints: document.getElementById('loyalty-points'),
     summaryDetails: document.getElementById('summary-details'),
@@ -15,15 +17,42 @@ export function initializeDomElements() {
 }
 
 /**
+ * 레이아웃 구성에 필요한 타입들
+ */
+interface LayoutComponents {
+  root: HTMLElement;
+  gridContainer: HTMLElement;
+  leftColumn: HTMLElement;
+  selectorContainer: HTMLElement;
+}
+
+interface ProductSelectorComponents {
+  productSelect: HTMLSelectElement;
+  addButton: HTMLButtonElement;
+  stockInfo: HTMLElement;
+}
+
+interface CartDisplayComponents {
+  cartDisplay: HTMLElement;
+}
+
+interface HelpModalComponents {
+  manualToggle: HTMLElement;
+  manualOverlay: HTMLElement;
+}
+
+interface SetupLayoutResult extends LayoutComponents, ProductSelectorComponents, CartDisplayComponents, HelpModalComponents {}
+
+/**
  * 레이아웃 구성
  */
 export function setupLayout(
-  layout,
-  productSelector,
-  cartDisplay,
-  orderSummary,
-  helpModal,
-) {
+  layout: LayoutComponents,
+  productSelector: ProductSelectorComponents,
+  cartDisplay: CartDisplayComponents,
+  orderSummary: HTMLElement,
+  helpModal: HelpModalComponents,
+): SetupLayoutResult {
   const { root, gridContainer, leftColumn, selectorContainer } = layout;
   const { productSelect, addButton, stockInfo } = productSelector;
   const { cartDisplay: cartDisplayElement } = cartDisplay;
@@ -59,7 +88,7 @@ export function setupLayout(
     productSelect,
     addButton,
     stockInfo,
-    cartDisplayElement,
+    cartDisplay: cartDisplayElement,
     manualToggle,
     manualOverlay,
   };

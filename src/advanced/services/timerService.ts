@@ -1,19 +1,20 @@
 // ==========================================
-// 타이머 서비스
+// 타이머 서비스 (TypeScript)
 // ==========================================
 
-import { DISCOUNT_RATES, TIMERS } from '../constant/index.js';
+import { DISCOUNT_RATES, TIMERS } from '../constant/index';
+import type { Product, UIElements } from '../types';
 
 /**
  * 번개세일 타이머 설정
  */
 export function setupLightningSaleTimer(
-  products,
-  updateProductSelectUI,
-  updateCartPricesUI,
-  getTotalStock,
-  canApplyLightningDiscount,
-) {
+  products: Product[],
+  updateProductSelectUI: (products: Product[], totalStock: number) => void,
+  updateCartPricesUI: (products: Product[]) => void,
+  getTotalStock: () => number,
+  canApplyLightningDiscount: (item: Product) => boolean,
+): void {
   const lightningDelay = Math.random() * TIMERS.MAX_LIGHTNING_DELAY;
 
   setTimeout(() => {
@@ -40,16 +41,16 @@ export function setupLightningSaleTimer(
  * 추천할인 타이머 설정
  */
 export function setupSuggestSaleTimer(
-  products,
-  uiElements,
-  updateProductSelectUI,
-  updateCartPricesUI,
-  DISCOUNT_RATES,
-  getTotalStock,
-) {
+  products: Product[],
+  uiElements: UIElements,
+  updateProductSelectUI: (products: Product[], totalStock: number) => void,
+  updateCartPricesUI: (products: Product[]) => void,
+  discountRates: typeof DISCOUNT_RATES,
+  getTotalStock: () => number,
+): void {
   setTimeout(() => {
     setInterval(() => {
-      if (uiElements.cartDisplay.children.length === 0) {
+      if (!uiElements.cartDisplay?.children.length) {
         return;
       }
 
@@ -59,10 +60,10 @@ export function setupSuggestSaleTimer(
 
       if (suggest) {
         alert(
-          `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 ${DISCOUNT_RATES.SUGGEST_SALE * 100}% 추가 할인!`,
+          `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 ${discountRates.SUGGEST_SALE * 100}% 추가 할인!`,
         );
         suggest.val = Math.round(
-          suggest.val * (1 - DISCOUNT_RATES.SUGGEST_SALE),
+          suggest.val * (1 - discountRates.SUGGEST_SALE),
         );
         suggest.suggestSale = true;
         updateProductSelectUI(products, getTotalStock());

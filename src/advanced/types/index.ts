@@ -7,6 +7,9 @@ export interface Product {
   name: string;
   val: number;
   quantity: number;
+  originalVal: number;
+  onSale: boolean;
+  suggestSale: boolean;
 }
 
 export interface AppState {

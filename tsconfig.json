@@ -28,6 +28,6 @@
       "@/basic/*": ["./src/basic/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx", "src/advanced/components/CartPrices.js.backup", "src/advanced/services/appInitializationService.js.backup", "src/advanced/services/calculationService.js.backup"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

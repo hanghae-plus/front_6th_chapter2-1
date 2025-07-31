@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ itemCount = 0 }) => {
         🛒 Hanghae Online Store
       </h1>
       <div className="text-5xl tracking-tight leading-none">
-        Shopping Cart
+        Shopping Cart - React
       </div>
       <p className="text-sm text-gray-500 font-normal mt-3">
         🛍️ {itemCount} items in cart
