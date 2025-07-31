@@ -210,9 +210,9 @@ export function reducer(state, action) {
 }
 
 // getters
-const getProducts = (state) => state.products;
-const getCartList = (state) => state.cartList;
-const getIsTuesday = () => new Date().getDay() === 2;
+export const getProducts = (state) => state.products;
+export const getCartList = (state) => state.cartList;
+export const getIsTuesday = () => new Date().getDay() === 2;
 
 export const getCartDetails = (state) => {
   const products = getProducts(state);
