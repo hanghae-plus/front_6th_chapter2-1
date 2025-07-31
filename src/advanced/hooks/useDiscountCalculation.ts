@@ -10,20 +10,41 @@ export const useDiscountCalculation = (
   const discountRate = useMemo(() => {
     let rate = 0;
     
-    // Bulk discount (30+ items)
+    // Individual item discounts
+    const itemDiscounts: { [key: string]: number } = {
+      'p1': 0.10, // 키보드 10%
+      'p2': 0.15, // 마우스 15%
+      'p3': 0.20, // 모니터암 20%
+      'p5': 0.25  // 스피커 25%
+    };
+    
+    // Calculate individual discounts
+    let individualDiscountTotal = 0;
+    cartItems.forEach(item => {
+      const product = products.find(p => p.id === item.id);
+      if (product && item.quantity >= 10 && itemDiscounts[item.id]) {
+        const itemTotal = product.val * item.quantity;
+        individualDiscountTotal += itemTotal * itemDiscounts[item.id];
+      }
+    });
+    
+    // Bulk discount (30+ items) - overrides individual discounts
     if (itemCount >= 30) {
       rate = 0.25;
+    } else if (individualDiscountTotal > 0) {
+      rate = individualDiscountTotal / totalAmount;
     }
     
-    // Tuesday special discount
+    // Tuesday special discount (additional 10%)
     const today = new Date();
     const isTuesday = today.getDay() === 2;
     if (isTuesday && totalAmount > 0) {
-      rate = 1 - (1 - rate) * 0.9; // Additional 10% off
+      const tuesdayDiscount = (totalAmount - (totalAmount * rate)) * 0.1;
+      rate = rate + (tuesdayDiscount / totalAmount);
     }
     
     return rate;
-  }, [itemCount, totalAmount]);
+  }, [cartItems, products, itemCount, totalAmount]);
 
   const savedAmount = useMemo(() => {
     return totalAmount * discountRate;
