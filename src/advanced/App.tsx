@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Header } from './shared/components/Header.tsx';
 import HelpModal from './shared/components/HelpModal.tsx';
 import ProductSelector from './features/product/components/ProductSelector.tsx';
@@ -12,6 +12,7 @@ import {
   quantityManagers,
   stockManagers,
 } from './features/cart/utils/stockUtils.ts';
+import { calculatePoints } from './features/point/utils/pointsCalculator.ts';
 
 function App() {
   const [products, setProducts] = useState(initialProducts);
@@ -21,6 +22,16 @@ function App() {
 
   const { cartItems, itemCount, addItem, removeItem, updateQuantity } =
     useCartStore();
+
+  const totalAmount = cartItems.reduce(
+    (sum, item) => sum + item.val * item.quantity,
+    0,
+  );
+
+  const { totalPoints, details, hasPoints } = useMemo(
+    () => calculatePoints(cartItems, totalAmount),
+    [cartItems, totalAmount],
+  );
 
   const handleProductSelection = (productId: string) => {
     setSelectedProductId(productId);
@@ -32,7 +43,6 @@ function App() {
     const selectedProduct = products.find(p => p.id === selectedProductId);
     if (!selectedProduct) return;
 
-    // 재고 검증
     if (stockValidators.isOutOfStock(selectedProduct.q)) {
       alert('재고가 부족합니다.');
       return;
@@ -56,7 +66,6 @@ function App() {
       suggestSale: selectedProduct.suggestSale,
     });
 
-    // 재고 감소
     setProducts(prev =>
       prev.map(p =>
         p.id === selectedProductId ? stockManagers.decreaseStock(p, 1) : p,
@@ -80,7 +89,6 @@ function App() {
       return;
     }
 
-    // 수량 증가시 재고 검증
     if (change > 0 && !stockValidators.canIncreaseQuantity(change, product.q)) {
       alert('재고가 부족합니다.');
       return;
@@ -88,7 +96,6 @@ function App() {
 
     updateQuantity(id, newQuantity);
 
-    // 재고 조정
     setProducts(prev =>
       prev.map(p => (p.id === id ? stockManagers.updateStock(p, -change) : p)),
     );
@@ -100,7 +107,6 @@ function App() {
 
     removeItem(id);
 
-    // 재고 복원
     setProducts(prev =>
       prev.map(p =>
         p.id === id ? stockManagers.increaseStock(p, cartItem.quantity) : p,
@@ -184,24 +190,27 @@ function App() {
                     Total
                   </span>
                   <div id='total-amount' className='text-2xl tracking-tight'>
-                    ₩
-                    {cartItems
-                      .reduce((sum, item) => sum + item.val * item.quantity, 0)
-                      .toLocaleString()}
+                    ₩{totalAmount.toLocaleString()}
                   </div>
                 </div>
                 <div
                   id='loyalty-points'
                   className='text-xs text-blue-400 mt-2 text-right'
+                  style={{ display: hasPoints ? 'block' : 'block' }}
                 >
-                  적립 포인트:{' '}
-                  {Math.floor(
-                    cartItems.reduce(
-                      (sum, item) => sum + item.val * item.quantity,
-                      0,
-                    ) / 1000,
+                  {hasPoints ? (
+                    <>
+                      <div>
+                        적립 포인트:{' '}
+                        <span className='font-bold'>{totalPoints}p</span>
+                      </div>
+                      <div className='text-2xs opacity-70 mt-1'>
+                        {details.join(', ')}
+                      </div>
+                    </>
+                  ) : (
+                    '적립 포인트: 0p'
                   )}
-                  p
                 </div>
               </div>
               <div
