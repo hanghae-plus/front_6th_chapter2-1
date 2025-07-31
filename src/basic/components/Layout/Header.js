@@ -1,10 +1,9 @@
 export const Header = () => {
   const header = document.createElement('header');
-  header.className =
-    'py-5 px-8 flex justify-between items-center border-b border-gray-100 bg-white';
   header.innerHTML = `
-    <h1 class="text-xl font-bold tracking-tight">Shopping Cart</h1>
-    <div class="text-gray-400 text-xs">vanilla-js-example</div>
+   <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
+    <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
+    <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
   return header;
 };
