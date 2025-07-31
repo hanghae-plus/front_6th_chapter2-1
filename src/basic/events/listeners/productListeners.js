@@ -1,6 +1,7 @@
 import { updateProductOptions, updateStockInfo } from "../../components/ProductSelector.js";
 import { updateCartItemPrice } from "../../components/CartItem.js";
 import { generateStockWarningMessage } from "../../utils/stockUtils.js";
+import { PRODUCT_OPTIONS_UPDATED } from "../../constants/events.js";
 
 // Product 관련 이벤트 리스너
 export class ProductEventListeners {
@@ -13,7 +14,7 @@ export class ProductEventListeners {
 
   initProductEventListeners() {
     // 상품 옵션 업데이트 이벤트
-    this.uiEventBus.on("product:options:updated", data => {
+    this.uiEventBus.on(PRODUCT_OPTIONS_UPDATED, data => {
       if (data.success) {
         this.renderProductOptions(data.products, data.discountInfos);
       }
@@ -39,7 +40,7 @@ export class ProductEventListeners {
       // 할인 정보가 적용된 상품 데이터 사용
       const productsWithDiscounts = this.discountService.getProductsWithCurrentDiscounts(originalProducts);
 
-      this.uiEventBus.emit("product:options:updated", {
+      this.uiEventBus.emit(PRODUCT_OPTIONS_UPDATED, {
         products: productsWithDiscounts,
         success: true,
       });

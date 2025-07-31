@@ -1,4 +1,5 @@
 import { uiEventBus } from "../core/eventBus.js";
+import { PRODUCT_OPTIONS_UPDATED } from "../constants/events.js";
 
 export class TimerService {
   constructor(productService, discountService) {
@@ -59,7 +60,7 @@ export class TimerService {
     const discountInfos = this.calculateProductDiscountInfos(productsWithDiscounts);
 
     // 상품 옵션 업데이트 이벤트 발송
-    uiEventBus.emit("product:options:updated", {
+    uiEventBus.emit(PRODUCT_OPTIONS_UPDATED, {
       products: productsWithDiscounts,
       discountInfos,
       success: true,

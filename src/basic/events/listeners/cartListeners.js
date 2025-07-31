@@ -4,6 +4,7 @@ import { createCartItem } from "../../components/CartItem.js";
 import { getSelectedProduct } from "../../components/ProductSelector.js";
 import { extractNumberFromText, getCartItemQuantity } from "../../utils/domUtils.js";
 import { QUANTITY_THRESHOLDS } from "../../constants/index.js";
+import { PRODUCT_OPTIONS_UPDATED } from "../../constants/events.js";
 
 /**
  * Cart 관련 이벤트 리스너
@@ -95,7 +96,7 @@ export class CartEventListeners {
 
       // 현재 할인 상태가 적용된 상품 데이터 사용
       const productsWithDiscounts = this.discountService.getProductsWithCurrentDiscounts(this.productService.getProducts());
-      this.uiEventBus.emit("product:options:updated", {
+      this.uiEventBus.emit(PRODUCT_OPTIONS_UPDATED, {
         products: productsWithDiscounts,
         discountInfos: this.calculateProductDiscountInfos(productsWithDiscounts),
         success: true,
@@ -117,7 +118,7 @@ export class CartEventListeners {
 
       // 현재 할인 상태가 적용된 상품 데이터 사용
       const productsWithDiscounts = this.discountService.getProductsWithCurrentDiscounts(this.productService.getProducts());
-      this.uiEventBus.emit("product:options:updated", {
+      this.uiEventBus.emit(PRODUCT_OPTIONS_UPDATED, {
         products: productsWithDiscounts,
         discountInfos: this.calculateProductDiscountInfos(productsWithDiscounts),
         success: true,
