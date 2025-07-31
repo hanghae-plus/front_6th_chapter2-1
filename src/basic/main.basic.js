@@ -1,6 +1,11 @@
-// ========================================
-// 전역 변수 및 상수 정의
-// ========================================
+import { Header } from './components/layout';
+import {
+  PRODUCT_KEYBOARD,
+  PRODUCT_MOUSE,
+  PRODUCT_MONITOR_ARM,
+  PRODUCT_LAPTOP_POUCH,
+  PRODUCT_SPEAKER,
+} from './constants';
 
 // 상품 데이터 및 장바구니 관련 변수
 let productList;
@@ -13,22 +18,6 @@ let addButton;
 let totalAmount = 0;
 let cartContainer;
 let sum;
-
-// 상품 ID 상수
-const PRODUCT_KEYBOARD = 'p1';
-const PRODUCT_MOUSE = 'p2';
-const PRODUCT_MONITOR_ARM = 'p3';
-const PRODUCT_LAPTOP_POUCH = 'p4';
-const PRODUCT_SPEAKER = 'p5';
-
-// 헤더 컴포넌트
-function Header() {
-  return `
-      <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
-      <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
-      <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
-    `;
-}
 
 // 주문 요약 컴포넌트 (오른쪽 컬럼)
 function OrderSummary() {
@@ -237,7 +226,6 @@ function main() {
 
   // 헤더 생성
   const header = document.createElement('div');
-  header.className = 'mb-8';
   header.innerHTML = Header();
 
   // 상품 선택 요소들 생성
