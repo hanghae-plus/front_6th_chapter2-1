@@ -4,6 +4,8 @@ import { ProductSelector } from "./components/cart/ProductSelector";
 import { CartItems } from "./components/cart/CartItems";
 import { CartSummary } from "./components/cart/CartSummary";
 import { useAppContext } from "./context";
+import { calculateCartTotals } from "./utils/cartUtils";
+import { calculateBonusPoints } from "./utils/pointsUtils";
 
 function App() {
   const {
@@ -19,12 +21,18 @@ function App() {
     setSelectedProduct,
   } = useAppContext();
 
-  const total = cart.reduce((sum, item) => {
-    const discountedPrice = item.val * (1 - item.discount / 100);
-    return sum + discountedPrice * item.quantity;
-  }, 0);
+  // 할인 계산
+  const cartTotals = calculateCartTotals(cart);
 
-  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  // 포인트 계산
+  const pointsCalculation = calculateBonusPoints(
+    cart,
+    cartTotals.totalAmount,
+    cartTotals.totalQty,
+    cartTotals.isTuesday
+  );
+
+  const itemCount = cartTotals.totalQty;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -51,10 +59,16 @@ function App() {
 
           {/* 오른쪽 컬럼: 주문 요약 */}
           <CartSummary
-            total={total}
-            loyaltyPoints={Math.floor(total * 0.001)}
-            discountInfo=""
-            isTuesdaySpecial={false}
+            total={cartTotals.totalAmount}
+            loyaltyPoints={pointsCalculation.finalPoints}
+            discountInfo={
+              cartTotals.itemDiscounts.length > 0
+                ? cartTotals.itemDiscounts
+                    .map((d) => `${d.name}: ${d.discount}% 할인`)
+                    .join(", ")
+                : ""
+            }
+            isTuesdaySpecial={cartTotals.isTuesday}
           />
         </div>
       </div>

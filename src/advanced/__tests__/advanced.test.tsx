@@ -145,9 +145,9 @@ describe("advanced 테스트", () => {
 
         await addItemsToCart(user, "p1", 10);
 
-        // 현재 할인 로직이 구현되지 않아서 원가로 계산됨
+        // 100,000원 -> 90,000원 (10% 할인)
         const totalElement = screen.getByText(/Total/).closest("div");
-        expect(totalElement).toHaveTextContent("₩100,000");
+        expect(totalElement).toHaveTextContent("₩90,000");
       });
 
       it("마우스: 10개 이상 구매 시 15% 할인", async () => {
@@ -156,9 +156,9 @@ describe("advanced 테스트", () => {
 
         await addItemsToCart(user, "p2", 10);
 
-        // 현재 할인 로직이 구현되지 않아서 원가로 계산됨
+        // 200,000원 -> 170,000원 (15% 할인)
         const totalElement = screen.getByText(/Total/).closest("div");
-        expect(totalElement).toHaveTextContent("₩200,000");
+        expect(totalElement).toHaveTextContent("₩170,000");
       });
 
       it("모니터암: 10개 이상 구매 시 20% 할인", async () => {
@@ -167,9 +167,9 @@ describe("advanced 테스트", () => {
 
         await addItemsToCart(user, "p3", 10);
 
-        // 현재 할인 로직이 구현되지 않아서 원가로 계산됨
+        // 300,000원 -> 240,000원 (20% 할인)
         const totalElement = screen.getByText(/Total/).closest("div");
-        expect(totalElement).toHaveTextContent("₩300,000");
+        expect(totalElement).toHaveTextContent("₩240,000");
       });
 
       it("스피커: 10개 이상 구매 시 25% 할인", async () => {
@@ -178,9 +178,9 @@ describe("advanced 테스트", () => {
 
         await addItemsToCart(user, "p5", 10);
 
-        // 현재 할인 로직이 구현되지 않아서 원가로 계산됨
+        // 250,000원 -> 187,500원 (25% 할인)
         const totalElement = screen.getByText(/Total/).closest("div");
-        expect(totalElement).toHaveTextContent("₩250,000");
+        expect(totalElement).toHaveTextContent("₩187,500");
       });
     });
 
@@ -194,17 +194,40 @@ describe("advanced 테스트", () => {
         await addItemsToCart(user, "p2", 10);
         await addItemsToCart(user, "p3", 10);
 
-        // 현재 할인 로직이 구현되지 않아서 원가로 계산됨
+        // 600,000원 -> 450,000원 (25% 할인)
         const totalElement = screen.getByText(/Total/).closest("div");
-        expect(totalElement).toHaveTextContent("₩600,000");
+        expect(totalElement).toHaveTextContent("₩450,000");
       });
     });
 
     describe("3.3 특별 할인", () => {
       describe("3.3.1 화요일 할인", () => {
-        it.skip("화요일에 10% 추가 할인 적용 (현재 구현되지 않음)", async () => {
-          // 현재 화요일 할인 로직이 구현되지 않음
-          // TODO: 할인 로직 구현 후 활성화
+        it("화요일에 10% 추가 할인 적용", async () => {
+          const tuesday = new Date("2024-10-15"); // 화요일
+          vi.useFakeTimers();
+          vi.setSystemTime(tuesday);
+
+          renderWithProvider(<App />);
+
+          const select = screen.getByRole("combobox");
+          
+          fireEvent.change(select, { target: { value: "p1" } });
+          
+          // 상품 선택 후 "Add to Cart" 버튼이 활성화될 때까지 기다림
+          const addButton = await screen.findByRole("button", {
+            name: /add to cart/i,
+          });
+          fireEvent.click(addButton);
+
+          // 10,000원 -> 9,000원 (10% 할인)
+          const totalElement = screen.getByText(/Total/).closest("div");
+          expect(totalElement).toHaveTextContent("₩9,000");
+
+          // 화요일 특별 할인 배너 표시
+          const tuesdayBanner = screen.getByText(/Tuesday Special 10% Applied/);
+          expect(tuesdayBanner).toBeInTheDocument();
+
+          vi.useRealTimers();
         });
       });
     });
@@ -230,9 +253,25 @@ describe("advanced 테스트", () => {
     });
 
     describe("4.2 추가 적립", () => {
-      it.skip("화요일 구매 시 기본 포인트 2배 (현재 구현되지 않음)", async () => {
-        // 현재 화요일 포인트 2배 로직이 구현되지 않음
-        // TODO: 포인트 로직 구현 후 활성화
+      it("화요일 구매 시 기본 포인트 2배", async () => {
+        const tuesday = new Date("2024-10-15");
+        vi.useFakeTimers();
+        vi.setSystemTime(tuesday);
+
+        renderWithProvider(<App />);
+
+        const select = screen.getByRole("combobox");
+        fireEvent.change(select, { target: { value: "p1" } });
+        const addButton = await screen.findByRole("button", {
+          name: /add to cart/i,
+        });
+        fireEvent.click(addButton);
+
+        // 9,000원 (화요일 10% 할인) -> 9포인트 * 2 = 18포인트
+        const loyaltyPoints = screen.getByText(/적립 포인트/);
+        expect(loyaltyPoints).toHaveTextContent("18p");
+
+        vi.useRealTimers();
       });
 
       it("키보드+마우스 세트 구매 시 +50p", async () => {
@@ -252,9 +291,9 @@ describe("advanced 테스트", () => {
         });
         await user.click(addButton2);
 
-        // 현재는 기본 포인트만 계산됨 (30,000원 -> 30포인트)
+        // 30,000원 -> 30포인트 + 50포인트 = 80포인트
         const loyaltyPoints = screen.getByText(/적립 포인트/);
-        expect(loyaltyPoints).toHaveTextContent("30p");
+        expect(loyaltyPoints).toHaveTextContent("80p");
       });
 
       it("풀세트(키보드+마우스+모니터암) 구매 시 +100p", async () => {
@@ -280,9 +319,9 @@ describe("advanced 테스트", () => {
         });
         await user.click(addButton3);
 
-        // 현재는 기본 포인트만 계산됨 (60,000원 -> 60포인트)
+        // 60,000원 -> 60포인트 + 50포인트(세트) + 100포인트(풀세트) = 210포인트
         const loyaltyPoints = screen.getByText(/적립 포인트/);
-        expect(loyaltyPoints).toHaveTextContent("60p");
+        expect(loyaltyPoints).toHaveTextContent("210p");
       });
     });
   });
@@ -551,9 +590,52 @@ describe("advanced 테스트", () => {
   });
 
   describe("복잡한 통합 시나리오", () => {
-    it.skip("화요일 + 풀세트 + 대량구매 시나리오 (현재 구현되지 않음)", async () => {
-      // 현재 화요일 할인 및 복잡한 포인트 로직이 구현되지 않음
-      // TODO: 할인 및 포인트 로직 구현 후 활성화
-    });
+    it("화요일 + 풀세트 + 대량구매 시나리오", async () => {
+      const tuesday = new Date("2024-10-15");
+      vi.useFakeTimers();
+      vi.setSystemTime(tuesday);
+
+      renderWithProvider(<App />);
+
+      // 키보드 3개, 마우스 3개, 모니터암 3개 (더 간소화)
+      const select = screen.getByRole("combobox");
+
+      // 키보드 3개
+      fireEvent.change(select, { target: { value: "p1" } });
+      for (let i = 0; i < 3; i++) {
+        const addButton = await screen.findByRole("button", {
+          name: /add to cart/i,
+        });
+        fireEvent.click(addButton);
+      }
+
+      // 마우스 3개
+      fireEvent.change(select, { target: { value: "p2" } });
+      for (let i = 0; i < 3; i++) {
+        const addButton = await screen.findByRole("button", {
+          name: /add to cart/i,
+        });
+        fireEvent.click(addButton);
+      }
+
+      // 모니터암 3개
+      fireEvent.change(select, { target: { value: "p3" } });
+      for (let i = 0; i < 3; i++) {
+        const addButton = await screen.findByRole("button", {
+          name: /add to cart/i,
+        });
+        fireEvent.click(addButton);
+      }
+
+      // 총액 확인: 180,000원 -> 25% 할인 -> 135,000원 -> 화요일 10% -> 121,500원
+      const totalElement = screen.getByText(/Total/).closest("div");
+      expect(totalElement).toHaveTextContent("₩121,500");
+
+      // 포인트 확인: 121포인트(기본) * 2(화요일) + 50(세트) + 100(풀세트) = 392포인트
+      const loyaltyPoints = screen.getByText(/적립 포인트/);
+      expect(loyaltyPoints).toHaveTextContent("392p");
+
+      vi.useRealTimers();
+    }, 15000); // 타임아웃을 15초로 늘림
   });
 });
