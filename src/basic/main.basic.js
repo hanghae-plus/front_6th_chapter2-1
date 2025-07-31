@@ -1,7 +1,7 @@
 import { calculateBasePoint, getBulkBonusPoint, getSetBonusPoint } from './features/point/service';
 import { productIds, productList } from './features/product/constants';
 import { renderProductSelectOptions, renderStockInfo } from './features/product/render';
-import { getSaleStatus } from './features/product/service';
+import { getDiscountRate, getSaleStatus } from './features/product/service';
 import { isTuesday } from './utils/date';
 
 let itemCount;
@@ -261,25 +261,7 @@ function handleCalculateCartStuff() {
     });
 
     if (quantity >= 10) {
-      if (product.id === productIds.keyboard) {
-        discount = 10 / 100;
-      }
-
-      if (product.id === productIds.mouse) {
-        discount = 15 / 100;
-      }
-
-      if (product.id === productIds.monitorArm) {
-        discount = 20 / 100;
-      }
-
-      if (product.id === productIds.pouch) {
-        discount = 5 / 100;
-      }
-
-      if (product.id === productIds.speaker) {
-        discount = 25 / 100;
-      }
+      discount = getDiscountRate(product);
     }
 
     if (discount > 0) {
@@ -301,14 +283,10 @@ function handleCalculateCartStuff() {
 
   const tuesdaySpecial = document.getElementById('tuesday-special');
 
-  if (isTuesday()) {
-    if (totalAmount > 0) {
-      totalAmount = (totalAmount * 90) / 100;
-      discountRate = 1 - totalAmount / originalTotal;
-      tuesdaySpecial.classList.remove('hidden');
-    } else {
-      tuesdaySpecial.classList.add('hidden');
-    }
+  if (isTuesday() && totalAmount > 0) {
+    totalAmount = (totalAmount * 90) / 100;
+    discountRate = 1 - totalAmount / originalTotal;
+    tuesdaySpecial.classList.remove('hidden');
   } else {
     tuesdaySpecial.classList.add('hidden');
   }
