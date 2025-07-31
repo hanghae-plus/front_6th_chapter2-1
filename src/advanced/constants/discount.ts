@@ -1,0 +1,3 @@
+export const TOTAL_BULK_DISCOUNT_RATE = 0.25;
+
+export const SPECIAL_DAY_DISCOUNT_RATE = 0.1;
