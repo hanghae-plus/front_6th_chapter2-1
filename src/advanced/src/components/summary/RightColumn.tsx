@@ -2,16 +2,39 @@ import type { RightColumnProps } from '../../types';
 import { LoyaltyPointsTag } from './LoyaltyPointsTag';
 import { TUESDAY_SPECIAL_DISCOUNT } from '../../constants';
 import { isTuesday } from '../../utils/date';
+import { useCartStore } from '../../store';
 
 export const RightColumn = ({ total, bonusPoints, pointsDetail }: RightColumnProps) => {
   const isTuesdayToday = isTuesday();
+  const { items } = useCartStore();
 
   return (
     <div className="bg-gray-900 text-white p-8 overflow-y-auto">
       <div className="flex flex-col h-full">
         <div className="mb-6">
           <h2 className="text-lg font-medium mb-4">Order Summary</h2>
-          <div id="summary-details" className="space-y-3"></div>
+          <div id="summary-details" className="space-y-3">
+            {items.map((item) => (
+              <div key={item.id} className="flex justify-between items-center">
+                <span className="text-sm">
+                  {item.name} x {item.quantity}
+                </span>
+                <span className="text-sm">₩{(item.val * item.quantity).toLocaleString()}</span>
+              </div>
+            ))}
+            {items.length > 0 && (
+              <>
+                <div className="flex justify-between items-center pt-2 border-t border-white/10">
+                  <span className="text-sm">Subtotal</span>
+                  <span className="text-sm">₩{items.reduce((sum, item) => sum + (item.val * item.quantity), 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Shipping</span>
+                  <span className="text-sm">Free</span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
         <div className="mt-auto">
           <div id="discount-info" className="mb-4"></div>

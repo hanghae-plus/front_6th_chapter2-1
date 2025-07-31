@@ -17,7 +17,7 @@ const App = () => {
     updateOriginalTotal,
     updateDiscountRate,
   } = useCartStore();
-  const { updateTotalPoints, updatePointsDetail } = usePointsStore();
+  const { totalPoints, pointsDetail, updateTotalPoints, updatePointsDetail } = usePointsStore();
   const pointsCalculationService = createPointsCalculationService();
 
   // 장바구니 변경 시 계산 수행
@@ -61,8 +61,8 @@ const App = () => {
           total={
             items.length > 0 ? items.reduce((sum, item) => sum + item.val * item.quantity, 0) : 0
           }
-          bonusPoints={0}
-          pointsDetail={[]}
+          bonusPoints={totalPoints}
+          pointsDetail={pointsDetail}
         />
         <ManualToggle />
         <ManualOverlay />
