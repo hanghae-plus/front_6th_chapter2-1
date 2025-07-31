@@ -211,6 +211,107 @@ const useProductData = {
   findProductById(id) {
     return this.products.find((product) => product.id === id) || null;
   },
+
+  /**
+   * 상품 재고 수량 업데이트 (불변 업데이트)
+   * @param {string} id - 상품 ID
+   * @param {number} stockChange - 재고 변경량 (음수면 감소, 양수면 증가)
+   * @returns {boolean} 업데이트 성공 여부
+   */
+  updateProductStock(id, stockChange) {
+    const productIndex = this.products.findIndex((product) => product.id === id);
+    if (productIndex === -1) {
+      return false;
+    }
+
+    const currentProduct = this.products[productIndex];
+    const newStock = currentProduct.q + stockChange;
+
+    if (newStock < 0) {
+      return false; // 재고가 음수가 될 수 없음
+    }
+
+    // 불변 업데이트: 새 객체로 교체
+    this.products[productIndex] = {
+      ...currentProduct,
+      q: newStock,
+    };
+
+    return true;
+  },
+
+  /**
+   * 상품 가격 업데이트 (불변 업데이트)
+   * @param {string} id - 상품 ID
+   * @param {number} newPrice - 새로운 가격
+   * @returns {boolean} 업데이트 성공 여부
+   */
+  updateProductPrice(id, newPrice) {
+    const productIndex = this.products.findIndex((product) => product.id === id);
+    if (productIndex === -1) {
+      return false;
+    }
+
+    const currentProduct = this.products[productIndex];
+
+    // 불변 업데이트: 새 객체로 교체
+    this.products[productIndex] = {
+      ...currentProduct,
+      val: newPrice,
+    };
+
+    return true;
+  },
+
+  /**
+   * 상품 세일 상태 업데이트 (불변 업데이트)
+   * @param {string} id - 상품 ID
+   * @param {Object} saleUpdates - 세일 상태 업데이트 객체
+   * @param {boolean} [saleUpdates.onSale] - 번개세일 상태
+   * @param {boolean} [saleUpdates.suggestSale] - 추천세일 상태
+   * @returns {boolean} 업데이트 성공 여부
+   */
+  updateProductSaleStatus(id, saleUpdates) {
+    const productIndex = this.products.findIndex((product) => product.id === id);
+    if (productIndex === -1) {
+      return false;
+    }
+
+    const currentProduct = this.products[productIndex];
+
+    // 불변 업데이트: 새 객체로 교체
+    this.products[productIndex] = {
+      ...currentProduct,
+      ...saleUpdates, // onSale, suggestSale 등을 선택적으로 업데이트
+    };
+
+    return true;
+  },
+
+  /**
+   * 상품 추천 할인 적용 (불변 업데이트)
+   * @param {string} id - 상품 ID
+   * @param {number} discountRate - 할인율 (백분율)
+   * @returns {boolean} 업데이트 성공 여부
+   */
+  applyRecommendationDiscount(id, discountRate) {
+    const productIndex = this.products.findIndex((product) => product.id === id);
+    if (productIndex === -1) {
+      return false;
+    }
+
+    const currentProduct = this.products[productIndex];
+    const discountedPrice = Math.round((currentProduct.val * (100 - discountRate)) / 100);
+
+    // 불변 업데이트: 새 객체로 교체
+    this.products[productIndex] = {
+      ...currentProduct,
+      val: discountedPrice,
+      suggestSale: true,
+    };
+
+    return true;
+  },
 };
 
 // ✅ 재고 관리 캡슐화 (나중에 useStock hook으로 변환 예정)
@@ -1427,8 +1528,7 @@ function main() {
           alert(
             `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 ${DISCOUNT_RULES.RECOMMENDATION_DISCOUNT_RATE}% 추가 할인!`,
           );
-          suggest.val = Math.round((suggest.val * (100 - DISCOUNT_RULES.RECOMMENDATION_DISCOUNT_RATE)) / 100);
-          suggest.suggestSale = true;
+          useProductData.applyRecommendationDiscount(suggest.id, DISCOUNT_RULES.RECOMMENDATION_DISCOUNT_RATE);
           updateProductSelectOptions();
           updateCartItemPrices();
         }
@@ -1615,7 +1715,7 @@ addToCartButton.addEventListener("click", function () {
       const newQty = parseInt(qtyElem.textContent, 10) + 1;
       if (newQty <= itemToAdd.q + parseInt(qtyElem.textContent, 10)) {
         qtyElem.textContent = newQty;
-        itemToAdd.q -= 1;
+        useProductData.updateProductStock(itemToAdd.id, -1);
       } else {
         alert("재고가 부족합니다.");
       }
@@ -1634,7 +1734,7 @@ addToCartButton.addEventListener("click", function () {
       // DOM 요소 가져오기 (useDOMManager 사용)
       const cartDisplayElement = useDOMManager.getElement("cartDisplay");
       cartDisplayElement.appendChild(newItem);
-      itemToAdd.q -= 1;
+      useProductData.updateProductStock(itemToAdd.id, -1);
     }
     updateCartDisplay();
 
@@ -1664,9 +1764,9 @@ cartDisplayElement.addEventListener("click", function (event) {
     if (changeResult.isValid) {
       if (changeResult.action === "UPDATE_QUANTITY") {
         qtyElem.textContent = changeResult.newQuantity;
-        prod.q += changeResult.stockChange;
+        useProductData.updateProductStock(prod.id, changeResult.stockChange);
       } else if (changeResult.action === "REMOVE_ITEM") {
-        prod.q += changeResult.stockChange;
+        useProductData.updateProductStock(prod.id, changeResult.stockChange);
         itemElem.remove();
       }
     } else {
@@ -1675,7 +1775,7 @@ cartDisplayElement.addEventListener("click", function (event) {
   } else if (eventInfo.actionType === "REMOVE_ITEM") {
     const qtyElem = itemElem.querySelector(".quantity-number");
     const remQty = parseInt(qtyElem.textContent, 10);
-    prod.q += remQty;
+    useProductData.updateProductStock(prod.id, remQty);
     itemElem.remove();
   }
 
