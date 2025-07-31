@@ -88,7 +88,7 @@ const POINTS_RULES = {
  * @param {Date} date
  * @returns {boolean}
  */
-const isSpecialDiscountDay = (date = new Date()) => {
+const isSpecialDiscountDay = (date: Date = new Date()): boolean => {
   return DISCOUNT_RULES.SPECIAL_DISCOUNT_DAYS.includes(date.getDay());
 };
 
@@ -97,7 +97,7 @@ const isSpecialDiscountDay = (date = new Date()) => {
  * @param {Date} date
  * @returns {boolean}
  */
-const isSpecialPointsDay = (date = new Date()) => {
+const isSpecialPointsDay = (date: Date = new Date()): boolean => {
   return POINTS_RULES.SPECIAL_POINTS_DAYS.includes(date.getDay());
 };
 
@@ -106,7 +106,7 @@ const isSpecialPointsDay = (date = new Date()) => {
  * @param {number} dayIndex
  * @returns {string} 요일 이름
  */
-const getKoreanDayName = (dayIndex) => {
+const getKoreanDayName = (dayIndex: number): string => {
   if (dayIndex === 0) return "일요일";
   if (dayIndex === 1) return "월요일";
   if (dayIndex === 2) return "화요일";
@@ -122,6 +122,69 @@ const SALE_INTERVALS = {
   RECOMMENDATION_INTERVAL: 60000,
   LIGHTNING_SALE_INITIAL_DELAY: 10000,
 };
+
+interface IProduct {
+  id: string;
+  name: string;
+  val: number;
+  originalVal: number;
+  q: number;
+  onSale: boolean;
+  suggestSale: boolean;
+}
+
+interface ICartItem {
+  name: string;
+  quantity: number;
+  itemTotal: number;
+}
+
+interface IItemDiscount {
+  name: string;
+  discount: number;
+}
+
+interface IDiscountData {
+  hasDiscount: boolean;
+  savedAmount: number;
+  discountPercentage: string;
+  formattedSavedAmount: string;
+}
+
+interface ICartCalculation {
+  subtotal: number;
+  itemCount: number;
+  itemDiscounts: IItemDiscount[];
+  totalAmount: number;
+  discountRate: number;
+  originalTotal: number;
+  isSpecialDiscount: boolean;
+}
+
+interface IProductSaleStatus {
+  val?: number;
+  onSale?: boolean;
+  suggestSale?: boolean;
+}
+
+interface IBonusPointsResult {
+  totalPoints: number;
+  details: string[];
+  breakdown: {
+    base: number;
+    specialDay: any;
+    combo: any;
+    quantity: any;
+  };
+}
+
+interface ICartItemData {
+  itemIndex: number;
+  priceHTML: string;
+  nameText: string;
+  priceClassName: string;
+  isDiscounted: boolean;
+}
 
 const useProductData = {
   products: [
@@ -176,7 +239,7 @@ const useProductData = {
    * 상품 목록 반환
    * @returns {Array} 상품 목록 배열
    */
-  getProducts() {
+  getProducts(): IProduct[] {
     return [...this.products];
   },
 
@@ -184,7 +247,7 @@ const useProductData = {
    * 총 재고 계산
    * @returns {number} 총 재고 수량
    */
-  getTotalStock() {
+  getTotalStock(): number {
     return this.products.reduce((total, product) => total + product.q);
   },
 
@@ -193,7 +256,7 @@ const useProductData = {
    * @param {string} id - 상품 ID
    * @returns {Object|null} 찾은 상품 객체 또는 null
    */
-  findProductById(id) {
+  findProductById(id: string): IProduct | null {
     return this.products.find((product) => product.id === id) || null;
   },
 
@@ -203,7 +266,7 @@ const useProductData = {
    * @param {number} stockChange - 재고 변경량 (음수면 감소, 양수면 증가)
    * @returns {boolean} 업데이트 성공 여부
    */
-  updateProductStock(id, stockChange) {
+  updateProductStock(id: string, stockChange: number): boolean {
     const productIndex = this.products.findIndex((product) => product.id === id);
     if (productIndex === -1) {
       return false;
@@ -230,7 +293,7 @@ const useProductData = {
    * @param {number} newPrice - 새로운 가격
    * @returns {boolean} 업데이트 성공 여부
    */
-  updateProductPrice(id, newPrice) {
+  updateProductPrice(id: string, newPrice: number): boolean {
     const productIndex = this.products.findIndex((product) => product.id === id);
     if (productIndex === -1) {
       return false;
@@ -254,7 +317,7 @@ const useProductData = {
    * @param {boolean} [saleUpdates.suggestSale] - 추천세일 상태
    * @returns {boolean} 업데이트 성공 여부
    */
-  updateProductSaleStatus(id, saleUpdates) {
+  updateProductSaleStatus(id: string, saleUpdates: { onSale: boolean; suggestSale: boolean }): boolean {
     const productIndex = this.products.findIndex((product) => product.id === id);
     if (productIndex === -1) {
       return false;
@@ -276,7 +339,7 @@ const useProductData = {
    * @param {number} discountRate - 할인율 (백분율)
    * @returns {boolean} 업데이트 성공 여부
    */
-  applyRecommendationDiscount(id, discountRate) {
+  applyRecommendationDiscount(id: string, discountRate: number): boolean {
     const productIndex = this.products.findIndex((product) => product.id === id);
     if (productIndex === -1) {
       return false;
@@ -300,7 +363,7 @@ const useStockManager = {
    * 재고 경고 메시지 생성
    * @returns {string} 재고 경고 메시지
    */
-  generateStockWarningMessage() {
+  generateStockWarningMessage(): string {
     const products = useProductData.getProducts();
     let warningMsg = "";
 
@@ -372,10 +435,10 @@ const useCartManager = {
    * @param {HTMLCollection} cartItems - 장바구니 DOM 아이템들
    * @returns {Object} 계산 결과 {subtotal, itemCount, itemDiscounts}
    */
-  calculateCartTotals(cartItems) {
+  calculateCartTotals(cartItems: HTMLCollection) {
     let subtotal = 0;
     let itemCount = 0;
-    const itemDiscounts = [];
+    const itemDiscounts: IItemDiscount[] = [];
 
     for (let i = 0; i < cartItems.length; i += 1) {
       const curItem = useProductData.findProductById(cartItems[i].id);
@@ -536,16 +599,17 @@ const useBonusPointsManager = {
    * @param {HTMLCollection} cartItems - 장바구니 DOM 아이템들
    * @returns {Object} {bonusPoints, details}
    */
-  calculateComboBonus(cartItems) {
+  calculateComboBonus(cartItems: HTMLCollection) {
     let bonusPoints = 0;
-    const details = [];
+    const details: string[] = [];
 
     let hasKeyboard = false;
     let hasMouse = false;
     let hasMonitorArm = false;
 
     Array.from(cartItems).forEach((node) => {
-      const product = useProductData.findProductById(node.id);
+      const element = node as HTMLElement;
+      const product = useProductData.findProductById(element.id);
       if (product) {
         if (product.id === PRODUCT_IDS.KEYBOARD) {
           hasKeyboard = true;
@@ -606,8 +670,8 @@ const useBonusPointsManager = {
    * @param {HTMLCollection} cartItems - 장바구니 DOM 아이템들
    * @returns {Object} 계산 결과 및 상세 정보
    */
-  calculateAndUpdateBonusPoints(totalAmount, totalItemCount, cartItems) {
-    const details = [];
+  calculateAndUpdateBonusPoints(totalAmount: number, totalItemCount: number, cartItems: HTMLCollection) {
+    const details: string[] = [];
 
     const basePoints = this.calculateBasePoints(totalAmount);
 
@@ -646,25 +710,28 @@ const useBonusPointsManager = {
  * 장바구니 아이템들의 할인 표시 스타일 업데이트
  * @param {HTMLCollection} cartItems - 장바구니 DOM 아이템들
  */
-function updateCartItemStyles(cartItems) {
+function updateCartItemStyles(cartItems: HTMLCollection): void {
   for (let i = 0; i < cartItems.length; i += 1) {
-    const curItem = useProductData.findProductById(cartItems[i].id);
+    const cartItem = cartItems[i] as HTMLElement;
+    const curItem = useProductData.findProductById(cartItem.id);
 
     if (curItem) {
-      const qtyElem = cartItems[i].querySelector(".quantity-number");
-      const q = parseInt(qtyElem.textContent, 10);
-      const itemDiv = cartItems[i];
-      const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
+      const qtyElem = cartItem.querySelector(".quantity-number") as HTMLElement;
+      if (qtyElem?.textContent) {
+        const q = parseInt(qtyElem.textContent, 10);
+        const itemDiv = cartItem;
+        const priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
 
-      priceElems.forEach(function (elem) {
-        if (elem.classList.contains("text-lg")) {
-          const newFontWeight = q >= DISCOUNT_RULES.ITEM_DISCOUNT_THRESHOLD ? "bold" : "normal";
-          if (elem.style.fontWeight !== newFontWeight) {
-            const targetElement = elem;
-            targetElement.style.fontWeight = newFontWeight;
+        priceElems.forEach(function (elem) {
+          if (elem.classList.contains("text-lg")) {
+            const newFontWeight = q >= DISCOUNT_RULES.ITEM_DISCOUNT_THRESHOLD ? "bold" : "normal";
+            const targetElement = elem as HTMLElement;
+            if (targetElement.style.fontWeight !== newFontWeight) {
+              targetElement.style.fontWeight = newFontWeight;
+            }
           }
-        }
-      });
+        });
+      }
     }
   }
 }
@@ -674,13 +741,15 @@ function updateCartItemStyles(cartItems) {
  * @param {boolean} isSpecialDiscount - 특별 할인 여부
  * @param {number} totalAmount - 총 금액
  */
-function updateSpecialDiscountDisplay(isSpecialDiscount, totalAmount) {
+function updateSpecialDiscountDisplay(isSpecialDiscount: boolean, totalAmount: number): void {
   const tuesdaySpecial = document.getElementById("tuesday-special");
 
-  if (isSpecialDiscount && totalAmount > 0) {
-    tuesdaySpecial.classList.remove("hidden");
-  } else {
-    tuesdaySpecial.classList.add("hidden");
+  if (tuesdaySpecial) {
+    if (isSpecialDiscount && totalAmount > 0) {
+      tuesdaySpecial.classList.remove("hidden");
+    } else {
+      tuesdaySpecial.classList.add("hidden");
+    }
   }
 }
 
@@ -688,11 +757,12 @@ function updateSpecialDiscountDisplay(isSpecialDiscount, totalAmount) {
  * 상품 개수 표시 업데이트
  * @param {number} itemCount - 총 상품 개수
  */
-function updateItemCountDisplay(itemCount) {
+function updateItemCountDisplay(itemCount: number): void {
   const itemCountElement = document.getElementById("item-count");
 
-  if (itemCountElement) {
-    const previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || [0], 10);
+  if (itemCountElement && itemCountElement.textContent) {
+    const match = itemCountElement.textContent.match(/\d+/);
+    const previousCount = parseInt(match ? match[0] : "0", 10);
     itemCountElement.textContent = `🛍️ ${itemCount} items in cart`;
 
     if (previousCount !== itemCount) {
@@ -711,20 +781,30 @@ function updateItemCountDisplay(itemCount) {
  * @param {number} totalAmount - 총 금액
  * @returns {Object} 주문 요약 데이터
  */
-function calculateOrderSummaryData(cartItems, subtotal, itemCount, itemDiscounts, isSpecialDiscount, totalAmount) {
-  const items = [];
+function calculateOrderSummaryData(
+  cartItems: HTMLCollection,
+  subtotal: number,
+  itemCount: number,
+  itemDiscounts: IItemDiscount[],
+  isSpecialDiscount: boolean,
+  totalAmount: number,
+) {
+  const items: ICartItem[] = [];
   for (let i = 0; i < cartItems.length; i += 1) {
-    const curItem = useProductData.findProductById(cartItems[i].id);
+    const cartItem = cartItems[i] as HTMLElement;
+    const curItem = useProductData.findProductById(cartItem.id);
     if (curItem) {
-      const qtyElem = cartItems[i].querySelector(".quantity-number");
-      const quantity = parseInt(qtyElem.textContent, 10);
-      const itemTotal = curItem.val * quantity;
+      const qtyElem = cartItem.querySelector(".quantity-number") as HTMLElement;
+      if (qtyElem?.textContent) {
+        const quantity = parseInt(qtyElem.textContent, 10);
+        const itemTotal = curItem.val * quantity;
 
-      items.push({
-        name: curItem.name,
-        quantity,
-        itemTotal,
-      });
+        items.push({
+          name: curItem.name,
+          quantity,
+          itemTotal,
+        });
+      }
     }
   }
 
@@ -818,8 +898,10 @@ const OrderSummaryRenderer = {
    * 주문 요약 렌더링
    * @param {Object} summaryData - 주문 요약 데이터
    */
-  render(summaryData) {
+  render(summaryData: any): void {
     const summaryDetails = document.getElementById("summary-details");
+    if (!summaryDetails) return;
+
     summaryDetails.innerHTML = "";
 
     if (!summaryData.shouldRender) {
