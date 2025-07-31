@@ -24,7 +24,7 @@ export const initialProducts = [
     id: PRODUCT_ONE,
     name: '버그 없애는 키보드',
     discountValue: 10000,
-    originalValue: 10000,
+    originalVal: 10000,
     quantity: 50,
     onSale: false,
     suggestSale: false,
