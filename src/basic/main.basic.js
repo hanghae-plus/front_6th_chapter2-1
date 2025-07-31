@@ -7,6 +7,7 @@ import { PRODUCT_LIST } from './data/product.data.js';
 import { MIN_QUANTITY_FOR_DISCOUNT } from './data/quantity.data.js';
 import { useDiscount, useOrderSummary, usePoint, useStock } from './hooks/index.js';
 import {
+  getCartItemsArray,
   hasValidProduct,
   isExistingCartItem,
   isQuantityChangeButton,
@@ -338,9 +339,10 @@ const calculateCartAndUpdateUI = () => {
   updateStockStatusDisplay(cartData.stockStatusMessage);
   updateTuesdaySpecialDisplay(cartData.isTuesday);
 
-  // 할인 시각적 표시 업데이트
+  // 할인 시각적 표시 업데이트 (공통 함수 사용)
   if (cartItemsContainer) {
-    [...cartItemsContainer.children].forEach(cartItem => {
+    const cartItems = getCartItemsArray(cartItemsContainer);
+    cartItems.forEach(cartItem => {
       const quantity = parseQuantityFromElement(cartItem.querySelector('.quantity-number'));
       updateCartItemVisualDiscount(cartItem, quantity);
     });
@@ -354,7 +356,8 @@ const updatePricesInCart = () => {
   const cartItemsContainer = domManager.getElement('cartItemsContainer');
   if (!cartItemsContainer) return;
 
-  const cartItems = [...cartItemsContainer.children];
+  // 공통 함수 사용
+  const cartItems = getCartItemsArray(cartItemsContainer);
 
   // 각 장바구니 아이템의 가격 및 이름 업데이트
   cartItems.forEach(cartItem => {

@@ -12,6 +12,7 @@ import {
   MIN_QUANTITY_FOR_POINT_BONUS_TIER2,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER3,
 } from '../data/quantity.data.js';
+import { getCartItemsArray } from '../utils/cart.util.js';
 import { calculateBasePoints } from '../utils/point.util.js';
 import { useDiscount } from './useDiscount.js';
 import { useOrderSummary } from './useOrderSummary.js';
@@ -36,9 +37,9 @@ export const usePoint = cartItemsContainer => {
   // 기본 포인트 계산 (0.1%)
   const defaultPoint = calculateBasePoints(totalPrice);
 
-  // 상품 세트 확인
+  // 상품 세트 확인 (공통 함수 사용)
   const checkProductSet = () => {
-    const cartItems = [...cartItemsContainer.children];
+    const cartItems = getCartItemsArray(cartItemsContainer);
     const productIds = cartItems.map(item => item.id);
 
     return {

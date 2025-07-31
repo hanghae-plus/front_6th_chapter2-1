@@ -1,8 +1,7 @@
 import { DISCOUNT_RATE_TUESDAY } from '../data/discount.data.js';
 import { PRODUCT_LIST } from '../data/product.data.js';
-import { parseQuantityFromElement } from '../utils/cart.util.js';
+import { getValidCartItemsInfo } from '../utils/cart.util.js';
 import { calculateProductDiscount } from '../utils/discount.util.js';
-import { findProductById } from '../utils/product.util.js';
 import { useDiscount } from './useDiscount.js';
 
 /**
@@ -17,20 +16,18 @@ export const useOrderSummary = cartItemsContainer => {
       totalSavedAmount: 0,
       orderList: [],
       itemDiscounts: [],
+      originalTotalPrice: 0,
     };
   }
 
-  const { isBulkDiscount, isTuesday, basicDiscountedProducts } = useDiscount(cartItemsContainer);
-  const cartItems = [...cartItemsContainer.children];
+  const { isBulkDiscount, isTuesday } = useDiscount(cartItemsContainer);
+
+  // 유효한 장바구니 아이템 정보들을 한 번에 추출 (중복 제거)
+  const cartItemsInfo = getValidCartItemsInfo(cartItemsContainer, PRODUCT_LIST);
 
   // 원가 총액 계산
-  const originalTotalPrice = cartItems.reduce((acc, cartItem) => {
-    const product = findProductById(cartItem.id, PRODUCT_LIST);
-    const quantityElement = cartItem.querySelector('.quantity-number');
-    const quantity = parseQuantityFromElement(quantityElement);
-
-    if (!product) return acc;
-    return acc + product.val * quantity;
+  const originalTotalPrice = cartItemsInfo.reduce((acc, info) => {
+    return acc + info.itemTotalPrice;
   }, 0);
 
   // 소계 (개별 할인 전 가격)
@@ -38,17 +35,9 @@ export const useOrderSummary = cartItemsContainer => {
 
   // 개별 할인이 적용된 가격 계산
   const calculateIndividualDiscountedPrice = () => {
-    return cartItems.reduce((acc, cartItem) => {
-      const product = findProductById(cartItem.id, PRODUCT_LIST);
-      const quantityElement = cartItem.querySelector('.quantity-number');
-      const quantity = parseQuantityFromElement(quantityElement);
-
-      if (!product) return acc;
-
-      const discountRate = calculateProductDiscount(product.id, quantity);
-      const itemTotalPrice = product.val * quantity;
-      const finalPrice = itemTotalPrice * (1 - discountRate);
-
+    return cartItemsInfo.reduce((acc, info) => {
+      const discountRate = calculateProductDiscount(info.product.id, info.quantity);
+      const finalPrice = info.itemTotalPrice * (1 - discountRate);
       return acc + finalPrice;
     }, 0);
   };
@@ -74,38 +63,22 @@ export const useOrderSummary = cartItemsContainer => {
   // 총 절약 금액
   const totalSavedAmount = originalTotalPrice - totalPrice;
 
-  // 주문 목록 생성
-  const orderList = cartItems
-    .map(cartItem => {
-      const product = findProductById(cartItem.id, PRODUCT_LIST);
-      const quantityElement = cartItem.querySelector('.quantity-number');
-      const quantity = parseQuantityFromElement(quantityElement);
+  // 주문 목록 생성 (중복 제거)
+  const orderList = cartItemsInfo.map(info => ({
+    id: info.product.id,
+    name: info.product.name,
+    quantity: info.quantity,
+    totalPrice: info.itemTotalPrice,
+  }));
 
-      if (!product) return null;
-
-      return {
-        id: product.id,
-        name: product.name,
-        quantity,
-        totalPrice: product.val * quantity,
-      };
-    })
-    .filter(item => item !== null);
-
-  // 개별 상품 할인 정보
-  const itemDiscounts = cartItems
-    .map(cartItem => {
-      const product = findProductById(cartItem.id, PRODUCT_LIST);
-      const quantityElement = cartItem.querySelector('.quantity-number');
-      const quantity = parseQuantityFromElement(quantityElement);
-
-      if (!product) return null;
-
-      const discountRate = calculateProductDiscount(product.id, quantity);
+  // 개별 상품 할인 정보 (중복 제거)
+  const itemDiscounts = cartItemsInfo
+    .map(info => {
+      const discountRate = calculateProductDiscount(info.product.id, info.quantity);
 
       if (discountRate > 0 && !isBulkDiscount) {
         return {
-          name: product.name,
+          name: info.product.name,
           discount: discountRate * 100,
         };
       }
