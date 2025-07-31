@@ -1,7 +1,9 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { CartProvider, useCart } from "./context/CartContext";
+import { ToastProvider, useToast } from "./context/ToastContext";
 import Layout from "./components/Layout";
+import { ToastContainer } from "./components/ToastContainer";
 import { useSpecialEvents } from "./hooks/useSpecialEvents";
 import { INITIAL_PRODUCTS } from "./constants";
 import { Product } from "./types";
@@ -9,6 +11,7 @@ import { Product } from "./types";
 const App = () => {
   const { state, updateProducts } = useCart();
   const { products } = state;
+  const { messages, removeToast } = useToast();
 
   // 초기 상품 데이터 설정
   useEffect(() => {
@@ -27,7 +30,12 @@ const App = () => {
     selectedProductId: state.selectedProductId,
   });
 
-  return <Layout />;
+  return (
+    <>
+      <Layout />
+      <ToastContainer messages={messages} onRemove={removeToast} />
+    </>
+  );
 };
 
 // DOM에 렌더링
@@ -35,8 +43,10 @@ const container = document.getElementById("app");
 if (container) {
   const root = createRoot(container);
   root.render(
-    <CartProvider>
-      <App />
-    </CartProvider>
+    <ToastProvider>
+      <CartProvider>
+        <App />
+      </CartProvider>
+    </ToastProvider>
   );
 }
