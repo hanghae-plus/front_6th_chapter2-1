@@ -34,9 +34,7 @@ let lastSel = null;
 let productSelector = ProductSelector();
 
 let addBtn = AddButton({
-  onClick: ({ itemToAdd }) => handleAddToCart({ itemToAdd }),
-  getItemToAdd: () =>
-    prodList.find((item) => item.id === productSelector.value),
+  onClick: () => handleAddToCart(productSelector.value),
 });
 let stockInfo = StockInfoText();
 let cartItemBox = CartItemBox({ onClick: (e) => handleCartItemClick(e) });
@@ -321,7 +319,8 @@ const doUpdatePricesInCart = () => {
 
 main();
 
-const handleAddToCart = ({ itemToAdd }) => {
+const handleAddToCart = (selectedId) => {
+  const itemToAdd = prodList.find((item) => item.id === selectedId);
   if (!itemToAdd || itemToAdd.quantity === 0) {
     return;
   }
