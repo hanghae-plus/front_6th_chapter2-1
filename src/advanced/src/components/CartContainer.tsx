@@ -1,3 +1,4 @@
+import { useGlobalState } from '../providers/useGlobal';
 import type { CartProduct, Product } from '../type';
 import CartActionSection from './CartAcionSection';
 import CartProductSection from './CartProductSection';
@@ -9,7 +10,9 @@ interface CartContainerProps {
 
 // = leftColumn
 // = CartActionSection + CartProductSection
-export const CartContainer = ({ productList, cartList }: CartContainerProps) => {
+export const CartContainer = () => {
+  const { productList, cartList } = useGlobalState();
+
   return (
     <div className="bg-white border border-gray-200 p-8 overflow-y-auto">
       <CartActionSection productList={productList} />

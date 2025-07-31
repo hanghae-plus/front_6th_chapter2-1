@@ -3,11 +3,12 @@ import type { Product } from '../type';
 interface CartProductItemProps {
   product: Product;
   count: number;
-  onChangeQuantity?: (productId: string, delta: number) => void;
-  onRemove?: (productId: string) => void;
+  onIncrease: () => void;
+  onDecrease: () => void;
+  onRemove: () => void;
 }
 
-export const CartProductItem = ({ product, count, onChangeQuantity, onRemove }: CartProductItemProps) => {
+export const CartProductItem = ({ product, count, onIncrease, onDecrease, onRemove }: CartProductItemProps) => {
   const { id, name, originalPrice, changedPrice, onSale, suggestSale } = product;
 
   const getPriceDisplay = () => {
@@ -45,14 +46,14 @@ export const CartProductItem = ({ product, count, onChangeQuantity, onRemove }: 
         <div className="flex items-center gap-4">
           <button
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-            onClick={() => onChangeQuantity?.(id, -1)}
+            onClick={() => onDecrease()}
           >
             −
           </button>
           <span className="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">{count}</span>
           <button
             className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
-            onClick={() => onChangeQuantity?.(id, 1)}
+            onClick={() => onIncrease()}
           >
             +
           </button>
@@ -65,7 +66,7 @@ export const CartProductItem = ({ product, count, onChangeQuantity, onRemove }: 
         </div>
         <button
           className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
-          onClick={() => onRemove?.(id)}
+          onClick={() => onRemove()}
         >
           Remove
         </button>

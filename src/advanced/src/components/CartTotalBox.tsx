@@ -1,10 +1,7 @@
-import type { AppState } from '../type';
+import { useGlobalState } from '../providers/useGlobal';
 
-interface CartTotalBoxProps {
-  appState: AppState;
-}
-
-export const CartTotalBox = ({ appState }: CartTotalBoxProps) => {
+export const CartTotalBox = () => {
+  const { appState } = useGlobalState();
   const { totalAfterDiscount, totalPoints, pointsDetail } = appState;
 
   return (
@@ -13,8 +10,9 @@ export const CartTotalBox = ({ appState }: CartTotalBoxProps) => {
         <span className="text-sm uppercase tracking-wider">Total</span>
         <div className="text-2xl tracking-tight">₩{Math.round(totalAfterDiscount).toLocaleString()}</div>
       </div>
+
       {totalPoints > 0 && (
-        <div>
+        <div className="text-xs text-blue-400 mt-2 text-right">
           <div>
             적립 포인트: <span className="font-bold">{totalPoints}p</span>
           </div>

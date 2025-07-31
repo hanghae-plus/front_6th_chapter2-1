@@ -10,7 +10,7 @@ export const ProductSelector = ({ productOptions, ...props }: ProductSelectorPro
   return (
     <select className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3" {...props}>
       {productOptions.map((product) => (
-        <ProductOption product={product} />
+        <ProductOption key={product.name} product={product} value={product.id} />
       ))}
     </select>
   );

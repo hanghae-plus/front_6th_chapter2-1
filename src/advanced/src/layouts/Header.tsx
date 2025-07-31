@@ -1,11 +1,14 @@
-import type { AppState } from '../type';
+import { useGlobalState } from '../providers/useGlobal';
+// import type { AppState } from '../type';
 
-interface HeaderProps {
-  appState: AppState;
-}
+// interface HeaderProps {
+//   appState: AppState;
+// }
 
-export const Header = ({ appState }: HeaderProps) => {
+export const Header = () => {
+  const { appState } = useGlobalState();
   const { totalProductCount } = appState;
+
   return (
     <div className="mb-8">
       <h1 className="text-xs font-medium   tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>

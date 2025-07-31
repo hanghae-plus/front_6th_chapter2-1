@@ -43,7 +43,7 @@ export const ProductOption = ({ product, ...props }: ProductOptionProps) => {
   };
 
   return (
-    <option className={getOptionStyle()} {...props}>
+    <option className={getOptionStyle()} disabled={product.quantity === 0} {...props}>
       {getOptionText()}
     </option>
   );
