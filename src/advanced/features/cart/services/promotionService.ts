@@ -8,25 +8,27 @@ import { applyFlashSale, applySuggestSale } from './promotionPriceService.ts';
 import { BUSINESS_CONSTANTS } from '@/advanced/shared/constants/business.ts';
 
 interface PromotionCallbacks {
-  onFlashSale: (product: Product) => void;
-  onSuggestSale: (product: Product) => void;
+  onPromotionApplied: (type: PromotionType, product: Product) => void;
   updateProductList: () => void;
 }
 
 /**
- * 랜덤 지연 시간 생성 (순수 함수)
+ * 유틸리티 함수들
  */
-const generateRandomDelay = (maxDelay: number): number => {
-  return Math.random() * maxDelay;
-};
+const PromotionUtils = {
+  /**
+   * 랜덤 지연 시간 생성
+   */
+  generateRandomDelay: (maxDelay: number): number => Math.random() * maxDelay,
 
-/**
- * 랜덤 상품 선택 (순수 함수)
- */
-const selectRandomProduct = (products: Product[]): Product => {
-  const luckyIdx = Math.floor(Math.random() * products.length);
-  return products[luckyIdx];
-};
+  /**
+   * 랜덤 상품 선택
+   */
+  selectRandomProduct: (products: Product[]): Product => {
+    const randomIndex = Math.floor(Math.random() * products.length);
+    return products[randomIndex];
+  },
+} as const;
 
 /**
  * 추천 상품 찾기 (순수 함수)
@@ -44,43 +46,46 @@ const findRecommendation = (
 };
 
 /**
- * 번개세일 알림 표시
+ * 프로모션 알림 타입
  */
-const showFlashSaleAlert = (product: Product, discountRate: number): void => {
-  const discountPercent = discountRate * 100;
-  alert(`⚡번개세일! ${product.name}이(가) ${discountPercent}% 할인 중입니다!`);
-};
+type PromotionType = 'flash' | 'recommendation';
 
 /**
- * 추천세일 알림 표시
+ * 프로모션 알림 표시 (통합)
  */
-const showRecommendationAlert = (
+const showPromotionAlert = (
+  type: PromotionType,
   product: Product,
   discountRate: number,
 ): void => {
   const discountPercent = discountRate * 100;
-  alert(
-    `💝 ${product.name}은(는) 어떠세요? 지금 구매하시면 ${discountPercent}% 추가 할인!`,
-  );
+
+  const messages = {
+    flash: `⚡번개세일! ${product.name}이(가) ${discountPercent}% 할인 중입니다!`,
+    recommendation: `💝 ${product.name}은(는) 어떠세요? 지금 구매하시면 ${discountPercent}% 추가 할인!`,
+  };
+
+  alert(messages[type]);
 };
 
 /**
- * 번게세일 타이머 설정
+ * 프로모션 타이머 설정 (통합)
  */
-export const setupFlashSaleTimer = (
+export const setupPromotionTimers = (
   getProducts: () => Product[],
+  getLastSelected: () => string | null,
+  getCartItemCount: () => number,
   callbacks: PromotionCallbacks,
 ): void => {
-  const lightningDelay = generateRandomDelay(
+  // 번개세일 타이머
+  const flashSaleDelay = PromotionUtils.generateRandomDelay(
     BUSINESS_CONSTANTS.TIMERS.RANDOM_DELAY,
   );
-
   setTimeout(() => {
     setInterval(() => {
       const products = getProducts();
-      const luckyItem = selectRandomProduct(products);
+      const luckyItem = PromotionUtils.selectRandomProduct(products);
 
-      // 번개세일 적용
       const saleApplied = applyFlashSale(
         luckyItem.id,
         BUSINESS_CONSTANTS.DISCOUNT.FLASH_SALE_DISCOUNT_RATE,
@@ -88,34 +93,24 @@ export const setupFlashSaleTimer = (
       );
 
       if (saleApplied) {
-        showFlashSaleAlert(
+        showPromotionAlert(
+          'flash',
           luckyItem,
           BUSINESS_CONSTANTS.DISCOUNT.FLASH_SALE_DISCOUNT_RATE,
         );
-        callbacks.onFlashSale(luckyItem);
+        callbacks.onPromotionApplied('flash', luckyItem);
         callbacks.updateProductList();
       }
     }, BUSINESS_CONSTANTS.TIMERS.FLASH_SALE_INTERVAL);
-  }, lightningDelay);
-};
+  }, flashSaleDelay);
 
-/**
- * 추천세일 타이머 설정
- */
-export const setupRecommendationTimer = (
-  getProducts: () => Product[],
-  getLastSelected: () => string | null,
-  getCartItemCount: () => number,
-  callbacks: PromotionCallbacks,
-): void => {
-  const initialDelay = generateRandomDelay(BUSINESS_CONSTANTS.TIMERS.MAX_DELAY);
-
+  // 추천세일 타이머
+  const recommendationDelay = PromotionUtils.generateRandomDelay(
+    BUSINESS_CONSTANTS.TIMERS.MAX_DELAY,
+  );
   setTimeout(() => {
     setInterval(() => {
-      // 장바구니가 비어있으면 패스
-      if (getCartItemCount() === 0) {
-        return;
-      }
+      if (getCartItemCount() === 0) return;
 
       const lastSelectedProduct = getLastSelected();
       if (!lastSelectedProduct) return;
@@ -124,7 +119,6 @@ export const setupRecommendationTimer = (
       const suggest = findRecommendation(products, lastSelectedProduct);
 
       if (suggest) {
-        // 추천세일 적용
         const saleApplied = applySuggestSale(
           suggest.id,
           BUSINESS_CONSTANTS.DISCOUNT.SUGGEST_DISCOUNT_RATE,
@@ -132,14 +126,15 @@ export const setupRecommendationTimer = (
         );
 
         if (saleApplied) {
-          showRecommendationAlert(
+          showPromotionAlert(
+            'recommendation',
             suggest,
             BUSINESS_CONSTANTS.DISCOUNT.SUGGEST_DISCOUNT_RATE,
           );
-          callbacks.onSuggestSale(suggest);
+          callbacks.onPromotionApplied('recommendation', suggest);
           callbacks.updateProductList();
         }
       }
     }, BUSINESS_CONSTANTS.TIMERS.SUGGEST_SALE_INTERVAL);
-  }, initialDelay);
+  }, recommendationDelay);
 };

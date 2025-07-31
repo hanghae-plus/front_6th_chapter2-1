@@ -18,10 +18,7 @@ import {
   getTotalStock,
   isLowTotalStock,
 } from './features/product/utils/productUtils.ts';
-import {
-  setupFlashSaleTimer,
-  setupRecommendationTimer,
-} from './features/cart/services/promotionService.ts';
+import { setupPromotionTimers } from './features/cart/services/promotionService.ts';
 import { calculateCartTotals } from './features/cart/services/cartCalculator.ts';
 import { BUSINESS_CONSTANTS } from './shared/constants/business.ts';
 
@@ -75,10 +72,10 @@ function App() {
 
   useEffect(() => {
     const promotionCallbacks = {
-      onFlashSale: (_product: any) => {
-        setProducts(prevProducts => prevProducts.map(p => ({ ...p })));
-      },
-      onSuggestSale: (_product: any) => {
+      onPromotionApplied: (
+        _type: 'flash' | 'recommendation',
+        _product: any,
+      ) => {
         setProducts(prevProducts => prevProducts.map(p => ({ ...p })));
       },
       updateProductList: () => {
@@ -86,9 +83,7 @@ function App() {
       },
     };
 
-    setupFlashSaleTimer(() => products, promotionCallbacks);
-
-    setupRecommendationTimer(
+    setupPromotionTimers(
       () => products,
       () => lastSelectedProduct,
       () => itemCount,
