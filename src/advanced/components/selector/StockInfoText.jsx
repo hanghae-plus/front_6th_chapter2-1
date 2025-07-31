@@ -1,4 +1,4 @@
-import { getStockInfoMessage } from "../../entity/stock";
+import { getStockInfoMessage } from "../../../basic/entity/stock";
 
 export const StockInfoText = () => {
   return (

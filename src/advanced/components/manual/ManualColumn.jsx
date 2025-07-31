@@ -1,6 +1,10 @@
-export const ManualColumn = () => {
+export const ManualColumn = ({ showManual }) => {
   return (
-    <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300">
+    <div
+      className={`fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform transition-transform duration-300 ${
+        showManual ? "" : "translate-x-full"
+      }`}
+    >
       <button
         className="absolute top-4 right-4 text-gray-500 hover:text-black"
         onClick={() => {

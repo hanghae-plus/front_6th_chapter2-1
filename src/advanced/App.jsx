@@ -1,9 +1,13 @@
+// import { GridContainer } from "./components/GridContainer";
+// import { Header } from "./components/Header";
+import { Manual } from "./components/manual/Manual";
+
 function App() {
   return (
     <>
-      <div>
-        <h1>Hello World</h1>
-      </div>
+      {/* <Header />
+      <GridContainer /> */}
+      <Manual />
     </>
   );
 }
