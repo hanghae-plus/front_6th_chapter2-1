@@ -104,8 +104,8 @@ export class TimerService {
   calculateProductDiscountInfos(products) {
     return products.map(product => ({
       productId: product.id,
-      rate: product.discountRate || discountService.calculateProductDiscountRate(product),
-      status: product.discountStatus || discountService.getProductDiscountStatus(product),
+      rate: product.discountRate || this.discountService.calculateProductDiscountRate(product),
+      status: product.discountStatus || this.discountService.getProductDiscountStatus(product),
     }));
   }
 

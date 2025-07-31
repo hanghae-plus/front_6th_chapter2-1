@@ -235,13 +235,11 @@ export class DiscountService {
 
       return {
         ...product,
-        originalPrice: originalPrice,
+        originalPrice,
         price: product.price, // 현재 할인된 가격
-        discountRate: discountRate,
-        discountStatus: discountStatus,
+        discountRate,
+        discountStatus,
       };
     });
   }
 }
-
-export const discountService = new DiscountService();
