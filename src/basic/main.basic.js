@@ -7,6 +7,7 @@ import ManualColumn from './components/ManualColumn';
 import ManualOverlay from './components/ManualOverlay';
 import ManualToggle from './components/ManualToggle';
 import RightColumn from './components/RightColumn';
+import SaleItem from './components/SaleItem';
 import Selector from './components/Selector';
 import SelectorContainer from './components/SelectorContainer';
 import StockStatus from './components/StockStatus';
@@ -14,11 +15,13 @@ import {
   renderBonusPoints,
   renderCartSummaryDetails,
   renderDiscountInfo,
+  renderDiscountPrices,
   renderLoyaltyPoints,
   renderSelectorOption,
-} from './render';
+  renderTuesdaySpecial,
+} from './utils/render';
 import store from './store';
-import { getStockInfoMessage } from './utils';
+import { checkTuesday, getStockInfoMessage } from './utils';
 import { applyAdditionalDiscounts, getCartSummary } from './utils/cart';
 
 const { productStore } = store;
@@ -33,10 +36,10 @@ const $stockStatus = StockStatus();
 // 장바구니 계산 컨트롤러
 function calcCart() {
   const cartItemList = Array.from($cartItems.children);
+
   const productList = productStore.getProductList();
-  const today = new Date();
-  const isTuesday = today.getDay() === 2;
-  const $tuesdaySpecial = document.getElementById('tuesday-special');
+
+  const isTuesday = checkTuesday();
 
   const { itemCount, subTotal, totalAmount, itemDiscounts } = getCartSummary(
     cartItemList,
@@ -50,16 +53,7 @@ function calcCart() {
     isTuesday,
   });
 
-  // tuesday-special 배너 표시 처리
-  if (isTuesday) {
-    if (finalAmount > 0) {
-      $tuesdaySpecial.classList.remove('hidden');
-    } else {
-      $tuesdaySpecial.classList.add('hidden');
-    }
-  } else {
-    $tuesdaySpecial.classList.add('hidden');
-  }
+  renderTuesdaySpecial(isTuesday, finalAmount);
 
   const $itemCount = document.getElementById('item-count');
   if ($itemCount) $itemCount.textContent = `🛍️ ${itemCount} items in cart`;
@@ -80,30 +74,7 @@ function calcCart() {
 }
 
 function updateDiscountPrices() {
-  Array.from($cartItems.children).forEach((cartItem) => {
-    const itemId = cartItem.id;
-
-    const product = productStore.getProductById(itemId);
-
-    if (!product) return;
-
-    const $productPrice = cartItem.querySelector('.text-lg');
-    const $productName = cartItem.querySelector('h3');
-
-    if (product.onSale && product.suggestSale) {
-      $productPrice.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.value.toLocaleString()}</span>`;
-      $productName.textContent = `⚡💝${product.name}`;
-    } else if (product.onSale) {
-      $productPrice.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.value.toLocaleString()}</span>`;
-      $productName.textContent = `⚡${product.name}`;
-    } else if (product.suggestSale) {
-      $productPrice.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.value.toLocaleString()}</span>`;
-      $productName.textContent = `💝${product.name}`;
-    } else {
-      $productPrice.textContent = `₩${product.value.toLocaleString()}`;
-      $productName.textContent = product.name;
-    }
-  });
+  renderDiscountPrices(productStore);
 
   calcCart();
 }
@@ -178,30 +149,7 @@ function handleClickAddButton() {
       alert('재고가 부족합니다.');
     }
   } else {
-    const $newItem = document.createElement('div');
-
-    $newItem.id = itemToAdd.id;
-    $newItem.className =
-      'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
-    $newItem.innerHTML = `
-      <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-      </div>
-      <div>
-        <h3 class="text-base font-normal mb-1 tracking-tight">${itemToAdd.onSale && itemToAdd.suggestSale ? '⚡💝' : itemToAdd.onSale ? '⚡' : itemToAdd.suggestSale ? '💝' : ''}${itemToAdd.name}</h3>
-        <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-        <p class="text-xs text-black mb-3">${itemToAdd.onSale || itemToAdd.suggestSale ? `<span class="line-through text-gray-400">₩${itemToAdd.originalVal.toLocaleString()}</span> <span class="${itemToAdd.onSale && itemToAdd.suggestSale ? 'text-purple-600' : itemToAdd.onSale ? 'text-red-500' : 'text-blue-500'}">₩${itemToAdd.value.toLocaleString()}</span>` : `₩${itemToAdd.value.toLocaleString()}`}</p>
-        <div class="flex items-center gap-4">
-        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="-1">−</button>
-        <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-        <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${itemToAdd.id}" data-change="1">+</button>
-        </div>
-      </div>
-      <div class="text-right">
-        <div class="text-lg mb-2 tracking-tight tabular-nums">${itemToAdd.onSale || itemToAdd.suggestSale ? `<span class="line-through text-gray-400">₩${itemToAdd.originalVal.toLocaleString()}</span> <span class="${itemToAdd.onSale && itemToAdd.suggestSale ? 'text-purple-600' : itemToAdd.onSale ? 'text-red-500' : 'text-blue-500'}">₩${itemToAdd.value.toLocaleString()}</span>` : `₩${itemToAdd.value.toLocaleString()}`}</div>
-        <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${itemToAdd.id}">Remove</a>
-      </div>
-      `;
+    const $newItem = SaleItem({ ...itemToAdd });
 
     $cartItems.appendChild($newItem);
 
@@ -255,6 +203,7 @@ function handleClickCartItem(event) {
 
 function main() {
   const elements = createElements();
+
   setupEventListeners(elements);
   appendElementsToDOM(elements);
   initializeApp();

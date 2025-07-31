@@ -1,5 +1,4 @@
 const AddButton = () => {
-  // 'ADD TO CART' button element
   const $addButton = document.createElement('button');
   $addButton.id = 'add-to-cart';
   $addButton.innerHTML = 'Add to Cart';

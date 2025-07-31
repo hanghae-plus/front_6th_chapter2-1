@@ -1,6 +1,6 @@
 import Option from '../components/Option';
 import { VOLUME_ORDER_COUNT } from '../constants/enum';
-import { calBonusPoints, getBonusPointsDetail } from '../utils/bonus';
+import { calBonusPoints, getBonusPointsDetail } from './bonus';
 
 // 재고 기준 미달 시 Selector border 색상 변경
 function renderStockLimitWarning(productList, $selector) {
@@ -121,11 +121,12 @@ function renderCartSummaryDetails(
 // 카트 포인트·할인·재고 표시
 function renderLoyaltyPoints(finalAmount) {
   const $loyaltyPoints = document.getElementById('loyalty-points');
-  if ($loyaltyPoints) {
-    const points = Math.floor(finalAmount / 1000);
-    $loyaltyPoints.textContent = `적립 포인트: ${points > 0 ? points : 0}p`;
-    $loyaltyPoints.style.display = 'block';
-  }
+
+  if (!$loyaltyPoints) return;
+
+  const points = Math.floor(finalAmount / 1000);
+  $loyaltyPoints.textContent = `적립 포인트: ${points > 0 ? points : 0}p`;
+  $loyaltyPoints.style.display = 'block';
 }
 
 function renderDiscountInfo(originalTotal, finalAmount, discountRate) {
@@ -146,6 +147,51 @@ function renderDiscountInfo(originalTotal, finalAmount, discountRate) {
   }
 }
 
+function renderTuesdaySpecial(isTuesday, finalAmount) {
+  const $tuesdaySpecial = document.getElementById('tuesday-special');
+
+  if (!$tuesdaySpecial) return;
+
+  if (isTuesday) {
+    if (finalAmount > 0) {
+      $tuesdaySpecial.classList.remove('hidden');
+    } else {
+      $tuesdaySpecial.classList.add('hidden');
+    }
+  } else {
+    $tuesdaySpecial.classList.add('hidden');
+  }
+}
+
+function renderDiscountPrices(productStore) {
+  const $cartItems = document.getElementById('cart-items');
+
+  Array.from($cartItems.children).forEach((cartItem) => {
+    const itemId = cartItem.id;
+
+    const product = productStore.getProductById(itemId);
+
+    if (!product) return;
+
+    const $productPrice = cartItem.querySelector('.text-lg');
+    const $productName = cartItem.querySelector('h3');
+
+    if (product.onSale && product.suggestSale) {
+      $productPrice.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.value.toLocaleString()}</span>`;
+      $productName.textContent = `⚡💝${product.name}`;
+    } else if (product.onSale) {
+      $productPrice.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.value.toLocaleString()}</span>`;
+      $productName.textContent = `⚡${product.name}`;
+    } else if (product.suggestSale) {
+      $productPrice.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.value.toLocaleString()}</span>`;
+      $productName.textContent = `💝${product.name}`;
+    } else {
+      $productPrice.textContent = `₩${product.value.toLocaleString()}`;
+      $productName.textContent = product.name;
+    }
+  });
+}
+
 export {
   renderStockLimitWarning,
   renderSelectorOption,
@@ -153,4 +199,6 @@ export {
   renderCartSummaryDetails,
   renderLoyaltyPoints,
   renderDiscountInfo,
+  renderTuesdaySpecial,
+  renderDiscountPrices,
 };

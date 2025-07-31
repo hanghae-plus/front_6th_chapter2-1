@@ -27,4 +27,9 @@ function getStockInfoMessage(productList) {
   return infoMessage;
 }
 
-export { getStockInfoMessage };
+// 화요일 판별 함수
+function checkTuesday(date = new Date()) {
+  return date.getDay() === 2;
+}
+
+export { getStockInfoMessage, checkTuesday };
