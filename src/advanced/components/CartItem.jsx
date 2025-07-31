@@ -31,16 +31,26 @@ export const CartItem = ({
         </h3>
         <p className="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
         <p className="text-xs text-black mb-3">
-          {onSale || suggestSale
-            ? `<span class="line-through text-gray-400">₩${originalPrice.toLocaleString()}</span> ` +
-              `<span class="${
-                onSale && suggestSale
-                  ? "text-purple-600"
-                  : onSale
-                    ? "text-red-500"
-                    : "text-blue-500"
-              }">₩${price.toLocaleString()}</span>`
-            : `₩${price.toLocaleString()}`}
+          {onSale || suggestSale ? (
+            <>
+              <span className="line-through text-gray-400">
+                ₩{originalPrice.toLocaleString()}
+              </span>
+              <span
+                className={
+                  onSale && suggestSale
+                    ? "text-purple-600"
+                    : onSale
+                      ? "text-red-500"
+                      : "text-blue-500"
+                }
+              >
+                ₩{price.toLocaleString()}
+              </span>
+            </>
+          ) : (
+            `₩${price.toLocaleString()}`
+          )}
         </p>
         <div className="flex items-center gap-4">
           <button
@@ -71,16 +81,26 @@ export const CartItem = ({
             fontWeight: selectedQuantity > 10 ? "bold" : "normal",
           }}
         >
-          {onSale || suggestSale
-            ? `<span class="line-through text-gray-400">₩${originalPrice.toLocaleString()}</span> ` +
-              `<span class="${
-                onSale && suggestSale
-                  ? "text-purple-600"
-                  : onSale
-                    ? "text-red-500"
-                    : "text-blue-500"
-              }">₩${price.toLocaleString()}</span>`
-            : `₩${price.toLocaleString()}`}
+          {onSale || suggestSale ? (
+            <>
+              <span className="line-through text-gray-400">
+                ₩{originalPrice.toLocaleString()}
+              </span>
+              <span
+                className={
+                  onSale && suggestSale
+                    ? "text-purple-600"
+                    : onSale
+                      ? "text-red-500"
+                      : "text-blue-500"
+                }
+              >
+                ₩{price.toLocaleString()}
+              </span>
+            </>
+          ) : (
+            `₩${price.toLocaleString()}`
+          )}
         </div>
         <a
           className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"

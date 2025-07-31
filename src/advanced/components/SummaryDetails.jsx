@@ -27,7 +27,7 @@ export const SummaryDetails = ({
             <span>
               {currentItem.name} x {selectedQuantity}
             </span>
-            <span>₩${itemTotal.toLocaleString()}</span>
+            <span>₩{itemTotal.toLocaleString()}</span>
           </div>
         );
       })}
@@ -35,7 +35,7 @@ export const SummaryDetails = ({
       <div className="border-t border-white/10 my-3"></div>
       <div className="flex justify-between text-sm tracking-wide">
         <span>Subtotal</span>
-        <span>₩${totalOriginalPrice.toLocaleString()}</span>
+        <span>₩{totalOriginalPrice.toLocaleString()}</span>
       </div>
 
       {totalItemCount >= 30 ? (
