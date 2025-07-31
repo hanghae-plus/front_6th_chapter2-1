@@ -24,7 +24,6 @@ export const SelectorContainer = ({
     }
 
     addToCart(selected);
-    setLastSelectedItem(selected.id);
   };
 
   return (

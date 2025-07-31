@@ -1,6 +1,10 @@
 import { useEffect } from "react";
 
-export const useIntervalEffect = (fn, { delay = 0, interval = 30000 }) => {
+export const useIntervalEffect = (
+  fn,
+  { delay = 0, interval = 30000 },
+  deps = []
+) => {
   let intervalId, delayId;
 
   useEffect(() => {
@@ -12,5 +16,5 @@ export const useIntervalEffect = (fn, { delay = 0, interval = 30000 }) => {
       clearTimeout(delayId);
       clearInterval(intervalId);
     };
-  }, []);
+  }, deps);
 };

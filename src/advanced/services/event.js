@@ -2,6 +2,7 @@ export const getLuckySaleProduct = (productList) => {
   const newProductList = [...productList];
   const luckyIndex = Math.floor(Math.random() * productList.length);
   const luckyProduct = productList[luckyIndex];
+  let alreadyLucky = false;
 
   if (luckyProduct.quantity > 0 && !luckyProduct.onSale) {
     newProductList[luckyIndex] = {
@@ -9,11 +10,14 @@ export const getLuckySaleProduct = (productList) => {
       price: Math.round((luckyProduct.originalPrice * 80) / 100),
       onSale: true,
     };
+  } else {
+    alreadyLucky = true;
   }
 
   return {
     luckyProduct,
     productList: newProductList,
+    alreadyLucky,
   };
 };
 

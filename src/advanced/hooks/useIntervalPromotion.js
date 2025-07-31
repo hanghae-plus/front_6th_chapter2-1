@@ -9,11 +9,17 @@ export const useIntervalPromotion = ({
   const randomBaseDelay = Math.random() * 10000;
 
   const luckySaleEvent = () => {
-    const { luckyProduct, productList: newProductList } =
-      getLuckySaleProduct(productList);
+    const {
+      luckyProduct,
+      productList: newProductList,
+      alreadyLucky,
+    } = getLuckySaleProduct(productList);
 
     setProductList(newProductList);
-    alert(`⚡번개세일! ${luckyProduct.name}이(가) 20% 할인 중입니다!`);
+
+    if (!alreadyLucky) {
+      alert(`⚡번개세일! ${luckyProduct.name}이(가) 20% 할인 중입니다!`);
+    }
   };
 
   const suggestSaleEvent = () => {
@@ -32,13 +38,21 @@ export const useIntervalPromotion = ({
     );
   };
 
-  useIntervalEffect(luckySaleEvent, {
-    interval: 30000,
-    delay: randomBaseDelay,
-  });
+  useIntervalEffect(
+    luckySaleEvent,
+    {
+      interval: 30000,
+      delay: randomBaseDelay,
+    },
+    [productList]
+  );
 
-  useIntervalEffect(suggestSaleEvent, {
-    interval: 60000,
-    delay: randomBaseDelay * 2,
-  });
+  useIntervalEffect(
+    suggestSaleEvent,
+    {
+      interval: 60000,
+      delay: randomBaseDelay * 2,
+    },
+    [productList]
+  );
 };

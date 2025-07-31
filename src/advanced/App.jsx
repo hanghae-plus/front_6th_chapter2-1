@@ -55,6 +55,7 @@ function App() {
       selectedCartItem.selectedQuantity++;
     }
     setCartItems([...newCartItems]);
+    setLastSelectedItem(selected);
 
     const newProductList = [...productList];
     const selectedIndex = newProductList.findIndex((x) => x.id === selected.id);
