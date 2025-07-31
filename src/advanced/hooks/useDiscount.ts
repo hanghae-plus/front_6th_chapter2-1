@@ -1,7 +1,5 @@
 import { useCartStore, useProductStore } from '@/advanced/store';
-import { Discount } from '@/advanced/types/discount.type';
 import { getCartTotalCount } from '@/advanced/utils/cart.util';
-import { getBasicDiscountRate } from '@/advanced/utils/discount.util';
 
 export default function useDiscount() {
   const { cartItems } = useCartStore();
@@ -12,23 +10,21 @@ export default function useDiscount() {
   // const isTuesday = new Date().getDay() === 2;
   const isTuesday = true;
 
-  const discountedProducts: Discount[] = cartItems
+  const basicDiscountedProducts: string[] = cartItems
     .map(cartItem => {
+      if (cartItem.quantity < 10) return null;
+
       const product = products.find(product => product.id === cartItem.id);
 
       if (!product) return null;
 
-      return {
-        id: product.id,
-        name: product.name,
-        discountRate: getBasicDiscountRate(cartItem),
-      };
+      return product.id;
     })
     .filter(discount => discount !== null);
 
-  const discountRate = 0;
-
-  const savedAmount = 0;
-
-  return { discountedProducts, isBulkDiscount, isTuesday, discountRate, savedAmount };
+  return {
+    basicDiscountedProducts,
+    isBulkDiscount,
+    isTuesday,
+  };
 }

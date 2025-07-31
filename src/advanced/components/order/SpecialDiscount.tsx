@@ -1,7 +1,11 @@
 import useDiscount from '@/advanced/hooks/useDiscount';
+import { useCartStore } from '@/advanced/store';
 
 export default function SpecialDiscount() {
   const { isTuesday } = useDiscount();
+  const { cartItems } = useCartStore();
+
+  if (cartItems.length === 0) return null;
 
   return (
     <div>

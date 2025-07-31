@@ -1,7 +1,10 @@
 import useDiscount from '@/advanced/hooks/useDiscount';
+import { useProductStore } from '@/advanced/store';
+import { getBasicDiscountRate } from '@/advanced/utils/discount.util';
 
 export default function BasicDiscount() {
-  const { discountedProducts, isBulkDiscount } = useDiscount();
+  const { products } = useProductStore();
+  const { basicDiscountedProducts, isBulkDiscount } = useDiscount();
 
   if (isBulkDiscount) {
     return (
@@ -12,10 +15,16 @@ export default function BasicDiscount() {
     );
   }
 
-  return discountedProducts.map(({ name, discountRate }) => (
-    <div className="flex justify-between text-sm tracking-wide text-green-400">
-      <span className="text-xs">{name} (10개↑)</span>
-      <span className="text-xs">-{discountRate}%</span>
-    </div>
-  ));
+  return basicDiscountedProducts.map(id => {
+    const product = products.find(product => product.id === id);
+
+    if (!product) return null;
+
+    return (
+      <div className="flex justify-between text-sm tracking-wide text-green-400">
+        <span className="text-xs">{product.name} (10개↑)</span>
+        <span className="text-xs">-{getBasicDiscountRate(product.id)}%</span>
+      </div>
+    );
+  });
 }

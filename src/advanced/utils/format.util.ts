@@ -4,3 +4,7 @@ export default function formatPrice(price: number): string {
     currency: 'KRW',
   });
 }
+
+export function formatDiscountRate(discountRate: number): string {
+  return (discountRate * 100).toFixed(1) + '%';
+}

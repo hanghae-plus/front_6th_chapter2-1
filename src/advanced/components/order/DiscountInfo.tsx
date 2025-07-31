@@ -1,11 +1,12 @@
-import useDiscount from '@/advanced/hooks/useDiscount';
+import useOrderSummary from '@/advanced/hooks/useOrderSummary';
+import { formatDiscountRate } from '@/advanced/utils/format.util';
 
 export default function DiscountInfo() {
-  const { discountRate, savedAmount } = useDiscount();
+  const { totalDiscountRate, totalSavedAmount } = useOrderSummary();
 
-  const formattedDiscountRate = (discountRate * 100).toFixed(1) + '%';
+  const formattedDiscountRate = formatDiscountRate(totalDiscountRate);
 
-  if (discountRate === 0) return null;
+  if (totalDiscountRate === 0) return null;
 
   return (
     <div id="discount-info" className="mb-4">
@@ -15,7 +16,7 @@ export default function DiscountInfo() {
           <span className="text-sm font-medium text-green-400">{formattedDiscountRate}</span>
         </div>
         <div className="text-2xs text-gray-300">
-          ₩{Math.round(savedAmount).toLocaleString()} 할인되었습니다
+          ₩{Math.round(totalSavedAmount).toLocaleString()} 할인되었습니다
         </div>
       </div>
     </div>
