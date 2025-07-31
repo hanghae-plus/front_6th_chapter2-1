@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Legacy files
+src/main.original.js
+
+# Config files
+*.config.js
+*.config.ts
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# VSCode workspace settings (already formatted)
+.vscode/settings.json
+.vscode/extensions.json
+.vscode/tasks.json
+.vscode/README.md 

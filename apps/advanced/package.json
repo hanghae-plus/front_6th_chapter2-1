@@ -1,0 +1,46 @@
+{
+  "name": "@clean-code/advanced",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit",
+    "gh-pages": "pnpm run build && gh-pages -d dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "@clean-code/eslint": "workspace:*",
+    "@clean-code/prettier": "workspace:*",
+    "clsx": "^2.1.1",
+    "gh-pages": "^6.3.0",
+    "react": "catalog:react",
+    "react-dom": "catalog:react",
+    "vite": "catalog:vite",
+    "vitest": "catalog:test"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "catalog:test",
+    "@testing-library/jest-dom": "catalog:test",
+    "@testing-library/react": "catalog:test",
+    "@testing-library/user-event": "catalog:test",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "eslint": "^9.32.0",
+    "jsdom": "catalog:test",
+    "prettier": "^3.6.2",
+    "typescript": "^5.8.3"
+  }
+}

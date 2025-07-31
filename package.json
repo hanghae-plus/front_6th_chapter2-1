@@ -4,22 +4,25 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start:basic": "vite serve --open ./index.basic.html",
-    "start:advanced": "vite serve --open ./index.advanced.html",
-    "test": "vitest",
-    "test:basic": "vitest basic.test.js",
-    "test:advanced": "vitest advanced.test.js",
-    "test:ui": "vitest --ui"
-  },
-  "devDependencies": {
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/user-event": "^14.6.1",
-    "@vitest/ui": "^3.2.4",
-    "jsdom": "^26.1.0",
-    "vite": "^7.0.5",
-    "vitest": "^3.2.4"
+    "dev:basic": "pnpm --filter @clean-code/basic dev",
+    "dev:advanced": "pnpm --filter @clean-code/advanced dev",
+    "dev:original": "pnpm --filter @clean-code/original dev",
+    "test:basic": "pnpm --filter @clean-code/basic test",
+    "test:advanced": "pnpm --filter @clean-code/advanced test",
+    "test:original": "pnpm --filter @clean-code/original test",
+    "lint:basic": "pnpm --filter @clean-code/basic lint",
+    "lint:advanced": "pnpm --filter @clean-code/advanced lint",
+    "lint:fix:basic": "pnpm --filter @clean-code/basic lint:fix",
+    "lint:fix:advanced": "pnpm --filter @clean-code/advanced lint:fix",
+    "format:basic": "pnpm --filter @clean-code/basic format",
+    "format:advanced": "pnpm --filter @clean-code/advanced format",
+    "format:check:basic": "pnpm --filter @clean-code/basic format:check",
+    "format:check:advanced": "pnpm --filter @clean-code/advanced format:check",
+    "type-check:advanced": "pnpm --filter @clean-code/advanced type-check",
+    "lint": "pnpm lint:basic && pnpm lint:advanced",
+    "lint:fix": "pnpm --filter @clean-code/basic lint:fix && pnpm --filter @clean-code/advanced lint:fix",
+    "format": "pnpm format:basic && pnpm format:advanced",
+    "format:check": "pnpm format:check:basic && pnpm format:check:advanced",
+    "type-check": "pnpm type-check:advanced"
   }
 }

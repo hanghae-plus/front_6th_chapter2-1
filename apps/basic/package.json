@@ -1,0 +1,34 @@
+{
+  "name": "@clean-code/basic",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "@clean-code/eslint": "workspace:*",
+    "@clean-code/prettier": "workspace:*",
+    "vite": "catalog:vite",
+    "vitest": "catalog:test",
+    "jsdom": "catalog:test",
+    "@testing-library/jest-dom": "catalog:test",
+    "@testing-library/user-event": "catalog:test"
+  },
+  "devDependencies": {
+    "eslint": "^9.32.0",
+    "prettier": "^3.6.2"
+  }
+}
