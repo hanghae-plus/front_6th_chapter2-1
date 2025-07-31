@@ -1,5 +1,6 @@
 import { SummaryDetails } from "./SummaryDetails";
 import { getCalculatePoints } from "../services/point";
+import { isTuesday } from "../utils/day";
 
 export const RightColumn = ({
   prodList,
@@ -80,7 +81,9 @@ export const RightColumn = ({
           </div>
           <div
             id="tuesday-special"
-            className="mt-4 p-3 bg-white/10 rounded-lg hidden"
+            className={`mt-4 p-3 bg-white/10 rounded-lg ${
+              isTuesday() && totalDiscountedPrice > 0 ? "hidden" : ""
+            }`}
           >
             <div className="flex items-center gap-2">
               <span className="text-2xs">🎉</span>

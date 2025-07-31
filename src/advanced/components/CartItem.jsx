@@ -5,6 +5,7 @@ export const CartItem = ({
   originalPrice,
   onSale,
   suggestSale,
+  selectedQuantity,
 }) => {
   return (
     <div
@@ -61,7 +62,12 @@ export const CartItem = ({
         </div>
       </div>
       <div className="text-right">
-        <div className="text-lg mb-2 tracking-tight tabular-nums">
+        <div
+          className="text-lg mb-2 tracking-tight tabular-nums"
+          style={{
+            fontWeight: selectedQuantity > 10 ? "bold" : "normal",
+          }}
+        >
           $
           {onSale || suggestSale
             ? `<span class="line-through text-gray-400">₩${originalPrice.toLocaleString()}</span> ` +

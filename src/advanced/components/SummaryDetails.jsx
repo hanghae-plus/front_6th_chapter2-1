@@ -1,3 +1,5 @@
+import { isTuesday } from "../utils/day";
+
 // cartItems는 prodList 중에서 카드에 담긴 데이터 엔티티이며 얼마나 담았는지 수량을 추가로 갖고있다.
 export const SummaryDetails = ({
   totalOriginalPrice,
@@ -7,8 +9,6 @@ export const SummaryDetails = ({
   itemDiscounts,
   totalDiscountedPrice,
 }) => {
-  const isTuesday = new Date().getDay() === 2;
-
   if (totalOriginalPrice <= 0) {
     return <div id="summary-details" className="space-y-3"></div>;
   }
@@ -49,7 +49,7 @@ export const SummaryDetails = ({
           </div>
         ))
       ) : null}
-      {isTuesday && totalDiscountedPrice > 0 ? (
+      {isTuesday() && totalDiscountedPrice > 0 ? (
         <div className="flex justify-between text-sm tracking-wide text-purple-400">
           <span className="text-xs">🌟 화요일 추가 할인</span>
           <span className="text-xs">-10%</span>
