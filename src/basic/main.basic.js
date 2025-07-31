@@ -1,13 +1,5 @@
 // 상수 import
-import {
-  PRODUCT_IDS,
-  PRODUCT_NAMES,
-  PRODUCT_PRICES,
-  INITIAL_STOCK,
-  DISCOUNT_THRESHOLDS,
-  POINT_RATES,
-  UI_CONSTANTS,
-} from './constants/index.js';
+import { DISCOUNT_THRESHOLDS, UI_CONSTANTS } from './constants/index.js';
 
 // ProductService import
 import {
@@ -28,8 +20,13 @@ import {
   calculateTotalDiscountRate,
   createDiscountInfo,
   calculateSavedAmount,
-  checkIsTuesday,
 } from './services/discount/DiscountService.js';
+
+// PointService import
+import { createPointInfo } from './services/point/PointService.js';
+
+// CartService import
+import { createInitialCartState, addItemToCart } from './services/cart/CartService.js';
 
 // 전역 변수들 (명명 규칙 적용)
 let productList;
@@ -42,6 +39,26 @@ let addToCartButton;
 let totalAmount = 0;
 let cartDisplayElement;
 let orderSummaryElement;
+let cartState; // CartService를 위한 상태 추가
+
+// ProductService 래퍼 (CartService에서 사용하기 위한 인터페이스)
+const productService = {
+  getProductById: (productId) => getProductById(productList, productId),
+  decreaseStock: (productId, quantity) => {
+    const result = decreaseStock(productList, productId, quantity);
+    if (result.success) {
+      productList = result.products;
+    }
+    return result;
+  },
+  increaseStock: (productId, quantity) => {
+    const result = increaseStock(productList, productId, quantity);
+    if (result.success) {
+      productList = result.products;
+    }
+    return result;
+  },
+};
 
 function main() {
   totalAmount = 0;
@@ -50,6 +67,9 @@ function main() {
 
   // 상품 정보 초기화 - ProductService 사용
   productList = initializeProducts();
+
+  // CartService 상태 초기화
+  cartState = createInitialCartState();
 
   const root = document.getElementById('app');
 
@@ -489,10 +509,24 @@ function calculateCartSummary() {
   if (totalDiv) {
     totalDiv.textContent = `₩${Math.round(totalAmount).toLocaleString()}`;
   }
-  // 적립 포인트 표시 갱신
+  // 적립 포인트 표시 갱신 - PointService 사용
   const loyaltyPointsDiv = document.getElementById('loyalty-points');
   if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmount * POINT_RATES.BASE_RATE);
+    // CartService 상태에서 장바구니 아이템 정보 추출
+    const cartItems = cartState.items.map((item) => {
+      const product = productService.getProductById(item.id);
+      return {
+        id: item.id,
+        quantity: item.quantity,
+        name: product ? product.name : '',
+        price: product ? product.price : 0,
+      };
+    });
+
+    // PointService를 사용하여 포인트 계산
+    const pointInfo = createPointInfo(totalAmount, cartItems);
+    points = pointInfo.totalPoints;
+
     if (points > 0) {
       loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
       loyaltyPointsDiv.style.display = 'block';
@@ -536,89 +570,33 @@ function calculateCartSummary() {
 
 // 적립 포인트 계산 및 상세 내역 표시
 const renderBonusPoints = function () {
-  let finalPoints;
-  let hasKeyboard;
-  let hasMouse;
-  let hasMonitorArm;
-
   if (cartDisplayElement.children.length === 0) {
     document.getElementById('loyalty-points').style.display = 'none';
     return;
   }
 
-  const basePoints = Math.floor(totalAmount * POINT_RATES.BASE_RATE);
-  finalPoints = 0;
-  const pointsDetail = [];
+  // CartService 상태에서 장바구니 아이템 정보 추출
+  const cartItems = cartState.items.map((item) => {
+    const product = productService.getProductById(item.id);
+    return {
+      id: item.id,
+      quantity: item.quantity,
+      name: product ? product.name : '',
+      price: product ? product.price : 0,
+    };
+  });
 
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push(`기본: ${basePoints}p`);
-  }
-  // 화요일 2배 포인트
-  if (checkIsTuesday()) {
-    if (basePoints > 0) {
-      finalPoints = basePoints * POINT_RATES.TUESDAY_MULTIPLIER;
-      pointsDetail.push('화요일 2배');
-    }
-  }
-  // 키보드/마우스/모니터암 포함 여부 체크
-  hasKeyboard = false;
-  hasMouse = false;
-  hasMonitorArm = false;
-  const nodes = cartDisplayElement.children;
+  // PointService를 사용하여 포인트 정보 생성
+  const pointInfo = createPointInfo(totalAmount, cartItems);
+  bonusPoints = pointInfo.totalPoints;
 
-  for (const node of nodes) {
-    let product = null;
-    for (let pIdx = 0; pIdx < productList.length; pIdx++) {
-      if (productList[pIdx].id === node.id) {
-        product = productList[pIdx];
-        break;
-      }
-    }
-
-    if (!product) continue;
-
-    if (product.id === PRODUCT_IDS.KEYBOARD) {
-      hasKeyboard = true;
-    } else if (product.id === PRODUCT_IDS.MOUSE) {
-      hasMouse = true;
-    } else if (product.id === PRODUCT_IDS.MONITOR_ARM) {
-      hasMonitorArm = true;
-    }
-  }
-  // 키보드+마우스 세트, 풀세트, 대량구매 추가 포인트
-  if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + POINT_RATES.SET_BONUS;
-    pointsDetail.push('키보드+마우스 세트 +50p');
-  }
-
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + POINT_RATES.FULL_SET_BONUS;
-    pointsDetail.push('풀세트 구매 +100p');
-  }
-
-  if (itemCount >= DISCOUNT_THRESHOLDS.BULK_PURCHASE) {
-    finalPoints = finalPoints + POINT_RATES.QUANTITY_BONUS_30;
-    pointsDetail.push('대량구매(30개+) +100p');
-  } else {
-    if (itemCount >= 20) {
-      finalPoints = finalPoints + POINT_RATES.QUANTITY_BONUS_20;
-      pointsDetail.push('대량구매(20개+) +50p');
-    } else {
-      if (itemCount >= DISCOUNT_THRESHOLDS.INDIVIDUAL_ITEM) {
-        finalPoints = finalPoints + POINT_RATES.QUANTITY_BONUS_10;
-        pointsDetail.push('대량구매(10개+) +20p');
-      }
-    }
-  }
-  bonusPoints = finalPoints;
   const ptsTag = document.getElementById('loyalty-points');
 
   if (ptsTag) {
     if (bonusPoints > 0) {
       ptsTag.innerHTML =
         `<div>적립 포인트: <span class="font-bold">${bonusPoints}p</span></div>` +
-        `<div class="text-2xs opacity-70 mt-1">${pointsDetail.join(', ')}</div>`;
+        `<div class="text-2xs opacity-70 mt-1">${pointInfo.detailText}</div>`;
       ptsTag.style.display = 'block';
     } else {
       ptsTag.textContent = '적립 포인트: 0p';
@@ -689,107 +667,104 @@ function updateCartPrices() {
   calculateCartSummary();
 }
 
+// CartService를 사용한 장바구니 아이템 추가 함수
+function addItemToCartUI(productId, quantity = 1) {
+  const result = addItemToCart(cartState, productId, quantity, productService);
+
+  if (result.success) {
+    const { cartState: newCartState } = result;
+    cartState = newCartState;
+    renderCartItems();
+    calculateCartSummary();
+    lastSelectedProductId = productId;
+  } else {
+    alert(result.message);
+  }
+}
+
+// CartService 상태를 기반으로 UI 렌더링
+function renderCartItems() {
+  cartDisplayElement.innerHTML = '';
+
+  cartState.items.forEach((item) => {
+    const product = productService.getProductById(item.id);
+    if (!product) return;
+
+    const newItem = document.createElement('div');
+    newItem.id = item.id;
+    newItem.className =
+      'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
+    newItem.innerHTML = `
+      <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+      </div>
+      <div>
+        <h3 class="text-base font-normal mb-1 tracking-tight">${
+          product.onSale && product.suggestSale
+            ? '⚡💝'
+            : product.onSale
+            ? '⚡'
+            : product.suggestSale
+            ? '💝'
+            : ''
+        }${product.name}</h3>
+        <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
+        <p class="text-xs text-black mb-3">${
+          product.onSale || product.suggestSale
+            ? `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="${
+                product.onSale && product.suggestSale
+                  ? 'text-purple-600'
+                  : product.onSale
+                  ? 'text-red-500'
+                  : 'text-blue-500'
+              }">₩${product.price.toLocaleString()}</span>`
+            : `₩${product.price.toLocaleString()}`
+        }</p>
+        <div class="flex items-center gap-4">
+          <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
+            item.id
+          }" data-change="-1">−</button>
+          <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">${
+            item.quantity
+          }</span>
+          <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
+            item.id
+          }" data-change="1">+</button>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-lg mb-2 tracking-tight tabular-nums">${
+          product.onSale || product.suggestSale
+            ? `<span class="line-through text-gray-400">₩${product.originalPrice.toLocaleString()}</span> <span class="${
+                product.onSale && product.suggestSale
+                  ? 'text-purple-600'
+                  : product.onSale
+                  ? 'text-red-500'
+                  : 'text-blue-500'
+              }">₩${product.price.toLocaleString()}</span>`
+            : `₩${product.price.toLocaleString()}`
+        }</div>
+        <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${
+          item.id
+        }">Remove</a>
+      </div>
+    `;
+    cartDisplayElement.appendChild(newItem);
+  });
+}
+
 main();
 
-// 장바구니 추가 버튼 클릭 이벤트
+// 장바구니 추가 버튼 클릭 이벤트 - CartService 사용
 addToCartButton.addEventListener('click', function () {
   const selItem = productSelector.value;
 
-  // ProductService의 getProductById 함수 사용
-  const itemToAdd = getProductById(productList, selItem);
-
-  if (!selItem || !itemToAdd) {
+  if (!selItem) {
     return;
   }
 
-  if (itemToAdd.quantity > 0) {
-    const item = document.getElementById(itemToAdd.id);
-
-    if (item) {
-      // 이미 장바구니에 있으면 수량 증가
-      const quantityElem = item.querySelector('.quantity-number');
-      const newQty = parseInt(quantityElem.textContent) + 1;
-
-      if (newQty <= itemToAdd.quantity + parseInt(quantityElem.textContent)) {
-        quantityElem.textContent = newQty;
-        // ProductService의 decreaseStock 함수 사용
-        const result = decreaseStock(productList, itemToAdd.id, 1);
-        if (result.success) {
-          productList = result.products;
-        }
-      } else {
-        alert('재고가 부족합니다.');
-      }
-    } else {
-      // 장바구니에 새로 추가
-      const newItem = document.createElement('div');
-      newItem.id = itemToAdd.id;
-      newItem.className =
-        'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
-      newItem.innerHTML = `
-        <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
-          <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
-        </div>
-        <div>
-          <h3 class="text-base font-normal mb-1 tracking-tight">${
-            itemToAdd.onSale && itemToAdd.suggestSale
-              ? '⚡💝'
-              : itemToAdd.onSale
-              ? '⚡'
-              : itemToAdd.suggestSale
-              ? '💝'
-              : ''
-          }${itemToAdd.name}</h3>
-          <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
-          <p class="text-xs text-black mb-3">${
-            itemToAdd.onSale || itemToAdd.suggestSale
-              ? `<span class="line-through text-gray-400">₩${itemToAdd.originalPrice.toLocaleString()}</span> <span class="${
-                  itemToAdd.onSale && itemToAdd.suggestSale
-                    ? 'text-purple-600'
-                    : itemToAdd.onSale
-                    ? 'text-red-500'
-                    : 'text-blue-500'
-                }">₩${itemToAdd.price.toLocaleString()}</span>`
-              : `₩${itemToAdd.price.toLocaleString()}`
-          }</p>
-          <div class="flex items-center gap-4">
-            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
-              itemToAdd.id
-            }" data-change="-1">−</button>
-            <span class="quantity-number text-sm font-normal min-w-[20px] text-center tabular-nums">1</span>
-            <button class="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white" data-product-id="${
-              itemToAdd.id
-            }" data-change="1">+</button>
-          </div>
-        </div>
-        <div class="text-right">
-          <div class="text-lg mb-2 tracking-tight tabular-nums">${
-            itemToAdd.onSale || itemToAdd.suggestSale
-              ? `<span class="line-through text-gray-400">₩${itemToAdd.originalPrice.toLocaleString()}</span> <span class="${
-                  itemToAdd.onSale && itemToAdd.suggestSale
-                    ? 'text-purple-600'
-                    : itemToAdd.onSale
-                    ? 'text-red-500'
-                    : 'text-blue-500'
-                }">₩${itemToAdd.price.toLocaleString()}</span>`
-              : `₩${itemToAdd.price.toLocaleString()}`
-          }</div>
-          <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${
-            itemToAdd.id
-          }">Remove</a>
-        </div>
-      `;
-      cartDisplayElement.appendChild(newItem);
-      // ProductService의 decreaseStock 함수 사용
-      const result = decreaseStock(productList, itemToAdd.id, 1);
-      if (result.success) {
-        productList = result.products;
-      }
-    }
-
-    calculateCartSummary();
-    lastSelectedProductId = selItem;
-  }
+  // CartService를 사용하여 장바구니에 추가
+  addItemToCartUI(selItem, 1);
 });
 
 // 장바구니 내 수량 변경/삭제 이벤트 처리
