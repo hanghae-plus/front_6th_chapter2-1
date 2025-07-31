@@ -1,53 +1,83 @@
 /**
  * 상품 서비스
- * 상품 관련 비즈니스 로직과 UI 업데이트
+ * 순수 함수 중심으로 데이터 변환에 집중
  */
 
-import {
-  setProductState,
-  initializeProductStore,
-  getProductState,
-} from '@/basic/features/product/store/productStore.js';
+import { getProductState } from '@/basic/features/product/store/productStore.js';
 import {
   getTotalStock,
   generateStockStatusMessage,
 } from '@/basic/features/product/utils/productUtils.js';
-import {
-  findElement,
-  setStyle,
-  setTextContent,
-  safeDOM,
-} from '@/basic/shared/core/domUtils.js';
 
 /**
- * 상품 선택기 업데이트 (선언적)
+ * 상품 옵션 데이터 생성
+ */
+const createProductOptions = products => {
+  return products.map(product => {
+    let text = `${product.name} - ${product.val}원`;
+
+    if (product.q === 0) {
+      text += ' (품절)';
+    } else if (product.q < 5) {
+      text += ` (재고부족: ${product.q}개)`;
+    }
+
+    return {
+      value: product.id,
+      text,
+      disabled: product.q === 0,
+    };
+  });
+};
+
+/**
+ * 상품 선택기 업데이트
  */
 export const updateProductSelector = () => {
-  const productSelector = findElement('#product-select');
-  if (!productSelector) return;
+  const selector = document.getElementById('product-select');
+  if (!selector) return;
 
-  // 상품 선택기 업데이트
-  productSelector.updateProducts(
-    getProductState().products,
-    getProductState().lastSelectedProduct,
-  );
+  const currentValue = selector.value;
+  const products = getProductState().products;
 
-  const totalStock = getTotalStock(getProductState().products);
-  const borderColor = totalStock < 50 ? 'orange' : '';
+  selector.innerHTML = '';
 
-  safeDOM('#product-select', element =>
-    setStyle(element, 'borderColor', borderColor),
-  );
+  createProductOptions(products).forEach(option => {
+    const optionElement = document.createElement('option');
+    optionElement.value = option.value;
+    optionElement.textContent = option.text;
+    optionElement.disabled = option.disabled;
+    selector.appendChild(optionElement);
+  });
+
+  if (currentValue) {
+    selector.value = currentValue;
+  }
+
+  const totalStock = getTotalStock(products);
+  if (totalStock < 50) {
+    selector.style.borderColor = 'orange';
+  } else {
+    selector.style.borderColor = '';
+  }
 };
 
 /**
- * 재고 정보 업데이트 (선언적)
+ * 재고 정보 메시지 계산
  */
-export const updateStockInfo = () => {
-  const infoMsg = generateStockStatusMessage(getProductState().products, 5);
-
-  safeDOM('#stock-status', element => setTextContent(element, infoMsg));
+const getStockStatusMessage = () => {
+  const products = getProductState().products;
+  return generateStockStatusMessage(products, 5);
 };
 
-// 스토어 함수들을 외부에서 사용할 수 있도록 export
-export { setProductState, initializeProductStore, getProductState };
+/**
+ * 재고 정보 업데이트
+ */
+export const updateStockInfo = () => {
+  const element = document.getElementById('stock-status');
+  if (element) {
+    element.textContent = getStockStatusMessage();
+  }
+};
+
+export { createProductOptions, getStockStatusMessage };

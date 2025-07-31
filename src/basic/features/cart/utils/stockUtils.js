@@ -3,6 +3,8 @@
  * 재고 검증 및 관리 로직
  */
 
+import { productState } from '@/basic/features/product/store/productStore.js';
+import { findProductById } from '@/basic/features/product/utils/productUtils.js';
 import { setTextContent } from '@/basic/shared/core/domUtils.js';
 
 export const stockValidators = {
@@ -32,6 +34,17 @@ export const stockValidators = {
    */
   canIncreaseQuantity: (change, availableStock) => {
     return change <= 0 || availableStock >= change;
+  },
+
+  /**
+   * 사용 가능한 재고가 있는지 확인
+   * @param {string} productId - 상품 ID
+   * @param {number} price - 상품 가격 (사용하지 않음)
+   * @returns {boolean} 재고 사용 가능 여부
+   */
+  hasAvailableStock: (productId, price) => {
+    const product = findProductById(productId, productState.products);
+    return product && product.q > 0;
   },
 };
 
@@ -64,6 +77,25 @@ export const quantityManagers = {
   calculateNewQuantity: (currentQuantity, change) => {
     return currentQuantity + change;
   },
+
+  /**
+   * 아이템 수량 업데이트 (DOM 요소)
+   * @param {HTMLElement} itemElement - 아이템 요소
+   * @param {number} change - 수량 변경값
+   */
+  updateItemQuantity: (itemElement, change) => {
+    const quantitySpan = itemElement.querySelector('.quantity-number');
+    if (quantitySpan) {
+      const currentQuantity = parseInt(quantitySpan.textContent || '0');
+      const newQuantity = Math.max(0, currentQuantity + change);
+      quantitySpan.textContent = newQuantity;
+
+      // 수량이 0이 되면 아이템 제거
+      if (newQuantity === 0) {
+        itemElement.remove();
+      }
+    }
+  },
 };
 
 // 재고 관리 함수들
@@ -84,5 +116,17 @@ export const stockManagers = {
    */
   increaseStock: (product, amount) => {
     product.q += amount;
+  },
+
+  /**
+   * 재고 업데이트 (상품 ID로)
+   * @param {string} productId - 상품 ID
+   * @param {number} amount - 변경할 수량 (음수면 감소, 양수면 증가)
+   */
+  updateStock: (productId, amount) => {
+    const product = findProductById(productId, productState.products);
+    if (product) {
+      product.q = Math.max(0, product.q + amount);
+    }
   },
 };
