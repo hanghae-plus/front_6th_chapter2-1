@@ -1,17 +1,24 @@
 type Props = {
-  name: string;
-  quantity: number;
-  itemTotal: number;
+  cartItems: {
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+  }[];
 };
 
-const OrderList = ({ name, quantity, itemTotal }: Props) => {
+const OrderList = ({ cartItems }: Props) => {
   return (
-    <div className="flex justify-between text-xs tracking-wide text-gray-400">
-      <span>
-        {name} x {quantity}
-      </span>
-      <span>₩{itemTotal.toLocaleString()}</span>
-    </div>
+    <>
+      {cartItems.map(({ name, quantity, price, id }) => (
+        <div className="flex justify-between text-xs tracking-wide text-gray-400" key={`orderitem-${id}`}>
+          <span>
+            {name} x {quantity}
+          </span>
+          <span>₩{(quantity * price).toLocaleString()}</span>
+        </div>
+      ))}
+    </>
   );
 };
 

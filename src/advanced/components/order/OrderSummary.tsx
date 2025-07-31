@@ -11,7 +11,15 @@ import SubTotal from './SubTotal';
 
 const OrderSummary = () => {
   const { cartItems } = useCartWithProduct();
-  const { subTotal, isAppliedItemDiscount, isAppliedTotalDiscount, appliedItemDiscountList } = useCartSummary();
+  const {
+    subTotal,
+    isAppliedItemDiscount,
+    finalDiscountRate,
+    finalTotal,
+    isAppliedTotalDiscount,
+    appliedItemDiscountList,
+    bonusPoints,
+  } = useCartSummary();
 
   return (
     <div className="bg-black text-white p-8 flex flex-col">
@@ -29,10 +37,10 @@ const OrderSummary = () => {
           </div>
         </div>
         <div className="mt-auto">
-          <DiscountSummary finalDiscountRate={0.2} savedAmount={35000}></DiscountSummary>
+          <DiscountSummary finalDiscountRate={finalDiscountRate} savedAmount={subTotal * (1 - finalDiscountRate)} />
 
           <div id="cart-total" className="pt-5 border-t border-white/10">
-            <FinalPrice />
+            <FinalPrice finalPrice={finalTotal} totalPoint={bonusPoints.total} pointDetails={bonusPoints.detail} />
           </div>
           {isTuesday() ? <AppliedTuesdayDiscount /> : null}
         </div>
