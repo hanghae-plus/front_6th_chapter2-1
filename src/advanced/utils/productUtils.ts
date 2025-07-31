@@ -1,4 +1,4 @@
-import { LOW_TOTAL_STOCK_THRESHOLD, OUT_OF_STOCK } from '@/const/stock';
+import { LOW_STOCK_THRESHOLD, LOW_TOTAL_STOCK_THRESHOLD, OUT_OF_STOCK } from '@/const/stock';
 import { Product } from '@/data/product';
 
 export const isOutOfStock = (quantity: number) => {
@@ -7,6 +7,23 @@ export const isOutOfStock = (quantity: number) => {
 
 export const isLowTotalStock = (totalStock: number) => {
   return totalStock < LOW_TOTAL_STOCK_THRESHOLD;
+};
+
+export const isLowStock = (itemStock: number) => {
+  return itemStock < LOW_STOCK_THRESHOLD;
+};
+
+export const getTotalStock = (productList: Product[]) => {
+  return productList.reduce((totalStock, currentProduct) => totalStock + currentProduct.quantity, 0);
+};
+
+export const formatLowStockMessage = (productList: Product[]) => {
+  return productList
+    .filter(({ quantity }) => isLowStock(quantity))
+    .map(({ name, quantity }) =>
+      quantity > OUT_OF_STOCK ? `${name}: 재고 부족 (${quantity}개 남음)` : `${name}: 품절`
+    )
+    .join('\n');
 };
 
 export const formatOptionMessage = (product: Product) => {
@@ -30,10 +47,6 @@ export const formatOptionMessage = (product: Product) => {
   }
 
   return baseText;
-};
-
-export const getTotalStock = (productList: Product[]) => {
-  return productList.reduce((totalStock, currentProduct) => totalStock + currentProduct.quantity, 0);
 };
 
 export const toProductOption = (product: Product) => ({

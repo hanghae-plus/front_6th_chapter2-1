@@ -2,7 +2,7 @@ import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
 
 import { useCartWithProduct } from '@/hooks/useCartWithProducts';
 import { useProductContext } from '@/store/ProductContext';
-import { getTotalStock, isLowTotalStock, toProductOption } from '@/utils/productUtils';
+import { formatLowStockMessage, getTotalStock, isLowTotalStock, toProductOption } from '@/utils/productUtils';
 
 const ProductPicker = () => {
   const { addToCart } = useCartWithProduct();
@@ -12,6 +12,7 @@ const ProductPicker = () => {
   const [selectedProductId, setSelectedProductId] = useState(options[0].id);
 
   const notifyLowTotalStock = isLowTotalStock(getTotalStock(products));
+  const lowStockMessage = formatLowStockMessage(products);
 
   const handleChangeValue: ChangeEventHandler<HTMLSelectElement> = (e) => {
     const targetValue = e.target.value;
@@ -47,7 +48,7 @@ const ProductPicker = () => {
         Add to Cart
       </button>
       <div id="stock-status" className="text-xs text-red-500 mt-3 whitespace-pre-line">
-        에러 방지 노트북 파우치: 품절
+        {lowStockMessage}
       </div>
     </div>
   );
