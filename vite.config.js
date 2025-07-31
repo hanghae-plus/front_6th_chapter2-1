@@ -1,3 +1,6 @@
+import { fileURLToPath } from 'node:url';
+
+import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import { defineConfig } from 'vitest/config';
@@ -7,18 +10,18 @@ const entryFileName = 'index.advanced.html';
 
 export default defineConfig({
   base,
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: 'src/setupTests.js',
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src/advanced'),
+    },
   },
   build: {
     rollupOptions: {
       input: path.resolve(__dirname, entryFileName),
     },
   },
-
   plugins: [
+    react(),
     {
       name: 'rename-html-output',
       closeBundle() {
@@ -28,4 +31,9 @@ export default defineConfig({
       },
     },
   ],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: 'src/setupTests.js',
+  },
 });
