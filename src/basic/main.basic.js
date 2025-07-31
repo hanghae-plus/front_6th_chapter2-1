@@ -21,6 +21,7 @@ import {
 } from './constants.js';
 import { bindEventListeners } from './events/bindings.js';
 import { CartCalculationService } from './services/CartCalculationService.js';
+import { LightningSaleService } from './services/LightningSaleService.js';
 import { PointsCalculationService } from './services/PointsCalculationService.js';
 import { PriceUpdateService } from './services/PriceUpdateService.js';
 import { cartState } from './states/cartState.js';
@@ -84,8 +85,6 @@ const productList = [
 // ================================================
 // 타이머 관련 상수
 // ================================================
-const LIGHTNING_SALE_INTERVAL = 30000; // 번개세일 간격 (30초)
-const LIGHTNING_DELAY_RANGE = 10000; // 번개세일 시작 지연 범위 (10초)
 const SUGGEST_DELAY_RANGE = 20000; // 추천할인 시작 지연 범위 (20초)
 
 /**
@@ -509,19 +508,9 @@ function main() {
     updateUIFromState();
   });
 
-  const lightningDelay = Math.random() * LIGHTNING_DELAY_RANGE;
-  setTimeout(() => {
-    setInterval(function () {
-      const luckyIdx = Math.floor(Math.random() * productList.length);
-      const luckyItem = productList[luckyIdx];
-      if (luckyItem.q > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round((luckyItem.originalVal * (100 - LIGHTNING_SALE_DISCOUNT)) / 100);
-        luckyItem.onSale = true;
-        alert(`⚡번개세일! ${luckyItem.name} 이(가) ${LIGHTNING_SALE_DISCOUNT}% 할인 중입니다!`);
-        doUpdatePricesInCart();
-      }
-    }, LIGHTNING_SALE_INTERVAL);
-  }, lightningDelay);
+  // 번개세일 타이머 시작
+  const lightningSaleService = new LightningSaleService(productList, doUpdatePricesInCart);
+  lightningSaleService.startLightningSaleTimer();
   setTimeout(function () {
     setInterval(function () {
       if (productState.selectedProduct) {

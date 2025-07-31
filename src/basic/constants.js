@@ -57,4 +57,6 @@ export const BONUS_POINTS = {
 // ================================================
 // 기타 상수
 // ================================================
+export const LIGHTNING_DELAY_RANGE = 10000; // 번개세일 시작 지연 범위 (10초)
+export const LIGHTNING_SALE_INTERVAL = 30000; // 번개세일 간격 (30초)
 export const SUGGEST_SALE_INTERVAL = 3000; // 추천 상품 변경 간격 (ms)
