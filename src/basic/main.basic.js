@@ -14,7 +14,6 @@ import {
   INDIVIDUAL_PRODUCT_DISCOUNT_THRESHOLD,
   BULK_PURCHASE_THRESHOLD,
   TOTAL_STOCK_WARNING_THRESHOLD,
-  SUGGEST_SALE_INTERVAL,
   TUESDAY_POINTS_MULTIPLIER,
   BONUS_POINTS,
   BONUS_POINTS_THRESHOLDS,
@@ -24,6 +23,7 @@ import { CartCalculationService } from './services/CartCalculationService.js';
 import { LightningSaleService } from './services/LightningSaleService.js';
 import { PointsCalculationService } from './services/PointsCalculationService.js';
 import { PriceUpdateService } from './services/PriceUpdateService.js';
+import { SuggestSaleService } from './services/SuggestSaleService.js';
 import { cartState } from './states/cartState.js';
 import { productState } from './states/productState.js';
 import { stateActions, subscribeToState } from './states/state.js';
@@ -81,11 +81,6 @@ const productList = [
     suggestSale: false,
   },
 ];
-
-// ================================================
-// 타이머 관련 상수
-// ================================================
-const SUGGEST_DELAY_RANGE = 20000; // 추천할인 시작 지연 범위 (20초)
 
 /**
  * Header 컴포넌트
@@ -511,25 +506,14 @@ function main() {
   // 번개세일 타이머 시작
   const lightningSaleService = new LightningSaleService(productList, doUpdatePricesInCart);
   lightningSaleService.startLightningSaleTimer();
-  setTimeout(function () {
-    setInterval(function () {
-      if (productState.selectedProduct) {
-        const suggest = productList.find(
-          (product) =>
-            product.id !== productState.selectedProduct && product.q > 0 && !product.suggestSale
-        );
 
-        if (suggest) {
-          alert(
-            `💝 ${suggest.name} 은(는) 어떠세요? 지금 구매하시면 ${SUGGEST_SALE_DISCOUNT}% 추가 할인!`
-          );
-          suggest.val = Math.round((suggest.val * (100 - SUGGEST_SALE_DISCOUNT)) / 100);
-          suggest.suggestSale = true;
-          doUpdatePricesInCart();
-        }
-      }
-    }, SUGGEST_SALE_INTERVAL);
-  }, Math.random() * SUGGEST_DELAY_RANGE);
+  // 추천할인 타이머 시작
+  const suggestSaleService = new SuggestSaleService(
+    productList,
+    productState,
+    doUpdatePricesInCart
+  );
+  suggestSaleService.startSuggestSaleTimer();
 
   function onUpdateSelectOptions() {
     sel.innerHTML = '';
