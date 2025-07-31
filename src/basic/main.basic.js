@@ -46,7 +46,7 @@ function main() {
   // OrderService 생성 시 discountService 주입
   serviceManager.register("order", new OrderService(discountService));
 
-  const { productService } = serviceManager.getAllServices();
+  const { productService, cartService } = serviceManager.getAllServices();
 
   const header = createHeader({ itemCount: 0 });
 
@@ -84,8 +84,8 @@ function main() {
   // Event Bus 이벤트 리스너 등록
   initEventBusListeners(serviceManager);
 
-  // 타이머 서비스 초기화 및 시작
-  const timerService = new TimerService(productService, discountService);
+  // 타이머 서비스 초기화 및 시작 (CartService 의존성 주입)
+  const timerService = new TimerService(productService, discountService, cartService);
   timerService.startLightningSaleTimer();
   timerService.startSuggestSaleTimer();
 }

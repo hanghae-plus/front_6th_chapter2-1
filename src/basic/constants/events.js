@@ -15,6 +15,7 @@ export const CART_SUMMARY_UPDATED = "cart:summary:updated"; // 장바구니 요�
 export const CART_SUMMARY_CALCULATION_REQUESTED = "cart:summary:calculation:requested"; // 장바구니 요약 계산 요청
 export const CART_SUMMARY_CALCULATED = "cart:summary:calculated"; // 장바구니 요약 계산
 export const CART_ITEM_STYLES_UPDATED = "cart:item:styles:updated"; // 장바구니 아이템 스타일 업데이트
+export const CART_PRICES_UPDATE_REQUESTED = "cart:prices:update:requested"; // 장바구니 가격 업데이트 요청
 
 // Order 관련 이벤트
 export const ORDER_SUMMARY_UPDATED = "order:summary:updated"; // 주문 요약 업데이트

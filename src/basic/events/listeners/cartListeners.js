@@ -15,11 +15,13 @@ import {
   CART_SUMMARY_CALCULATION_REQUESTED,
   CART_SUMMARY_CALCULATED,
   CART_ITEM_STYLES_UPDATED,
+  CART_PRICES_UPDATE_REQUESTED,
   HEADER_ITEM_COUNT_UPDATED,
   ITEM_COUNT_DISPLAY_UPDATED,
   ORDER_SUMMARY_UPDATED,
   STOCK_UPDATE_REQUESTED,
   PRODUCT_OPTIONS_UPDATED,
+  PRODUCT_PRICES_UPDATED,
 } from "../../constants/events.js";
 
 /**
@@ -199,6 +201,13 @@ export class CartEventListeners {
       }
     });
 
+    // 장바구니 가격 업데이트 요청 이벤트 처리
+    this.uiEventBus.on(CART_PRICES_UPDATE_REQUESTED, data => {
+      if (data.success) {
+        this.handleCartPricesUpdate();
+      }
+    });
+
     // 헤더 아이템 카운트 업데이트 이벤트
     this.uiEventBus.on(HEADER_ITEM_COUNT_UPDATED, data => {
       if (data.success) {
@@ -288,6 +297,30 @@ export class CartEventListeners {
         itemCountElement.setAttribute("data-changed", "true");
       }
     }
+  }
+
+  // 장바구니 가격 업데이트 처리 (새로 추가)
+  handleCartPricesUpdate() {
+    const cartState = this.cartService.getState();
+    const { cartItems } = cartState;
+
+    const itemsToUpdate = cartItems.map(cartItem => {
+      const product = this.productService.getProductById(cartItem.id);
+      return {
+        cartItemId: cartItem.id,
+        product,
+        discountInfo: {
+          rate: this.discountService.calculateProductDiscountRate(product),
+          status: this.discountService.getProductDiscountStatus(product),
+        },
+      };
+    });
+
+    // UI 업데이트 이벤트 발송
+    this.uiEventBus.emit(PRODUCT_PRICES_UPDATED, {
+      itemsToUpdate,
+      success: true,
+    });
   }
 
   // 장바구니 요약 업데이트 핸들러 (Event Bus 기반)
