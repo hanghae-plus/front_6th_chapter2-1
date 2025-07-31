@@ -14,5 +14,6 @@ function formatProductData(productData: ProductData[]): Product[] {
     stock: product.q,
     onSale: product.onSale,
     suggestSale: product.suggestSale,
+    discountRate: 0,
   }));
 }

@@ -11,11 +11,14 @@ import {
 } from '@/advanced/components/layout';
 import { OrderSummary } from '@/advanced/components/order';
 import { ProductSelect } from '@/advanced/components/product';
+import useTimer from '@/advanced/hooks/useTimer';
 import { useLayoutStore, useProductStore } from '@/advanced/store';
 
 function App() {
   const { showHelpOverlay } = useLayoutStore();
   const { setProducts } = useProductStore();
+
+  const { startAll, stopAll, restartAll } = useTimer(() => {});
 
   useEffect(() => {
     getProducts().then(products => {

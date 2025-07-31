@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import { Product } from '@/advanced/types/product.type';
+import { getDiscountedPrice } from '@/advanced/utils/discount.util';
 
 interface ProductState {
   products: Product[];
@@ -12,6 +13,8 @@ interface ProductActions {
   setSelectedProduct: (product: Product) => void;
   decreaseStock: (productId: string) => void;
   increaseStock: (productId: string) => void;
+  setProductOnSale: (productId: string, discountRate: number) => void;
+  setProductSuggestSale: (productId: string, discountRate: number) => void;
 }
 
 const useProductStore = create<ProductState & ProductActions>((set, get) => ({
@@ -54,6 +57,42 @@ const useProductStore = create<ProductState & ProductActions>((set, get) => ({
         ...state,
         products: state.products.map(product =>
           product.id === productId ? { ...product, stock: product.stock + 1 } : product
+        ),
+      };
+    }),
+
+  setProductOnSale: (productId: string, discountRate: number) =>
+    set(state => {
+      const product = state.products.find(product => product.id === productId);
+
+      if (!product) return state;
+
+      const newPrice = getDiscountedPrice(product.originalPrice, discountRate);
+
+      return {
+        ...state,
+        products: state.products.map(product =>
+          product.id === productId
+            ? { ...product, onSale: true, discountRate, price: newPrice }
+            : product
+        ),
+      };
+    }),
+
+  setProductSuggestSale: (productId: string, discountRate: number) =>
+    set(state => {
+      const product = state.products.find(product => product.id === productId);
+
+      if (!product) return state;
+
+      const newPrice = getDiscountedPrice(product.originalPrice, discountRate);
+
+      return {
+        ...state,
+        products: state.products.map(product =>
+          product.id === productId
+            ? { ...product, suggestSale: true, discountRate, price: newPrice }
+            : product
         ),
       };
     }),

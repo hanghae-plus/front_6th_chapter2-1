@@ -28,6 +28,7 @@ export interface Product {
   stock: number;
   onSale: boolean;
   suggestSale: boolean;
+  discountRate: number;
 }
 
 export enum ProductStatus {
