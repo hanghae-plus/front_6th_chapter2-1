@@ -1,5 +1,7 @@
 
 
+import { PRODUCT_ID, DISCOUNT, STOCK, TIMER, POINTS } from './constants.js';
+
 var prodList
 var bonusPts = 0
 var stockInfo
@@ -8,11 +10,11 @@ var lastSel
 var sel
 var addBtn
 var totalAmt = 0
-var PRODUCT_ONE = 'p1'
-var p2 = 'p2'
-var product_3 = 'p3'
-var p4 = "p4"
-var PRODUCT_5 = `p5`
+var PRODUCT_ONE = PRODUCT_ID.P1
+var p2 = PRODUCT_ID.P2
+var product_3 = PRODUCT_ID.P3
+var p4 = PRODUCT_ID.P4
+var PRODUCT_5 = PRODUCT_ID.P5
 var cartDisp
 function main() {
   var root;
@@ -29,12 +31,12 @@ function main() {
   itemCnt = 0;
   lastSel = null;
   prodList = [
-    {id: PRODUCT_ONE, name: '버그 없애는 키보드', val: 10000, originalVal: 10000, q: 50, onSale: false, suggestSale: false},
-    {id: p2, name: '생산성 폭발 마우스', val: 20000, originalVal: 20000, q: 30, onSale: false, suggestSale: false},
-    {id: product_3, name: "거북목 탈출 모니터암", val: 30000, originalVal: 30000, q: 20, onSale: false, suggestSale: false},
-    {id: p4, name: "에러 방지 노트북 파우치", val: 15000, originalVal: 15000, q: 0, onSale: false, suggestSale: false},
+    {id: PRODUCT_ID.P1, name: '버그 없애는 키보드', val: 10000, originalVal: 10000, q: 50, onSale: false, suggestSale: false},
+    {id: PRODUCT_ID.P2, name: '생산성 폭발 마우스', val: 20000, originalVal: 20000, q: 30, onSale: false, suggestSale: false},
+    {id: PRODUCT_ID.P3, name: "거북목 탈출 모니터암", val: 30000, originalVal: 30000, q: 20, onSale: false, suggestSale: false},
+    {id: PRODUCT_ID.P4, name: "에러 방지 노트북 파우치", val: 15000, originalVal: 15000, q: 0, onSale: false, suggestSale: false},
     {
-      id: PRODUCT_5,
+      id: PRODUCT_ID.P5,
       name: `코딩할 때 듣는 Lo-Fi 스피커`,
       val: 25000,
       originalVal: 25000,
@@ -206,13 +208,13 @@ function main() {
       var luckyIdx = Math.floor(Math.random() * prodList.length);
       var luckyItem = prodList[luckyIdx];
       if (luckyItem.q > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round(luckyItem.originalVal * 80 / 100);
+        luckyItem.val = Math.round(luckyItem.originalVal * (1 - DISCOUNT.LIGHTNING_SALE_RATE));
         luckyItem.onSale = true;
         alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
         onUpdateSelectOptions();
         doUpdatePricesInCart();
       }
-    }, 30000);
+    }, TIMER.LIGHTNING_SALE_INTERVAL);
   }, lightningDelay);
   setTimeout(function () {
     setInterval(function () {
@@ -232,13 +234,13 @@ function main() {
         }
         if (suggest) {
           alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
-          suggest.val = Math.round(suggest.val * (100 - 5) / 100);
+          suggest.val = Math.round(suggest.val * (1 - DISCOUNT.RECOMMEND_SALE_RATE));
           suggest.suggestSale = true;
           onUpdateSelectOptions();
           doUpdatePricesInCart();
         }
       }
-    }, 60000);
+    }, TIMER.RECOMMEND_SALE_INTERVAL);
   }, Math.random() * 20000);
 };
 var sum
@@ -281,7 +283,7 @@ function onUpdateSelectOptions() {
       sel.appendChild(opt);
     })();
   }
-  if (totalStock < 50) {
+  if (totalStock < STOCK.TOTAL_STOCK_WARNING_THRESHOLD) {
     sel.style.borderColor = 'orange';
   } else {
     sel.style.borderColor = '';
@@ -318,7 +320,7 @@ function handleCalculateCartStuff() {
   itemDiscounts = [];
   lowStockItems = [];
   for (idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].q < 5 && prodList[idx].q > 0) {
+    if (prodList[idx].q < STOCK.LOW_STOCK_THRESHOLD && prodList[idx].q > 0) {
       lowStockItems.push(prodList[idx].name);
     }
   }
@@ -348,24 +350,16 @@ function handleCalculateCartStuff() {
         }
       });
       if (q >= 10) {
-        if (curItem.id === PRODUCT_ONE) {
-          disc = 10 / 100;
-        } else {
-          if (curItem.id === p2) {
-            disc = 15 / 100;
-          } else {
-            if (curItem.id === product_3) {
-              disc = 20 / 100;
-            } else {
-              if (curItem.id === p4) {
-                disc = 5 / 100;
-              } else {
-                if (curItem.id === PRODUCT_5) {
-                  disc = 25 / 100;
-                }
-              }
-            }
-          }
+        if (curItem.id === PRODUCT_ID.P1) {
+          disc = DISCOUNT.KEYBOARD_DISCOUNT_RATE;
+        } else if (curItem.id === PRODUCT_ID.P2) {
+          disc = DISCOUNT.MOUSE_DISCOUNT_RATE;
+        } else if (curItem.id === PRODUCT_ID.P3) {
+          disc = DISCOUNT.MONITOR_ARM_DISCOUNT_RATE;
+        } else if (curItem.id === PRODUCT_ID.P4) {
+          disc = 5 / 100; // This product is out of stock, so it doesn't matter.
+        } else if (curItem.id === PRODUCT_ID.P5) {
+          disc = DISCOUNT.SPEAKER_DISCOUNT_RATE;
         }
         if (disc > 0) {
           itemDiscounts.push({name: curItem.name, discount: disc * 100});
@@ -376,9 +370,9 @@ function handleCalculateCartStuff() {
   }
   let discRate = 0;
   var originalTotal = subTot;
-  if (itemCnt >= 30) {
-    totalAmt = subTot * 75 / 100;
-    discRate = 25 / 100;
+  if (itemCnt >= DISCOUNT.BULK_DISCOUNT_THRESHOLD) {
+    totalAmt = subTot * (1 - DISCOUNT.BULK_DISCOUNT_RATE);
+    discRate = DISCOUNT.BULK_DISCOUNT_RATE;
   } else {
     discRate = (subTot - totalAmt) / subTot;
   }
@@ -387,7 +381,7 @@ function handleCalculateCartStuff() {
   var tuesdaySpecial = document.getElementById('tuesday-special');
   if (isTuesday) {
     if (totalAmt > 0) {
-      totalAmt = totalAmt * 90 / 100;
+      totalAmt = totalAmt * (1 - DISCOUNT.TUESDAY_DISCOUNT_RATE);
       discRate = 1 - (totalAmt / originalTotal);
       tuesdaySpecial.classList.remove('hidden');
     } else {
@@ -523,7 +517,7 @@ var doRenderBonusPoints = function() {
     document.getElementById('loyalty-points').style.display = 'none';
     return;
   }
-  basePoints = Math.floor(totalAmt / 1000)
+  basePoints = Math.floor(totalAmt * POINTS.BASE_POINT_RATE)
   finalPoints = 0;
   pointsDetail = [];
   if (basePoints > 0) {
@@ -532,7 +526,7 @@ var doRenderBonusPoints = function() {
   }
   if (new Date().getDay() === 2) {
     if (basePoints > 0) {
-      finalPoints = basePoints * 2;
+      finalPoints = basePoints * POINTS.TUESDAY_BONUS_RATE;
       pointsDetail.push('화요일 2배');
     }
   }
@@ -558,26 +552,22 @@ var doRenderBonusPoints = function() {
     }
   }
   if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + 50;
+    finalPoints = finalPoints + POINTS.KEYBOARD_MOUSE_SET_BONUS;
     pointsDetail.push('키보드+마우스 세트 +50p');
   }
   if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + 100;
+    finalPoints = finalPoints + POINTS.FULL_SET_BONUS;
     pointsDetail.push('풀세트 구매 +100p');
   }
-  if (itemCnt >= 30) {
-    finalPoints = finalPoints + 100;
+  if (itemCnt >= POINTS.BULK_PURCHASE_BONUS.LEVEL_3.threshold) {
+    finalPoints = finalPoints + POINTS.BULK_PURCHASE_BONUS.LEVEL_3.points;
     pointsDetail.push('대량구매(30개+) +100p');
-  } else {
-    if (itemCnt >= 20) {
-      finalPoints = finalPoints + 50;
-      pointsDetail.push('대량구매(20개+) +50p');
-    } else {
-      if (itemCnt >= 10) {
-        finalPoints = finalPoints + 20;
-        pointsDetail.push('대량구매(10개+) +20p');
-      }
-    }
+  } else if (itemCnt >= POINTS.BULK_PURCHASE_BONUS.LEVEL_2.threshold) {
+    finalPoints = finalPoints + POINTS.BULK_PURCHASE_BONUS.LEVEL_2.points;
+    pointsDetail.push('대량구매(20개+) +50p');
+  } else if (itemCnt >= POINTS.BULK_PURCHASE_BONUS.LEVEL_1.threshold) {
+    finalPoints = finalPoints + POINTS.BULK_PURCHASE_BONUS.LEVEL_1.points;
+    pointsDetail.push('대량구매(10개+) +20p');
   }
   bonusPts = finalPoints;
   var ptsTag = document.getElementById('loyalty-points');
