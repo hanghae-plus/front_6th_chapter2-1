@@ -1,5 +1,3 @@
-import { fileURLToPath } from 'node:url';
-
 import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';

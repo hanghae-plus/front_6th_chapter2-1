@@ -291,4 +291,3 @@ globalElements.cartDisplay.addEventListener('click', function (event) {
     handleUpdateProductSelectOptions();
   }
 });
-// 남 는 시 간 에 하 셈.
