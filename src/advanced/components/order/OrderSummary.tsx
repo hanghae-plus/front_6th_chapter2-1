@@ -28,8 +28,8 @@ const OrderSummary = () => {
         <div id="summary-details" className="space-y-3">
           <OrderList cartItems={cartItems} />
           <SubTotal subTotal={subTotal} />
-          {isAppliedItemDiscount ? <ItemDiscountList discountList={appliedItemDiscountList} /> : null}
-          {isAppliedTotalDiscount ? <TotalDiscountItem /> : null}
+          {isAppliedItemDiscount && <ItemDiscountList discountList={appliedItemDiscountList} />}
+          {isAppliedTotalDiscount && <TotalDiscountItem />}
           {isTuesday() ? <TuesdayDiscountItem /> : null}
           <div className="flex justify-between text-sm tracking-wide text-gray-400">
             <span>Shipping</span>
@@ -37,12 +37,14 @@ const OrderSummary = () => {
           </div>
         </div>
         <div className="mt-auto">
-          <DiscountSummary finalDiscountRate={finalDiscountRate} savedAmount={subTotal * (1 - finalDiscountRate)} />
+          {finalDiscountRate > 0 && (
+            <DiscountSummary finalDiscountRate={finalDiscountRate} savedAmount={subTotal * finalDiscountRate} />
+          )}
 
           <div id="cart-total" className="pt-5 border-t border-white/10">
             <FinalPrice finalPrice={finalTotal} totalPoint={bonusPoints.total} pointDetails={bonusPoints.detail} />
           </div>
-          {isTuesday() ? <AppliedTuesdayDiscount /> : null}
+          {isTuesday() && <AppliedTuesdayDiscount />}
         </div>
       </div>
       <button className="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">
