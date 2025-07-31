@@ -356,8 +356,8 @@ function onUpdateSelectOptions() {
 
   // 전체 재고 계산
   for (let idx = 0; idx < productList.length; idx++) {
-    const _p = productList[idx];
-    totalStock = totalStock + _p.availableStock;
+    const _product = productList[idx];
+    totalStock = totalStock + _product.availableStock;
   }
 
   // 각 상품별 옵션 생성
@@ -462,11 +462,11 @@ function handleCalculateCartStuff() {
         }
       }
 
-      const qtyElem = cartItems[i].querySelector('.quantity-number');
+      const quantityElem = cartItems[i].querySelector('.quantity-number');
       let disc;
 
       // 수량 및 가격 계산
-      const quantity = parseInt(qtyElem.textContent);
+      const quantity = parseInt(quantityElem.textContent);
       const itemTot = curItem.val * quantity;
       disc = 0;
       itemCount += quantity;
@@ -516,13 +516,13 @@ function handleCalculateCartStuff() {
   // ----------------------------------------
   // 대량 구매 할인 적용
   // ----------------------------------------
-  let discRate = 0;
+  let discountRate = 0;
   originalTotal = subTotal;
   if (itemCount >= 30) {
     totalAmount = (subTotal * 75) / 100;
-    discRate = 25 / 100;
+    discountRate = 25 / 100;
   } else {
-    discRate = (subTotal - totalAmount) / subTotal;
+    discountRate = (subTotal - totalAmount) / subTotal;
   }
 
   // ----------------------------------------
@@ -534,7 +534,7 @@ function handleCalculateCartStuff() {
   if (isTuesday) {
     if (totalAmount > 0) {
       totalAmount = (totalAmount * 90) / 100;
-      discRate = 1 - totalAmount / originalTotal;
+      discountRate = 1 - totalAmount / originalTotal;
       tuesdaySpecial.classList.remove('hidden');
     } else {
       tuesdaySpecial.classList.add('hidden');
@@ -565,8 +565,8 @@ function handleCalculateCartStuff() {
           break;
         }
       }
-      const qtyElem = cartItems[i].querySelector('.quantity-number');
-      const q = parseInt(qtyElem.textContent);
+      const quantityElem = cartItems[i].querySelector('.quantity-number');
+      const q = parseInt(quantityElem.textContent);
       const itemTotal = curItem.val * q;
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-xs tracking-wide text-gray-400">
@@ -651,13 +651,13 @@ function handleCalculateCartStuff() {
   // 할인 정보 표시
   const discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
-  if (discRate > 0 && totalAmount > 0) {
+  if (discountRate > 0 && totalAmount > 0) {
     savedAmount = originalTotal - totalAmount;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
           <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
-          <span class="text-sm font-medium text-green-400">${(discRate * 100).toFixed(1)}%</span>
+          <span class="text-sm font-medium text-green-400">${(discountRate * 100).toFixed(1)}%</span>
         </div>
         <div class="text-2xs text-gray-300">₩${Math.round(savedAmount).toLocaleString()} 할인되었습니다</div>
       </div>
@@ -859,8 +859,9 @@ function doUpdatePricesInCart() {
 
   // 총 수량 계산 (첫 번째 방법)
   while (cartContainer.children[j]) {
-    const qty = cartContainer.children[j].querySelector('.quantity-number');
-    totalCount += qty ? parseInt(qty.textContent) : 0;
+    const quantity =
+      cartContainer.children[j].querySelector('.quantity-number');
+    totalCount += quantity ? parseInt(quantity.textContent) : 0;
     j++;
   }
 
@@ -952,10 +953,13 @@ addButton.addEventListener('click', function () {
 
     // 이미 장바구니에 있는 상품인 경우 수량 증가
     if (item) {
-      const qtyElem = item.querySelector('.quantity-number');
-      const newQty = parseInt(qtyElem['textContent']) + 1;
-      if (newQty <= itemToAdd.availableStock + parseInt(qtyElem.textContent)) {
-        qtyElem.textContent = newQty;
+      const quantityElem = item.querySelector('.quantity-number');
+      const newQuantity = parseInt(quantityElem['textContent']) + 1;
+      if (
+        newQuantity <=
+        itemToAdd.availableStock + parseInt(quantityElem.textContent)
+      ) {
+        quantityElem.textContent = newQuantity;
         itemToAdd['availableStock']--;
       } else {
         alert('재고가 부족합니다.');
@@ -999,7 +1003,7 @@ addButton.addEventListener('click', function () {
 // ----------------------------------------
 cartContainer.addEventListener('click', function (event) {
   const tgt = event.target;
-  let qtyElem;
+  let quantityElem;
 
   if (
     tgt.classList.contains('quantity-change') ||
@@ -1019,16 +1023,19 @@ cartContainer.addEventListener('click', function (event) {
 
     // 수량 변경 처리
     if (tgt.classList.contains('quantity-change')) {
-      const qtyChange = parseInt(tgt.dataset.change);
-      qtyElem = itemElem.querySelector('.quantity-number');
-      const currentQty = parseInt(qtyElem.textContent);
-      const newQty = currentQty + qtyChange;
+      const quantityChange = parseInt(tgt.dataset.change);
+      quantityElem = itemElem.querySelector('.quantity-number');
+      const currentQuantity = parseInt(quantityElem.textContent);
+      const newQuantity = currentQuantity + quantityChange;
 
-      if (newQty > 0 && newQty <= prod.availableStock + currentQty) {
-        qtyElem.textContent = newQty;
-        prod.availableStock -= qtyChange;
-      } else if (newQty <= 0) {
-        prod.availableStock += currentQty;
+      if (
+        newQuantity > 0 &&
+        newQuantity <= prod.availableStock + currentQuantity
+      ) {
+        quantityElem.textContent = newQuantity;
+        prod.availableStock -= quantityChange;
+      } else if (newQuantity <= 0) {
+        prod.availableStock += currentQuantity;
         itemElem.remove();
       } else {
         alert('재고가 부족합니다.');
@@ -1036,9 +1043,9 @@ cartContainer.addEventListener('click', function (event) {
     }
     // 상품 삭제 처리
     else if (tgt.classList.contains('remove-item')) {
-      qtyElem = itemElem.querySelector('.quantity-number');
-      const remQty = parseInt(qtyElem.textContent);
-      prod.availableStock += remQty;
+      quantityElem = itemElem.querySelector('.quantity-number');
+      const removeQuantity = parseInt(quantityElem.textContent);
+      prod.availableStock += removeQuantity;
       itemElem.remove();
     }
 
