@@ -12,7 +12,12 @@ import {
   quantityManagers,
   stockManagers,
 } from './features/cart/utils/stockUtils.ts';
-import { calculatePoints } from './features/point/utils/pointsCalculator.ts';
+import { calculatePoints } from './features/point/utils/pointsUtils.ts';
+import {
+  generateStockStatusMessage,
+  getTotalStock,
+  isLowTotalStock,
+} from './features/product/utils/productUtils.ts';
 
 function App() {
   const [products, setProducts] = useState(initialProducts);
@@ -32,6 +37,19 @@ function App() {
     () => calculatePoints(cartItems, totalAmount),
     [cartItems, totalAmount],
   );
+
+  // 재고 상태 계산
+  const stockStatus = useMemo(() => {
+    const message = generateStockStatusMessage(products, 5);
+    const isLowStock = isLowTotalStock(products, 50);
+    const totalStock = getTotalStock(products);
+
+    return {
+      message,
+      isLowStock,
+      totalStock,
+    };
+  }, [products]);
 
   const handleProductSelection = (productId: string) => {
     setSelectedProductId(productId);
@@ -139,11 +157,18 @@ function App() {
         {/* Left Column */}
         <div className='bg-white border border-gray-200 p-8 overflow-y-auto'>
           <div className='mb-6 pb-6 border-b border-gray-200'>
-            <ProductSelector
-              products={products}
-              selectedProductId={selectedProductId}
-              onSelectionChange={handleProductSelection}
-            />
+            <div
+              className='mb-3'
+              style={{
+                borderColor: stockStatus.isLowStock ? 'orange' : '',
+              }}
+            >
+              <ProductSelector
+                products={products}
+                selectedProductId={selectedProductId}
+                onSelectionChange={handleProductSelection}
+              />
+            </div>
             <button
               id={ELEMENT_IDS.ADD_TO_CART}
               className='w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all'
@@ -154,7 +179,9 @@ function App() {
             <div
               id={ELEMENT_IDS.STOCK_STATUS}
               className='text-xs text-red-500 mt-3 whitespace-pre-line'
-            ></div>
+            >
+              {stockStatus.message}
+            </div>
           </div>
 
           <div id={ELEMENT_IDS.CART_ITEMS} className='space-y-3'>
