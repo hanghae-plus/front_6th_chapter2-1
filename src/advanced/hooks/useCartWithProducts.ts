@@ -15,6 +15,7 @@ export const useCartWithProduct = () => {
 
   const addToCart = (productId: string) => {
     const product = getProductById(productId);
+
     if (!product || product.quantity <= 0) {
       alert('재고가 부족합니다.');
       return;
@@ -36,10 +37,8 @@ export const useCartWithProduct = () => {
   };
 
   const updateCartItemQuantity = (productId: string, delta: number) => {
-    const product = getProductById(productId);
+    const product = getProductById(productId) as Product;
     const currentQuantity = getQuantityByProductId(productId);
-
-    if (!product) return;
 
     const newQuantity = currentQuantity + delta;
 

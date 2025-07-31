@@ -1,11 +1,11 @@
 import { ChangeEventHandler, MouseEventHandler, useState } from 'react';
 
-import { useCartContext } from '@/store/CartContext';
+import { useCartWithProduct } from '@/hooks/useCartWithProducts';
 import { useProductContext } from '@/store/ProductContext';
 
 const ProductPicker = () => {
   const { products } = useProductContext();
-  const { addItem } = useCartContext();
+  const { addToCart } = useCartWithProduct();
   const [selectedProductId, setSelectedProductId] = useState(products[0].id);
 
   const handleChangeValue: ChangeEventHandler<HTMLSelectElement> = (e) => {
@@ -15,8 +15,7 @@ const ProductPicker = () => {
 
   const handleClickAdd: MouseEventHandler = (e) => {
     e.preventDefault();
-
-    addItem(selectedProductId);
+    addToCart(selectedProductId);
   };
 
   return (

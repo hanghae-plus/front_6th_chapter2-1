@@ -74,7 +74,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const getQuantityByProductId = (productId: string): number => {
     const quantity = cartMap[productId];
-    if (!quantity) throw new Error('doesnt exist');
+    if (!quantity) return 0;
     return quantity;
   };
 
