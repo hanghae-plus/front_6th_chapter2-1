@@ -8,12 +8,13 @@ export type CartItem = {
 
 type CartContextType = {
   items: CartItem[];
+  cartTotalCount: number;
   addItem: (_productId: string, _quantity?: number) => void;
   removeItem: (productId: string) => void;
   changeQuantity: (productId: string, delta: number) => void;
   clear: () => void;
   getQuantityByProductId: (productId: string) => number;
-  getTotalItem: () => number;
+
   lastAddedItem: string | null;
 };
 
@@ -22,6 +23,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartMap, setCartMap] = useState<Record<string, number>>({});
   const [lastAddedItem, setLastAddedItem] = useState<string | null>(null);
+
+  const cartTotalCount = Object.values(cartMap).reduce((acc, quantity) => acc + quantity, 0);
 
   const addItem = (productId: string, quantity = 1) => {
     setCartMap((prev) => ({
@@ -78,19 +81,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return quantity;
   };
 
-  const getTotalItem = (): number => Object.values(cartMap).reduce((acc, quantity) => acc + quantity, 0);
-
   return (
     <CartContext.Provider
       value={{
         items: getItems(),
+        cartTotalCount,
+        lastAddedItem,
         addItem,
         removeItem,
         changeQuantity,
         clear,
         getQuantityByProductId,
-        getTotalItem,
-        lastAddedItem,
       }}
     >
       {children}
