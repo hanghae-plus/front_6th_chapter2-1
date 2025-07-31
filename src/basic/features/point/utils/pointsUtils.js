@@ -2,13 +2,16 @@
  * Point Utils - 실제 PointsCalculator에서 사용중인 순수 함수들
  */
 
+import { BUSINESS_CONSTANTS } from '@/basic/shared/constants/business.js';
+
 /**
  * 기본 포인트 계산 (PointsCalculator.calculateBasePoints 기반)
  * @param {number} totalAmount - 총 결제 금액
  * @returns {number} 기본 포인트
  */
 export const calculateBasePoints = totalAmount => {
-  return Math.floor(totalAmount / 1000);
+  const { BASE_POINT_RATE } = BUSINESS_CONSTANTS.POINTS;
+  return Math.floor(totalAmount / BASE_POINT_RATE);
 };
 
 /**
