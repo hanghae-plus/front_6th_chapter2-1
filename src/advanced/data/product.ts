@@ -1,4 +1,12 @@
-import { Product } from '@/domain/product';
+export type Product = {
+  id: string;
+  name: string;
+  discountPrice: number;
+  price: number;
+  quantity: number;
+  onSale: boolean;
+  suggestSale: boolean;
+};
 
 export const KEYBOARD = 'p1';
 export const MOUSE = 'p2';
@@ -6,15 +14,15 @@ export const MONITORARM = 'p3';
 export const POUCH = 'p4';
 export const SPEAKER = 'p5';
 
-export const initialProducts: Product[] = [
+export const initialProductList: Product[] = [
   {
     id: KEYBOARD,
     name: '버그 없애는 키보드',
     discountPrice: 10000,
     price: 10000,
-    quantity: 50,
-    onSale: false,
-    suggestSale: false,
+    quantity: 50, //변함
+    onSale: false, // 변함
+    suggestSale: false, // 변함
   },
   {
     id: MOUSE,
