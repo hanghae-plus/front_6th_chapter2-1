@@ -1,3 +1,5 @@
+import { PRODUCT_ID } from './constants';
+
 /**
  * @typedef {Object} Product
  * @property {string} id
@@ -7,7 +9,6 @@
  * @property {number} quantity
  * @property {boolean} onSale
  * @property {boolean} suggestSale
- * @property {string} type
  */
 
 /**
@@ -82,15 +83,15 @@ export const getDiscountStatus = (product) => {
  * @return {number} 상품 할인율
  */
 export const getDiscountRate = (product) => {
-  const rules = {
-    keyboard: 0.1,
-    mouse: 0.15,
-    monitorArm: 0.2,
-    pouch: 0.05,
-    speaker: 0.25,
+  const discountRate = {
+    [PRODUCT_ID.KEYBOARD]: 0.1,
+    [PRODUCT_ID.MOUSE]: 0.15,
+    [PRODUCT_ID.MONITOR_ARM]: 0.2,
+    [PRODUCT_ID.POUCH]: 0.05,
+    [PRODUCT_ID.SPEAKER]: 0.25,
   };
 
-  return rules[product.type] ?? 0;
+  return discountRate[product.id] ?? 0;
 };
 
 /**

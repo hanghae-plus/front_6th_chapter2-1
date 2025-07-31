@@ -1,5 +1,5 @@
 import { calculateBasePoint, getBulkBonusPoint, getSetBonusPoint } from './features/point/service';
-import { productIds, productList } from './features/product/constants';
+import { PRODUCT_ID, productList } from './features/product/constants';
 import { renderProductSelectOptions, renderStockInfo } from './features/product/render';
 import { getDiscountRate, getDiscountStatus } from './features/product/service';
 import {
@@ -299,9 +299,9 @@ function handleCalculateCartStuff() {
 const renderBonusPoints = () => {
   const loyaltyPointsEl = document.getElementById('loyalty-points');
   const cartProductEls = Array.from(cartContainerEl.children);
-  const hasKeyboard = cartProductEls.some((el) => el.id === productIds.keyboard);
-  const hasMouse = cartProductEls.some((el) => el.id === productIds.mouse);
-  const hasMonitorArm = cartProductEls.some((el) => el.id === productIds.monitorArm);
+  const hasKeyboard = cartProductEls.some((el) => el.id === PRODUCT_ID.KEYBOARD);
+  const hasMouse = cartProductEls.some((el) => el.id === PRODUCT_ID.MOUSE);
+  const hasMonitorArm = cartProductEls.some((el) => el.id === PRODUCT_ID.MONITOR_ARM);
 
   const basePoints = calculateBasePoint(totalAmount);
   const pointsDetailText = [];
