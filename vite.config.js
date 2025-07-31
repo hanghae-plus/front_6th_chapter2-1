@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: process.env.NODE_ENV === 'production' ? '/front_6th_chapter2-1/' : '/',
+  base: './',
   test: {
     globals: true,
     environment: 'jsdom',
@@ -12,5 +12,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      input: 'index.advanced.html',
+    },
   },
 });
