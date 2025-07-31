@@ -1,12 +1,22 @@
+import { useState } from 'react';
 import { Header } from './shared/components/Header.tsx';
 import HelpModal from './shared/components/HelpModal.tsx';
 import ProductSelector from './features/product/components/ProductSelector.tsx';
 import { ELEMENT_IDS } from './shared/constants/elementIds.ts';
+import { initialProducts } from './features/product/constants/index.ts';
 
 function App() {
+  const [products, setProducts] = useState(initialProducts);
+  const [selectedProductId, setSelectedProductId] = useState('');
+  const [itemCount, setItemCount] = useState(0);
+
+  const handleProductSelection = (productId: string) => {
+    setSelectedProductId(productId);
+  };
+
   return (
     <>
-      <Header itemCount={0} />
+      <Header itemCount={itemCount} />
 
       {/* Main Grid Layout */}
       <div className='grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden'>
@@ -14,11 +24,9 @@ function App() {
         <div className='bg-white border border-gray-200 p-8 overflow-y-auto'>
           <div className='mb-6 pb-6 border-b border-gray-200'>
             <ProductSelector
-              products={[]}
-              selectedProductId=''
-              onSelectionChange={productId => {
-                console.log('Selected product:', productId);
-              }}
+              products={products}
+              selectedProductId={selectedProductId}
+              onSelectionChange={handleProductSelection}
             />
             <button
               id={ELEMENT_IDS.ADD_TO_CART}
