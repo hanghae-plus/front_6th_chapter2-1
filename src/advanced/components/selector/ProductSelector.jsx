@@ -1,4 +1,6 @@
-export const ProductSelector = ({ isLowStock }) => {
+import { ProductOption } from "./ProductOption";
+
+export const ProductSelector = ({ productList, isLowStock }) => {
   return (
     <select
       id="product-select"
@@ -6,6 +8,8 @@ export const ProductSelector = ({ isLowStock }) => {
       style={{
         borderColor: isLowStock ? "orange" : "",
       }}
-    ></select>
+    >
+      {productList.map(ProductOption)}
+    </select>
   );
 };
