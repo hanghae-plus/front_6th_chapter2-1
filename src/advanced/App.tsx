@@ -7,6 +7,11 @@ import OrderSummaryDetails from './features/order/components/OrderSummaryDetails
 import { ELEMENT_IDS } from './shared/constants/elementIds.ts';
 import { initialProducts } from './features/product/constants/index.ts';
 import { useCartStore } from './features/cart/store/cartStore.ts';
+import {
+  stockValidators,
+  quantityManagers,
+  stockManagers,
+} from './features/cart/utils/stockUtils.ts';
 
 function App() {
   const [products, setProducts] = useState(initialProducts);
@@ -25,7 +30,10 @@ function App() {
     if (!selectedProductId) return;
 
     const selectedProduct = products.find(p => p.id === selectedProductId);
-    if (!selectedProduct || selectedProduct.q <= 0) {
+    if (!selectedProduct) return;
+
+    // 재고 검증
+    if (stockValidators.isOutOfStock(selectedProduct.q)) {
       alert('재고가 부족합니다.');
       return;
     }
@@ -33,7 +41,7 @@ function App() {
     const existingItem = cartItems.find(item => item.id === selectedProductId);
 
     if (existingItem) {
-      if (existingItem.quantity >= selectedProduct.q) {
+      if (!stockValidators.canIncreaseQuantity(1, selectedProduct.q)) {
         alert('재고가 부족합니다.');
         return;
       }
@@ -48,8 +56,11 @@ function App() {
       suggestSale: selectedProduct.suggestSale,
     });
 
+    // 재고 감소
     setProducts(prev =>
-      prev.map(p => (p.id === selectedProductId ? { ...p, q: p.q - 1 } : p)),
+      prev.map(p =>
+        p.id === selectedProductId ? stockManagers.decreaseStock(p, 1) : p,
+      ),
     );
   };
 
@@ -59,22 +70,27 @@ function App() {
 
     if (!product || !cartItem) return;
 
-    const newQuantity = cartItem.quantity + change;
+    const newQuantity = quantityManagers.calculateNewQuantity(
+      cartItem.quantity,
+      change,
+    );
 
     if (newQuantity <= 0) {
       handleRemoveItem(id);
       return;
     }
 
-    if (change > 0 && product.q <= 0) {
+    // 수량 증가시 재고 검증
+    if (change > 0 && !stockValidators.canIncreaseQuantity(change, product.q)) {
       alert('재고가 부족합니다.');
       return;
     }
 
     updateQuantity(id, newQuantity);
 
+    // 재고 조정
     setProducts(prev =>
-      prev.map(p => (p.id === id ? { ...p, q: p.q - change } : p)),
+      prev.map(p => (p.id === id ? stockManagers.updateStock(p, -change) : p)),
     );
   };
 
@@ -84,8 +100,11 @@ function App() {
 
     removeItem(id);
 
+    // 재고 복원
     setProducts(prev =>
-      prev.map(p => (p.id === id ? { ...p, q: p.q + cartItem.quantity } : p)),
+      prev.map(p =>
+        p.id === id ? stockManagers.increaseStock(p, cartItem.quantity) : p,
+      ),
     );
   };
 

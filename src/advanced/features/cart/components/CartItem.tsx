@@ -68,7 +68,7 @@ const CartItem = ({
         <>
           <span className='line-through text-gray-400'>
             ₩{originalTotalPrice.toLocaleString()}
-          </span>{' '}
+          </span>
           <span className={priceClass}>₩{totalPrice.toLocaleString()}</span>
         </>
       );
