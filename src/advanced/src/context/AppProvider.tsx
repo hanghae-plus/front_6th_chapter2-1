@@ -22,7 +22,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [products, setProducts] = useState(PRODUCTS);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isManualOpen, setIsManualOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(PRODUCTS[0]?.id || "");
   const [stockStatus, setStockStatus] = useState("");
   const [stockError, setStockError] = useState(""); // 재고 부족 에러 메시지
 
@@ -61,10 +61,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const addToCart = useCallback(
     (productId: string) => {
       // 상품 선택 확인
-      if (!productId) return;
+      if (!productId) {
+        showStockAlert("상품을 선택해주세요.");
+        return;
+      }
 
       const product = products.find((p) => p.id === productId);
-      if (!product) return;
+      if (!product) {
+        showStockAlert("잘못된 상품입니다.");
+        return;
+      }
 
       // 품절 상품 확인
       if (product.quantity === 0) {

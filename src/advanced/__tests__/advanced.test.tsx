@@ -352,7 +352,7 @@ describe("advanced 테스트", () => {
 
         // 좌측: 상품 선택 및 장바구니
         expect(screen.getByRole("combobox")).toBeInTheDocument();
-        expect(screen.getByText(/상품을 선택하세요/)).toBeInTheDocument();
+        expect(screen.getByText(/Add to Cart/)).toBeInTheDocument();
 
         // 우측: 주문 요약
         expect(screen.getByText(/Order Summary/)).toBeInTheDocument();

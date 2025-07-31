@@ -45,14 +45,10 @@ export const ProductSelector = ({
 
       <button
         onClick={onAddToCart}
-        disabled={!isProductSelected || isProductOutOfStock}
+        disabled={isProductOutOfStock}
         className="w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
-        {!isProductSelected
-          ? "상품을 선택하세요"
-          : isProductOutOfStock
-            ? "품절"
-            : "Add to Cart"}
+        {isProductOutOfStock ? "품절" : "Add to Cart"}
       </button>
 
       {stockStatus && (
