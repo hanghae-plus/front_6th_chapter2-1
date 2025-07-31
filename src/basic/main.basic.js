@@ -768,29 +768,55 @@ function renderOrderSummaryDetails(cartItems, subtotal, itemCount, itemDiscounts
 }
 
 /**
- * 총액 및 포인트 표시 업데이트
+ * 총액 및 포인트 표시 데이터 계산 (순수 함수)
+ * @param {number} totalAmount - 총 금액
+ * @returns {Object} 총액 및 포인트 표시 데이터
+ */
+function calculateTotalAndPointsData(totalAmount) {
+  const formattedTotal = `₩${totalAmount.toLocaleString()}`;
+  const points = Math.floor(totalAmount / POINTS_RULES.BASE_CALCULATION_UNIT);
+
+  return {
+    totalText: formattedTotal,
+    points,
+    pointsText: `적립 포인트: ${points}p`,
+    shouldShowPoints: true,
+  };
+}
+
+/**
+ * 총액 및 포인트 렌더러 객체
+ * DOM 조작만 담당
+ */
+const TotalPointsRenderer = {
+  /**
+   * 총액 및 포인트 표시 렌더링
+   * @param {Object} displayData - 표시 데이터
+   */
+  render(displayData) {
+    const totalDiv = cartSummaryElement.querySelector(".text-2xl");
+    const loyaltyPointsDiv = document.getElementById("loyalty-points");
+
+    // 총액 표시
+    if (totalDiv) {
+      totalDiv.textContent = displayData.totalText;
+    }
+
+    // 포인트 표시
+    if (loyaltyPointsDiv && displayData.shouldShowPoints) {
+      loyaltyPointsDiv.textContent = displayData.pointsText;
+      loyaltyPointsDiv.style.display = "block";
+    }
+  },
+};
+
+/**
+ * 총액 및 포인트 표시 업데이트 (리팩토링된 버전)
  * @param {number} totalAmount - 총 금액
  */
 function updateTotalAndPointsDisplay(totalAmount) {
-  const totalDiv = cartSummaryElement.querySelector(".text-2xl");
-  const loyaltyPointsDiv = document.getElementById("loyalty-points");
-
-  // 총액 표시
-  if (totalDiv) {
-    totalDiv.textContent = `₩${totalAmount.toLocaleString()}`;
-  }
-
-  // 포인트 표시
-  if (loyaltyPointsDiv) {
-    const points = Math.floor(totalAmount / POINTS_RULES.BASE_CALCULATION_UNIT);
-    if (points > 0) {
-      loyaltyPointsDiv.textContent = `적립 포인트: ${points}p`;
-      loyaltyPointsDiv.style.display = "block";
-    } else {
-      loyaltyPointsDiv.textContent = "적립 포인트: 0p";
-      loyaltyPointsDiv.style.display = "block";
-    }
-  }
+  const displayData = calculateTotalAndPointsData(totalAmount);
+  TotalPointsRenderer.render(displayData);
 }
 
 /**
