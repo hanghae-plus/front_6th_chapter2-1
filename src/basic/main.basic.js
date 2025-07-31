@@ -1512,18 +1512,16 @@ function main() {
         // 빈 장바구니 상태
       }
       if (lastSelectedProductId) {
-        let suggest = null;
         const products = useProductData.getProducts();
-        for (let k = 0; k < products.length; k += 1) {
-          if (products[k].id !== lastSelectedProductId) {
-            if (products[k].q > 0) {
-              if (!products[k].suggestSale) {
-                suggest = products[k];
-                break;
-              }
-            }
-          }
-        }
+
+        const isNotLastSelected = (product) => product.id !== lastSelectedProductId;
+        const isInStock = (product) => product.q > 0;
+        const isNotSuggested = (product) => !product.suggestSale;
+
+        const suggest = products.find(
+          (product) => isNotLastSelected(product) && isInStock(product) && isNotSuggested(product),
+        );
+
         if (suggest) {
           alert(
             `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 ${DISCOUNT_RULES.RECOMMENDATION_DISCOUNT_RATE}% 추가 할인!`,
