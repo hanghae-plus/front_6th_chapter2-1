@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { CartContainer } from './components/cart-section/CartContainer';
+import { Header } from './components/header/Header';
+import { Manual } from './components/manual/Manual';
+import { OrderSummary } from './components/order-summary/OrderSummary';
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <>
-      <h1>Vite + React</h1>
-      <div className='card'>
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
+      <Header />
+      <div className='grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden'>
+        <CartContainer />
+        <OrderSummary />
       </div>
+      <Manual />
     </>
   );
 }
