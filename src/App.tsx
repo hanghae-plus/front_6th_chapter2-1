@@ -1,14 +1,63 @@
 import React, { useState } from 'react';
 import { ProductSelector } from './components/ProductSelector';
+import { Cart } from './components/Cart';
+import { AddToCartButton } from './components/AddToCartButton';
 import { useProducts } from './hooks/useProducts';
+import { useCart } from './hooks/useCart';
+import { Product } from './types';
 import './App.css';
 
 function App() {
-  const { products, lowStockProducts, outOfStockProducts } = useProducts();
+  const { products, updateStock, restoreStock, getProduct } = useProducts();
+  const {
+    cartItems,
+    totalItems,
+    totalAmount,
+    addToCart,
+    removeFromCart,
+    increaseQuantity,
+    decreaseQuantity,
+  } = useCart();
+
   const [selectedProductId, setSelectedProductId] = useState('');
+
+  const selectedProduct = selectedProductId ? getProduct(selectedProductId) || null : null;
 
   const handleProductSelect = (productId: string) => {
     setSelectedProductId(productId);
+  };
+
+  const handleAddToCart = (product: Product) => {
+    // 재고 확인
+    if (product.stock > 0) {
+      addToCart(product);
+      updateStock(product.id, 1);
+      setSelectedProductId(''); // 선택 초기화
+    }
+  };
+
+  const handleRemoveFromCart = (productId: string) => {
+    const item = cartItems.find((item) => item.product.id === productId);
+    if (item) {
+      restoreStock(productId, item.quantity);
+      removeFromCart(productId);
+    }
+  };
+
+  const handleIncreaseQuantity = (productId: string) => {
+    const item = cartItems.find((item) => item.product.id === productId);
+    if (item && item.product.stock > item.quantity) {
+      increaseQuantity(productId);
+      updateStock(productId, 1);
+    }
+  };
+
+  const handleDecreaseQuantity = (productId: string) => {
+    const item = cartItems.find((item) => item.product.id === productId);
+    if (item) {
+      decreaseQuantity(productId);
+      restoreStock(productId, 1);
+    }
   };
 
   return (
@@ -27,16 +76,24 @@ function App() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-2xl font-semibold mb-4">상품 선택</h2>
-              <ProductSelector
-                products={products}
-                selectedProductId={selectedProductId}
-                onProductSelect={handleProductSelect}
-              />
+              <div className="space-y-4">
+                <ProductSelector
+                  products={products}
+                  selectedProductId={selectedProductId}
+                  onProductSelect={handleProductSelect}
+                />
+                <AddToCartButton selectedProduct={selectedProduct} onAddToCart={handleAddToCart} />
+              </div>
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-2xl font-semibold mb-4">장바구니</h2>
-              <p className="text-gray-600">장바구니 기능이 여기에 들어갈 예정입니다.</p>
+              <Cart
+                cartItems={cartItems}
+                onIncreaseQuantity={handleIncreaseQuantity}
+                onDecreaseQuantity={handleDecreaseQuantity}
+                onRemoveItem={handleRemoveFromCart}
+              />
             </div>
           </div>
 
@@ -44,7 +101,18 @@ function App() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-2xl font-semibold mb-4">주문 요약</h2>
-              <p className="text-gray-600">주문 요약 기능이 여기에 들어갈 예정입니다.</p>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">총 상품 수:</span>
+                  <span className="font-semibold">{totalItems}개</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">총 금액:</span>
+                  <span className="text-2xl font-bold text-blue-600">
+                    ₩{totalAmount.toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">

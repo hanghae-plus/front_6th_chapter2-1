@@ -1,52 +1,56 @@
+// 상품 타입
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  discount: number;
+}
+
+// 장바구니 아이템 타입
+export interface CartItem {
+  product: Product;
+  quantity: number;
+  appliedDiscounts: string[];
+}
+
 export const PRODUCTS = [
   {
     id: 'p1',
     name: '버그 없애는 키보드',
-    discountPrice: 10000,
     price: 10000,
-    quantity: 50,
-    onSale: false,
-    suggestSale: false,
-    discountRate: 0.1,
+    stock: 50,
+    discount: 0.1,
   },
   {
     id: 'p2',
     name: '생산성 폭발 마우스',
-    discountPrice: 20000,
     price: 20000,
-    quantity: 30,
-    onSale: false,
-    suggestSale: false,
-    discountRate: 0.15,
+    stock: 30,
+    discount: 0.15,
   },
   {
     id: 'p3',
     name: '거북목 탈출 모니터암',
-    discountPrice: 30000,
     price: 30000,
-    quantity: 20,
-    onSale: false,
-    suggestSale: false,
-    discountRate: 0.2,
+    stock: 20,
+    discount: 0.2,
   },
   {
     id: 'p4',
     name: '에러 방지 노트북 파우치',
-    discountPrice: 15000,
     price: 15000,
-    quantity: 0,
-    onSale: false,
-    suggestSale: false,
-    discountRate: 0.05,
+    stock: 0,
+    discount: 0.05,
   },
   {
     id: 'p5',
     name: '코딩할 때 듣는 Lo-Fi 스피커',
-    discountPrice: 25000,
     price: 25000,
-    quantity: 10,
-    onSale: false,
-    suggestSale: false,
-    discountRate: 0.25,
+    stock: 10,
+    discount: 0.25,
   },
 ];
+
+// useCart 훅에서 사용할 initialProducts
+export const initialProducts: Product[] = PRODUCTS;

@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Product, CartItem, initialProducts } from '../lib/product';
 
-interface UseCartReturn {
+interface CartContextType {
   products: Product[];
   cartItems: CartItem[];
   selectedProductId: string | null;
@@ -13,7 +13,21 @@ interface UseCartReturn {
   getTotalAmount: () => number;
 }
 
-export const useCart = (): UseCartReturn => {
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
+export const useCart = (): CartContextType => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+  return context;
+};
+
+interface CartProviderProps {
+  children: ReactNode;
+}
+
+export const CartProvider = ({ children }: CartProviderProps) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
@@ -21,17 +35,17 @@ export const useCart = (): UseCartReturn => {
   // 장바구니에 상품 추가
   const addToCart = useCallback(
     (productId: string) => {
-      console.log('addToCart called with productId:', productId); // 디버깅용
+      console.log('addToCart called with productId:', productId);
       const product = products.find((p: Product) => p.id === productId);
-      console.log('found product:', product); // 디버깅용
+      console.log('found product:', product);
       
       if (!product) {
-        console.log('Product not found'); // 디버깅용
+        console.log('Product not found');
         return;
       }
       
       if (product.stock === 0) {
-        console.log('Product out of stock'); // 디버깅용
+        console.log('Product out of stock');
         return;
       }
 
@@ -53,7 +67,7 @@ export const useCart = (): UseCartReturn => {
             quantity: 1,
             appliedDiscounts: [],
           };
-          console.log('Adding new item to cart:', newItem); // 디버깅용
+          console.log('Adding new item to cart:', newItem);
           return [...prevItems, newItem];
         }
       });
@@ -133,7 +147,7 @@ export const useCart = (): UseCartReturn => {
     }, 0);
   }, [cartItems]);
 
-  return {
+  const value = {
     products,
     cartItems,
     selectedProductId,
@@ -144,4 +158,6 @@ export const useCart = (): UseCartReturn => {
     getCartItemCount,
     getTotalAmount,
   };
-};
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}; 
