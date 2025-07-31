@@ -11,6 +11,7 @@ import { RightColumn } from "../components/RightColumn";
 import { SelectContainer } from "../components/SelectContainer";
 import { StockInfo } from "../components/StockInfo";
 import { initialProducts, PRODUCT_IDS } from "../features/product";
+import { eventStore } from "./eventStore";
 
 const state = {
   prodList: initialProducts,
@@ -54,13 +55,16 @@ function main() {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
-  // 이벤트 핸들러 설정 (요소 참조 직접 전달)
-  manualToggle.addEventListener("click", () =>
-    handleManualToggle(manualOverlay, manualColumn)
-  );
-  manualOverlay.addEventListener("click", (e) =>
-    handleManualOverlayClick(e, manualColumn)
-  );
+  // 이벤트 스토어 초기화
+  eventStore.initialize({
+    addBtn,
+    cartDisplay,
+    sel,
+    handleAddToCart,
+    handleCartDispClick,
+    handleManualToggle,
+    handleManualOverlayClick,
+  });
 
   let initStock = 0;
   for (let i = 0; i < state.prodList.length; i++) {
@@ -684,14 +688,19 @@ function doUpdatePricesInCart() {
   handleCalculateCartStuff();
 }
 
-function handleManualToggle(manualOverlay, manualColumn) {
+function handleManualToggle() {
+  const manualOverlay = document.querySelector(".fixed.inset-0.bg-black\\/50");
+  const manualColumn = document.querySelector(".fixed.right-0.top-0.h-full");
+
   if (manualOverlay && manualColumn) {
     manualOverlay.classList.toggle("hidden");
     manualColumn.classList.toggle("translate-x-full");
   }
 }
 
-function handleManualOverlayClick(e, manualColumn) {
+function handleManualOverlayClick(e) {
+  const manualColumn = document.querySelector(".fixed.right-0.top-0.h-full");
+
   if (e.target === e.currentTarget && manualColumn) {
     e.currentTarget.classList.add("hidden");
     manualColumn.classList.add("translate-x-full");
@@ -845,5 +854,3 @@ function handleCartDispClick(event) {
 }
 
 main();
-addBtn.addEventListener("click", handleAddToCart);
-cartDisplay.addEventListener("click", handleCartDispClick);
