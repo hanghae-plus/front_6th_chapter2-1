@@ -1,6 +1,15 @@
 import { useState, useCallback } from "react";
 import type { CartItem, Product } from "../types";
-import { showStockAlert } from "../services/alertService";
+import {
+  validateAddToCart,
+  validateQuantityUpdate,
+} from "../utils/validationUtils";
+import {
+  findProductById,
+  findCartItemById,
+  updateCartItem,
+} from "../utils/arrayUtils";
+import { createError, handleError } from "../utils/errorUtils";
 
 export const useCart = (
   products: Product[],
@@ -12,49 +21,32 @@ export const useCart = (
 
   const addToCart = useCallback(
     (productId: string) => {
-      // 상품 선택 확인
-      if (!productId) {
-        showStockAlert("상품을 선택해주세요.");
-        return;
-      }
+      // 검증 로직을 순수 함수로 분리
+      const validation = validateAddToCart(productId, products, cart);
 
-      const product = products.find((p) => p.id === productId);
-      if (!product) {
-        showStockAlert("잘못된 상품입니다.");
-        return;
-      }
-
-      // 품절 상품 확인
-      if (product.quantity === 0) {
-        const errorMessage = `재고 부족: ${product.name}은(는) 품절입니다.`;
-        setStockError(errorMessage);
-        showStockAlert(errorMessage);
-        return;
-      }
-
-      const existingItem = cart.find((item) => item.id === productId);
-      const currentQuantity = existingItem ? existingItem.quantity : 0;
-      const newQuantity = currentQuantity + 1;
-
-      // 재고 확인 (장바구니에 있는 수량을 고려한 검증)
-      if (newQuantity > product.quantity + currentQuantity) {
-        const errorMessage = `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`;
-        setStockError(errorMessage);
-        showStockAlert(errorMessage);
+      if (!validation.isValid) {
+        const error = createError.cart(validation.error!, "VALIDATION_ERROR");
+        setStockError(validation.error!);
+        handleError(error);
         return;
       }
 
       // 재고 에러 초기화
       setStockError("");
 
+      const product = findProductById(products, productId)!;
+      const existingItem = findCartItemById(cart, productId);
+
       // 재고 감소
       updateProductQuantity(productId, -1);
 
       if (existingItem) {
+        const newQuantity = existingItem.quantity + 1;
         setCart((prev) =>
-          prev.map((item) =>
-            item.id === productId ? { ...item, quantity: newQuantity } : item
-          )
+          updateCartItem(prev, productId, (item) => ({
+            ...item,
+            quantity: newQuantity,
+          }))
         );
         return;
       }
@@ -73,11 +65,10 @@ export const useCart = (
 
   const updateQuantity = useCallback(
     (id: string, quantity: number) => {
-      const existingItem = cart.find((item) => item.id === id);
+      const existingItem = findCartItemById(cart, id);
       if (!existingItem) return;
 
       const currentQuantity = existingItem.quantity;
-      const quantityChange = quantity - currentQuantity;
 
       if (quantity === 0) {
         // 장바구니에서 제거하고 재고 복원
@@ -86,23 +77,29 @@ export const useCart = (
         return;
       }
 
-      // 재고 확인 (실제 재고와 비교)
-      const product = products.find((p) => p.id === id);
-      if (product && quantity > product.quantity + currentQuantity) {
-        const errorMessage = `재고 부족: ${product.name}의 재고는 ${product.quantity}개입니다.`;
-        setStockError(errorMessage);
-        showStockAlert(errorMessage);
+      // 검증 로직을 순수 함수로 분리
+      const validation = validateQuantityUpdate(id, quantity, products, cart);
+
+      if (!validation.isValid) {
+        const error = createError.cart(validation.error!, "VALIDATION_ERROR");
+        setStockError(validation.error!);
+        handleError(error);
         return;
       }
 
       // 재고 에러 초기화
       setStockError("");
 
+      const quantityChange = quantity - currentQuantity;
+
       // 재고 업데이트
       updateProductQuantity(id, -quantityChange);
 
       setCart((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+        updateCartItem(prev, id, (item) => ({
+          ...item,
+          quantity,
+        }))
       );
     },
     [products, cart, updateProductQuantity, restoreProductQuantity]
@@ -110,7 +107,7 @@ export const useCart = (
 
   const removeFromCart = useCallback(
     (id: string) => {
-      const existingItem = cart.find((item) => item.id === id);
+      const existingItem = findCartItemById(cart, id);
       if (existingItem) {
         // 재고 복원
         restoreProductQuantity(id, existingItem.quantity);

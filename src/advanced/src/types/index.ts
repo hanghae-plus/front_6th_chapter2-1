@@ -46,3 +46,13 @@ export interface DiscountConfig {
 
 // 타이머 콜백 타입
 export type ProductUpdateCallback = () => void;
+
+// Re-export service interfaces
+export type {
+  ICartService,
+  IPointService,
+  IStockService,
+  IDiscountService,
+  IAlertService,
+  IProductService,
+} from "./services";

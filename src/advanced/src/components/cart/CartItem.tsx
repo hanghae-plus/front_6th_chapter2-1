@@ -1,3 +1,5 @@
+import { formatPriceWithCurrency } from "../../utils/formatUtils";
+
 interface CartItemProps {
   id: string;
   name: string;
@@ -24,14 +26,14 @@ export const CartItem = ({
     discount > 0 ? (
       <>
         <span className="line-through text-gray-400">
-          ₩{val.toLocaleString()}
+          {formatPriceWithCurrency(val)}
         </span>
         <span className="text-red-500 ml-2">
-          ₩{discountedPrice.toLocaleString()}
+          {formatPriceWithCurrency(discountedPrice)}
         </span>
       </>
     ) : (
-      `₩${val.toLocaleString()}`
+      formatPriceWithCurrency(val)
     );
 
   return (

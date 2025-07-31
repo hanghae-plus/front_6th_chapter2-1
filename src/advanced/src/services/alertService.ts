@@ -45,17 +45,10 @@ const lightningSaleCallback = (
 
   // 상품 존재 체크
   if (luckyItem && luckyItem.quantity > 0 && !luckyItem.onSale) {
-    // 할인 계산
-    const discountMultiplier = (100 - config.DISCOUNT_RATE) / 100;
-    luckyItem.val = Math.round(luckyItem.originalVal * discountMultiplier);
-
-    // 번개할인 설정
-    luckyItem.onSale = true;
-
     // 알림 메시지 표시
     alert(config.ALERT_MESSAGE.replace("{name}", luckyItem.name));
 
-    // 상품 업데이트 콜백 호출
+    // 상품 업데이트 콜백 호출 (실제 수정은 컴포넌트에서 처리)
     onProductUpdate();
   }
 };
@@ -85,17 +78,10 @@ const recommendationCallback = (
 
   // 추천할인 가능 상품 체크
   if (suggest) {
-    // 할인 계산
-    const discountMultiplier = (100 - config.DISCOUNT_RATE) / 100;
-
     // 알림 메시지 표시
     alert(config.ALERT_MESSAGE.replace("{name}", suggest.name));
 
-    // 추천할인 설정
-    suggest.val = Math.round(suggest.val * discountMultiplier);
-    suggest.suggestSale = true;
-
-    // 상품 업데이트 콜백 호출
+    // 상품 업데이트 콜백 호출 (실제 수정은 컴포넌트에서 처리)
     onProductUpdate();
   }
 };
