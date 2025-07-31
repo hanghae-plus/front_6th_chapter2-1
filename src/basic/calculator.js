@@ -65,9 +65,8 @@ export function calculateDiscounts(cart, products) {
 }
 
 // 화요일 할인 적용
-export function applyTuesdayDiscount(total) {
-  const today = new Date();
-  if (today.getDay() === 2 && total > 0) {
+export function applyTuesdayDiscount(total, date) {
+  if (date.getDay() === 2 && total > 0) {
     // 화요일
     return total * (1 - DISCOUNT.TUESDAY_DISCOUNT_RATE);
   }
@@ -75,18 +74,18 @@ export function applyTuesdayDiscount(total) {
 }
 
 // 최종 결제 금액 계산
-export function calculateTotal(subtotal, totalDiscount, bulkDiscountRate) {
+export function calculateTotal(subtotal, totalDiscount, bulkDiscountRate, date) {
   let total = subtotal;
   if (bulkDiscountRate > 0) {
     total = subtotal * (1 - bulkDiscountRate);
   } else {
     total = subtotal - totalDiscount;
   }
-  return applyTuesdayDiscount(total);
+  return applyTuesdayDiscount(total, date);
 }
 
 // 포인트 계산
-export function calculatePoints(cart, total, products) {
+export function calculatePoints(cart, total, products, date) {
   if (cart.length === 0) return { finalPoints: 0, pointsDetail: [] };
 
   let basePoints = Math.floor(total * POINTS.BASE_POINT_RATE);
@@ -98,8 +97,7 @@ export function calculatePoints(cart, total, products) {
   }
 
   // 화요일 보너스
-  const today = new Date();
-  if (today.getDay() === 2 && basePoints > 0) {
+  if (date.getDay() === 2 && basePoints > 0) {
     finalPoints *= POINTS.TUESDAY_BONUS_RATE;
     pointsDetail.push('화요일 2배');
   }

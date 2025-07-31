@@ -1,46 +1,168 @@
 import { STOCK, DISCOUNT } from './constants.js';
 
-export function onUpdateSelectOptions(sel, products) {
-  let totalStock = 0;
-  for (const product of products) {
-    totalStock += product.q;
+// --- Template Creation Functions ---
+
+const createSelectOptionTemplate = (item) => {
+  let discountText = '';
+  if (item.onSale) discountText += ' ⚡SALE';
+  if (item.suggestSale) discountText += ' 💝추천';
+
+  if (item.q === 0) {
+    return `<option value="${item.id}" disabled class="text-gray-400">${item.name} - ${item.val}원 (품절)${discountText}</option>`;
   }
 
-  sel.innerHTML = '';
-  for (const item of products) {
-    const opt = document.createElement('option');
-    opt.value = item.id;
-    let discountText = '';
-    if (item.onSale) discountText += ' ⚡SALE';
-    if (item.suggestSale) discountText += ' 💝추천';
+  if (item.onSale && item.suggestSale) {
+    return `<option value="${item.id}" class="text-purple-600 font-bold">⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)</option>`;
+  }
+  if (item.onSale) {
+    return `<option value="${item.id}" class="text-red-500 font-bold">⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)</option>`;
+  }
+  if (item.suggestSale) {
+    return `<option value="${item.id}" class="text-blue-500 font-bold">💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)</option>`;
+  }
+  return `<option value="${item.id}">${item.name} - ${item.val}원${discountText}</option>`;
+};
 
-    if (item.q === 0) {
-      opt.textContent = `${item.name} - ${item.val}원 (품절)${discountText}`;
-      opt.disabled = true;
-      opt.className = 'text-gray-400';
-    } else {
-      if (item.onSale && item.suggestSale) {
-        opt.textContent = `⚡💝${item.name} - ${item.originalVal}원 → ${item.val}원 (25% SUPER SALE!)`;
-        opt.className = 'text-purple-600 font-bold';
-      } else if (item.onSale) {
-        opt.textContent = `⚡${item.name} - ${item.originalVal}원 → ${item.val}원 (20% SALE!)`;
-        opt.className = 'text-red-500 font-bold';
-      } else if (item.suggestSale) {
-        opt.textContent = `💝${item.name} - ${item.originalVal}원 → ${item.val}원 (5% 추천할인!)`;
-        opt.className = 'text-blue-500 font-bold';
-      } else {
-        opt.textContent = `${item.name} - ${item.val}원${discountText}`;
-      }
-    }
-    sel.appendChild(opt);
+const createCartItemTemplate = (item, product, index, array) => {
+  const subtotal = product.val * item.quantity;
+  let priceDisplay;
+  let nameDisplay = product.name;
+
+  if (product.onSale && product.suggestSale) {
+    priceDisplay = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
+    nameDisplay = `⚡💝${product.name}`;
+  } else if (product.onSale) {
+    priceDisplay = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.val.toLocaleString()}</span>`;
+    nameDisplay = `⚡${product.name}`;
+  } else if (product.suggestSale) {
+    priceDisplay = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.val.toLocaleString()}</span>`;
+    nameDisplay = `💝${product.name}`;
+  } else {
+    priceDisplay = `₩${product.val.toLocaleString()}`;
   }
 
-  sel.style.borderColor =
-    totalStock < STOCK.TOTAL_STOCK_WARNING_THRESHOLD ? 'orange' : '';
-}
+  const isFirst = index === 0;
+  const isLast = index === array.length - 1;
+  let classNames = "flex items-center justify-between py-4 border-b border-gray-200";
+  if (isFirst) classNames += " first:pt-0";
+  if (isLast) classNames += " last:border-b-0";
+
+  return `
+    <div class="${classNames}" id="${
+      product.id
+    }">
+      <div class="flex items-center gap-4 flex-1">
+        <div class="w-16 h-16 bg-gradient-black rounded-lg flex-shrink-0"></div>
+        <div class="flex-1">
+          <h3 class="text-base font-semibold">${nameDisplay}</h3>
+          <div class="text-sm text-gray-500">${priceDisplay}</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <button data-product-id="${
+            product.id
+          }" data-change="-1" class="quantity-change w-8 h-8 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition-colors">-</button>
+          <span class="quantity-number text-base font-medium w-5 text-center">${
+            item.quantity
+          }</span>
+          <button data-product-id="${
+            product.id
+          }" data-change="1" class="quantity-change w-8 h-8 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition-colors">+</button>
+        </div>
+        <div class="text-base font-bold w-24 text-right">₩${subtotal.toLocaleString()}</div>
+        <button data-product-id="${
+            product.id
+          }" class="remove-item text-gray-400 hover:text-red-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+    </div>
+  `;
+};
+
+const createSummaryDetailsTemplate = ({
+  cart,
+  products,
+  subtotal,
+  totalAmount,
+  discounts,
+}) => {
+  if (subtotal <= 0) return '';
+
+  const itemsHtml = cart
+    .map((item) => {
+      const product = products.find((p) => p.id === item.id);
+      if (!product) return '';
+      const itemTotal = product.val * item.quantity;
+      return `
+        <div class="flex justify-between text-xs tracking-wide text-gray-400">
+          <span>${product.name} x ${item.quantity}</span>
+          <span>₩${itemTotal.toLocaleString()}</span>
+        </div>
+      `;
+    })
+    .join('');
+
+  const subtotalHtml = `
+    <div class="border-t border-white/10 my-3"></div>
+    <div class="flex justify-between text-sm tracking-wide">
+      <span>Subtotal</span>
+      <span>₩${subtotal.toLocaleString()}</span>
+    </div>
+  `;
+
+  let discountsHtml = '';
+  if (discounts.bulkDiscountRate > 0) {
+    discountsHtml = `
+      <div class="flex justify-between text-sm tracking-wide text-green-400">
+        <span class="text-xs">🎉 대량구매 할인 (${
+          DISCOUNT.BULK_DISCOUNT_THRESHOLD
+        }개 이상)</span>
+        <span class="text-xs">-${discounts.bulkDiscountRate * 100}%</span>
+      </div>
+    `;
+  } else if (discounts.itemDiscounts.length > 0) {
+    discountsHtml = discounts.itemDiscounts
+      .map(
+        (item) => `
+        <div class="flex justify-between text-sm tracking-wide text-green-400">
+          <span class="text-xs">${item.name} (10개↑)</span>
+          <span class="text-xs">-${item.discount}%</span>
+        </div>
+      `
+      )
+      .join('');
+  }
+
+  const isTuesday = new Date().getDay() === 2;
+  const tuesdayDiscountHtml =
+    isTuesday && totalAmount > 0
+      ? `
+      <div class="flex justify-between text-sm tracking-wide text-purple-400">
+        <span class="text-xs">🌟 화요일 추가 할인</span>
+        <span class="text-xs">-${
+          DISCOUNT.TUESDAY_DISCOUNT_RATE * 100
+        }%</span>
+      </div>
+    `
+      : '';
+
+  const shippingHtml = `
+    <div class="flex justify-between text-sm tracking-wide text-gray-400">
+      <span>Shipping</span>
+      <span>Free</span>
+    </div>
+  `;
+
+  return itemsHtml + subtotalHtml + discountsHtml + tuesdayDiscountHtml + shippingHtml;
+};
+
+// --- Original and Refactored DOM Update Functions ---
 
 export function createInitialDOM() {
   const root = document.getElementById('app');
+  root.innerHTML = ''; // DOM 초기화 코드 추가
 
   const header = document.createElement('div');
   header.className = 'mb-8';
@@ -215,7 +337,14 @@ export function createInitialDOM() {
   };
 }
 
-// --- UI Update Functions ---
+export function onUpdateSelectOptions(sel, products) {
+  const totalStock = products.reduce((sum, p) => sum + p.q, 0);
+
+  sel.innerHTML = products.map(createSelectOptionTemplate).join('');
+
+  sel.style.borderColor =
+    totalStock < STOCK.TOTAL_STOCK_WARNING_THRESHOLD ? 'orange' : '';
+}
 
 export function updateItemCount(count) {
   const itemCountElement = document.getElementById('item-count');
@@ -224,96 +353,21 @@ export function updateItemCount(count) {
   }
 }
 
-export function updateCartSummary({
-  cart,
-  products,
-  subtotal,
-  totalAmount,
-  discounts,
-}) {
+export function updateCartSummary(props) {
   const summaryDetails = document.getElementById('summary-details');
   const totalDiv = document.querySelector('#cart-total .text-2xl');
 
   if (!summaryDetails || !totalDiv) return;
 
-  summaryDetails.innerHTML = '';
-
-  if (subtotal > 0) {
-    // 각 아이템 내역
-    cart.forEach((item) => {
-      const product = products.find((p) => p.id === item.id);
-      if (product) {
-        const itemTotal = product.val * item.quantity;
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-xs tracking-wide text-gray-400">
-            <span>${product.name} x ${item.quantity}</span>
-            <span>₩${itemTotal.toLocaleString()}</span>
-          </div>
-        `;
-      }
-    });
-
-    // 소계
-    summaryDetails.innerHTML += `
-      <div class="border-t border-white/10 my-3"></div>
-      <div class="flex justify-between text-sm tracking-wide">
-        <span>Subtotal</span>
-        <span>₩${subtotal.toLocaleString()}</span>
-      </div>
-    `;
-
-    // 할인 내역
-    if (discounts.bulkDiscountRate > 0) {
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-green-400">
-          <span class="text-xs">🎉 대량구매 할인 (${
-            DISCOUNT.BULK_DISCOUNT_THRESHOLD
-          }개 이상)</span>
-          <span class="text-xs">-${discounts.bulkDiscountRate * 100}%</span>
-        </div>
-      `;
-    } else if (discounts.itemDiscounts.length > 0) {
-      discounts.itemDiscounts.forEach((item) => {
-        summaryDetails.innerHTML += `
-          <div class="flex justify-between text-sm tracking-wide text-green-400">
-            <span class="text-xs">${item.name} (10개↑)</span>
-            <span class="text-xs">-${item.discount}%</span>
-          </div>
-        `;
-      });
-    }
-
-    // 화요일 할인
-    const isTuesday = new Date().getDay() === 2;
-    if (isTuesday && totalAmount > 0) {
-      summaryDetails.innerHTML += `
-        <div class="flex justify-between text-sm tracking-wide text-purple-400">
-          <span class="text-xs">🌟 화요일 추가 할인</span>
-          <span class="text-xs">-${DISCOUNT.TUESDAY_DISCOUNT_RATE * 100}%</span>
-        </div>
-      `;
-    }
-
-    // 배송비
-    summaryDetails.innerHTML += `
-      <div class="flex justify-between text-sm tracking-wide text-gray-400">
-        <span>Shipping</span>
-        <span>Free</span>
-      </div>
-    `;
-  }
-
-  // 최종 금액
-  totalDiv.textContent = `₩${Math.round(totalAmount).toLocaleString()}`;
+  summaryDetails.innerHTML = createSummaryDetailsTemplate(props);
+  totalDiv.textContent = `₩${Math.round(props.totalAmount).toLocaleString()}`;
 }
 
 export function updateDiscountInfo(subtotal, totalAmount) {
   const discountInfoDiv = document.getElementById('discount-info');
   if (!discountInfoDiv) return;
 
-  discountInfoDiv.innerHTML = '';
   const savedAmount = subtotal - totalAmount;
-
   if (savedAmount > 0) {
     const totalDiscountRate =
       subtotal > 0 ? (savedAmount / subtotal) * 100 : 0;
@@ -330,6 +384,8 @@ export function updateDiscountInfo(subtotal, totalAmount) {
         ).toLocaleString()} 할인되었습니다</div>
       </div>
     `;
+  } else {
+    discountInfoDiv.innerHTML = '';
   }
 }
 
@@ -346,7 +402,7 @@ export function updateLoyaltyPoints(points) {
     `;
     ptsTag.style.display = 'block';
   } else {
-    ptsTag.textContent = '적립 포인트: 0p';
+    ptsTag.innerHTML = '적립 포인트: 0p';
     ptsTag.style.display = 'none';
   }
 }
@@ -356,7 +412,7 @@ export function updateStockStatus(products) {
   if (!stockInfo) return;
 
   const stockMsg = products
-    .filter((item) => item.q < 5)
+    .filter((item) => item.q < STOCK.LOW_STOCK_THRESHOLD)
     .map((item) =>
       item.q > 0
         ? `${item.name}: 재고 부족 (${item.q}개 남음)`
@@ -367,12 +423,11 @@ export function updateStockStatus(products) {
   stockInfo.textContent = stockMsg;
 }
 
-export function updateTuesdaySpecial(totalAmount) {
+export function updateTuesdaySpecial(totalAmount, date) {
   const tuesdaySpecial = document.getElementById('tuesday-special');
   if (!tuesdaySpecial) return;
 
-  const isTuesday = new Date().getDay() === 2;
-  if (isTuesday && totalAmount > 0) {
+  if (date.getDay() === 2 && totalAmount > 0) {
     tuesdaySpecial.classList.remove('hidden');
   } else {
     tuesdaySpecial.classList.add('hidden');
@@ -380,76 +435,15 @@ export function updateTuesdaySpecial(totalAmount) {
 }
 
 export function renderCart(cartContainer, cart, products) {
-  cartContainer.innerHTML = ''; // 기존 아이템 삭제
-
-  cart.forEach((item) => {
-    const product = products.find((p) => p.id === item.productId);
-    if (!product) return;
-
-    const itemElement = document.createElement('div');
-    itemElement.className =
-      'flex items-center justify-between py-4 border-b border-gray-200';
-    itemElement.id = product.id;
-
-    const subtotal = product.val * item.quantity;
-
-    itemElement.innerHTML = `
-      <div class="flex items-center gap-4 flex-1">
-        <div class="w-16 h-16 bg-gradient-black rounded-lg flex-shrink-0"></div>
-        <div class="flex-1">
-          <h3 class="text-base font-semibold">${product.name}</h3>
-          <div class="text-sm text-gray-500">₩${product.val.toLocaleString()}</div>
-        </div>
-      </div>
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2">
-          <button data-product-id="${
-            product.id
-          }" data-change="-1" class="quantity-change w-8 h-8 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition-colors">-</button>
-          <span class="quantity-number text-base font-medium w-5 text-center">${
-            item.quantity
-          }</span>
-          <button data-product-id="${
-            product.id
-          }" data-change="1" class="quantity-change w-8 h-8 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition-colors">+</button>
-        </div>
-        <div class="text-base font-bold w-24 text-right">₩${subtotal.toLocaleString()}</div>
-        <button data-product-id="${
-          product.id
-        }" class="remove-item text-gray-400 hover:text-red-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-    `;
-    cartContainer.appendChild(itemElement);
-  });
+  cartContainer.innerHTML = cart
+    .map((item, index, array) => {
+      const product = products.find((p) => p.id === item.id);
+      return product ? createCartItemTemplate(item, product, index, array) : '';
+    })
+    .join('');
 }
 
-export function doUpdatePricesInCart(
-  cartDisp,
-  products,
-  handleCalculateCartStuff
-) {
-  const cartItems = Array.from(cartDisp.children);
-  for (const cartItem of cartItems) {
-    const product = products.find((p) => p.id === cartItem.id);
-    if (product) {
-      const priceDiv = cartItem.querySelector('.text-lg');
-      const nameDiv = cartItem.querySelector('h3');
-      if (product.onSale && product.suggestSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-purple-600">₩${product.val.toLocaleString()}</span>`;
-        nameDiv.textContent = `⚡💝${product.name}`;
-      } else if (product.onSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-red-500">₩${product.val.toLocaleString()}</span>`;
-        nameDiv.textContent = `⚡${product.name}`;
-      } else if (product.suggestSale) {
-        priceDiv.innerHTML = `<span class="line-through text-gray-400">₩${product.originalVal.toLocaleString()}</span> <span class="text-blue-500">₩${product.val.toLocaleString()}</span>`;
-        nameDiv.textContent = `💝${product.name}`;
-      } else {
-        priceDiv.textContent = `₩${product.val.toLocaleString()}`;
-        nameDiv.textContent = product.name;
-      }
-    }
-  }
-  handleCalculateCartStuff();
+// This function is now obsolete as its logic is merged into `renderCart`
+export function doUpdatePricesInCart() {
+  // No longer needed. The main render function will take care of this.
 }

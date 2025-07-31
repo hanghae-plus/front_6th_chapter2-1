@@ -1,7 +1,8 @@
-import { state } from './state.js';
+import { stateManager } from './state.js';
 import {
   createInitialDOM,
   onUpdateSelectOptions,
+  renderCart, // renderCart import 추가
   updateCartSummary,
   updateDiscountInfo,
   updateLoyaltyPoints,
@@ -19,6 +20,7 @@ import { setupEventListeners } from './events.js';
 import { startTimers } from './services.js';
 
 function main() {
+  stateManager.reset(); // 상태 초기화
   const dom = createInitialDOM();
   const {
     productSelect,
@@ -29,45 +31,46 @@ function main() {
     helpColumn,
   } = dom;
 
-  const handleCalculateCartStuff = () => {
-    const cartItems = Array.from(cartItemsContainer.children).map((item) => {
-      const id = item.id;
-      const quantity = parseInt(
-        item.querySelector('.quantity-number').textContent
-      );
-      return { id, quantity };
-    });
+  const render = () => {
+    const currentState = stateManager.getState();
+    const { cart, products } = currentState;
+    const today = new Date();
 
-    const subtotal = calculateSubtotal(cartItems, state.products);
-    const discounts = calculateDiscounts(cartItems, state.products);
+    // DOM에서 현재 카트 상태를 읽어오는 대신 state 객체를 사용
+    const subtotal = calculateSubtotal(cart, products);
+    const discounts = calculateDiscounts(cart, products);
     const totalAmount = calculateTotal(
       subtotal,
       discounts.totalDiscount,
-      discounts.bulkDiscountRate
+      discounts.bulkDiscountRate,
+      today
     );
-    const points = calculatePoints(cartItems, totalAmount, state.products);
+    const points = calculatePoints(cart, totalAmount, products, today);
+    const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-    state.totalAmount = totalAmount;
-    state.itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    state.bonusPoints = points.finalPoints;
-
-    updateItemCount(state.itemCount);
+    updateItemCount(totalQuantity);
     updateCartSummary({
-      cart: cartItems,
-      products: state.products,
+      cart,
+      products,
       subtotal,
       totalAmount,
       discounts,
     });
     updateDiscountInfo(subtotal, totalAmount);
-    updateTuesdaySpecial(totalAmount);
-    updateStockStatus(state.products);
+    updateTuesdaySpecial(totalAmount, today);
+    updateStockStatus(products);
     updateLoyaltyPoints(points);
+
+    // 장바구니 아이템 목록 렌더링 추가
+    renderCart(cartItemsContainer, cart, products);
   };
 
   // Initial Render
-  onUpdateSelectOptions(productSelect, state.products);
-  handleCalculateCartStuff();
+  onUpdateSelectOptions(productSelect, stateManager.getState().products);
+  render();
+
+  // Subscribe to state changes
+  stateManager.subscribe(render);
 
   // Setup Event Listeners
   helpButton.onclick = () => {
@@ -89,14 +92,12 @@ function main() {
     addBtn: addToCartButton,
     cartDisp: cartItemsContainer,
     productSelect: productSelect,
-    handleCalculateCartStuff: handleCalculateCartStuff,
   });
 
   // Start Timers
   startTimers({
     cartDisp: cartItemsContainer,
     productSelect: productSelect,
-    handleCalculateCartStuff: handleCalculateCartStuff,
   });
 }
 

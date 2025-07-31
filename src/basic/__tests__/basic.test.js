@@ -1,5 +1,6 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { waitFor } from '@testing-library/dom';
 
 describe('basic 테스트', () => {
   // 공통 헬퍼 함수
@@ -527,9 +528,6 @@ describe('basic 테스트', () => {
           const increaseBtn = cartDisp.querySelector(
             '.quantity-change[data-change="1"]'
           );
-          const decreaseBtn = cartDisp.querySelector(
-            '.quantity-change[data-change="-1"]'
-          );
 
           // 증가
           await userEvent.click(increaseBtn);
@@ -537,11 +535,16 @@ describe('basic 테스트', () => {
             '2'
           );
 
-          // 감소
-          await userEvent.click(decreaseBtn);
-          expect(cartDisp.querySelector('.quantity-number').textContent).toBe(
-            '1'
+          // 감소: DOM이 변경되었으므로 버튼을 다시 찾아야 합니다.
+          const decreaseBtn = cartDisp.querySelector(
+            '.quantity-change[data-change="-1"]'
           );
+          await userEvent.click(decreaseBtn);
+          await waitFor(() => {
+            expect(cartDisp.querySelector('.quantity-number').textContent).toBe(
+              '1'
+            );
+          });
         });
 
         it('재고 한도 내에서만 증가 가능', async () => {
