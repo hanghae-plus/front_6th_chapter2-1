@@ -1,9 +1,21 @@
-export const ManualSideBar = () => {
+import type { Dispatch, SetStateAction } from 'react';
+
+interface ManualSideBarProps {
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
+}
+
+export const ManualSideBar = ({ isOpen, setIsOpen }: ManualSideBarProps) => {
   return (
-    <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300">
-      <button className="absolute top-4 right-4 text-gray-500 hover:text-black">
+    <div
+      className={`fixed right-0 top-0 h-full w-80 bg-white shadow-2xl p-6 overflow-y-auto z-50 transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300`}
+    >
+      <button
+        className="absolute top-4 right-4 text-gray-500 hover:text-black"
+        onClick={() => setIsOpen((prev) => !prev)}
+      >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
       </button>
       <h2 className="text-xl font-bold mb-4">📖 이용 안내</h2>
