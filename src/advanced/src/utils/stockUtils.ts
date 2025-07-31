@@ -1,5 +1,5 @@
 import { STOCK_THRESHOLD } from "../constants";
-import type { Product } from "../constants";
+import type { Product } from "../types";
 
 export interface LowStockItem {
   name: string;
@@ -35,31 +35,6 @@ export const getLowStockItems = (products: Product[]): LowStockItem[] => {
   });
 
   return lowStockItems;
-};
-
-/**
- * 상품 재고 확인
- * @param products - 상품 리스트
- * @param productId - 상품 ID
- * @param requestedQuantity - 요청 수량
- * @returns 재고 충분 여부
- */
-export const checkStockAvailability = (
-  products: Product[],
-  productId: string,
-  requestedQuantity: number
-): boolean => {
-  const product = products.find((p) => p.id === productId);
-  return product ? product.quantity >= requestedQuantity : false;
-};
-
-/**
- * 총 재고 수량 계산
- * @param products - 상품 리스트
- * @returns 총 재고 수량
- */
-export const calculateTotalStock = (products: Product[]): number => {
-  return products.reduce((total, product) => total + product.quantity, 0);
 };
 
 /**

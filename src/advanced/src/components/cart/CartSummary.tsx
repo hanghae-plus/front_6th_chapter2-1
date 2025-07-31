@@ -12,7 +12,6 @@ export const CartSummary = ({
   items,
   cartTotals,
   loyaltyPoints,
-  pointsDetail,
 }: CartSummaryProps) => {
   const {
     subTotal,

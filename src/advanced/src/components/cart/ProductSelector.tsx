@@ -1,4 +1,4 @@
-import type { Product } from "../../constants";
+import type { Product } from "../../types";
 import { createOption } from "../../utils/optionUtils";
 
 interface ProductSelectorProps {
@@ -18,7 +18,6 @@ export const ProductSelector = ({
 }: ProductSelectorProps) => {
   // 선택된 상품 정보
   const selectedProductInfo = products.find((p) => p.id === selectedProduct);
-  const isProductSelected = selectedProduct && selectedProductInfo;
   const isProductOutOfStock = selectedProductInfo?.quantity === 0;
 
   return (

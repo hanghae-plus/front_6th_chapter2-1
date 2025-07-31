@@ -17,5 +17,4 @@ export interface AppContextType {
   removeFromCart: (id: string) => void;
   toggleManual: () => void;
   setSelectedProduct: (productId: string) => void;
-  setStockStatus: (status: string) => void;
 }

@@ -18,7 +18,6 @@ export const CartItem = ({
   onRemove,
 }: CartItemProps) => {
   const discountedPrice = val * (1 - discount / 100);
-  const totalPrice = discountedPrice * quantity;
 
   // 가격 렌더링 (할인 적용 시)
   const priceString =

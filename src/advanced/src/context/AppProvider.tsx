@@ -21,14 +21,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     updateProductQuantity,
     restoreProductQuantity,
   } = useProducts();
-  const {
-    cart,
-    stockError,
-    addToCart,
-    updateQuantity,
-    removeFromCart,
-    setStockError,
-  } = useCart(products, updateProductQuantity, restoreProductQuantity);
+  const { cart, stockError, addToCart, updateQuantity, removeFromCart } =
+    useCart(products, updateProductQuantity, restoreProductQuantity);
 
   // Actions - 이제 useCart에서 재고 관리를 직접 처리하므로 단순히 전달만 함
   const handleAddToCart = useCallback(
@@ -60,10 +54,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setSelectedProduct(productId);
   }, []);
 
-  const setStockStatusHandler = useCallback((status: string) => {
-    // stockStatus는 useProducts에서 관리되므로 여기서는 무시
-  }, []);
-
   // 최종 재고 상태 메시지 (재고 부족 상품 정보 + 에러 메시지)
   const finalStockStatus = stockError
     ? `${stockStatus}\n${stockError}`
@@ -83,7 +73,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     removeFromCart: handleRemoveFromCart,
     toggleManual,
     setSelectedProduct: setSelectedProductHandler,
-    setStockStatus: setStockStatusHandler,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

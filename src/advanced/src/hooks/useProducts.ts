@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import type { Product } from "../types";
 import { PRODUCTS } from "../constants";
 import {
   getLowStockItems,
