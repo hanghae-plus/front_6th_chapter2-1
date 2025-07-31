@@ -4,7 +4,7 @@ import {
   ItemDiscountResult,
   TotalDiscountResult,
 } from '@/usecase/applyDiscount';
-import { calculateBonusPoints } from '@/usecase/point';
+import { calculateBonusPoints } from '@/usecase/calculateBonusPoints';
 
 import { useCartWithProduct } from './useCartWithProducts';
 
