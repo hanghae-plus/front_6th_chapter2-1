@@ -19,7 +19,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
-    "code-quality": "npm run lint && npm run format:check"
+    "code-quality": "pnpm run lint && pnpm run format:check",
+    "build:advanced": "vite build --mode advanced",
+    "gh-pages": "pnpm run build:advanced && gh-pages -d dist"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
@@ -32,6 +34,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsdoc": "^48.2.1",
     "eslint-plugin-prettier": "^5.1.3",
+    "gh-pages": "^6.3.0",
     "husky": "^9.0.11",
     "jsdom": "^26.1.0",
     "lint-staged": "^15.2.2",
