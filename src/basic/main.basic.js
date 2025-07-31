@@ -440,8 +440,6 @@ const handleUpdateSelectOptions = () => {
 // 공통 유틸리티 함수들
 const findProductByIdLocal = (productId) => findProductById(AppState.products, productId);
 
-const findProductByElement = (cartItemElement) => findProductByIdLocal(cartItemElement.id);
-
 const calculateIndividualDiscount = (productId, quantity) => {
   if (quantity < QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
     return 0;
@@ -476,15 +474,15 @@ const getStockStatusMessage = () =>
     .join('\n');
 
 // 장바구니 계산 관련 함수들
-const calculateCartItems = (cartItems) => {
+const calculateCartItems = () => {
+  const cartItems = AppState.cart.items;
   let subtotal = 0;
   let itemCount = 0;
   const itemDiscounts = [];
 
-  Array.from(cartItems).forEach((cartItem) => {
-    const currentProduct = findProductByElement(cartItem);
-    const quantityElement = cartItem.querySelector('.quantity-number');
-    const quantity = parseInt(quantityElement.textContent);
+  cartItems.forEach((cartItem) => {
+    const currentProduct = findProductByIdLocal(cartItem.productId);
+    const { quantity } = cartItem; // Object destructuring 사용
     const itemTotal = currentProduct.value * quantity;
 
     itemCount += quantity;
@@ -493,8 +491,9 @@ const calculateCartItems = (cartItems) => {
     // 개별 할인 계산
     const discount = calculateIndividualDiscount(currentProduct.id, quantity);
     if (discount > 0) {
+      const { name } = currentProduct;
       itemDiscounts.push({
-        name: currentProduct.name,
+        name,
         discount: discount * 100,
       });
     }
@@ -553,9 +552,8 @@ const updateTotalDisplay = (totalAmount) => {
 
 // 주문 요약 컴포넌트들
 const CartItemSummaryComponent = (cartItem) => {
-  const currentProduct = findProductByElement(cartItem);
-  const quantityElement = cartItem.querySelector('.quantity-number');
-  const quantity = parseInt(quantityElement.textContent);
+  const currentProduct = findProductByIdLocal(cartItem.productId);
+  const quantity = cartItem.quantity; // DOM이 아닌 상태에서 읽기
   const itemTotal = currentProduct.value * quantity;
 
   return `
@@ -605,7 +603,7 @@ const ShippingInfoComponent = () => `
 const SummaryDetailsComponent = (cartItems, subtotal, itemCount, itemDiscounts, totalAmount) => {
   if (subtotal <= 0) return '';
 
-  const cartItemSummaries = Array.from(cartItems)
+  const cartItemSummaries = cartItems
     .map((cartItem) => CartItemSummaryComponent(cartItem))
     .join('');
 
@@ -698,10 +696,10 @@ const updateBasicPoints = (totalAmount) => {
 
 // 메인 계산 함수 (리팩토링된 버전)
 const handleCalculateCartStuff = () => {
-  const cartItems = AppState.ui.cartDisplay.children;
+  const cartItems = AppState.cart.items;
 
   // 1. 장바구니 아이템 계산
-  const { subtotal, itemCount, itemDiscounts } = calculateCartItems(cartItems);
+  const { subtotal, itemCount, itemDiscounts } = calculateCartItems();
 
   // 2. 할인 적용하여 최종 금액 계산
   const { totalAmount, discountRate } = calculateTotalWithDiscounts(
@@ -740,7 +738,7 @@ const calculateTuesdayBonus = (basePoints) => {
 };
 
 const checkProductSet = (cartItems) => {
-  const productIds = Array.from(cartItems).map((item) => item.id);
+  const productIds = cartItems.map((item) => item.productId);
   const hasKeyboard = productIds.includes(PRODUCT_IDS.KEYBOARD);
   const hasMouse = productIds.includes(PRODUCT_IDS.MOUSE);
   const hasMonitorArm = productIds.includes(PRODUCT_IDS.MONITOR_ARM);
@@ -811,7 +809,7 @@ const updateLoyaltyPointsDisplay = (finalPoints, pointsDetail, hide = false) => 
 };
 
 const handleRenderBonusPoints = () => {
-  const cartItems = AppState.ui.cartDisplay.children;
+  const cartItems = AppState.cart.items;
 
   if (cartItems.length === 0) {
     updateLoyaltyPointsDisplay(0, [], true); // 숨김 처리
@@ -883,19 +881,22 @@ const CartItemPriceComponent = (product) => {
 };
 
 const handleUpdatePricesInCart = () => {
-  const cartItems = AppState.ui.cartDisplay.children;
-  Array.from(cartItems).forEach((cartItem) => {
-    const itemId = cartItem.id;
+  const cartItems = AppState.cart.items;
+  cartItems.forEach((cartItem) => {
+    const itemId = cartItem.productId;
     const product = AppState.products.find((product) => product.id === itemId);
 
     if (product) {
-      const priceDiv = cartItem.querySelector('.text-lg');
-      const nameDiv = cartItem.querySelector('h3');
+      const itemElement = document.getElementById(itemId);
+      if (itemElement) {
+        const priceDiv = itemElement.querySelector('.text-lg');
+        const nameDiv = itemElement.querySelector('h3');
 
-      if (priceDiv && nameDiv) {
-        const { price, name } = CartItemPriceComponent(product);
-        priceDiv.innerHTML = price;
-        nameDiv.textContent = name;
+        if (priceDiv && nameDiv) {
+          const { price, name } = CartItemPriceComponent(product);
+          priceDiv.innerHTML = price;
+          nameDiv.textContent = name;
+        }
       }
     }
   });
@@ -948,51 +949,73 @@ const addItemToCart = (productId) => {
     return false;
   }
 
-  const existingItem = document.getElementById(productId);
-  if (existingItem) {
-    // 기존 아이템 수량 증가
-    const quantityElement = existingItem.querySelector('.quantity-number');
-    const currentQuantity = parseInt(quantityElement.textContent);
-    const newQuantity = currentQuantity + 1;
+  const existingItem = AppState.cart.items.find((item) => item.productId === productId);
 
-    if (newQuantity <= product.stock + currentQuantity) {
-      quantityElement.textContent = newQuantity;
+  if (existingItem) {
+    const newQuantity = existingItem.quantity + 1;
+    if (newQuantity <= product.stock + existingItem.quantity) {
+      existingItem.quantity = newQuantity;
       product.stock--;
+
+      // DOM 업데이트
+      const itemElement = document.getElementById(productId);
+      if (itemElement) {
+        const quantityElement = itemElement.querySelector('.quantity-number');
+        if (quantityElement) {
+          quantityElement.textContent = newQuantity;
+        }
+      }
       return true;
     }
     alert('재고가 부족합니다.');
     return false;
   }
 
-  // 새 아이템 추가
+  const newItem = { productId, quantity: 1 };
+  AppState.cart.items.push(newItem);
+  product.stock--;
+
+  // DOM에 새 아이템 추가
   const newItemHTML = CartItemElement(product);
   AppState.ui.cartDisplay.insertAdjacentHTML('beforeend', newItemHTML);
-  product.stock--;
   return true;
 };
 
 const updateItemQuantity = (productId, change) => {
   const product = findProductByIdLocal(productId);
-  const itemElement = document.getElementById(productId);
+  const itemIndex = AppState.cart.items.findIndex((item) => item.productId === productId);
 
-  if (!product || !itemElement) {
+  if (!product || itemIndex === -1) {
     return false;
   }
 
-  const quantityElement = itemElement.querySelector('.quantity-number');
-  const currentQuantity = parseInt(quantityElement.textContent);
-  const newQuantity = currentQuantity + change;
+  const item = AppState.cart.items[itemIndex];
+  const newQuantity = item.quantity + change;
 
-  if (newQuantity > 0 && newQuantity <= product.stock + currentQuantity) {
-    quantityElement.textContent = newQuantity;
+  if (newQuantity > 0 && newQuantity <= product.stock + item.quantity) {
+    item.quantity = newQuantity;
     product.stock -= change;
+
+    // DOM 업데이트
+    const itemElement = document.getElementById(productId);
+    if (itemElement) {
+      const quantityElement = itemElement.querySelector('.quantity-number');
+      if (quantityElement) {
+        quantityElement.textContent = newQuantity;
+      }
+    }
     return true;
   }
 
   if (newQuantity <= 0) {
-    // 아이템 제거
-    product.stock += currentQuantity;
-    itemElement.remove();
+    product.stock += item.quantity;
+    AppState.cart.items.splice(itemIndex, 1);
+
+    // DOM에서 제거
+    const itemElement = document.getElementById(productId);
+    if (itemElement) {
+      itemElement.remove();
+    }
     return true;
   }
 
@@ -1002,16 +1025,21 @@ const updateItemQuantity = (productId, change) => {
 
 const removeItemFromCart = (productId) => {
   const product = findProductByIdLocal(productId);
-  const itemElement = document.getElementById(productId);
+  const itemIndex = AppState.cart.items.findIndex((item) => item.productId === productId);
 
-  if (!product || !itemElement) {
+  if (!product || itemIndex === -1) {
     return false;
   }
 
-  const quantityElement = itemElement.querySelector('.quantity-number');
-  const removeQuantity = parseInt(quantityElement.textContent);
-  product.stock += removeQuantity;
-  itemElement.remove();
+  const item = AppState.cart.items[itemIndex];
+  product.stock += item.quantity;
+  AppState.cart.items.splice(itemIndex, 1);
+
+  // DOM에서 제거
+  const itemElement = document.getElementById(productId);
+  if (itemElement) {
+    itemElement.remove();
+  }
   return true;
 };
 
