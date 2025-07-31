@@ -5,36 +5,39 @@ interface ProductOptionProps {
 }
 
 export default function ProductOption({ product }: ProductOptionProps) {
-  const formatProductOption = (product: Product) => {
-    const hasDiscount = product.price < product.originalPrice;
-    const discountRate = hasDiscount
-      ? Math.round((1 - product.price / product.originalPrice) * 100)
-      : 0;
+  const isOutOfStock = product.quantity === 0;
+  const isOnSale = product.price < product.originalPrice;
 
-    if (product.quantity === 0) {
-      return `${product.name} - ₩${product.originalPrice.toLocaleString()} (품절)`;
+  const formatPrice = (price: number) => `₩${price.toLocaleString()}`;
+
+  const getOptionTextByStatus = () => {
+    if (isOutOfStock) {
+      return `${product.name} - ${formatPrice(product.originalPrice)} (품절)`;
     }
 
-    if (hasDiscount) {
-      return `${product.saleIcon}${product.name} - ₩${product.originalPrice.toLocaleString()} → ₩${product.price.toLocaleString()} (${discountRate}% SALE!)`;
+    if (isOnSale) {
+      const discountRate = Math.round(
+        (1 - product.price / product.originalPrice) * 100
+      );
+      return `${product.saleIcon}${product.name} - ${formatPrice(product.originalPrice)} → ${formatPrice(product.price)} (${discountRate}% SALE!)`;
     }
 
-    return `${product.name} - ₩${product.price.toLocaleString()}`;
+    return `${product.name} - ${formatPrice(product.price)}`;
+  };
+
+  const getStatusStyles = () => {
+    if (isOutOfStock) return 'text-gray-400';
+    if (isOnSale) return 'text-red-500 font-bold';
+    return '';
   };
 
   return (
     <option
       value={product.id}
-      disabled={product.quantity === 0}
-      className={
-        product.quantity === 0
-          ? 'text-gray-400'
-          : product.price < product.originalPrice
-            ? 'text-red-500 font-bold'
-            : ''
-      }
+      disabled={isOutOfStock}
+      className={getStatusStyles()}
     >
-      {formatProductOption(product)}
+      {getOptionTextByStatus()}
     </option>
   );
 }
