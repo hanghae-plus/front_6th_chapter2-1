@@ -1,4 +1,5 @@
 import { AddButton } from "../components/AddButton";
+import { CartDisplay } from "../components/CartDisplay";
 import { GridContainer } from "../components/GridContainer";
 import { Header } from "../components/Header";
 import { LeftColumn } from "../components/LeftColumn";
@@ -9,36 +10,40 @@ import { ProductSelector } from "../components/ProductSelector";
 import { RightColumn } from "../components/RightColumn";
 import { SelectContainer } from "../components/SelectContainer";
 import { StockInfo } from "../components/StockInfo";
-let prodList;
-let bonusPts = 0;
-let stockInfo = StockInfo();
-let itemCnt;
-let lastSel;
-let sel = ProductSelector();
-let addBtn = AddButton();
-let totalAmt = 0;
-let PRODUCT_ONE = "p1";
-let p2 = "p2";
-let product_3 = "p3";
-let p4 = "p4";
-let PRODUCT_5 = `p5`;
-let cartDisp;
+
+const PRODUCT_IDS = {
+  KEYBOARD: "p1",
+  MOUSE: "p2",
+  MONITOR_ARM: "p3",
+  LAPTOP_POUCH: "p4",
+  SPEAKER: "p5",
+};
+const state = {
+  prodList: [],
+  bonusPoint: 0,
+  itemCount: 0,
+  totalAmount: 0,
+  lastSel: null,
+};
+
+const stockInfo = StockInfo();
+const sel = ProductSelector();
+const addBtn = AddButton();
+let cartDisplay = CartDisplay();
 
 function main() {
-  let gridContainer = GridContainer();
-  let leftColumn = LeftColumn();
-  let selectorContainer = SelectContainer();
-  let rightColumn = RightColumn();
-  let manualToggle = ManualToggle();
-  let manualOverlay = ManualOverlay();
-  let manualColumn = ManualColumn();
+  const gridContainer = GridContainer();
+  const leftColumn = LeftColumn();
+  const selectorContainer = SelectContainer();
+  const rightColumn = RightColumn();
+  const manualToggle = ManualToggle();
+  const manualOverlay = ManualOverlay();
+  const manualColumn = ManualColumn();
+  const header = Header();
   let lightningDelay;
-  totalAmt = 0;
-  itemCnt = 0;
-  lastSel = null;
-  prodList = [
+  state.prodList.push(
     {
-      id: PRODUCT_ONE,
+      id: PRODUCT_IDS.KEYBOARD,
       name: "버그 없애는 키보드",
       val: 10000,
       originalVal: 10000,
@@ -47,7 +52,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: p2,
+      id: PRODUCT_IDS.MOUSE,
       name: "생산성 폭발 마우스",
       val: 20000,
       originalVal: 20000,
@@ -56,7 +61,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: product_3,
+      id: PRODUCT_IDS.MONITOR_ARM,
       name: "거북목 탈출 모니터암",
       val: 30000,
       originalVal: 30000,
@@ -65,7 +70,7 @@ function main() {
       suggestSale: false,
     },
     {
-      id: p4,
+      id: PRODUCT_IDS.LAPTOP_POUCH,
       name: "에러 방지 노트북 파우치",
       val: 15000,
       originalVal: 15000,
@@ -74,24 +79,22 @@ function main() {
       suggestSale: false,
     },
     {
-      id: PRODUCT_5,
+      id: PRODUCT_IDS.SPEAKER,
       name: `코딩할 때 듣는 Lo-Fi 스피커`,
       val: 25000,
       originalVal: 25000,
       q: 10,
       onSale: false,
       suggestSale: false,
-    },
-  ];
-  let root = document.getElementById("app");
+    }
+  );
+  const root = document.getElementById("app");
 
   selectorContainer.appendChild(sel);
   selectorContainer.appendChild(addBtn);
   selectorContainer.appendChild(stockInfo);
   leftColumn.appendChild(selectorContainer);
-  cartDisp = document.createElement("div");
-  leftColumn.appendChild(cartDisp);
-  cartDisp.id = "cart-items";
+  leftColumn.appendChild(cartDisplay);
 
   sum = rightColumn.querySelector("#cart-total");
 
@@ -99,7 +102,7 @@ function main() {
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
   manualOverlay.appendChild(manualColumn);
-  root.appendChild(Header());
+  root.appendChild(header);
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
@@ -113,16 +116,16 @@ function main() {
   );
 
   let initStock = 0;
-  for (let i = 0; i < prodList.length; i++) {
-    initStock += prodList[i].q;
+  for (let i = 0; i < state.prodList.length; i++) {
+    initStock += state.prodList[i].q;
   }
   onUpdateSelectOptions();
   handleCalculateCartStuff();
   lightningDelay = Math.random() * 10000;
   setTimeout(() => {
     setInterval(function () {
-      let luckyIdx = Math.floor(Math.random() * prodList.length);
-      let luckyItem = prodList[luckyIdx];
+      let luckyIdx = Math.floor(Math.random() * state.prodList.length);
+      let luckyItem = state.prodList[luckyIdx];
       if (luckyItem.q > 0 && !luckyItem.onSale) {
         luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
         luckyItem.onSale = true;
@@ -134,15 +137,15 @@ function main() {
   }, lightningDelay);
   setTimeout(function () {
     setInterval(function () {
-      if (cartDisp.children.length === 0) {
+      if (cartDisplay.children.length === 0) {
       }
-      if (lastSel) {
+      if (state.lastSel) {
         let suggest = null;
-        for (let k = 0; k < prodList.length; k++) {
-          if (prodList[k].id !== lastSel) {
-            if (prodList[k].q > 0) {
-              if (!prodList[k].suggestSale) {
-                suggest = prodList[k];
+        for (let k = 0; k < state.prodList.length; k++) {
+          if (state.prodList[k].id !== state.lastSel) {
+            if (state.prodList[k].q > 0) {
+              if (!state.prodList[k].suggestSale) {
+                suggest = state.prodList[k];
                 break;
               }
             }
@@ -171,13 +174,13 @@ function onUpdateSelectOptions() {
   let discountText;
   sel.innerHTML = "";
   totalStock = 0;
-  for (let idx = 0; idx < prodList.length; idx++) {
-    let _p = prodList[idx];
+  for (let idx = 0; idx < state.prodList.length; idx++) {
+    let _p = state.prodList[idx];
     totalStock = totalStock + _p.q;
   }
-  for (let i = 0; i < prodList.length; i++) {
+  for (let i = 0; i < state.prodList.length; i++) {
     (function () {
-      let item = prodList[i];
+      let item = state.prodList[i];
       opt = document.createElement("option");
       opt.value = item.id;
       discountText = "";
@@ -241,7 +244,6 @@ function handleCalculateCartStuff() {
   let idx;
   let originalTotal;
   let bulkDisc;
-  let itemDisc;
   let savedAmount;
   let summaryDetails;
   let totalDiv;
@@ -251,29 +253,25 @@ function handleCalculateCartStuff() {
   let itemCountElement;
   let previousCount;
   let stockMsg;
-  let pts;
-  let hasP1;
-  let hasP2;
-  let loyaltyDiv;
-  totalAmt = 0;
-  itemCnt = 0;
-  originalTotal = totalAmt;
-  cartItems = cartDisp.children;
+  state.totalAmount = 0;
+  state.itemCount = 0;
+  originalTotal = state.totalAmount;
+  cartItems = cartDisplay.children;
   subTot = 0;
   bulkDisc = subTot;
   itemDiscounts = [];
   lowStockItems = [];
-  for (idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].q < 5 && prodList[idx].q > 0) {
-      lowStockItems.push(prodList[idx].name);
+  for (idx = 0; idx < state.prodList.length; idx++) {
+    if (state.prodList[idx].q < 5 && state.prodList[idx].q > 0) {
+      lowStockItems.push(state.prodList[idx].name);
     }
   }
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       let curItem;
-      for (let j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
+      for (let j = 0; j < state.prodList.length; j++) {
+        if (state.prodList[j].id === cartItems[i].id) {
+          curItem = state.prodList[j];
           break;
         }
       }
@@ -284,7 +282,7 @@ function handleCalculateCartStuff() {
       q = parseInt(qtyElem.textContent);
       itemTot = curItem.val * q;
       disc = 0;
-      itemCnt += q;
+      state.itemCount += q;
       subTot += itemTot;
       let itemDiv = cartItems[i];
       let priceElems = itemDiv.querySelectorAll(".text-lg, .text-xs");
@@ -294,19 +292,19 @@ function handleCalculateCartStuff() {
         }
       });
       if (q >= 10) {
-        if (curItem.id === PRODUCT_ONE) {
+        if (curItem.id === PRODUCT_IDS.KEYBOARD) {
           disc = 10 / 100;
         } else {
-          if (curItem.id === p2) {
+          if (curItem.id === PRODUCT_IDS.MOUSE) {
             disc = 15 / 100;
           } else {
-            if (curItem.id === product_3) {
+            if (curItem.id === PRODUCT_IDS.MONITOR_ARM) {
               disc = 20 / 100;
             } else {
-              if (curItem.id === p4) {
+              if (curItem.id === PRODUCT_IDS.LAPTOP_POUCH) {
                 disc = 5 / 100;
               } else {
-                if (curItem.id === PRODUCT_5) {
+                if (curItem.id === PRODUCT_IDS.SPEAKER) {
                   disc = 25 / 100;
                 }
               }
@@ -317,24 +315,24 @@ function handleCalculateCartStuff() {
           itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
         }
       }
-      totalAmt += itemTot * (1 - disc);
+      state.totalAmount += itemTot * (1 - disc);
     })();
   }
   let discRate = 0;
   originalTotal = subTot;
-  if (itemCnt >= 30) {
-    totalAmt = (subTot * 75) / 100;
+  if (state.itemCount >= 30) {
+    state.totalAmount = (subTot * 75) / 100;
     discRate = 25 / 100;
   } else {
-    discRate = (subTot - totalAmt) / subTot;
+    discRate = (subTot - state.totalAmount) / subTot;
   }
   const today = new Date();
   let isTuesday = today.getDay() === 2;
   let tuesdaySpecial = document.getElementById("tuesday-special");
   if (isTuesday) {
-    if (totalAmt > 0) {
-      totalAmt = (totalAmt * 90) / 100;
-      discRate = 1 - totalAmt / originalTotal;
+    if (state.totalAmount > 0) {
+      state.totalAmount = (state.totalAmount * 90) / 100;
+      discRate = 1 - state.totalAmount / originalTotal;
       tuesdaySpecial.classList.remove("hidden");
     } else {
       tuesdaySpecial.classList.add("hidden");
@@ -343,15 +341,15 @@ function handleCalculateCartStuff() {
     tuesdaySpecial.classList.add("hidden");
   }
   document.getElementById("item-count").textContent =
-    "🛍️ " + itemCnt + " items in cart";
+    "🛍️ " + state.itemCount + " items in cart";
   summaryDetails = document.getElementById("summary-details");
   summaryDetails.innerHTML = "";
   if (subTot > 0) {
     for (let i = 0; i < cartItems.length; i++) {
       let curItem;
-      for (let j = 0; j < prodList.length; j++) {
-        if (prodList[j].id === cartItems[i].id) {
-          curItem = prodList[j];
+      for (let j = 0; j < state.prodList.length; j++) {
+        if (state.prodList[j].id === cartItems[i].id) {
+          curItem = state.prodList[j];
           break;
         }
       }
@@ -372,7 +370,7 @@ function handleCalculateCartStuff() {
         <span>₩${subTot.toLocaleString()}</span>
       </div>
     `;
-    if (itemCnt >= 30) {
+    if (state.itemCount >= 30) {
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
@@ -390,7 +388,7 @@ function handleCalculateCartStuff() {
       });
     }
     if (isTuesday) {
-      if (totalAmt > 0) {
+      if (state.totalAmount > 0) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-purple-400">
             <span class="text-xs">🌟 화요일 추가 할인</span>
@@ -408,11 +406,11 @@ function handleCalculateCartStuff() {
   }
   totalDiv = sum.querySelector(".text-2xl");
   if (totalDiv) {
-    totalDiv.textContent = "₩" + Math.round(totalAmt).toLocaleString();
+    totalDiv.textContent = "₩" + Math.round(state.totalAmount).toLocaleString();
   }
   loyaltyPointsDiv = document.getElementById("loyalty-points");
   if (loyaltyPointsDiv) {
-    points = Math.floor(totalAmt / 1000);
+    points = Math.floor(state.totalAmount / 1000);
     if (points > 0) {
       loyaltyPointsDiv.textContent = "적립 포인트: " + points + "p";
       loyaltyPointsDiv.style.display = "block";
@@ -423,8 +421,8 @@ function handleCalculateCartStuff() {
   }
   discountInfoDiv = document.getElementById("discount-info");
   discountInfoDiv.innerHTML = "";
-  if (discRate > 0 && totalAmt > 0) {
-    savedAmount = originalTotal - totalAmt;
+  if (discRate > 0 && state.totalAmount > 0) {
+    savedAmount = originalTotal - state.totalAmount;
     discountInfoDiv.innerHTML = `
       <div class="bg-green-500/20 rounded-lg p-3">
         <div class="flex justify-between items-center mb-1">
@@ -442,14 +440,14 @@ function handleCalculateCartStuff() {
   itemCountElement = document.getElementById("item-count");
   if (itemCountElement) {
     previousCount = parseInt(itemCountElement.textContent.match(/\d+/) || 0);
-    itemCountElement.textContent = "🛍️ " + itemCnt + " items in cart";
-    if (previousCount !== itemCnt) {
+    itemCountElement.textContent = "🛍️ " + state.itemCount + " items in cart";
+    if (previousCount !== state.itemCount) {
       itemCountElement.setAttribute("data-changed", "true");
     }
   }
   stockMsg = "";
-  for (let stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
-    let item = prodList[stockIdx];
+  for (let stockIdx = 0; stockIdx < state.prodList.length; stockIdx++) {
+    let item = state.prodList[stockIdx];
     if (item.q < 5) {
       if (item.q > 0) {
         stockMsg =
@@ -472,11 +470,11 @@ let doRenderBonusPoints = function () {
   let hasMouse;
   let hasMonitorArm;
   let nodes;
-  if (cartDisp.children.length === 0) {
+  if (cartDisplay.children.length === 0) {
     document.getElementById("loyalty-points").style.display = "none";
     return;
   }
-  basePoints = Math.floor(totalAmt / 1000);
+  basePoints = Math.floor(state.totalAmount / 1000);
   finalPoints = 0;
   pointsDetail = [];
   if (basePoints > 0) {
@@ -492,21 +490,21 @@ let doRenderBonusPoints = function () {
   hasKeyboard = false;
   hasMouse = false;
   hasMonitorArm = false;
-  nodes = cartDisp.children;
+  nodes = cartDisplay.children;
   for (const node of nodes) {
     let product = null;
-    for (let pIdx = 0; pIdx < prodList.length; pIdx++) {
-      if (prodList[pIdx].id === node.id) {
-        product = prodList[pIdx];
+    for (let pIdx = 0; pIdx < state.prodList.length; pIdx++) {
+      if (state.prodList[pIdx].id === node.id) {
+        product = state.prodList[pIdx];
         break;
       }
     }
     if (!product) continue;
-    if (product.id === PRODUCT_ONE) {
+    if (product.id === PRODUCT_IDS.KEYBOARD) {
       hasKeyboard = true;
-    } else if (product.id === p2) {
+    } else if (product.id === PRODUCT_IDS.MOUSE) {
       hasMouse = true;
-    } else if (product.id === product_3) {
+    } else if (product.id === PRODUCT_IDS.MONITOR_ARM) {
       hasMonitorArm = true;
     }
   }
@@ -518,27 +516,27 @@ let doRenderBonusPoints = function () {
     finalPoints = finalPoints + 100;
     pointsDetail.push("풀세트 구매 +100p");
   }
-  if (itemCnt >= 30) {
+  if (state.itemCount >= 30) {
     finalPoints = finalPoints + 100;
     pointsDetail.push("대량구매(30개+) +100p");
   } else {
-    if (itemCnt >= 20) {
+    if (state.itemCount >= 20) {
       finalPoints = finalPoints + 50;
       pointsDetail.push("대량구매(20개+) +50p");
     } else {
-      if (itemCnt >= 10) {
+      if (state.itemCount >= 10) {
         finalPoints = finalPoints + 20;
         pointsDetail.push("대량구매(10개+) +20p");
       }
     }
   }
-  bonusPts = finalPoints;
+  state.bonusPoint = finalPoints;
   let ptsTag = document.getElementById("loyalty-points");
   if (ptsTag) {
-    if (bonusPts > 0) {
+    if (state.bonusPoint > 0) {
       ptsTag.innerHTML =
         '<div>적립 포인트: <span class="font-bold">' +
-        bonusPts +
+        state.bonusPoint +
         "p</span></div>" +
         '<div class="text-2xs opacity-70 mt-1">' +
         pointsDetail.join(", ") +
@@ -556,8 +554,8 @@ function onGetStockTotal() {
   let i;
   let currentProduct;
   sum = 0;
-  for (i = 0; i < prodList.length; i++) {
-    currentProduct = prodList[i];
+  for (i = 0; i < state.prodList.length; i++) {
+    currentProduct = state.prodList[i];
     sum += currentProduct.q;
   }
   return sum;
@@ -570,7 +568,7 @@ let handleStockInfoUpdate = function () {
   totalStock = onGetStockTotal();
   if (totalStock < 30) {
   }
-  prodList.forEach(function (item) {
+  state.prodList.forEach(function (item) {
     if (item.q < 5) {
       if (item.q > 0) {
         infoMsg = infoMsg + item.name + ": 재고 부족 (" + item.q + "개 남음)\n";
@@ -585,24 +583,24 @@ function doUpdatePricesInCart() {
   let totalCount = 0,
     j = 0;
   let cartItems;
-  while (cartDisp.children[j]) {
-    let qty = cartDisp.children[j].querySelector(".quantity-number");
+  while (cartDisplay.children[j]) {
+    let qty = cartDisplay.children[j].querySelector(".quantity-number");
     totalCount += qty ? parseInt(qty.textContent) : 0;
     j++;
   }
   totalCount = 0;
-  for (j = 0; j < cartDisp.children.length; j++) {
+  for (j = 0; j < cartDisplay.children.length; j++) {
     totalCount += parseInt(
-      cartDisp.children[j].querySelector(".quantity-number").textContent
+      cartDisplay.children[j].querySelector(".quantity-number").textContent
     );
   }
-  cartItems = cartDisp.children;
+  cartItems = cartDisplay.children;
   for (let i = 0; i < cartItems.length; i++) {
     let itemId = cartItems[i].id;
     let product = null;
-    for (let productIdx = 0; productIdx < prodList.length; productIdx++) {
-      if (prodList[productIdx].id === itemId) {
-        product = prodList[productIdx];
+    for (let productIdx = 0; productIdx < state.prodList.length; productIdx++) {
+      if (state.prodList[productIdx].id === itemId) {
+        product = state.prodList[productIdx];
         break;
       }
     }
@@ -659,8 +657,8 @@ function handleManualOverlayClick(e, manualColumn) {
 function handleAddToCart() {
   let selItem = sel.value;
   let hasItem = false;
-  for (let idx = 0; idx < prodList.length; idx++) {
-    if (prodList[idx].id === selItem) {
+  for (let idx = 0; idx < state.prodList.length; idx++) {
+    if (state.prodList[idx].id === selItem) {
       hasItem = true;
       break;
     }
@@ -669,9 +667,9 @@ function handleAddToCart() {
     return;
   }
   let itemToAdd = null;
-  for (let j = 0; j < prodList.length; j++) {
-    if (prodList[j].id === selItem) {
-      itemToAdd = prodList[j];
+  for (let j = 0; j < state.prodList.length; j++) {
+    if (state.prodList[j].id === selItem) {
+      itemToAdd = state.prodList[j];
       break;
     }
   }
@@ -752,11 +750,11 @@ function handleAddToCart() {
           }">Remove</a>
         </div>
       `;
-      cartDisp.appendChild(newItem);
+      cartDisplay.appendChild(newItem);
       itemToAdd.q--;
     }
     handleCalculateCartStuff();
-    lastSel = selItem;
+    state.lastSel = selItem;
   }
 }
 
@@ -769,9 +767,9 @@ function handleCartDispClick(event) {
     let prodId = tgt.dataset.productId;
     let itemElem = document.getElementById(prodId);
     let prod = null;
-    for (let prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
-      if (prodList[prdIdx].id === prodId) {
-        prod = prodList[prdIdx];
+    for (let prdIdx = 0; prdIdx < state.prodList.length; prdIdx++) {
+      if (state.prodList[prdIdx].id === prodId) {
+        prod = state.prodList[prdIdx];
         break;
       }
     }
@@ -804,4 +802,4 @@ function handleCartDispClick(event) {
 
 main();
 addBtn.addEventListener("click", handleAddToCart);
-cartDisp.addEventListener("click", handleCartDispClick);
+cartDisplay.addEventListener("click", handleCartDispClick);
