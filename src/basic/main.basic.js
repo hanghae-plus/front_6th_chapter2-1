@@ -94,6 +94,16 @@ const handleCalculateCartStuff = useFunction(
       TotalItemCount(summary);
       stockInfo.textContent = getStockInfoMessage();
 
+      summary.cartItems.forEach((item) => {
+        const priceTexts = item.querySelectorAll(".text-lg");
+        priceTexts.forEach((text) => {
+          const quantity = Number(
+            item.querySelector(".quantity-number").textContent
+          );
+          text.style.fontWeight = quantity >= 10 ? "bold" : "normal";
+        });
+      });
+
       const { isTuesday, totalDiscountedPrice, totalItemCount } = summary;
       const tuesdaySpecial = document.getElementById("tuesday-special");
       if (isTuesday) {

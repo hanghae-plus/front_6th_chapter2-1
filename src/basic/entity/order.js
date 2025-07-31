@@ -5,15 +5,6 @@ const getQuantity = (item) =>
   Number(item.querySelector(".quantity-number").textContent);
 const sumFn = (acc, cur) => acc + cur;
 
-const setPriceFontWeight = (cartItems) => {
-  cartItems.forEach((item) => {
-    const priceTexts = item.querySelectorAll(".text-lg");
-    priceTexts.forEach((text) => {
-      text.style.fontWeight = getQuantity(item) >= 10 ? "bold" : "normal";
-    });
-  });
-};
-
 export const getOrderSummary = ({ cartItems }) => {
   const prodListMap = new Map(prodList.map((item) => [item.id, item]));
 
@@ -42,8 +33,6 @@ export const getOrderSummary = ({ cartItems }) => {
       discount:
         (getQuantity(item) >= 10 ? DISCOUNT_RATE[item.id] || 0 : 0) * 100,
     }));
-
-  setPriceFontWeight(cartItems);
 
   let totalDiscountRate =
     totalItemCount >= 30
