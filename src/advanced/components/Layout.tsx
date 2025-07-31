@@ -6,13 +6,17 @@ import Manual from "./Manual";
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+    <div className="bg-gray-50">
+      <div className="container mx-auto">
         <Header />
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
-          <div className="bg-white border border-gray-200 p-8 overflow-y-auto">
-            <ProductSelector />
-            <CartList />
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
+          <div className="bg-white border border-gray-200 p-8 flex flex-col h-[600px]">
+            <div className="flex-shrink-0 mb-6">
+              <ProductSelector />
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <CartList />
+            </div>
           </div>
           <div className="bg-black text-white p-8 flex flex-col">
             <OrderSummary />

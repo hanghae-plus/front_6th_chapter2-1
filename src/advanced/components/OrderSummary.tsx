@@ -6,7 +6,12 @@ const OrderSummary = () => {
   const { state } = useCart();
   const { cartItems, totalAmount, bonusPoints } = state;
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  // 실시간 상품 가격으로 계산
+  const subtotal = cartItems.reduce((sum, item) => {
+    const currentProduct = state.products.find(p => p.id === item.id);
+    const currentPrice = currentProduct ? currentProduct.price : item.product.price;
+    return sum + currentPrice * item.quantity;
+  }, 0);
 
   const discounts = calculateTotalDiscount(cartItems, subtotal);
   const isTuesday = calculateTuesdayDiscount();
@@ -22,14 +27,20 @@ const OrderSummary = () => {
 
       <div className="flex-1 flex flex-col">
         <div className="space-y-3">
-          {cartItems.map(item => (
-            <div key={item.id} className="flex justify-between text-xs tracking-wide text-gray-400">
-              <span>
-                {item.product.name} x {item.quantity}
-              </span>
-              <span>₩{(item.product.price * item.quantity).toLocaleString()}</span>
-            </div>
-          ))}
+          {cartItems.map(item => {
+            const currentProduct = state.products.find(p => p.id === item.id);
+            const currentPrice = currentProduct ? currentProduct.price : item.product.price;
+            const currentName = currentProduct ? currentProduct.name : item.product.name;
+
+            return (
+              <div key={item.id} className="flex justify-between text-xs tracking-wide text-gray-400">
+                <span>
+                  {currentName} x {item.quantity}
+                </span>
+                <span>₩{(currentPrice * item.quantity).toLocaleString()}</span>
+              </div>
+            );
+          })}
         </div>
 
         {subtotal > 0 && (
