@@ -476,22 +476,14 @@ const renderBonusPoints = () => {
 };
 
 function doUpdatePricesInCart() {
-  const cartItems = cartContainerEl.children;
+  const cartItemsEl = Array.from(cartContainerEl.children);
 
-  for (let i = 0; i < cartItems.length; i++) {
-    const itemId = cartItems[i].id;
-    let product = null;
-
-    for (let productIdx = 0; productIdx < productList.length; productIdx++) {
-      if (productList[productIdx].id === itemId) {
-        product = productList[productIdx];
-        break;
-      }
-    }
+  cartItemsEl.forEach((cartItem) => {
+    const product = productList.find((_product) => _product.id === cartItem.id);
 
     if (product) {
-      const priceDiv = cartItems[i].querySelector('.text-lg');
-      const nameDiv = cartItems[i].querySelector('h3');
+      const priceDiv = cartItem.querySelector('.text-lg');
+      const nameDiv = cartItem.querySelector('h3');
       const status = getSaleStatus(product);
 
       const priceInnerHtml = (_product) => {
@@ -515,7 +507,7 @@ function doUpdatePricesInCart() {
         nameDiv.textContent = product.name;
       }
     }
-  }
+  });
 
   handleCalculateCartStuff();
 }
