@@ -185,40 +185,54 @@ const getCalculatePoints = ({
   hasMouse,
   hasMonitorArm,
 }) => {
-  let basePoints = Math.floor(totalDiscountedPrice / 1000);
+  const basePoints = Math.floor(totalDiscountedPrice / 1000);
+
+  const saleEvents = [
+    {
+      condition: () => basePoints > 0,
+      calcSalePoint: () => basePoints,
+      message: `기본: ${basePoints}p`,
+    },
+    {
+      condition: () => new Date().getDay() === 2 && basePoints > 0,
+      calcSalePoint: () => basePoints * 2,
+      message: "화요일 2배",
+    },
+    {
+      condition: () => hasKeyboard && hasMouse,
+      calcSalePoint: (points) => points + 50,
+      message: "키보드+마우스 세트 +50p",
+    },
+    {
+      condition: () => hasKeyboard && hasMouse && hasMonitorArm,
+      calcSalePoint: (points) => points + 100,
+      message: "풀세트 구매 +100p",
+    },
+    {
+      condition: () => totalItemCount >= 30,
+      calcSalePoint: (points) => points + 100,
+      message: "대량구매(30개+) +100p",
+    },
+    {
+      condition: () => totalItemCount >= 20 && totalItemCount < 30,
+      calcSalePoint: (points) => points + 50,
+      message: "대량구매(20개+) +50p",
+    },
+    {
+      condition: () => totalItemCount >= 10 && totalItemCount < 20,
+      calcSalePoint: (points) => points + 20,
+      message: "대량구매(10개+) +20p",
+    },
+  ];
+
   let finalPoints = 0;
-  let pointsDetail = [];
-
-  if (basePoints > 0) {
-    finalPoints = basePoints;
-    pointsDetail.push(`기본: ${basePoints}p`);
-  }
-  if (new Date().getDay() === 2) {
-    if (basePoints > 0) {
-      finalPoints = basePoints * 2;
-      pointsDetail.push("화요일 2배");
+  const pointsDetail = [];
+  saleEvents.forEach(({ calcSalePoint, condition, message }) => {
+    if (condition()) {
+      finalPoints = calcSalePoint(finalPoints);
+      pointsDetail.push(message);
     }
-  }
-
-  if (hasKeyboard && hasMouse) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push("키보드+마우스 세트 +50p");
-  }
-  if (hasKeyboard && hasMouse && hasMonitorArm) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push("풀세트 구매 +100p");
-  }
-
-  if (totalItemCount >= 30) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push("대량구매(30개+) +100p");
-  } else if (totalItemCount >= 20) {
-    finalPoints = finalPoints + 50;
-    pointsDetail.push("대량구매(20개+) +50p");
-  } else if (totalItemCount >= 10) {
-    finalPoints = finalPoints + 20;
-    pointsDetail.push("대량구매(10개+) +20p");
-  }
+  });
 
   return {
     basePoints,
