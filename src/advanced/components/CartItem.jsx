@@ -17,7 +17,6 @@ export const CartItem = ({
       </div>
       <div>
         <h3 className="text-base font-normal mb-1 tracking-tight">
-          $
           {onSale && suggestSale
             ? "⚡💝"
             : onSale
@@ -25,11 +24,10 @@ export const CartItem = ({
               : suggestSale
                 ? "💝"
                 : ""}
-          ${name}
+          {name}
         </h3>
         <p className="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
         <p className="text-xs text-black mb-3">
-          $
           {onSale || suggestSale
             ? `<span class="line-through text-gray-400">₩${originalPrice.toLocaleString()}</span> ` +
               `<span class="${
@@ -68,7 +66,6 @@ export const CartItem = ({
             fontWeight: selectedQuantity > 10 ? "bold" : "normal",
           }}
         >
-          $
           {onSale || suggestSale
             ? `<span class="line-through text-gray-400">₩${originalPrice.toLocaleString()}</span> ` +
               `<span class="${
