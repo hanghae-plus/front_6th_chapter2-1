@@ -127,7 +127,7 @@ function main() {
 }
 
 function handleCalculateCartStuff() {
-  const cartItemsEl = Array.from(cartContainerEl.children);
+  const cartProductsEl = Array.from(cartContainerEl.children);
   const itemDiscounts = [];
 
   let subTotal = 0;
@@ -145,33 +145,32 @@ function handleCalculateCartStuff() {
   itemCount = 0;
   originalTotal = totalAmount;
 
-  cartItemsEl.forEach((cartItem) => {
-    const product = productList.find((_product) => _product.id === cartItem.id);
+  cartProductsEl.forEach((cartProductEl) => {
+    const cartProduct = productList.find((product) => product.id === cartProductEl.id);
 
-    const quantityEl = cartItem.querySelector('.quantity-number');
+    const quantityEl = cartProductEl.querySelector('.quantity-number');
+    const priceEl = cartProductEl.querySelectorAll('.text-lg');
     const quantity = parseInt(quantityEl.textContent);
-    const itemTotal = product.value * quantity;
+    const cartProductTotalAmount = cartProduct.value * quantity;
 
     let discount = 0;
 
     itemCount += quantity;
-    subTotal += itemTotal;
-
-    const priceEl = cartItem.querySelectorAll('.text-lg');
+    subTotal += cartProductTotalAmount;
 
     priceEl.forEach((el) => {
       el.style.fontWeight = quantity >= 10 ? 'bold' : 'normal';
     });
 
     if (quantity >= 10) {
-      discount = getProductDiscountRate(product);
+      discount = getProductDiscountRate(cartProduct);
     }
 
     if (discount > 0) {
-      itemDiscounts.push({ name: product.name, discount: discount * 100 });
+      itemDiscounts.push({ name: cartProduct.name, discount: discount * 100 });
     }
 
-    totalAmount += itemTotal * (1 - discount);
+    totalAmount += cartProductTotalAmount * (1 - discount);
   });
 
   let discountRate = 0;
@@ -197,7 +196,7 @@ function handleCalculateCartStuff() {
   summaryDetails.innerHTML = '';
 
   if (subTotal > 0) {
-    cartItemsEl.forEach((cartItemEl) => {
+    cartProductsEl.forEach((cartItemEl) => {
       const product = productList.find((_product) => _product.id === cartItemEl.id);
 
       const quantityEl = cartItemEl.querySelector('.quantity-number');
