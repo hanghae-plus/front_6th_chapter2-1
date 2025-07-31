@@ -32,6 +32,7 @@ import {
   MIN_QUANTITY_FOR_POINT_BONUS_TIER2,
   MIN_QUANTITY_FOR_POINT_BONUS_TIER3,
 } from './data/quantity.data.js';
+import { findProductById } from './utils/product.util.js';
 
 // ============================================================================
 // 전역 상태 변수
@@ -95,13 +96,7 @@ function calculateCartAndUpdateUI() {
   for (let i = 0; i < cartItems.length; i++) {
     (function () {
       // 현재 아이템 찾기
-      let currentProduct;
-      for (let j = 0; j < PRODUCT_LIST.length; j++) {
-        if (PRODUCT_LIST[j].id === cartItems[i].id) {
-          currentProduct = PRODUCT_LIST[j];
-          break;
-        }
-      }
+      let currentProduct = findProductById(cartItems[i].id, PRODUCT_LIST);
 
       // 수량 및 가격 계산
       const quantityElement = cartItems[i].querySelector('.quantity-number');
@@ -503,15 +498,7 @@ function updatePricesInCart() {
   // 각 장바구니 아이템의 가격 및 이름 업데이트
   for (let i = 0; i < cartItems.length; i++) {
     const itemId = cartItems[i].id;
-    let product = null;
-
-    // 상품 정보 찾기
-    for (let productIdx = 0; productIdx < PRODUCT_LIST.length; productIdx++) {
-      if (PRODUCT_LIST[productIdx].id === itemId) {
-        product = PRODUCT_LIST[productIdx];
-        break;
-      }
-    }
+    let product = findProductById(itemId, PRODUCT_LIST);
 
     if (product) {
       const priceDiv = cartItems[i].querySelector('.text-lg');
