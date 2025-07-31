@@ -1,23 +1,24 @@
 // TODO : enum 타입 사용하기
+import { PRODUCT_STATUS } from '../data/product.data';
 
 export const getProductStatus = product => {
-  if (product.q === 0) return 'outOfStock';
-  if (product.onSale && product.suggestSale) return 'superSale';
-  if (product.onSale) return 'lightningSale';
-  if (product.suggestSale) return 'suggestionSale';
-  return 'normal';
+  if (product.q === 0) return PRODUCT_STATUS.OUT_OF_STOCK;
+  if (product.onSale && product.suggestSale) return PRODUCT_STATUS.SUPER_SALE;
+  if (product.onSale) return PRODUCT_STATUS.LIGHTNING_SALE;
+  if (product.suggestSale) return PRODUCT_STATUS.SUGGESTION_SALE;
+  return PRODUCT_STATUS.NORMAL;
 };
 
 export const createProductText = (product, status) => {
   const formatters = {
-    outOfStock: () => `${product.name} - ${product.val}원 (품절)`,
-    superSale: () =>
+    [PRODUCT_STATUS.OUT_OF_STOCK]: () => `${product.name} - ${product.val}원 (품절)`,
+    [PRODUCT_STATUS.SUPER_SALE]: () =>
       `⚡💝${product.name} - ${product.originalVal}원 → ${product.val}원 (${getSuperSaleRate()}% SUPER SALE!)`,
-    lightningSale: () =>
+    [PRODUCT_STATUS.LIGHTNING_SALE]: () =>
       `⚡${product.name} - ${product.originalVal}원 → ${product.val}원 (${DISCOUNT_RATE_LIGHTNING}% SALE!)`,
-    suggestionSale: () =>
+    [PRODUCT_STATUS.SUGGESTION_SALE]: () =>
       `💝${product.name} - ${product.originalVal}원 → ${product.val}원 (${DISCOUNT_RATE_SUGGESTION}% 추천할인!)`,
-    normal: () => `${product.name} - ${product.val}원`,
+    [PRODUCT_STATUS.NORMAL]: () => `${product.name} - ${product.val}원`,
   };
 
   return formatters[status]();
@@ -25,11 +26,11 @@ export const createProductText = (product, status) => {
 
 export const getProductStyle = status => {
   const styles = {
-    outOfStock: 'text-gray-400',
-    superSale: 'text-purple-600 font-bold',
-    lightningSale: 'text-red-500 font-bold',
-    suggestionSale: 'text-blue-500 font-bold',
-    normal: '',
+    [PRODUCT_STATUS.OUT_OF_STOCK]: 'text-gray-400',
+    [PRODUCT_STATUS.SUPER_SALE]: 'text-purple-600 font-bold',
+    [PRODUCT_STATUS.LIGHTNING_SALE]: 'text-red-500 font-bold',
+    [PRODUCT_STATUS.SUGGESTION_SALE]: 'text-blue-500 font-bold',
+    [PRODUCT_STATUS.NORMAL]: '',
   };
 
   return styles[status];

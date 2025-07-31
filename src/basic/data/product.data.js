@@ -52,4 +52,12 @@ const PRODUCT_LIST = [
   },
 ];
 
-export { PRODUCT_1, PRODUCT_2, PRODUCT_3, PRODUCT_4, PRODUCT_5, PRODUCT_LIST };
+const PRODUCT_STATUS = {
+  OUT_OF_STOCK: 'outOfStock',
+  SUPER_SALE: 'superSale',
+  LIGHTNING_SALE: 'lightningSale',
+  SUGGESTION_SALE: 'suggestionSale',
+  NORMAL: 'normal',
+};
+
+export { PRODUCT_1, PRODUCT_2, PRODUCT_3, PRODUCT_4, PRODUCT_5, PRODUCT_LIST, PRODUCT_STATUS };
