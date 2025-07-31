@@ -21,8 +21,7 @@ yarn.lock
 *.eot
 
 # 원본 파일들 (더티코드)
-src/main.original.js
-index.html
+apps/original/
 
 # 기타
 .env*

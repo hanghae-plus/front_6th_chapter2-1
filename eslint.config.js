@@ -76,7 +76,7 @@ const ignoresConfig = {
 		"build/**",
 		".vite/**",
 		"coverage/**",
-		"src/main.original.js",
+		"apps/original/**",
 		"**/*.html"
 	]
 };
