@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ProductSelector } from './components/ProductSelector';
+import { useProducts } from './hooks/useProducts';
 import './App.css';
 
 function App() {
+  const { products, lowStockProducts, outOfStockProducts } = useProducts();
+  const [selectedProductId, setSelectedProductId] = useState('');
+
+  const handleProductSelect = (productId: string) => {
+    setSelectedProductId(productId);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* 헤더 */}
@@ -18,7 +27,11 @@ function App() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-2xl font-semibold mb-4">상품 선택</h2>
-              <p className="text-gray-600">상품 선택 기능이 여기에 들어갈 예정입니다.</p>
+              <ProductSelector
+                products={products}
+                selectedProductId={selectedProductId}
+                onProductSelect={handleProductSelect}
+              />
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
