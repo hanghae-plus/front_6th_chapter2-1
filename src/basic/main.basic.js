@@ -787,31 +787,6 @@ function updateProductSelectOptions() {
   }
 }
 
-/**
- * 장바구니 계산 및 전체 UI 업데이트
- * 메인 함수: 장바구니 상태 계산 후 모든 UI 컴포넌트 업데이트
- */
-function updateCartDisplay() {
-  const cartItems = cartDisplayElement.children;
-
-  // 1. 장바구니 계산 (비즈니스 로직)
-  const calculation = useCartManager.updateCartCalculation(cartItems);
-  const { subtotal, itemCount, totalAmount, discountRate, originalTotal, isSpecialDiscount, itemDiscounts } =
-    calculation;
-
-  // 2. UI 업데이트 (프레젠테이션 로직)
-  updateCartItemStyles(cartItems);
-  updateSpecialDiscountDisplay(isSpecialDiscount, totalAmount);
-  updateItemCountDisplay(itemCount);
-  renderOrderSummaryDetails(cartItems, subtotal, itemCount, itemDiscounts, isSpecialDiscount, totalAmount);
-  updateTotalAndPointsDisplay(totalAmount);
-  renderDiscountInfoPanel(discountRate, totalAmount, originalTotal);
-
-  // 3. 연관 컴포넌트 업데이트
-  useStockManager.updateStockInfoDisplay();
-  renderBonusPointsDisplay();
-}
-
 function renderBonusPointsDisplay() {
   const totalAmount = useCartManager.getTotalAmount();
   const itemCount = useCartManager.getItemCount();
@@ -842,6 +817,31 @@ function renderBonusPointsDisplay() {
       ptsTag.style.display = "block";
     }
   }
+}
+
+/**
+ * 장바구니 계산 및 전체 UI 업데이트
+ * 메인 함수: 장바구니 상태 계산 후 모든 UI 컴포넌트 업데이트
+ */
+function updateCartDisplay() {
+  const cartItems = cartDisplayElement.children;
+
+  // 1. 장바구니 계산 (비즈니스 로직)
+  const calculation = useCartManager.updateCartCalculation(cartItems);
+  const { subtotal, itemCount, totalAmount, discountRate, originalTotal, isSpecialDiscount, itemDiscounts } =
+    calculation;
+
+  // 2. UI 업데이트 (프레젠테이션 로직)
+  updateCartItemStyles(cartItems);
+  updateSpecialDiscountDisplay(isSpecialDiscount, totalAmount);
+  updateItemCountDisplay(itemCount);
+  renderOrderSummaryDetails(cartItems, subtotal, itemCount, itemDiscounts, isSpecialDiscount, totalAmount);
+  updateTotalAndPointsDisplay(totalAmount);
+  renderDiscountInfoPanel(discountRate, totalAmount, originalTotal);
+
+  // 3. 연관 컴포넌트 업데이트
+  useStockManager.updateStockInfoDisplay();
+  renderBonusPointsDisplay();
 }
 
 function updateCartItemPrices() {
@@ -876,11 +876,6 @@ function updateCartItemPrices() {
 }
 
 function main() {
-  let header;
-  let gridContainer;
-  let leftColumn;
-  let selectorContainer;
-  let rightColumn;
   let manualOverlay;
   let manualColumn;
   lastSelectedProductId = null;
@@ -889,7 +884,7 @@ function main() {
   useCartManager.resetCart();
 
   const root = document.getElementById("app");
-  header = document.createElement("div");
+  const header = document.createElement("div");
   header.className = "mb-8";
   header.innerHTML = `
     <h1 class="text-xs font-medium tracking-extra-wide uppercase mb-2">🛒 Hanghae Online Store</h1>
@@ -898,10 +893,10 @@ function main() {
   `;
   productSelectElement = document.createElement("select");
   productSelectElement.id = "product-select";
-  gridContainer = document.createElement("div");
-  leftColumn = document.createElement("div");
+  const gridContainer = document.createElement("div");
+  const leftColumn = document.createElement("div");
   leftColumn.className = "bg-white border border-gray-200 p-8 overflow-y-auto";
-  selectorContainer = document.createElement("div");
+  const selectorContainer = document.createElement("div");
   selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
   productSelectElement.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
   gridContainer.className = "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
@@ -920,7 +915,7 @@ function main() {
   cartDisplayElement = document.createElement("div");
   leftColumn.appendChild(cartDisplayElement);
   cartDisplayElement.id = "cart-items";
-  rightColumn = document.createElement("div");
+  const rightColumn = document.createElement("div");
   rightColumn.className = "bg-black text-white p-8 flex flex-col";
   rightColumn.innerHTML = `
     <h2 class="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
