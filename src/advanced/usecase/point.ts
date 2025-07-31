@@ -11,9 +11,14 @@ import {
 } from '../const/point';
 import { KEYBOARD, MONITORARM, MOUSE } from '../data/product';
 import { isTuesday } from '../utils/dateUtil';
-import { CartItem } from './../store/CartContext';
 
-export const calculateBonusPoints = (cartItems: CartItem[], totalAmount: number) => {
+export const calculateBonusPoints = (
+  cartItems: {
+    id: string;
+    quantity: number;
+  }[],
+  totalAmount: number
+) => {
   let points = 0;
   const detail = [];
 
@@ -28,7 +33,7 @@ export const calculateBonusPoints = (cartItems: CartItem[], totalAmount: number)
     detail.push('화요일 2배');
   }
 
-  const productIds = cartItems.map((item) => item.productId);
+  const productIds = cartItems.map((item) => item.id);
   const hasKeyboard = productIds.includes(KEYBOARD);
   const hasMouse = productIds.includes(MOUSE);
   const hasMonitorArm = productIds.includes(MONITORARM);

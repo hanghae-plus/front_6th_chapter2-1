@@ -1,24 +1,23 @@
-// hooks/useCartSummary.ts
-
-import { useCartContext } from '@/store/CartContext';
 import {
   applyItemDiscount,
   applyTotalDiscount,
   ItemDiscountResult,
   TotalDiscountResult,
 } from '@/usecase/applyDiscount';
+import { calculateBonusPoints } from '@/usecase/point';
 
 import { useCartWithProduct } from './useCartWithProducts';
 
-export const useCartSummary = () => {
+export default () => {
   const { cartItems } = useCartWithProduct();
-  const { cartTotalCount } = useCartContext();
 
-  const itemDiscountResult: ItemDiscountResult = applyItemDiscount(cartItems);
-  const totalDiscountResult: TotalDiscountResult = applyTotalDiscount(itemDiscountResult, cartTotalCount);
+  const itemDiscount: ItemDiscountResult = applyItemDiscount(cartItems);
+  const totalDiscount: TotalDiscountResult = applyTotalDiscount(itemDiscount, cartItems.length);
+  const bonusPoints = calculateBonusPoints(cartItems, totalDiscount.finalTotal);
 
   return {
-    itemDiscountResult,
-    totalDiscountResult,
+    itemDiscount,
+    totalDiscount,
+    bonusPoints,
   };
 };
