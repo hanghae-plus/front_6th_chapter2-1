@@ -76,13 +76,13 @@ function App() {
   useEffect(() => {
     const promotionCallbacks = {
       onFlashSale: (_product: any) => {
-        setProducts(prevProducts => [...prevProducts]);
+        setProducts(prevProducts => prevProducts.map(p => ({ ...p })));
       },
       onSuggestSale: (_product: any) => {
-        setProducts(prevProducts => [...prevProducts]);
+        setProducts(prevProducts => prevProducts.map(p => ({ ...p })));
       },
       updateProductList: () => {
-        setProducts(prevProducts => [...prevProducts]);
+        setProducts(prevProducts => prevProducts.map(p => ({ ...p })));
       },
     };
 
