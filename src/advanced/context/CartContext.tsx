@@ -24,7 +24,7 @@ const cartReducer = (state: AppState, action: CartAction): AppState => {
   switch (action.type) {
     case "ADD_TO_CART": {
       const product = state.products.find(p => p.id === action.productId);
-      if (!product || product.q <= 0) return state;
+      if (!product || product.quantity <= 0) return state;
 
       const existingItem = state.cartItems.find(item => item.id === action.productId);
 
@@ -32,7 +32,7 @@ const cartReducer = (state: AppState, action: CartAction): AppState => {
         // 이미 장바구니에 있는 경우 수량만 증가
         const updatedItems = state.cartItems.map(item => (item.id === action.productId ? { ...item, quantity: item.quantity + 1 } : item));
 
-        const updatedProducts = state.products.map(p => (p.id === action.productId ? { ...p, q: p.q - 1 } : p));
+        const updatedProducts = state.products.map(p => (p.id === action.productId ? { ...p, quantity: p.quantity - 1 } : p));
 
         return {
           ...state,
@@ -47,7 +47,7 @@ const cartReducer = (state: AppState, action: CartAction): AppState => {
           product: { ...product },
         };
 
-        const updatedProducts = state.products.map(p => (p.id === action.productId ? { ...p, q: p.q - 1 } : p));
+        const updatedProducts = state.products.map(p => (p.id === action.productId ? { ...p, quantity: p.quantity - 1 } : p));
 
         return {
           ...state,
@@ -66,7 +66,7 @@ const cartReducer = (state: AppState, action: CartAction): AppState => {
 
       if (newQuantity <= 0) {
         // 아이템 제거
-        const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, q: p.q + item.quantity } : p));
+        const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, quantity: p.quantity + item.quantity } : p));
 
         return {
           ...state,
@@ -77,11 +77,11 @@ const cartReducer = (state: AppState, action: CartAction): AppState => {
 
       // 재고 확인
       const product = state.products.find(p => p.id === productId);
-      if (!product || product.q < change) return state;
+      if (!product || product.quantity < change) return state;
 
       const updatedItems = state.cartItems.map(item => (item.id === productId ? { ...item, quantity: newQuantity } : item));
 
-      const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, q: p.q - change } : p));
+      const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, quantity: p.quantity - change } : p));
 
       return {
         ...state,
@@ -94,7 +94,7 @@ const cartReducer = (state: AppState, action: CartAction): AppState => {
       const item = state.cartItems.find(item => item.id === action.productId);
       if (!item) return state;
 
-      const updatedProducts = state.products.map(p => (p.id === action.productId ? { ...p, q: p.q + item.quantity } : p));
+      const updatedProducts = state.products.map(p => (p.id === action.productId ? { ...p, quantity: p.quantity + item.quantity } : p));
 
       return {
         ...state,
@@ -107,7 +107,7 @@ const cartReducer = (state: AppState, action: CartAction): AppState => {
       // 모든 아이템을 재고로 반환
       const updatedProducts = state.products.map(product => {
         const cartItem = state.cartItems.find(item => item.id === product.id);
-        return cartItem ? { ...product, q: product.q + cartItem.quantity } : product;
+        return cartItem ? { ...product, quantity: product.quantity + cartItem.quantity } : product;
       });
 
       return {
@@ -150,7 +150,7 @@ interface CartProviderProps {
   children: ReactNode;
 }
 
-export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
+export const CartProvider = ({ children }: CartProviderProps) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
   const addToCart = (productId: string) => {
@@ -178,7 +178,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   // 계산된 값들
-  const subtotal = state.cartItems.reduce((sum, item) => sum + item.product.val * item.quantity, 0);
+  const subtotal = state.cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
   const discounts = calculateTotalDiscount(state.cartItems, subtotal);
   const totalAmount = calculateFinalPrice(subtotal, discounts);
