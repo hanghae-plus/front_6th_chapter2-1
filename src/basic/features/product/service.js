@@ -24,51 +24,6 @@ export const getTotalStock = (products) => {
 };
 
 /**
- * @description 상품 판매 상태에 따라 판매 문구 반환
- * @param {Product} product - 상품
- * @returns {string} 상품판매 정보 텍스트 (이름 - 가격 - 할인정보)
- */
-export const getSalesInfoText = (product) => {
-  const status = getSaleStatus(product);
-
-  switch (status) {
-    case 'SUPER':
-      return `⚡💝${product.name} - ${product.originalValue}원 → ${product.value}원 (25% SUPER SALE!)`;
-    case 'SALE':
-      return `⚡${product.name} - ${product.originalValue}원 → ${product.value}원 (20% SALE!)`;
-    case 'SUGGEST':
-      return `💝${product.name} - ${product.originalValue}원 → ${product.value}원 (5% 추천할인!)`;
-    case 'OUT_OF_STOCK':
-      return `${product.name} - ${product.value}원 (품절)`;
-    case 'NORMAL':
-    default:
-      return `${product.name} - ${product.value}원`;
-  }
-};
-
-/**
- * @description 상품 판매 상태에 따라 `<option>` 요소에 적용할 CSS 반환
- * @param {Product} product - 상품
- * @returns {string} tailwind CSS 클래스명
- */
-export const getProductOptionStyle = (product) => {
-  const status = getSaleStatus(product);
-
-  switch (status) {
-    case 'SUPER':
-      return 'text-purple-600 font-bold';
-    case 'SALE':
-      return 'text-red-500 font-bold';
-    case 'SUGGEST':
-      return 'text-blue-500 font-bold';
-    case 'OUT_OF_STOCK':
-      return 'text-gray-400';
-    default:
-      return '';
-  }
-};
-
-/**
  * @description 상품의 재고 유무 반환
  * @param {Product} product - 상품
  * @returns {boolean} 상품 재고 유무
@@ -118,6 +73,51 @@ export const getStockInfo = (product) => {
   }
 
   return '';
+};
+
+/**
+ * @description 상품 판매 상태에 따라 판매 문구 반환
+ * @param {Product} product - 상품
+ * @returns {string} 상품판매 정보 텍스트 (이름 - 가격 - 할인정보)
+ */
+export const getSalesInfoText = (product) => {
+  const status = getSaleStatus(product);
+
+  switch (status) {
+    case 'SUPER':
+      return `⚡💝${product.name} - ${product.originalValue}원 → ${product.value}원 (25% SUPER SALE!)`;
+    case 'SALE':
+      return `⚡${product.name} - ${product.originalValue}원 → ${product.value}원 (20% SALE!)`;
+    case 'SUGGEST':
+      return `💝${product.name} - ${product.originalValue}원 → ${product.value}원 (5% 추천할인!)`;
+    case 'OUT_OF_STOCK':
+      return `${product.name} - ${product.value}원 (품절)`;
+    case 'NORMAL':
+    default:
+      return `${product.name} - ${product.value}원`;
+  }
+};
+
+/**
+ * @description 상품 판매 상태에 따라 `<option>` 요소에 적용할 CSS 반환
+ * @param {Product} product - 상품
+ * @returns {string} tailwind CSS 클래스명
+ */
+export const getProductOptionStyle = (product) => {
+  const status = getSaleStatus(product);
+
+  switch (status) {
+    case 'SUPER':
+      return 'text-purple-600 font-bold';
+    case 'SALE':
+      return 'text-red-500 font-bold';
+    case 'SUGGEST':
+      return 'text-blue-500 font-bold';
+    case 'OUT_OF_STOCK':
+      return 'text-gray-400';
+    default:
+      return '';
+  }
 };
 
 /**
