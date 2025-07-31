@@ -5,6 +5,8 @@ import {
   PRODUCT_MONITOR_ARM,
   PRODUCT_LAPTOP_POUCH,
   PRODUCT_SPEAKER,
+  QUANTITY_THRESHOLDS,
+  POINT_RATES_BULK_BONUS,
 } from './constants';
 
 // 상품 데이터 및 장바구니 관련 변수
@@ -797,22 +799,13 @@ const doRenderBonusPoints = () => {
     pointsDetail.push('풀세트 구매 +100p');
   }
 
-  // ----------------------------------------
   // 수량별 보너스 포인트
-  // ----------------------------------------
-  if (itemCount >= 30) {
-    finalPoints = finalPoints + 100;
-    pointsDetail.push('대량구매(30개+) +100p');
-  } else {
-    if (itemCount >= 20) {
-      finalPoints = finalPoints + 50;
-      pointsDetail.push('대량구매(20개+) +50p');
-    } else {
-      if (itemCount >= 10) {
-        finalPoints = finalPoints + 20;
-        pointsDetail.push('대량구매(10개+) +20p');
-      }
-    }
+  const bonusPerBulkInfo = getBonusPerBulkInfo(itemCount);
+  if (bonusPerBulkInfo) {
+    finalPoints += bonusPerBulkInfo.points;
+    pointsDetail.push(
+      `대량구매(${bonusPerBulkInfo.threshold}개+) +${bonusPerBulkInfo.points}p`,
+    );
   }
 
   // ----------------------------------------
@@ -1045,4 +1038,26 @@ cartContainer.addEventListener('click', function (event) {
 
 function findProductById(productId) {
   return productList.find((product) => product.id === productId);
+}
+
+function getBonusPerBulkInfo(itemCount) {
+  if (itemCount >= QUANTITY_THRESHOLDS.BONUS_LARGE) {
+    return {
+      points: POINT_RATES_BULK_BONUS.LARGE,
+      threshold: QUANTITY_THRESHOLDS.BONUS_LARGE,
+    };
+  }
+  if (itemCount >= QUANTITY_THRESHOLDS.BONUS_MEDIUM) {
+    return {
+      points: POINT_RATES_BULK_BONUS.MEDIUM,
+      threshold: QUANTITY_THRESHOLDS.BONUS_MEDIUM,
+    };
+  }
+  if (itemCount >= QUANTITY_THRESHOLDS.BONUS_SMALL) {
+    return {
+      points: POINT_RATES_BULK_BONUS.SMALL,
+      threshold: QUANTITY_THRESHOLDS.BONUS_SMALL,
+    };
+  }
+  return null;
 }
