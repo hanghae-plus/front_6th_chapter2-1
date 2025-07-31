@@ -1,9 +1,7 @@
-import { BULK_DISCOUNT, GLOBAL_DISCOUNT, TUESDAY_SPECIAL, STOCK_THRESHOLDS } from "../constants";
 import { WEEKDAYS } from "../../../shared/constants";
-import { BASE_POINT_POLICY } from "../../loyalty";
-import { doRenderBonusPoints } from "../../loyalty";
-import { PRODUCT_IDS, products } from "../../product";
-import { handleStockInfoUpdate } from "../../product";
+import { BASE_POINT_POLICY, doRenderBonusPoints } from "../../loyalty";
+import { handleStockInfoUpdate, PRODUCT_IDS, products } from "../../product";
+import { BULK_DISCOUNT, GLOBAL_DISCOUNT, STOCK_THRESHOLDS, TUESDAY_SPECIAL } from "../constants";
 
 export function handleCalculateCartStuff(state, uiElements) {
 	// Reset state values

@@ -1,11 +1,11 @@
+import { WEEKDAYS } from "../../../shared/constants";
 import { PRODUCT_IDS, products } from "../../product";
 import {
 	BASE_POINT_POLICY,
-	TUESDAY_POINT_BONUS,
 	COMBO_BONUS_POINTS,
-	QUANTITY_BONUS_POINTS
+	QUANTITY_BONUS_POINTS,
+	TUESDAY_POINT_BONUS
 } from "../constants";
-import { WEEKDAYS } from "../../../shared/constants";
 
 export const doRenderBonusPoints = function (state, uiElements) {
 	// Calculate base points and initialize tracking variables

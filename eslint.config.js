@@ -71,21 +71,21 @@ const importSortConfig = {
 
 const ignoresConfig = {
 	ignores: [
-		"node_modules/**",
-		"dist/**",
-		"build/**",
-		".vite/**",
-		"coverage/**",
+		"**/node_modules/**",
+		"**/dist/**",
+		"**/build/**",
+		"**/.vite/**",
+		"**/coverage/**",
 		"apps/original/**",
 		"**/*.html"
 	]
 };
 
 export default [
+	ignoresConfig,
 	js.configs.recommended,
 	globalConfig,
 	testFileConfig,
 	importSortConfig,
-	prettierConfig,
-	ignoresConfig
+	prettierConfig
 ];

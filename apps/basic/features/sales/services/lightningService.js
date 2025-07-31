@@ -1,7 +1,6 @@
-import { LIGHTNING_SALE_DISCOUNT, LIGHTNING_SALE_TIMER } from "../constants";
-import { findRandomProductForSale } from "../../product";
 import { doUpdatePricesInCart } from "../../cart";
-import { onUpdateSelectOptions } from "../../product";
+import { findRandomProductForSale, onUpdateSelectOptions } from "../../product";
+import { LIGHTNING_SALE_DISCOUNT, LIGHTNING_SALE_TIMER } from "../constants";
 
 /**
  * Apply lightning sale discount to a product

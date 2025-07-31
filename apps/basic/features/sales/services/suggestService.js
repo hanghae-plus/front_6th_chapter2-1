@@ -1,7 +1,6 @@
-import { SUGGEST_SALE_DISCOUNT, SUGGEST_SALE_TIMER } from "../constants";
-import { findSuggestableProduct } from "../../product";
 import { doUpdatePricesInCart } from "../../cart";
-import { onUpdateSelectOptions } from "../../product";
+import { findSuggestableProduct, onUpdateSelectOptions } from "../../product";
+import { SUGGEST_SALE_DISCOUNT, SUGGEST_SALE_TIMER } from "../constants";
 
 /**
  * Apply suggest sale discount to a product
