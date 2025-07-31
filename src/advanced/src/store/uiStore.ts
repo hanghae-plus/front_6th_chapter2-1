@@ -13,7 +13,7 @@ const initialState: UiState = {
   isManualOpen: false,
 };
 
-export const useUiStore = create<UiStore>((set, get) => ({
+export const useUiStore = create<UiStore>((set) => ({
   ...initialState,
 
   toggleManualOverlay: () => {

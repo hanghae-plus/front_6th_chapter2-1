@@ -15,7 +15,7 @@ const initialState: ProductState = {
   products: productList,
 };
 
-export const useProductStore = create<ProductStore>((set, get) => ({
+export const useProductStore = create<ProductStore>((set) => ({
   ...initialState,
 
   setSelectedProduct: (productId) => {

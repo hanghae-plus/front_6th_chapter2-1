@@ -11,7 +11,7 @@ import {
   NOTEBOOK_CASE,
   SPEAKER,
 } from '../constants';
-import { isTuesday } from './date';
+
 
 /**
  * 개별 상품 할인을 계산합니다.
@@ -77,7 +77,15 @@ export function calculateTotalDiscounts(cartItems: CartItem[], isTuesday: boolea
     const itemTotal = item.val * item.quantity;
     subtotal += itemTotal;
     
-    const individualDiscount = calculateIndividualDiscount(item, item.quantity);
+    const individualDiscount = calculateIndividualDiscount({
+      id: item.id,
+      name: item.name,
+      val: item.val,
+      originalVal: item.originalVal,
+      q: item.quantity,
+      onSale: item.onSale,
+      suggestSale: item.suggestSale,
+    }, item.quantity);
     individualDiscountTotal += itemTotal * individualDiscount;
   });
 

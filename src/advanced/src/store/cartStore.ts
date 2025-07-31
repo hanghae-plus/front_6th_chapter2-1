@@ -21,7 +21,7 @@ const initialState: CartState = {
   discountRate: 0,
 };
 
-export const useCartStore = create<CartStore>((set, get) => ({
+export const useCartStore = create<CartStore>((set) => ({
   ...initialState,
 
   addItem: (item) => {

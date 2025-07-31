@@ -2,7 +2,7 @@ import type { ProductOptionProps } from '../../types';
 import { getStockStatus } from '../../utils/stock';
 
 export const ProductOption = ({ item }: ProductOptionProps) => {
-  const { status, text, isSelectable } = getStockStatus(item.q);
+  const { text, isSelectable } = getStockStatus(item.q);
   
   // 할인 상태 계산
   const discountStates: string[] = [];

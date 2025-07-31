@@ -8,7 +8,7 @@ import {
   MOUSE,
   MONITOR_ARM,
 } from '../constants';
-import { isTuesday } from './date';
+
 
 /**
  * 기본 포인트를 계산합니다.

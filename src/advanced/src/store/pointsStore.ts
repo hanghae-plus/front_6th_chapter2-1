@@ -17,7 +17,7 @@ const initialState: PointsState = {
   pointsDetail: [],
 };
 
-export const usePointsStore = create<PointsStore>((set, get) => ({
+export const usePointsStore = create<PointsStore>((set) => ({
   ...initialState,
 
   updateTotalPoints: (points) => {

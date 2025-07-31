@@ -1,5 +1,5 @@
 import type { Product } from '../types';
-import { PRODUCT_DISCOUNTS } from '../constants';
+
 
 /**
  * 상품 ID로 상품을 찾습니다.
@@ -100,7 +100,6 @@ export function formatProductPrice(product: Product, useLocaleString = false): s
  * @returns {string} 표시 이름
  */
 export function getProductDisplayName(product: Product): string {
-  const discountInfo = getProductDiscountInfo(product);
   const discountIcon = getProductDiscountIcon(product);
   
   return `${discountIcon}${product.name}`;
