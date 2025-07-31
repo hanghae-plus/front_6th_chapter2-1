@@ -24,7 +24,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const { cart, stockError, addToCart, updateQuantity, removeFromCart } =
     useCart(products, updateProductQuantity, restoreProductQuantity);
 
-  // Actions - 이제 useCart에서 재고 관리를 직접 처리하므로 단순히 전달만 함
+  // 장바구니 추가
   const handleAddToCart = useCallback(
     (productId: string) => {
       addToCart(productId);
@@ -32,6 +32,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     [addToCart]
   );
 
+  // 장바구니 수량 업데이트
   const handleUpdateQuantity = useCallback(
     (id: string, quantity: number) => {
       updateQuantity(id, quantity);
@@ -39,6 +40,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     [updateQuantity]
   );
 
+  // 장바구니 제거
   const handleRemoveFromCart = useCallback(
     (id: string) => {
       removeFromCart(id);
@@ -46,10 +48,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     [removeFromCart]
   );
 
+  // 수동 모드 토글
   const toggleManual = useCallback(() => {
     setIsManualOpen((prev) => !prev);
   }, []);
 
+  // 상품 선택
   const setSelectedProductHandler = useCallback((productId: string) => {
     setSelectedProduct(productId);
   }, []);

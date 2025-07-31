@@ -4,11 +4,7 @@ import {
   getLowStockItems,
   createStockStatusMessage,
 } from "../utils/stockUtils";
-import {
-  startLightningSaleTimer,
-  startRecommendationTimer,
-  clearAllTimers,
-} from "../services/alertService";
+import { useAlertTimers } from "./useAlertTimers";
 
 export const useProducts = () => {
   const [products, setProducts] = useState(PRODUCTS);
@@ -21,30 +17,18 @@ export const useProducts = () => {
     setStockStatus(stockMessage);
   }, [products]);
 
-  // 알럿 타이머 초기화 (한 번만 실행)
-  useEffect(() => {
-    const updateProducts = () => {
-      setProducts((prev) => [...prev]); // 강제 리렌더링
-    };
-
-    // 번개세일 타이머 시작
-    startLightningSaleTimer({
-      products,
-      onProductUpdate: updateProducts,
-    });
-
-    // 추천할인 타이머 시작
-    startRecommendationTimer({
-      products,
-      onProductUpdate: updateProducts,
-    });
-
-    // 클린업 함수
-    return () => {
-      clearAllTimers();
-    };
+  // 알럿 타이머 초기화
+  const updateProducts = useCallback(() => {
+    setProducts((prev) => [...prev]); // 강제 리렌더링
   }, []);
 
+  // 알럿 타이머 초기화
+  useAlertTimers({
+    products,
+    onProductUpdate: updateProducts,
+  });
+
+  // 상품 수량 업데이트
   const updateProductQuantity = useCallback(
     (productId: string, quantityChange: number) => {
       setProducts((prev) =>
@@ -58,6 +42,7 @@ export const useProducts = () => {
     []
   );
 
+  // 상품 수량 복원
   const restoreProductQuantity = useCallback(
     (productId: string, quantity: number) => {
       setProducts((prev) =>

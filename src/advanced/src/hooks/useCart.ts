@@ -19,6 +19,7 @@ export const useCart = (
   const [cart, setCart] = useState<CartItem[]>([]);
   const [stockError, setStockError] = useState("");
 
+  // 장바구니 추가
   const addToCart = useCallback(
     (productId: string) => {
       // 검증 로직을 순수 함수로 분리
@@ -63,6 +64,7 @@ export const useCart = (
     [products, cart]
   );
 
+  // 장바구니 수량 업데이트
   const updateQuantity = useCallback(
     (id: string, quantity: number) => {
       const existingItem = findCartItemById(cart, id);
@@ -105,6 +107,7 @@ export const useCart = (
     [products, cart, updateProductQuantity, restoreProductQuantity]
   );
 
+  // 장바구니 제거
   const removeFromCart = useCallback(
     (id: string) => {
       const existingItem = findCartItemById(cart, id);
