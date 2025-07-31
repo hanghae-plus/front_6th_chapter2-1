@@ -23,7 +23,7 @@ const App = () => {
     handleAddToCart,
     handleCartItemQuantityChange,
     handleRemoveCartItem,
-  } = useCart(products, setProducts); // products와 setProducts를 useCart에 전달
+  } = useCart(products, setProducts);
 
   // 장바구니 계산 로직 관리
   const { totalAmt, subtotal, discountRate, savedAmount, loyaltyPoints, itemDiscounts, isTuesday } =
@@ -34,26 +34,20 @@ const App = () => {
 
   return (
     <div id="app" className="min-h-screen flex flex-col p-4">
-      {/* Header 컴포넌트에 총 아이템 수를 props로 전달 */}
       <Header itemCnt={itemCnt} />
-      {/* GuideToggle 컴포넌트 (매뉴얼 열기 버튼) */}
       <GuideToggle />
-      {/* Main Layout */}
       <Layout>
-        {/* ShoppingCart 컴포넌트 (왼쪽 컬럼) */}
         <ShoppingCart
           products={products}
           cartItems={cartItems}
           selectedProductId={selectedProductId}
           onProductSelect={setSelectedProductId}
-          onAddToCart={() => handleAddToCart(selectedProductId)} // selectedProductId 전달
+          onAddToCart={() => handleAddToCart(selectedProductId)}
           onQuantityChange={handleCartItemQuantityChange}
           onRemoveItem={handleRemoveCartItem}
           stockInfoMessage={stockInfoMessage}
           totalStockQuantity={totalStockQuantity}
         />
-
-        {/* OrderSummary 컴포넌트 (오른쪽 컬럼) */}
         <OrderSummary
           cartItems={cartItems}
           products={products}
