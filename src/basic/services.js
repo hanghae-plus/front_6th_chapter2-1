@@ -1,8 +1,9 @@
 import { state } from './state.js';
 import { DISCOUNT, TIMER } from './constants.js';
+import { onUpdateSelectOptions, doUpdatePricesInCart } from './view.js';
 
 export function startTimers(app) {
-  const { onUpdateSelectOptions, doUpdatePricesInCart, cartDisp } = app;
+  const { cartDisp, productSelect, handleCalculateCartStuff } = app;
 
   const lightningDelay = Math.random() * 10000;
   setTimeout(() => {
@@ -15,8 +16,8 @@ export function startTimers(app) {
         );
         luckyItem.onSale = true;
         alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
-        onUpdateSelectOptions();
-        doUpdatePricesInCart();
+        onUpdateSelectOptions(productSelect, state.products);
+        doUpdatePricesInCart(cartDisp, state.products, handleCalculateCartStuff);
       }
     }, TIMER.LIGHTNING_SALE_INTERVAL);
   }, lightningDelay);
@@ -48,8 +49,8 @@ export function startTimers(app) {
             suggest.val * (1 - DISCOUNT.RECOMMEND_SALE_RATE)
           );
           suggest.suggestSale = true;
-          onUpdateSelectOptions();
-          doUpdatePricesInCart();
+          onUpdateSelectOptions(productSelect, state.products);
+          doUpdatePricesInCart(cartDisp, state.products, handleCalculateCartStuff);
         }
       }
     }, TIMER.RECOMMEND_SALE_INTERVAL);

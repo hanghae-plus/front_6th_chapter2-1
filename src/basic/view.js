@@ -347,7 +347,7 @@ export function updateLoyaltyPoints(points) {
     ptsTag.style.display = 'block';
   } else {
     ptsTag.textContent = '적립 포인트: 0p';
-    ptsTag.style.display = 'block';
+    ptsTag.style.display = 'none';
   }
 }
 
