@@ -1,3 +1,5 @@
+import { DISCOUNT } from './constants.js';
+
 export function createInitialDOM() {
   const root = document.getElementById('app');
 
@@ -172,4 +174,168 @@ export function createInitialDOM() {
     helpOverlay,
     helpColumn,
   };
+}
+
+// --- UI Update Functions ---
+
+export function updateItemCount(count) {
+  const itemCountElement = document.getElementById('item-count');
+  if (itemCountElement) {
+    itemCountElement.textContent = `🛍️ ${count} items in cart`;
+  }
+}
+
+export function updateCartSummary({
+  cart,
+  products,
+  subtotal,
+  totalAmount,
+  discounts,
+}) {
+  const summaryDetails = document.getElementById('summary-details');
+  const totalDiv = document.querySelector('#cart-total .text-2xl');
+
+  if (!summaryDetails || !totalDiv) return;
+
+  summaryDetails.innerHTML = '';
+
+  if (subtotal > 0) {
+    // 각 아이템 내역
+    cart.forEach((item) => {
+      const product = products.find((p) => p.id === item.id);
+      if (product) {
+        const itemTotal = product.val * item.quantity;
+        summaryDetails.innerHTML += `
+          <div class="flex justify-between text-xs tracking-wide text-gray-400">
+            <span>${product.name} x ${item.quantity}</span>
+            <span>₩${itemTotal.toLocaleString()}</span>
+          </div>
+        `;
+      }
+    });
+
+    // 소계
+    summaryDetails.innerHTML += `
+      <div class="border-t border-white/10 my-3"></div>
+      <div class="flex justify-between text-sm tracking-wide">
+        <span>Subtotal</span>
+        <span>₩${subtotal.toLocaleString()}</span>
+      </div>
+    `;
+
+    // 할인 내역
+    if (discounts.bulkDiscountRate > 0) {
+      summaryDetails.innerHTML += `
+        <div class="flex justify-between text-sm tracking-wide text-green-400">
+          <span class="text-xs">🎉 대량구매 할인 (${
+            DISCOUNT.BULK_DISCOUNT_THRESHOLD
+          }개 이상)</span>
+          <span class="text-xs">-${discounts.bulkDiscountRate * 100}%</span>
+        </div>
+      `;
+    } else if (discounts.itemDiscounts.length > 0) {
+      discounts.itemDiscounts.forEach((item) => {
+        summaryDetails.innerHTML += `
+          <div class="flex justify-between text-sm tracking-wide text-green-400">
+            <span class="text-xs">${item.name} (10개↑)</span>
+            <span class="text-xs">-${item.discount}%</span>
+          </div>
+        `;
+      });
+    }
+
+    // 화요일 할인
+    const isTuesday = new Date().getDay() === 2;
+    if (isTuesday && totalAmount > 0) {
+      summaryDetails.innerHTML += `
+        <div class="flex justify-between text-sm tracking-wide text-purple-400">
+          <span class="text-xs">🌟 화요일 추가 할인</span>
+          <span class="text-xs">-${DISCOUNT.TUESDAY_DISCOUNT_RATE * 100}%</span>
+        </div>
+      `;
+    }
+
+    // 배송비
+    summaryDetails.innerHTML += `
+      <div class="flex justify-between text-sm tracking-wide text-gray-400">
+        <span>Shipping</span>
+        <span>Free</span>
+      </div>
+    `;
+  }
+
+  // 최종 금액
+  totalDiv.textContent = `₩${Math.round(totalAmount).toLocaleString()}`;
+}
+
+export function updateDiscountInfo(subtotal, totalAmount) {
+  const discountInfoDiv = document.getElementById('discount-info');
+  if (!discountInfoDiv) return;
+
+  discountInfoDiv.innerHTML = '';
+  const savedAmount = subtotal - totalAmount;
+
+  if (savedAmount > 0) {
+    const totalDiscountRate =
+      subtotal > 0 ? (savedAmount / subtotal) * 100 : 0;
+    discountInfoDiv.innerHTML = `
+      <div class="bg-green-500/20 rounded-lg p-3">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
+          <span class="text-sm font-medium text-green-400">${totalDiscountRate.toFixed(
+            1
+          )}%</span>
+        </div>
+        <div class="text-2xs text-gray-300">₩${Math.round(
+          savedAmount
+        ).toLocaleString()} 할인되었습니다</div>
+      </div>
+    `;
+  }
+}
+
+export function updateLoyaltyPoints(points) {
+  const ptsTag = document.getElementById('loyalty-points');
+  if (!ptsTag) return;
+
+  if (points.finalPoints > 0) {
+    ptsTag.innerHTML = `
+      <div>적립 포인트: <span class="font-bold">${points.finalPoints}p</span></div>
+      <div class="text-2xs opacity-70 mt-1">${points.pointsDetail.join(
+        ', '
+      )}</div>
+    `;
+    ptsTag.style.display = 'block';
+  } else {
+    ptsTag.textContent = '적립 포인트: 0p';
+    ptsTag.style.display = 'block';
+  }
+}
+
+export function updateStockStatus(products) {
+  const stockInfo = document.getElementById('stock-status');
+  if (!stockInfo) return;
+
+  const stockMsg = products
+    .filter((item) => item.q < 5)
+    .map((item) =>
+      item.q > 0
+        ? `${item.name}: 재고 부족 (${item.q}개 남음)`
+        : `${item.name}: 품절`
+    )
+    .join('\n');
+
+  stockInfo.textContent = stockMsg;
+}
+
+export function updateTuesdaySpecial(totalAmount) {
+  const tuesdaySpecial = document.getElementById('tuesday-special');
+  if (!tuesdaySpecial) return;
+
+  const isTuesday = new Date().getDay() === 2;
+  if (isTuesday && totalAmount > 0) {
+    tuesdaySpecial.classList.remove('hidden');
+  } else {
+    tuesdaySpecial.classList.add('hidden');
+  }
 }
