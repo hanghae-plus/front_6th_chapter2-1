@@ -223,6 +223,25 @@ export class DiscountService {
       discountTypes: [],
     });
   }
+
+  // 현재 할인 상태가 적용된 상품 목록을 반환합니다.
+  getProductsWithCurrentDiscounts(products) {
+    return products.map(product => {
+      const discountRate = this.calculateProductDiscountRate(product);
+      const discountStatus = this.getProductDiscountStatus(product);
+
+      // 원본 가격 정보 보존
+      const originalPrice = product.originalPrice || product.price;
+
+      return {
+        ...product,
+        originalPrice: originalPrice,
+        price: product.price, // 현재 할인된 가격
+        discountRate: discountRate,
+        discountStatus: discountStatus,
+      };
+    });
+  }
 }
 
 export const discountService = new DiscountService();

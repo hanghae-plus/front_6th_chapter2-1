@@ -25,8 +25,8 @@ function initEventBusListeners(serviceManager) {
   const { productService, cartService, orderService, discountService } = serviceManager.getAllServices();
 
   // 각 컴포넌트별 이벤트 리스너 초기화
-  new CartEventListeners(uiEventBus, cartService, discountService);
-  new ProductEventListeners(uiEventBus, productService);
+  new CartEventListeners(uiEventBus, cartService, discountService, productService);
+  new ProductEventListeners(uiEventBus, productService, discountService);
   new OrderEventListeners(uiEventBus, orderService);
 }
 
@@ -54,9 +54,10 @@ function main() {
   const { gridContainer, leftColumn, rightColumn } = layout;
 
   // ProductSelector 컴포넌트 생성
+  const productsWithDiscounts = discountService.getProductsWithCurrentDiscounts(productService.getProducts());
   const selectorContainer = createProductSelector({
-    products: productService.getProducts(),
-    discountInfos: calculateProductDiscountInfos(productService.getProducts(), discountService),
+    products: productsWithDiscounts,
+    discountInfos: calculateProductDiscountInfos(productsWithDiscounts, discountService),
     onAddToCart: () => {
       uiEventBus.emit("cart:add:requested");
     },
@@ -83,7 +84,7 @@ function main() {
   initEventBusListeners(serviceManager);
 
   // 타이머 서비스 초기화 및 시작
-  const timerService = new TimerService(productService);
+  const timerService = new TimerService(productService, discountService);
   timerService.startLightningSaleTimer();
   timerService.startSuggestSaleTimer();
 }
@@ -91,8 +92,8 @@ function main() {
 function calculateProductDiscountInfos(products, discountService) {
   return products.map(product => ({
     productId: product.id,
-    rate: discountService.calculateProductDiscountRate(product),
-    status: discountService.getProductDiscountStatus(product),
+    rate: product.discountRate || discountService.calculateProductDiscountRate(product),
+    status: product.discountStatus || discountService.getProductDiscountStatus(product),
   }));
 }
 

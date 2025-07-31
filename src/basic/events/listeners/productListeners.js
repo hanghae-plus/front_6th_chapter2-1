@@ -4,9 +4,10 @@ import { generateStockWarningMessage } from "../../utils/stockUtils.js";
 
 // Product 관련 이벤트 리스너
 export class ProductEventListeners {
-  constructor(uiEventBus, productService) {
+  constructor(uiEventBus, productService, discountService) {
     this.uiEventBus = uiEventBus;
     this.productService = productService;
+    this.discountService = discountService;
     this.initProductEventListeners();
   }
 
@@ -15,7 +16,7 @@ export class ProductEventListeners {
     this.uiEventBus.on("product:options:updated", data => {
       console.log("Product options updated:", data);
       if (data.success) {
-        this.renderProductOptions(data.products);
+        this.renderProductOptions(data.products, data.discountInfos);
       }
     });
 
@@ -36,10 +37,12 @@ export class ProductEventListeners {
 
     // 상품 데이터 직접 조회가 필요한 경우를 위한 이벤트
     this.uiEventBus.on("product:refresh:requested", () => {
-      const products = this.productService.getProducts();
+      const originalProducts = this.productService.getProducts();
+      // 할인 정보가 적용된 상품 데이터 사용
+      const productsWithDiscounts = this.discountService.getProductsWithCurrentDiscounts(originalProducts);
 
       this.uiEventBus.emit("product:options:updated", {
-        products,
+        products: productsWithDiscounts,
         success: true,
       });
     });
@@ -57,9 +60,9 @@ export class ProductEventListeners {
     });
   }
 
-  renderProductOptions(products) {
+  renderProductOptions(products, discountInfos) {
     // ProductSelector 컴포넌트 업데이트
-    updateProductOptions(products);
+    updateProductOptions(products, discountInfos);
     updateStockInfo(products);
   }
 

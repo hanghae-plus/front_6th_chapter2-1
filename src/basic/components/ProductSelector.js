@@ -23,9 +23,10 @@ function getOptionText(product, discountInfo) {
     return `${product.name} - ${product.price}원 (품절)`;
   }
 
-  const discountRate = discountInfo?.rate || DEFAULT_DISCOUNT_RATE;
+  // 할인 정보가 상품 객체에 포함되어 있는지 확인
+  const discountRate = product.discountRate || discountInfo?.rate || DEFAULT_DISCOUNT_RATE;
+  const discountStatus = product.discountStatus || discountInfo?.status || "";
   const discountPercent = discountRate > DEFAULT_DISCOUNT_RATE ? (discountRate * PERCENT_MULTIPLIER).toFixed(0) : DEFAULT_DISCOUNT_PERCENT;
-  const discountStatus = discountInfo?.status || "";
 
   if (discountStatus === "SUPER SALE") {
     return `⚡💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (-${discountPercent}% ${discountStatus}!)`;
@@ -43,7 +44,7 @@ function getOptionText(product, discountInfo) {
 function getOptionClass(product, discountInfo) {
   if (product.quantity === ZERO_QUANTITY) return "text-gray-400";
 
-  const discountStatus = discountInfo?.status || "";
+  const discountStatus = product.discountStatus || discountInfo?.status || "";
   if (discountStatus === "SUPER SALE") return "text-purple-600 font-bold";
   if (discountStatus === "SALE") return "text-red-500 font-bold";
   if (discountStatus === "추천할인") return "text-blue-500 font-bold";

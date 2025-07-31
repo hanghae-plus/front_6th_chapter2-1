@@ -4,7 +4,7 @@ import { getProductDisplayName, getPriceDisplayHTML } from "../utils/productDisp
 export function createCartItem({ product, discountInfo, onQuantityChange, onRemove }) {
   const cartItem = document.createElement("div");
   cartItem.id = product.id;
-  cartItem.className = "grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
+  cartItem.className = "cart-item grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0";
 
   const discountRate = discountInfo?.rate || 0;
   const discountStatus = discountInfo?.status || "";

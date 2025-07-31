@@ -2,8 +2,9 @@ import { uiEventBus } from "../core/eventBus.js";
 import { discountService } from "./discountService.js";
 
 export class TimerService {
-  constructor(productService) {
+  constructor(productService, discountService) {
     this.productService = productService;
+    this.discountService = discountService;
     this.lightningSaleTimer = null;
     this.suggestSaleTimer = null;
   }
@@ -54,12 +55,13 @@ export class TimerService {
 
   // UI 업데이트
   updateUI() {
-    const products = this.productService.getProducts();
-    const discountInfos = this.calculateProductDiscountInfos(products);
+    const originalProducts = this.productService.getProducts();
+    const productsWithDiscounts = this.discountService.getProductsWithCurrentDiscounts(originalProducts);
+    const discountInfos = this.calculateProductDiscountInfos(productsWithDiscounts);
 
     // 상품 옵션 업데이트 이벤트 발송
     uiEventBus.emit("product:options:updated", {
-      products,
+      products: productsWithDiscounts,
       discountInfos,
       success: true,
     });
@@ -74,13 +76,13 @@ export class TimerService {
     const itemsToUpdate = [];
 
     cartItems.forEach(cartItem => {
-      const { productId } = cartItem.dataset;
+      const productId = cartItem.id; // cartItem.dataset.productId 대신 cartItem.id 사용
       const product = this.productService.getProductById(productId);
 
       if (product) {
         const discountInfo = {
-          rate: discountService.calculateProductDiscountRate(product),
-          status: discountService.getProductDiscountStatus(product),
+          rate: this.discountService.calculateProductDiscountRate(product),
+          status: this.discountService.getProductDiscountStatus(product),
         };
 
         itemsToUpdate.push({
@@ -102,8 +104,8 @@ export class TimerService {
   calculateProductDiscountInfos(products) {
     return products.map(product => ({
       productId: product.id,
-      rate: discountService.calculateProductDiscountRate(product),
-      status: discountService.getProductDiscountStatus(product),
+      rate: product.discountRate || discountService.calculateProductDiscountRate(product),
+      status: product.discountStatus || discountService.getProductDiscountStatus(product),
     }));
   }
 

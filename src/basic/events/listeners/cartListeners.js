@@ -1,7 +1,6 @@
 import { updateCartItemQuantity, updateCartItemPriceStyle } from "../../components/CartItem.js";
 import { updateHeaderItemCount } from "../../components/Header.js";
 import { createCartItem } from "../../components/CartItem.js";
-import { PRODUCT_LIST } from "../../data/product.js";
 import { getSelectedProduct } from "../../components/ProductSelector.js";
 import { extractNumberFromText, getCartItemQuantity } from "../../utils/domUtils.js";
 import { QUANTITY_THRESHOLDS } from "../../constants/index.js";
@@ -11,10 +10,11 @@ import { QUANTITY_THRESHOLDS } from "../../constants/index.js";
  * 장바구니 관련 이벤트만 처리하는 전용 클래스
  */
 export class CartEventListeners {
-  constructor(uiEventBus, cartService, discountService) {
+  constructor(uiEventBus, cartService, discountService, productService) {
     this.uiEventBus = uiEventBus;
     this.cartService = cartService;
     this.discountService = discountService;
+    this.productService = productService;
     this.initCartEventListeners();
   }
 
@@ -26,8 +26,6 @@ export class CartEventListeners {
 
     // 장바구니 아이템 추가 이벤트 - DOM 생성 처리
     this.uiEventBus.on("cart:item:added", data => {
-      console.log("Cart item added:", data);
-
       if (data.success) {
         // 기존 아이템 확인
         const existingCartItem = document.getElementById(data.product.id);
@@ -50,6 +48,7 @@ export class CartEventListeners {
               status: this.discountService.getProductDiscountStatus(data.product),
             },
             onQuantityChange: (productId, change) => {
+              console.log("상품 수량 변경");
               // Event Bus를 통해 이벤트 발생
               this.uiEventBus.emit("cart:quantity:change:requested", {
                 productId,
@@ -76,7 +75,7 @@ export class CartEventListeners {
       const newQuantity = currentQuantity + data.quantityChange;
 
       // cartService의 수량 변경 로직 사용
-      const success = this.cartService.updateCartItemQuantity(data.productId, data.quantityChange, PRODUCT_LIST);
+      const success = this.cartService.updateCartItemQuantity(data.productId, data.quantityChange, this.productService.getProducts());
 
       if (!success) {
         alert("재고가 부족합니다.");
@@ -93,9 +92,12 @@ export class CartEventListeners {
 
       // UI 업데이트도 Event Bus를 통해 처리
       this.uiEventBus.emit("cart:summary:updated");
+
+      // 현재 할인 상태가 적용된 상품 데이터 사용
+      const productsWithDiscounts = this.discountService.getProductsWithCurrentDiscounts(this.productService.getProducts());
       this.uiEventBus.emit("product:options:updated", {
-        products: PRODUCT_LIST,
-        discountInfos: this.calculateProductDiscountInfos(PRODUCT_LIST),
+        products: productsWithDiscounts,
+        discountInfos: this.calculateProductDiscountInfos(productsWithDiscounts),
         success: true,
       });
     });
@@ -103,7 +105,7 @@ export class CartEventListeners {
     // 아이템 제거 요청 이벤트 처리
     this.uiEventBus.on("cart:item:remove:requested", data => {
       // cartService의 아이템 제거 로직 사용
-      const success = this.cartService.removeProductFromCart(data.productId, PRODUCT_LIST);
+      const success = this.cartService.removeProductFromCart(data.productId, this.productService.getProducts());
 
       this.uiEventBus.emit("cart:item:removed", {
         productId: data.productId,
@@ -112,9 +114,12 @@ export class CartEventListeners {
 
       // UI 업데이트도 Event Bus를 통해 처리
       this.uiEventBus.emit("cart:summary:updated");
+
+      // 현재 할인 상태가 적용된 상품 데이터 사용
+      const productsWithDiscounts = this.discountService.getProductsWithCurrentDiscounts(this.productService.getProducts());
       this.uiEventBus.emit("product:options:updated", {
-        products: PRODUCT_LIST,
-        discountInfos: this.calculateProductDiscountInfos(PRODUCT_LIST),
+        products: productsWithDiscounts,
+        discountInfos: this.calculateProductDiscountInfos(productsWithDiscounts),
         success: true,
       });
     });
@@ -244,8 +249,8 @@ export class CartEventListeners {
   calculateProductDiscountInfos(products) {
     return products.map(product => ({
       productId: product.id,
-      rate: this.discountService.calculateProductDiscountRate(product),
-      status: this.discountService.getProductDiscountStatus(product),
+      rate: product.discountRate || this.discountService.calculateProductDiscountRate(product),
+      status: product.discountStatus || this.discountService.getProductDiscountStatus(product),
     }));
   }
 
@@ -271,7 +276,7 @@ export class CartEventListeners {
   // 장바구니 요약 업데이트 핸들러 (Event Bus 기반)
   handleCartSummaryUpdate(cartItems = []) {
     // 순수 비즈니스 로직: 할인 계산
-    const discountResult = this.discountService.applyAllDiscounts(cartItems, PRODUCT_LIST);
+    const discountResult = this.discountService.applyAllDiscounts(cartItems, this.productService.getProducts());
 
     // 이벤트 발송 (DOM 조작 없음)
     this.uiEventBus.emit("cart:summary:calculated", {
@@ -290,7 +295,7 @@ export class CartEventListeners {
     const selectedProductId = getSelectedProduct();
 
     // 1단계: 검증 로직
-    const targetProduct = this.cartService.validateSelectedProduct(selectedProductId, PRODUCT_LIST);
+    const targetProduct = this.cartService.validateSelectedProduct(selectedProductId, this.productService.getProducts());
     if (!targetProduct) return;
 
     // 2단계: 상태 변경 (DOM 조작 없음)
