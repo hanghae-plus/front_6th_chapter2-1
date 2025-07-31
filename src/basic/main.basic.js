@@ -30,6 +30,7 @@ import {
   QUANTITY_THRESHOLDS,
   POINT_RATES_BULK_BONUS,
   PRODUCT_DEFAULT_DISCOUNT_RATES,
+  TIMER_INTERVAL,
 } from './constants';
 import { initProductList } from './data';
 import {
@@ -37,6 +38,7 @@ import {
   attachManualEventListener,
   attachAddToCartEventListener,
 } from './eventListeners';
+import { lightningTimer, recommendTimer } from './timer';
 import {
   isTuesday,
   getProductDiscountRate,
@@ -85,7 +87,6 @@ function main() {
   const selectorContainer = ProductSelector();
   selectElement = selectorContainer.querySelector('#product-select');
   addButton = selectorContainer.querySelector('#add-to-cart');
-  attachAddToCartEventListener(addButton, handleAddToCart);
   stockInfo = selectorContainer.querySelector('#stock-status');
 
   leftColumn.appendChild(selectorContainer);
@@ -98,6 +99,14 @@ function main() {
   const manualToggle = ManualToggle();
   const manualOverlay = ManualOverlay();
   const manualColumn = ManualColumn();
+  attachAddToCartEventListener(addButton, handleAddToCart);
+  // 장바구니 이벤트 리스너
+  attachCartEventListener(
+    cartContainer,
+    findProductById,
+    handleCalculateCartStuff,
+    onUpdateSelectOptions,
+  );
   attachManualEventListener(manualToggle, manualOverlay, manualColumn);
 
   // ----------------------------------------
@@ -126,52 +135,13 @@ function main() {
   // ----------------------------------------
   // 타이머 기반 이벤트 설정
   // ----------------------------------------
-
-  // 번개세일 타이머
-  const lightningDelay = Math.random() * 10000;
-  setTimeout(() => {
-    setInterval(function () {
-      const luckyIdx = Math.floor(Math.random() * productList.length);
-      const luckyItem = productList[luckyIdx];
-      if (luckyItem.availableStock > 0 && !luckyItem.onSale) {
-        luckyItem.val = Math.round((luckyItem.originalVal * 80) / 100);
-        luckyItem.onSale = true;
-        alert(`⚡번개세일! ${luckyItem.name}이(가) 20% 할인 중입니다!`);
-        onUpdateSelectOptions();
-        doUpdatePricesInCart();
-      }
-    }, 30000);
-  }, lightningDelay);
-
-  // 추천 상품 타이머
-  setTimeout(function () {
-    setInterval(function () {
-      if (cartContainer.children.length === 0) {
-      }
-      if (lastSelectedProductId) {
-        let suggest = null;
-        for (let k = 0; k < productList.length; k++) {
-          if (productList[k].id !== lastSelectedProductId) {
-            if (productList[k].availableStock > 0) {
-              if (!productList[k].suggestSale) {
-                suggest = productList[k];
-                break;
-              }
-            }
-          }
-        }
-        if (suggest) {
-          alert(
-            `💝 ${suggest.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`,
-          );
-          suggest.val = Math.round((suggest.val * (100 - 5)) / 100);
-          suggest.suggestSale = true;
-          onUpdateSelectOptions();
-          doUpdatePricesInCart();
-        }
-      }
-    }, 60000);
-  }, Math.random() * 20000);
+  lightningTimer(productList, onUpdateSelectOptions, doUpdatePricesInCart);
+  recommendTimer(
+    productList,
+    lastSelectedProductId,
+    onUpdateSelectOptions,
+    doUpdatePricesInCart,
+  );
 }
 
 // ========================================
@@ -612,14 +582,6 @@ function handleAddToCart() {
     lastSelectedProductId = selItem;
   }
 }
-
-// 장바구니 이벤트 리스너
-attachCartEventListener(
-  cartContainer,
-  findProductById,
-  handleCalculateCartStuff,
-  onUpdateSelectOptions,
-);
 
 function findProductById(productId) {
   return productList.find((product) => product.id === productId);
