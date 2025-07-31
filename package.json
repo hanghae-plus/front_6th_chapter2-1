@@ -1,4 +1,5 @@
 {
+  "homepage": "https://yangs1s.github.io/front_6th_chapter2-1",
   "name": "front-6th-chapter2-1",
   "private": true,
   "version": "0.0.0",
@@ -12,14 +13,30 @@
     "test": "vitest",
     "test:basic": "vitest basic.test.js",
     "test:advanced": "vitest advanced.test.js",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.1",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^4.7.0",
     "@vitest/ui": "^3.2.4",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
     "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
     "vite": "^7.0.5",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@types/react": "^19.1.9",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   }
 }
