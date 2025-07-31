@@ -1,14 +1,14 @@
 import { GlobalProvider } from './providers/GlobalProvider';
 import Header from './layouts/Header';
 import CartLayout from './layouts/CartLayout';
-import ManualButton from './components/Button/ManualButton';
+import ManualLayout from './layouts/ManualLayout';
 
 function App() {
   return (
     <GlobalProvider>
       <Header />
       <CartLayout />
-      <ManualButton />
+      <ManualLayout />
     </GlobalProvider>
   );
 }
