@@ -1,5 +1,8 @@
 import { ReactElement } from 'react';
 
+import CartTotal from '@/advanced/components/order/CartTotal';
+import DiscountBanner from '@/advanced/components/order/DiscountBanner';
+import DiscountInfo from '@/advanced/components/order/DiscountInfo';
 import SummaryDetail from '@/advanced/components/order/SummaryDetail';
 
 export default function OrderSummary(): ReactElement {
@@ -9,6 +12,12 @@ export default function OrderSummary(): ReactElement {
 
       <div className="flex-1 flex flex-col">
         <SummaryDetail />
+
+        <div className="mt-auto">
+          <DiscountInfo />
+          <CartTotal />
+          <DiscountBanner />
+        </div>
       </div>
 
       <button className="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">

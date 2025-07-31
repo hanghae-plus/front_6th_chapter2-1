@@ -1,9 +1,11 @@
 import Divider from '@/advanced/components/layout/Divider';
+import BasicDiscount from '@/advanced/components/order/BasicDiscount';
+import SpecialDiscount from '@/advanced/components/order/SpecialDiscount';
 import useOrderSummary from '@/advanced/hooks/useOrderSummary';
 import formatPrice from '@/advanced/utils/format.util';
 
 export default function SummaryDetail() {
-  const { subTotal, orderList, isBulkDiscount, discountedProducts } = useOrderSummary();
+  const { subTotal, orderList } = useOrderSummary();
 
   const formattedSubTotal = formatPrice(subTotal);
 
@@ -25,19 +27,9 @@ export default function SummaryDetail() {
         <span>{formattedSubTotal}</span>
       </div>
 
-      {isBulkDiscount ? (
-        <div className="flex justify-between text-sm tracking-wide text-green-400">
-          <span className="text-xs">🎉 대량구매 할인 (30개 이상)</span>
-          <span className="text-xs">-25%</span>
-        </div>
-      ) : (
-        discountedProducts.map(({ name, discountRate }) => (
-          <div className="flex justify-between text-sm tracking-wide text-green-400">
-            <span className="text-xs">{name} (10개↑)</span>
-            <span className="text-xs">-{discountRate}%</span>
-          </div>
-        ))
-      )}
+      <BasicDiscount />
+
+      <SpecialDiscount />
 
       <div className="flex justify-between text-sm tracking-wide text-gray-400">
         <span>Shipping</span>

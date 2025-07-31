@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 
-import useOrderSummary from '@/advanced/hooks/useOrderSummary';
+import useDiscount from '@/advanced/hooks/useDiscount';
 import type { CartItem } from '@/advanced/types/cart.type';
 import formatPrice from '@/advanced/utils/format.util';
 
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function CartListItem({ item }: Props): ReactElement {
-  const { discountedProducts } = useOrderSummary();
+  const { discountedProducts } = useDiscount();
 
   const { id, name, price, quantity } = item;
 
