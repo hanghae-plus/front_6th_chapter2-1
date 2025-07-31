@@ -14,52 +14,72 @@ export const useDiscountCalculation = (
   totalAmount: number,
   itemCount: number
 ) => {
-  const discountRate = useMemo(() => {
+  const { discountRate, itemDiscounts, finalTotal } = useMemo(() => {
     let rate = 0;
+    let subtotal = 0;
+    let discountedTotal = 0;
+    const itemDiscounts: DiscountInfo[] = [];
     
-    // Individual item discounts
-    const itemDiscounts: { [key: string]: number } = {
-      [PRODUCT_IDS.KEYBOARD]: DISCOUNT_RATES.KEYBOARD,
-      [PRODUCT_IDS.MOUSE]: DISCOUNT_RATES.MOUSE,
-      [PRODUCT_IDS.MONITOR_ARM]: DISCOUNT_RATES.MONITOR_ARM,
-      [PRODUCT_IDS.SPEAKER]: DISCOUNT_RATES.SPEAKER
-    };
-    
-    // Calculate individual discounts
-    let individualDiscountTotal = 0;
+    // Calculate subtotal and individual discounts (원본 로직과 동일)
     cartItems.forEach(item => {
-      const product = products.find(p => p.id === item.id);
-      if (product && item.quantity >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT && itemDiscounts[item.id]) {
-        const itemTotal = product.val * item.quantity;
-        individualDiscountTotal += itemTotal * itemDiscounts[item.id];
+      const product = products.find(p => p.id === item.productId);
+      if (!product) return;
+      
+      const itemTotal = product.val * item.quantity;
+      subtotal += itemTotal;
+      
+      // Individual discount calculation (원본과 동일)
+      if (item.quantity >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
+        let discount = 0;
+        if (product.id === PRODUCT_IDS.KEYBOARD) {
+          discount = DISCOUNT_RATES.KEYBOARD;
+        } else if (product.id === PRODUCT_IDS.MOUSE) {
+          discount = DISCOUNT_RATES.MOUSE;
+        } else if (product.id === PRODUCT_IDS.MONITOR_ARM) {
+          discount = DISCOUNT_RATES.MONITOR_ARM;
+        } else if (product.id === PRODUCT_IDS.LAPTOP_POUCH) {
+          discount = DISCOUNT_RATES.LAPTOP_POUCH;
+        } else if (product.id === PRODUCT_IDS.SPEAKER) {
+          discount = DISCOUNT_RATES.SPEAKER;
+        }
+        
+        if (discount > 0) {
+          itemDiscounts.push({ name: product.name, discount: discount * 100 });
+          discountedTotal += itemTotal * (1 - discount);
+        } else {
+          discountedTotal += itemTotal;
+        }
+      } else {
+        discountedTotal += itemTotal;
       }
     });
     
+    let finalTotal = discountedTotal;
+    
     // Bulk discount (30+ items) - overrides individual discounts
     if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
+      finalTotal = subtotal * (1 - DISCOUNT_RATES.BULK_PURCHASE);
       rate = DISCOUNT_RATES.BULK_PURCHASE;
-    } else if (individualDiscountTotal > 0) {
-      rate = individualDiscountTotal / totalAmount;
+      // 대량구매 할인이 적용되면 개별 할인은 표시하지 않음
+      itemDiscounts.length = 0;
+    } else {
+      rate = (subtotal - discountedTotal) / subtotal;
     }
     
     // Tuesday special discount (additional 10%)
     const today = new Date();
     const isTuesday = today.getDay() === WEEKDAYS.TUESDAY;
-    if (isTuesday && totalAmount > 0) {
-      const tuesdayDiscount = (totalAmount - (totalAmount * rate)) * DISCOUNT_RATES.TUESDAY;
-      rate = rate + (tuesdayDiscount / totalAmount);
+    if (isTuesday && finalTotal > 0) {
+      finalTotal = finalTotal * (1 - DISCOUNT_RATES.TUESDAY);
+      rate = 1 - (finalTotal / subtotal);
     }
     
-    return rate;
-  }, [cartItems, products, itemCount, totalAmount]);
+    return { discountRate: rate, itemDiscounts, finalTotal };
+  }, [cartItems, products, itemCount]);
 
   const savedAmount = useMemo(() => {
     return totalAmount * discountRate;
   }, [totalAmount, discountRate]);
-
-  const finalTotal = useMemo(() => {
-    return totalAmount - savedAmount;
-  }, [totalAmount, savedAmount]);
 
   const loyaltyPoints = useMemo(() => {
     let basePoints = Math.floor(finalTotal / POINTS_CONFIG.POINTS_DIVISOR);
@@ -79,9 +99,9 @@ export const useDiscountCalculation = (
     }
 
     // Check for keyboard + mouse combo
-    const hasKeyboard = cartItems.some(item => item.id === PRODUCT_IDS.KEYBOARD);
-    const hasMouse = cartItems.some(item => item.id === PRODUCT_IDS.MOUSE);
-    const hasMonitorArm = cartItems.some(item => item.id === PRODUCT_IDS.MONITOR_ARM);
+    const hasKeyboard = cartItems.some(item => item.productId === PRODUCT_IDS.KEYBOARD);
+    const hasMouse = cartItems.some(item => item.productId === PRODUCT_IDS.MOUSE);
+    const hasMonitorArm = cartItems.some(item => item.productId === PRODUCT_IDS.MONITOR_ARM);
 
     if (hasKeyboard && hasMouse) {
       finalPoints += POINTS_CONFIG.KEYBOARD_MOUSE_BONUS;
@@ -117,6 +137,7 @@ export const useDiscountCalculation = (
     savedAmount,
     finalTotal,
     loyaltyPoints: loyaltyPoints.finalPoints,
-    pointsDetail: loyaltyPoints.pointsDetail
+    pointsDetail: loyaltyPoints.pointsDetail,
+    itemDiscounts
   };
 }; 
