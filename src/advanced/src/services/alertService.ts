@@ -104,6 +104,12 @@ export const startLightningSaleTimer = ({
   delay?: number;
   config?: typeof DISCOUNT_CONFIG.LIGHTNING;
 }) => {
+  // 기존 타이머 정리
+  if (lightningIntervalId) {
+    clearInterval(lightningIntervalId);
+    lightningIntervalId = null;
+  }
+
   createTimer(
     () => lightningSaleCallback(products, onProductUpdate, config),
     config.INTERVAL,
@@ -130,6 +136,12 @@ export const startRecommendationTimer = ({
   delay?: number;
   config?: typeof DISCOUNT_CONFIG.RECOMMENDATION;
 }) => {
+  // 기존 타이머 정리
+  if (recommendationIntervalId) {
+    clearInterval(recommendationIntervalId);
+    recommendationIntervalId = null;
+  }
+
   createTimer(
     () => recommendationCallback(products, onProductUpdate, config),
     config.INTERVAL,
