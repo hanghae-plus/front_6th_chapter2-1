@@ -7,6 +7,7 @@ export const AddToCartButton = () => {
   const handleClick = () => {
     if (dispatch && state) {
       dispatch({ type: 'ADD_ITEM', payload: { productId: state.selectedProductId } });
+      dispatch({ type: 'SET_LAST_SELECTED', payload: { productId: state.selectedProductId } });
     }
   };
 
