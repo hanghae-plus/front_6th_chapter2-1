@@ -1,11 +1,13 @@
 {
   "name": "front-6th-chapter2-1",
+  "homepage": "https://esoby.github.io/front_6th_chapter2-1/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "deploy": "vite build && cp dist/index.advanced.html dist/index.html && gh-pages -d dist",
     "preview": "vite preview",
     "start:basic": "vite serve --open ./index.basic.html",
     "start:advanced": "vite serve --open ./index.advanced.html",
@@ -27,6 +29,7 @@
     "eslint-plugin-cypress": "^5.1.0",
     "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-react": "^7.37.5",
+    "gh-pages": "^6.3.0",
     "globals": "^16.3.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
