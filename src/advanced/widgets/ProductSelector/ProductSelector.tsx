@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { useCart } from '../../app/providers/CartProvider';
 import { usePromotion } from '../../app/providers/PromotionProvider';
 import { BUSINESS_CONSTANTS } from '../../shared/constants';
+import { Product } from '../../shared/types';
 
 export const ProductSelector: React.FC = () => {
   const { products, addToCart } = useCart();
@@ -27,7 +28,7 @@ export const ProductSelector: React.FC = () => {
   const lowStockProducts = products.filter(p => p.q > 0 && p.q < BUSINESS_CONSTANTS.LOW_STOCK_THRESHOLD);
   const outOfStockProducts = products.filter(p => p.q === 0);
 
-  const getProductOptionText = (product: any) => {
+  const getProductOptionText = (product: Product) => {
     let text = `${product.name} - ${product.val.toLocaleString()}원`;
     
     if (product.q === 0) {
@@ -73,7 +74,7 @@ export const ProductSelector: React.FC = () => {
       <select
         id="product-select"
         value={selectedProductId}
-        onChange={(e) => handleProductSelect(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleProductSelect(e.target.value)}
         className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
       >
         <option value="">상품을 선택하세요</option>

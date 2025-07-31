@@ -3,7 +3,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { PromotionContextType } from '../../shared/types';
+import { PromotionContextType, Product } from '../../shared/types';
 import { PROMOTION_TIMERS } from '../../shared/constants';
 // import { useCart } from './CartProvider'; // 순환 의존성 방지
 
@@ -14,8 +14,8 @@ interface PromotionProviderProps {
 }
 
 interface PromotionProviderExtendedProps extends PromotionProviderProps {
-  products: any[];
-  onProductsUpdate: (products: any[]) => void;
+  products: Product[];
+  onProductsUpdate: (products: Product[]) => void;
 }
 
 export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({ 
