@@ -44,8 +44,6 @@ function main() {
   leftColumn.appendChild(selectorContainer);
   leftColumn.appendChild(cartDisplay);
 
-  sum = rightColumn.querySelector("#cart-total");
-
   // 모든 요소가 DOM에 추가된 후 이벤트 설정
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
@@ -66,10 +64,7 @@ function main() {
     handleManualOverlayClick,
   });
 
-  let initStock = 0;
-  for (let i = 0; i < state.prodList.length; i++) {
-    initStock += state.prodList[i].q;
-  }
+  const initStock = onGetStockTotal();
   onUpdateSelectOptions();
   handleCalculateCartStuff();
   const lightningDelay = Math.random() * 10000;
@@ -117,7 +112,6 @@ function main() {
     }, 60000);
   }, Math.random() * 20000);
 }
-let sum;
 
 function onUpdateSelectOptions() {
   let totalStock;
@@ -291,7 +285,9 @@ function renderCartSummary(
   discountRate,
   isTuesday
 ) {
-  const summaryDetails = document.getElementById("summary-details");
+  const summaryDetails = getSummaryDetailsElement();
+  if (!summaryDetails) return;
+
   summaryDetails.innerHTML = "";
 
   if (subTotal <= 0) return;
@@ -383,9 +379,10 @@ function renderDiscountInfo(
 // 7. 총액 및 포인트 업데이트
 function updateTotalAndPoints(finalTotal, itemCount) {
   // 총액 업데이트
-  const totalDiv = sum.querySelector(".text-2xl");
-  if (totalDiv) {
-    totalDiv.textContent = "₩" + Math.round(finalTotal).toLocaleString();
+  const cartTotalElement = getCartTotalElement();
+  if (cartTotalElement) {
+    cartTotalElement.textContent =
+      "₩" + Math.round(finalTotal).toLocaleString();
   }
 
   // 적립 포인트 업데이트 (기존 doRenderBonusPoints 함수 호출)
@@ -397,7 +394,7 @@ function updateTotalAndPoints(finalTotal, itemCount) {
 
 // 8. 적립 포인트 업데이트 (간단 버전 - 기존 doRenderBonusPoints 사용)
 function updateLoyaltyPoints(finalTotal) {
-  const loyaltyPointsDiv = document.getElementById("loyalty-points");
+  const loyaltyPointsDiv = getLoyaltyPointsElement();
   if (!loyaltyPointsDiv) return;
 
   const points = Math.floor(finalTotal / 1000);
@@ -409,7 +406,9 @@ function updateLoyaltyPoints(finalTotal) {
 
 // 9. 할인 정보 박스 업데이트
 function updateDiscountInfoBox(subTotal, finalTotal, discountRate) {
-  const discountInfoDiv = document.getElementById("discount-info");
+  const discountInfoDiv = getDiscountInfoElement();
+  if (!discountInfoDiv) return;
+
   discountInfoDiv.innerHTML = "";
 
   if (discountRate > 0 && finalTotal > 0) {
@@ -432,7 +431,7 @@ function updateDiscountInfoBox(subTotal, finalTotal, discountRate) {
 
 // 10. 아이템 카운트 업데이트
 function updateItemCount(itemCount) {
-  const itemCountElement = document.getElementById("item-count");
+  const itemCountElement = getItemCountElement();
   if (!itemCountElement) return;
 
   const previousCount = parseInt(
@@ -457,7 +456,7 @@ function updateItemVisualEffects(cartItem, quantity) {
 
 // 12. 화요일 특별 할인 UI 업데이트
 function updateTuesdaySpecialUI(isTuesday, finalTotal) {
-  const tuesdaySpecial = document.getElementById("tuesday-special");
+  const tuesdaySpecial = getTuesdaySpecialElement();
   if (!tuesdaySpecial) return;
 
   if (isTuesday && finalTotal > 0) {
@@ -472,7 +471,32 @@ function findProductById(productId) {
   return state.prodList.find((product) => product.id === productId);
 }
 
-// 14. 메인 함수 - 기존 handleCalculateCartStuff 대체
+// 14. DOM 요소 가져오기 헬퍼 함수들
+function getCartTotalElement() {
+  return document.querySelector("#cart-total .text-2xl");
+}
+
+function getSummaryDetailsElement() {
+  return document.getElementById("summary-details");
+}
+
+function getLoyaltyPointsElement() {
+  return document.getElementById("loyalty-points");
+}
+
+function getDiscountInfoElement() {
+  return document.getElementById("discount-info");
+}
+
+function getItemCountElement() {
+  return document.getElementById("item-count");
+}
+
+function getTuesdaySpecialElement() {
+  return document.getElementById("tuesday-special");
+}
+
+// 15. 메인 함수 - 기존 handleCalculateCartStuff 대체
 function handleCalculateCartStuff() {
   // 전역 변수 초기화
   state.totalAmount = 0;
@@ -598,15 +622,7 @@ let doRenderBonusPoints = function () {
 };
 
 function onGetStockTotal() {
-  let sum;
-  let i;
-  let currentProduct;
-  sum = 0;
-  for (i = 0; i < state.prodList.length; i++) {
-    currentProduct = state.prodList[i];
-    sum += currentProduct.q;
-  }
-  return sum;
+  return state.prodList.reduce((total, product) => total + product.q, 0);
 }
 let handleStockInfoUpdate = function () {
   let infoMsg;
