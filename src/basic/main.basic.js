@@ -25,7 +25,7 @@ const productList = [
     changedPrice: 10000, // 변동된 가격
     originalPrice: 10000, // 원래 가격
     quantity: 50, // 재고 수
-    onSale: false,
+    flashSale: false,
     suggestSale: false,
   },
   {
@@ -34,7 +34,7 @@ const productList = [
     changedPrice: 20000,
     originalPrice: 20000,
     quantity: 30,
-    onSale: false,
+    flashSale: false,
     suggestSale: false,
   },
   {
@@ -43,7 +43,7 @@ const productList = [
     changedPrice: 30000,
     originalPrice: 30000,
     quantity: 20,
-    onSale: false,
+    flashSale: false,
     suggestSale: false,
   },
   {
@@ -52,7 +52,7 @@ const productList = [
     changedPrice: 15000,
     originalPrice: 15000,
     quantity: 0,
-    onSale: false,
+    flashSale: false,
     suggestSale: false,
   },
   {
@@ -61,7 +61,7 @@ const productList = [
     changedPrice: 25000,
     originalPrice: 25000,
     quantity: 10,
-    onSale: false,
+    flashSale: false,
     suggestSale: false,
   },
 ];

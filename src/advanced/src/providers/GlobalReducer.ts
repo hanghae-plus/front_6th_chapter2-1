@@ -1,5 +1,5 @@
 import type { Product, CartProduct, AppState } from '../type';
-import { PRODUCT } from '../constants';
+import { PRODUCT, DISCOUNT_RATE, MESSAGE } from '../constants';
 import { findProductById } from '../lib/findProductById';
 import { calculateCartSummary } from '../services/calculateCartSummary';
 import { calculateBonusPoint } from '../services/calculateBonusPoint';
@@ -13,7 +13,8 @@ export type State = {
 export type Action =
   | { type: 'CHANGE_QUANTITY'; productId: string; delta: number }
   | { type: 'REMOVE_FROM_CART'; productId: string }
-  | { type: 'UPDATE_APP_STATE'; payload: Partial<AppState> };
+  | { type: 'APPLY_FLASH_SALE'; productId: string }
+  | { type: 'APPLY_SUGGEST_SALE'; productId: string };
 
 export const initialState: State = {
   productList: [
@@ -23,7 +24,7 @@ export const initialState: State = {
       changedPrice: 10000,
       originalPrice: 10000,
       quantity: 50,
-      onSale: false,
+      flashSale: false,
       suggestSale: false,
     },
     {
@@ -32,7 +33,7 @@ export const initialState: State = {
       changedPrice: 20000,
       originalPrice: 20000,
       quantity: 30,
-      onSale: false,
+      flashSale: false,
       suggestSale: false,
     },
     {
@@ -41,7 +42,7 @@ export const initialState: State = {
       changedPrice: 30000,
       originalPrice: 30000,
       quantity: 20,
-      onSale: false,
+      flashSale: false,
       suggestSale: false,
     },
     {
@@ -50,7 +51,7 @@ export const initialState: State = {
       changedPrice: 15000,
       originalPrice: 15000,
       quantity: 0,
-      onSale: false,
+      flashSale: false,
       suggestSale: false,
     },
     {
@@ -59,7 +60,7 @@ export const initialState: State = {
       changedPrice: 25000,
       originalPrice: 25000,
       quantity: 10,
-      onSale: false,
+      flashSale: false,
       suggestSale: false,
     },
   ],
@@ -76,7 +77,7 @@ export const initialState: State = {
   },
 };
 
-export function reducer(state: State, action: Action): State {
+export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case 'CHANGE_QUANTITY': {
       const { productId, delta } = action;
@@ -86,7 +87,7 @@ export function reducer(state: State, action: Action): State {
 
       // 재고 부족 시
       if (delta > 0 && product.quantity <= 0) {
-        alert('재고가 부족합니다.');
+        alert(MESSAGE.NO_STOCK);
         return state;
       }
 
@@ -133,7 +134,6 @@ export function reducer(state: State, action: Action): State {
       const bonus = calculateBonusPoint({ state: tempState, appState: summary });
 
       return {
-        ...state,
         cartList: newCartList,
         productList: newProductList,
         appState: {
@@ -146,13 +146,14 @@ export function reducer(state: State, action: Action): State {
     }
 
     case 'REMOVE_FROM_CART': {
-      const cartItem = state.cartList.find((item) => item.id === action.productId);
+      const { productId } = action;
+
+      const cartItem = state.cartList.find((item) => item.id === productId);
       if (!cartItem) return state;
 
-      const newCartList = state.cartList.filter((item) => item.id !== action.productId);
-
+      const newCartList = state.cartList.filter((item) => item.id !== productId);
       const newProductList = state.productList.map((item) =>
-        item.id === action.productId ? { ...item, quantity: item.quantity + cartItem.count } : item
+        item.id === productId ? { ...item, quantity: item.quantity + cartItem.count, onSale: true } : item
       );
 
       const tempState = {
@@ -164,14 +165,81 @@ export function reducer(state: State, action: Action): State {
       const bonus = calculateBonusPoint({ state: tempState, appState: summary });
 
       return {
-        ...state,
         cartList: newCartList,
         productList: newProductList,
         appState: {
           ...state.appState,
           ...summary,
           ...bonus,
-          lastSelectedProductId: action.productId,
+          lastSelectedProductId: productId,
+        },
+      };
+    }
+
+    case 'APPLY_FLASH_SALE': {
+      const { productId } = action;
+
+      const product = findProductById(state.productList, productId);
+      if (!product) return state;
+
+      const newProductList = state.productList.map((item) =>
+        item.id === productId
+          ? { ...item, changedPrice: Math.round(product.originalPrice * (1 - DISCOUNT_RATE.FLASH)), flashSale: true }
+          : item
+      );
+
+      const tempState = {
+        cartState: state.cartList,
+        productState: newProductList,
+      };
+
+      const summary = calculateCartSummary(tempState);
+      const bonus = calculateBonusPoint({ state: tempState, appState: summary });
+
+      return {
+        ...state,
+        productList: newProductList,
+        appState: {
+          ...state.appState,
+          ...summary,
+          ...bonus,
+          lastSelectedProductId: productId,
+        },
+      };
+    }
+
+    case 'APPLY_SUGGEST_SALE': {
+      const { productId } = action;
+
+      const product = findProductById(state.productList, productId);
+      if (!product) return state;
+
+      const newProductList = state.productList.map((item) =>
+        item.id === productId
+          ? {
+              ...item,
+              changedPrice: Math.round(product.originalPrice * (1 - DISCOUNT_RATE.SUGGEST)),
+              suggestSale: true,
+            }
+          : item
+      );
+
+      const tempState = {
+        cartState: state.cartList,
+        productState: newProductList,
+      };
+
+      const summary = calculateCartSummary(tempState);
+      const bonus = calculateBonusPoint({ state: tempState, appState: summary });
+
+      return {
+        ...state,
+        productList: newProductList,
+        appState: {
+          ...state.appState,
+          ...summary,
+          ...bonus,
+          lastSelectedProductId: productId,
         },
       };
     }
@@ -179,4 +247,4 @@ export function reducer(state: State, action: Action): State {
     default:
       return state;
   }
-}
+};

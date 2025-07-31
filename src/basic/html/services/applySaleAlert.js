@@ -1,8 +1,9 @@
-import { getRandomNumber } from "../../utils/getRandomNumber";
-import { applyFlashSale, applySuggestSale } from "../states/productState";
-import { renderProductOptionList } from "../render/renderProductOptionList";
-import { findSuggestedProduct } from "../../utils/findSuggestedProduct";
-import { updateCartStatus } from "./updateCartStatus";
+import { MESSAGE } from '../constants/constants';
+import { getRandomNumber } from '../../utils/getRandomNumber';
+import { applyFlashSale, applySuggestSale } from '../states/productState';
+import { renderProductOptionList } from '../render/renderProductOptionList';
+import { findSuggestedProduct } from '../../utils/findSuggestedProduct';
+import { updateCartStatus } from './updateCartStatus';
 
 export const applySaleAlert = ({ state, appState }) => {
   // 세일 추천 alert 함수
@@ -18,7 +19,7 @@ export const applySaleAlert = ({ state, appState }) => {
         // 20프로 할인 적용 후 상태를 할인 중으로 업데이트
         applyFlashSale(state, luckyItem.id);
         // alert 실행
-        alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
+        alert(MESSAGE.ALERT.FLASH(luckyItem.name));
 
         // 셀렉트 옵션 및 장바구니 상태 업데이트
         renderProductOptionList(state);
@@ -41,7 +42,7 @@ export const applySaleAlert = ({ state, appState }) => {
           applySuggestSale(state, suggestedProduct.id);
 
           // alert 실행
-          alert('💝 ' + suggestedProduct.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
+          alert(MESSAGE.ALERT.SUGGEST(suggestedProduct.name));
 
           // 셀렉트 옵션 및 장바구니 상태 업데이트
           renderProductOptionList(state);

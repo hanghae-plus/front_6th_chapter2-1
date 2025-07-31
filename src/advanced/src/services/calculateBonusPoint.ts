@@ -1,7 +1,7 @@
-import { isTodayTuesday } from '../utils/isTodayTuesday';
-import { BONUS_POINT, PRODUCT } from '../constants';
-import type { CartSummaryState } from './calculateCartSummary';
 import type { AppState } from '../type';
+import type { CartSummaryState } from './calculateCartSummary';
+import { PRODUCT, BONUS_POINT, MESSAGE } from '../constants';
+import { isTodayTuesday } from '../utils/isTodayTuesday';
 
 export type AppSummaryState = Pick<
   AppState,
@@ -38,13 +38,13 @@ export const calculateBonusPoint = ({ state, appState }: CartBonusState) => {
   // 기본 포인트 출력
   if (basePoints > 0) {
     totalPoints = basePoints;
-    pointsDetail.push('기본: ' + basePoints + 'p');
+    pointsDetail.push(MESSAGE.POINT.BASE(basePoints));
   }
   // 화요일 포인트 출력
   if (isTodayTuesday()) {
     if (basePoints > 0) {
       totalPoints = basePoints * BONUS_POINT.TUESDAY_MULTIPLIER;
-      pointsDetail.push('화요일 2배');
+      pointsDetail.push(MESSAGE.POINT.TUESDAY);
     }
   }
 
@@ -58,24 +58,24 @@ export const calculateBonusPoint = ({ state, appState }: CartBonusState) => {
   // 상품에 따른 포인트 추가
   if (hasKeyboard && hasMouse) {
     totalPoints += BONUS_POINT.KEYBOARD_MOUSE_SET;
-    pointsDetail.push('키보드+마우스 세트 +50p');
+    pointsDetail.push(MESSAGE.POINT.KEYBOARD_MOUSE_SET);
   }
   if (hasKeyboard && hasMouse && hasMonitorArm) {
     totalPoints += BONUS_POINT.FULL_SET;
-    pointsDetail.push('풀세트 구매 +100p');
+    pointsDetail.push(MESSAGE.POINT.FULL_SET);
   }
 
   if (totalProductCount >= 30) {
     totalPoints += BONUS_POINT.BULK[30];
-    pointsDetail.push('대량구매(30개+) +100p');
+    pointsDetail.push(MESSAGE.POINT.BULK[30]);
   } else {
     if (totalProductCount >= 20) {
       totalPoints += BONUS_POINT.BULK[20];
-      pointsDetail.push('대량구매(20개+) +50p');
+      pointsDetail.push(MESSAGE.POINT.BULK[20]);
     } else {
       if (totalProductCount >= 10) {
         totalPoints += BONUS_POINT.BULK[10];
-        pointsDetail.push('대량구매(10개+) +20p');
+        pointsDetail.push(MESSAGE.POINT.BULK[10]);
       }
     }
   }

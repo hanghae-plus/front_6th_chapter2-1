@@ -4,7 +4,7 @@ export interface Product {
   changedPrice: number;
   originalPrice: number;
   quantity: number;
-  onSale: boolean;
+  flashSale: boolean;
   suggestSale: boolean;
 }
 

@@ -1,3 +1,4 @@
+import { MESSAGE } from '../constants/constants';
 import { findProductById } from '../../utils/findProductById';
 
 export const changeQuantity = (state, productId, delta) => {
@@ -7,7 +8,7 @@ export const changeQuantity = (state, productId, delta) => {
   if (!product) return;
 
   if (delta > 0 && product.quantity <= 0) {
-    alert('재고가 부족합니다.');
+    alert(MESSAGE.NO_STOCK);
     return;
   }
 

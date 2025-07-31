@@ -9,22 +9,22 @@ interface CartProductItemProps {
 }
 
 export const CartProductItem = ({ product, count, onIncrease, onDecrease, onRemove }: CartProductItemProps) => {
-  const { id, name, originalPrice, changedPrice, onSale, suggestSale } = product;
+  const { id, name, originalPrice, changedPrice, flashSale, suggestSale } = product;
 
   const getPriceDisplay = () => {
     const priceText = (
       <>
         <span className="line-through text-gray-400">₩{originalPrice.toLocaleString()}</span>
-        <span className={onSale && suggestSale ? 'text-purple-600' : onSale ? 'text-red-500' : 'text-blue-500'}>
+        <span className={flashSale && suggestSale ? 'text-purple-600' : flashSale ? 'text-red-500' : 'text-blue-500'}>
           ₩{changedPrice.toLocaleString()}
         </span>
       </>
     );
 
-    return onSale || suggestSale ? priceText : <>₩{changedPrice.toLocaleString()}</>;
+    return flashSale || suggestSale ? priceText : <>₩{changedPrice.toLocaleString()}</>;
   };
 
-  const prefix = onSale && suggestSale ? '⚡💝' : onSale ? '⚡' : suggestSale ? '💝' : '';
+  const prefix = flashSale && suggestSale ? '⚡💝' : flashSale ? '⚡' : suggestSale ? '💝' : '';
 
   return (
     <div

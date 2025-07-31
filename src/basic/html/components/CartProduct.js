@@ -13,9 +13,9 @@ export const createCartProduct = (product, count) => {
     </div>
     <div>
       <h3 class="text-base font-normal mb-1 tracking-tight">
-        ${product.onSale && product.suggestSale
+        ${product.flashSale && product.suggestSale
           ? '⚡💝'
-          : product.onSale
+          : product.flashSale
             ? '⚡'
             : product.suggestSale
               ? '💝'
@@ -23,13 +23,13 @@ export const createCartProduct = (product, count) => {
       </h3>
       <p class="text-xs text-gray-500 mb-0.5 tracking-wide">PRODUCT</p>
       <p class="text-xs text-black mb-3">
-        ${product.onSale || product.suggestSale
+        ${product.flashSale || product.suggestSale
           ? '<span class="line-through text-gray-400">₩' +
             product.originalPrice.toLocaleString() +
             '</span> <span class="' +
-            (product.onSale && product.suggestSale
+            (product.flashSale && product.suggestSale
               ? 'text-purple-600'
-              : product.onSale
+              : product.flashSale
                 ? 'text-red-500'
                 : 'text-blue-500') +
             '">₩' +
@@ -57,13 +57,13 @@ export const createCartProduct = (product, count) => {
     </div>
     <div class="text-right">
       <div class="text-lg mb-2 tracking-tight tabular-nums ${count >= 10 ? 'font-bold' : ''}">
-        ${product.onSale || product.suggestSale
+        ${product.flashSale || product.suggestSale
           ? '<span class="line-through text-gray-400">₩' +
             product.originalPrice.toLocaleString() +
             '</span> <span class="' +
-            (product.onSale && product.suggestSale
+            (product.flashSale && product.suggestSale
               ? 'text-purple-600'
-              : product.onSale
+              : product.flashSale
                 ? 'text-red-500'
                 : 'text-blue-500') +
             '">₩' +

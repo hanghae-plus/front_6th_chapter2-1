@@ -1,15 +1,17 @@
-import { GlobalProvider } from './providers/GlobalProvider';
 import Header from './layouts/Header';
-import CartLayout from './layouts/CartLayout';
 import ManualLayout from './layouts/ManualLayout';
+import CartLayout from './layouts/CartLayout';
+import { useSaleAlert } from './services/useSaleAlert';
 
 function App() {
+  useSaleAlert();
+
   return (
-    <GlobalProvider>
+    <>
       <Header />
-      <CartLayout />
       <ManualLayout />
-    </GlobalProvider>
+      <CartLayout />
+    </>
   );
 }
 
