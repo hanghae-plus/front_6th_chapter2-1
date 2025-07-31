@@ -4,7 +4,7 @@ const ProductPicker = () => {
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">
       <select id="product-select" className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3">
-        {PRODUCTS.map((product: any) => (
+        {PRODUCTS.map((product) => (
           <option key={product.id} value={product.id}>
             {product.name} - {product.price}원
           </option>

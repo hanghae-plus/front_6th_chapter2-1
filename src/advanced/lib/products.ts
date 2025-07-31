@@ -49,4 +49,4 @@ export const PRODUCTS = [
     suggestSale: false,
     discountRate: 0.25,
   },
-];
+] as const;
