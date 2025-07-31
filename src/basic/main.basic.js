@@ -1,30 +1,23 @@
 import {
 	addProductToCart,
-	changeCartItemQuantity,
-	removeCartItem
-} from "./domains/cart/cartOperations";
-import { handleCalculateCartStuff } from "./domains/cart/cartService";
-import { onUpdateSelectOptions } from "./domains/product/productService";
-import { initializeLightningSale } from "./domains/sales/lightningService";
-import { initializeSuggestSale } from "./domains/sales/suggestService";
-import {
 	CartAddButton,
 	CartItemsContainer,
-	OrderSummaryColumn
-} from "./domains/cart/components";
+	changeCartItemQuantity,
+	handleCalculateCartStuff,
+	OrderSummaryColumn,
+	removeCartItem
+} from "./features/cart";
+import { HelpContentPanel, HelpModalBackdrop, HelpModalToggleButton } from "./features/help";
 import {
-	HelpContentPanel,
-	HelpModalBackdrop,
-	HelpModalToggleButton
-} from "./domains/help/components";
-import {
+	findProductById,
+	onUpdateSelectOptions,
 	ProductDropdownSelect,
 	ProductSelectionPanel,
 	StockWarningMessage
-} from "./domains/product/components";
+} from "./features/product";
+import { initializeLightningSale, initializeSuggestSale } from "./features/sales";
 import { Header, MainLayoutGrid, ShoppingAreaColumn } from "./shared/components";
-import { createAppState } from "./shared/state/appState";
-import { findProductById } from "./shared/utils/productUtils";
+import { createAppState } from "./shared/state";
 
 function main() {
 	// Initialize pure business state and get root element
@@ -37,11 +30,7 @@ function main() {
 	const stockInfoHTML = StockWarningMessage();
 	const cartDisplayHTML = CartItemsContainer();
 
-	const selectorContainerHTML = ProductSelectionPanel(
-		selectorHTML,
-		addButtonHTML,
-		stockInfoHTML
-	);
+	const selectorContainerHTML = ProductSelectionPanel(selectorHTML, addButtonHTML, stockInfoHTML);
 	const leftColumnHTML = ShoppingAreaColumn(selectorContainerHTML, cartDisplayHTML);
 
 	const rightColumnHTML = OrderSummaryColumn();
