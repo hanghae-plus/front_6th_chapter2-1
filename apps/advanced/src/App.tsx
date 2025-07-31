@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { CloseIcon, Header, InfoIcon, MinusIcon, PlusIcon } from "./shared/components";
 
 const PRODUCT_ONE = "p1";
 const p2 = "p2";
@@ -366,15 +367,7 @@ export default function App() {
 
 	return (
 		<>
-			<div className="mb-8">
-				<h1 className="tracking-extra-wide mb-2 text-xs font-medium uppercase">
-					🛒 Hanghae Online Store
-				</h1>
-				<div className="text-5xl leading-none tracking-tight">Shopping Cart</div>
-				<p id="item-count" className="mt-3 text-sm font-normal text-gray-500">
-					🛍️ {itemCnt} items in cart
-				</p>
-			</div>
+			<Header itemCnt={itemCnt} />
 
 			<div className="grid flex-1 grid-cols-1 gap-6 overflow-hidden lg:grid-cols-[1fr_360px]">
 				<div className="overflow-y-auto border border-gray-200 bg-white p-8">
@@ -486,7 +479,7 @@ export default function App() {
 												data-change="-1"
 												onClick={() => handleQuantityChange(cartItem.id, -1)}
 											>
-												−
+												<MinusIcon />
 											</button>
 											<span className="quantity-number min-w-[20px] text-center text-sm font-normal tabular-nums">
 												{cartItem.quantity}
@@ -496,7 +489,7 @@ export default function App() {
 												data-change="1"
 												onClick={() => handleQuantityChange(cartItem.id, 1)}
 											>
-												+
+												<PlusIcon />
 											</button>
 										</div>
 									</div>
@@ -669,14 +662,7 @@ export default function App() {
 				className="fixed right-4 top-4 z-50 rounded-full bg-black p-3 text-white transition-colors hover:bg-gray-900"
 				onClick={() => setShowManual(!showManual)}
 			>
-				<svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth="2"
-						d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-					></path>
-				</svg>
+				<InfoIcon />
 			</button>
 
 			{showManual && (
@@ -691,14 +677,7 @@ export default function App() {
 							className="absolute right-4 top-4 text-gray-500 hover:text-black"
 							onClick={() => setShowManual(false)}
 						>
-							<svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M6 18L18 6M6 6l12 12"
-								></path>
-							</svg>
+							<CloseIcon />
 						</button>
 						<h2 className="mb-4 text-xl font-bold">📖 이용 안내</h2>
 
