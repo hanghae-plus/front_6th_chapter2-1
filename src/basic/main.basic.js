@@ -193,7 +193,7 @@ function main() {
         luckyItem.onSale = true;
         alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
         renderProductSelectOptions(selector, productList);
-        doUpdatePricesInCart();
+        renderPricesInCart();
       }
     }, 30000);
   }, lightningDelay);
@@ -217,7 +217,7 @@ function main() {
           suggest.value = Math.round((suggest.value * (100 - 5)) / 100);
           suggest.suggestSale = true;
           renderProductSelectOptions(selector, productList);
-          doUpdatePricesInCart();
+          renderPricesInCart();
         }
       }
     }, 60000);
@@ -475,7 +475,7 @@ const renderBonusPoints = () => {
   }
 };
 
-function doUpdatePricesInCart() {
+const renderPricesInCart = () => {
   const cartItemsEl = Array.from(cartContainerEl.children);
 
   cartItemsEl.forEach((cartItem) => {
@@ -510,7 +510,7 @@ function doUpdatePricesInCart() {
   });
 
   handleCalculateCartStuff();
-}
+};
 
 main();
 
