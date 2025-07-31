@@ -13,13 +13,6 @@ import { BUSINESS_CONSTANTS } from '@/basic/shared/constants/business.js';
 import { findElement } from '@/basic/shared/core/domUtils.js';
 
 /**
- * 프로모션 서비스 초기화
- */
-export const initializeCartPromotion = () => {
-  // 순수 함수 - 부수 효과 없음
-};
-
-/**
  * 랜덤 지연 시간 생성 (순수 함수)
  * @param {number} maxDelay - 최대 지연 시간
  * @returns {number} 지연 시간
