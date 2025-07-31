@@ -7,7 +7,12 @@ import App from "../src/App";
 
 describe("advanced 테스트", () => {
 	// 공통 헬퍼 함수
-	const addItemsToCart = async (sel: HTMLSelectElement, addBtn: HTMLElement, productId: string, count: number) => {
+	const addItemsToCart = async (
+		sel: HTMLSelectElement,
+		addBtn: HTMLElement,
+		productId: string,
+		count: number
+	) => {
 		const user = userEvent.setup();
 		await act(async () => {
 			await user.selectOptions(sel, productId);
@@ -37,7 +42,14 @@ describe("advanced 테스트", () => {
 	describe.each([{ type: "advanced", Component: App }])(
 		"$type 장바구니 상세 기능 테스트",
 		({ Component }) => {
-			let sel: HTMLSelectElement, addBtn: HTMLElement, cartDisp: HTMLElement, sum: HTMLElement, stockInfo: HTMLElement, itemCount: HTMLElement, loyaltyPoints: HTMLElement, discountInfo: HTMLElement;
+			let sel: HTMLSelectElement,
+				addBtn: HTMLElement,
+				cartDisp: HTMLElement,
+				sum: HTMLElement,
+				stockInfo: HTMLElement,
+				itemCount: HTMLElement,
+				loyaltyPoints: HTMLElement,
+				discountInfo: HTMLElement;
 
 			beforeEach(async () => {
 				vi.useRealTimers();
@@ -47,7 +59,7 @@ describe("advanced 테스트", () => {
 				document.body.innerHTML = '<div id="app"></div>';
 
 				// React 컴포넌트 렌더링
-				render(<Component />, { container: document.getElementById('app')! });
+				render(<Component />, { container: document.getElementById("app")! });
 
 				// DOM 요소 참조 - null 체크 추가
 				sel = document.getElementById("product-select") as HTMLSelectElement;
@@ -60,15 +72,24 @@ describe("advanced 테스트", () => {
 				discountInfo = document.getElementById("discount-info") as HTMLElement;
 
 				// DOM 요소가 제대로 생성되었는지 확인
-				if (!sel || !addBtn || !cartDisp || !sum || !stockInfo || !itemCount || !loyaltyPoints || !discountInfo) {
-					throw new Error('Required DOM elements not found');
+				if (
+					!sel ||
+					!addBtn ||
+					!cartDisp ||
+					!sum ||
+					!stockInfo ||
+					!itemCount ||
+					!loyaltyPoints ||
+					!discountInfo
+				) {
+					throw new Error("Required DOM elements not found");
 				}
 			});
 
 			afterEach(() => {
 				vi.useRealTimers();
 				vi.restoreAllMocks();
-				document.body.innerHTML = '';
+				document.body.innerHTML = "";
 			});
 
 			// 2. 상품 정보 테스트
@@ -179,11 +200,11 @@ describe("advanced 테스트", () => {
 
 							act(() => {
 								// React 이벤트 트리거
-								const changeEvent = new Event('change', { bubbles: true });
+								const changeEvent = new Event("change", { bubbles: true });
 								sel.value = "p1";
 								sel.dispatchEvent(changeEvent);
-								
-								const clickEvent = new MouseEvent('click', { bubbles: true });
+
+								const clickEvent = new MouseEvent("click", { bubbles: true });
 								addBtn.dispatchEvent(clickEvent);
 							});
 
@@ -201,12 +222,12 @@ describe("advanced 테스트", () => {
 
 							act(() => {
 								// React 이벤트로 10개 추가
-								const changeEvent = new Event('change', { bubbles: true });
+								const changeEvent = new Event("change", { bubbles: true });
 								sel.value = "p1";
 								sel.dispatchEvent(changeEvent);
-								
+
 								for (let i = 0; i < 10; i++) {
-									const clickEvent = new MouseEvent('click', { bubbles: true });
+									const clickEvent = new MouseEvent("click", { bubbles: true });
 									addBtn.dispatchEvent(clickEvent);
 								}
 							});
@@ -302,11 +323,11 @@ describe("advanced 테스트", () => {
 
 						act(() => {
 							// React 이벤트 트리거
-							const changeEvent = new Event('change', { bubbles: true });
+							const changeEvent = new Event("change", { bubbles: true });
 							sel.value = "p1";
 							sel.dispatchEvent(changeEvent);
-							
-							const clickEvent = new MouseEvent('click', { bubbles: true });
+
+							const clickEvent = new MouseEvent("click", { bubbles: true });
 							addBtn.dispatchEvent(clickEvent);
 						});
 
@@ -486,7 +507,7 @@ describe("advanced 테스트", () => {
 
 						const modal = document.querySelector(".fixed.inset-0") as HTMLElement;
 						const slidePanel = document.querySelector(".fixed.right-0.top-0") as HTMLElement;
-						
+
 						expect(modal).toBeTruthy();
 						expect(slidePanel).toBeTruthy();
 						expect(slidePanel.classList.contains("translate-x-0")).toBe(true);
@@ -500,7 +521,7 @@ describe("advanced 테스트", () => {
 						await act(async () => {
 							await user.click(helpButton);
 						});
-						
+
 						const modal = document.querySelector(".fixed.inset-0") as HTMLElement;
 						expect(modal).toBeTruthy();
 
@@ -508,7 +529,7 @@ describe("advanced 테스트", () => {
 						await act(async () => {
 							await user.click(modal);
 						});
-						
+
 						// 모달이 닫혔는지 확인 (DOM에서 제거됨)
 						expect(document.querySelector(".fixed.inset-0")).toBeNull();
 					});
@@ -570,8 +591,12 @@ describe("advanced 테스트", () => {
 							await user.click(addBtn);
 						});
 
-						const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]') as HTMLElement;
-						const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]') as HTMLElement;
+						const increaseBtn = cartDisp.querySelector(
+							'.quantity-change[data-change="1"]'
+						) as HTMLElement;
+						const decreaseBtn = cartDisp.querySelector(
+							'.quantity-change[data-change="-1"]'
+						) as HTMLElement;
 
 						// 증가
 						await act(async () => {
@@ -590,7 +615,9 @@ describe("advanced 테스트", () => {
 						// 재고 10개인 상품5를 10개 추가
 						await addItemsToCart(sel, addBtn, "p5", 10);
 
-						const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]') as HTMLElement;
+						const increaseBtn = cartDisp.querySelector(
+							'.quantity-change[data-change="1"]'
+						) as HTMLElement;
 						const qtyBefore = getCartItemQuantity(cartDisp, "p5");
 
 						const user = userEvent.setup();
@@ -609,7 +636,9 @@ describe("advanced 테스트", () => {
 							await user.click(addBtn);
 						});
 
-						const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]') as HTMLElement;
+						const decreaseBtn = cartDisp.querySelector(
+							'.quantity-change[data-change="-1"]'
+						) as HTMLElement;
 						await act(async () => {
 							await user.click(decreaseBtn);
 						});
@@ -658,7 +687,9 @@ describe("advanced 테스트", () => {
 
 						expect(sum.textContent).toContain("₩10,000");
 
-						const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]') as HTMLElement;
+						const increaseBtn = cartDisp.querySelector(
+							'.quantity-change[data-change="1"]'
+						) as HTMLElement;
 						await act(async () => {
 							await user.click(increaseBtn);
 						});
@@ -682,7 +713,9 @@ describe("advanced 테스트", () => {
 
 						expect(loyaltyPoints.textContent).toContain("10p");
 
-						const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]') as HTMLElement;
+						const increaseBtn = cartDisp.querySelector(
+							'.quantity-change[data-change="1"]'
+						) as HTMLElement;
 						await act(async () => {
 							await user.click(increaseBtn);
 						});
@@ -728,7 +761,9 @@ describe("advanced 테스트", () => {
 					it("수량 증가 시 재고 확인", async () => {
 						await addItemsToCart(sel, addBtn, "p5", 10);
 
-						const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]') as HTMLElement;
+						const increaseBtn = cartDisp.querySelector(
+							'.quantity-change[data-change="1"]'
+						) as HTMLElement;
 						const user = userEvent.setup();
 						await act(async () => {
 							await user.click(increaseBtn);
@@ -776,29 +811,29 @@ describe("advanced 테스트", () => {
 					act(() => {
 						// 키보드 10개, 마우스 10개, 모니터암 10개
 						// p1 키보드 10개
-						let changeEvent = new Event('change', { bubbles: true });
+						let changeEvent = new Event("change", { bubbles: true });
 						sel.value = "p1";
 						sel.dispatchEvent(changeEvent);
 						for (let i = 0; i < 10; i++) {
-							const clickEvent = new MouseEvent('click', { bubbles: true });
+							const clickEvent = new MouseEvent("click", { bubbles: true });
 							addBtn.dispatchEvent(clickEvent);
 						}
-						
+
 						// p2 마우스 10개
-						changeEvent = new Event('change', { bubbles: true });
+						changeEvent = new Event("change", { bubbles: true });
 						sel.value = "p2";
 						sel.dispatchEvent(changeEvent);
 						for (let i = 0; i < 10; i++) {
-							const clickEvent = new MouseEvent('click', { bubbles: true });
+							const clickEvent = new MouseEvent("click", { bubbles: true });
 							addBtn.dispatchEvent(clickEvent);
 						}
-						
+
 						// p3 모니터암 10개
-						changeEvent = new Event('change', { bubbles: true });
+						changeEvent = new Event("change", { bubbles: true });
 						sel.value = "p3";
 						sel.dispatchEvent(changeEvent);
 						for (let i = 0; i < 10; i++) {
-							const clickEvent = new MouseEvent('click', { bubbles: true });
+							const clickEvent = new MouseEvent("click", { bubbles: true });
 							addBtn.dispatchEvent(clickEvent);
 						}
 					});
