@@ -10,7 +10,7 @@ const CartList = () => {
   }
 
   return (
-    <div id="cart-items" className="cart-items">
+    <div id="cart-items" className="cart-items space-y-0">
       {cartItems.map(item => (
         <CartItem key={item.id} item={item} />
       ))}

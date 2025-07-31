@@ -6,8 +6,11 @@ interface CartItemProps {
 }
 
 export const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const { updateQuantity, removeFromCart } = useCart();
+  const { updateQuantity, removeFromCart, state } = useCart();
   const { product, quantity } = item;
+
+  // 실시간 상품 정보 가져오기
+  const currentProduct = state.products.find(p => p.id === product.id) || product;
 
   const handleQuantityChange = (change: number) => {
     updateQuantity(product.id, change);
@@ -18,32 +21,34 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
   };
 
   const getProductDisplayName = (): string => {
-    if (product.onSale && product.suggestSale) {
-      return `⚡💝${product.name}`;
-    } else if (product.onSale) {
-      return `⚡${product.name}`;
-    } else if (product.suggestSale) {
-      return `💝${product.name}`;
+    if (currentProduct.onSale && currentProduct.suggestSale) {
+      return `⚡💝${currentProduct.name}`;
+    } else if (currentProduct.onSale) {
+      return `⚡${currentProduct.name}`;
+    } else if (currentProduct.suggestSale) {
+      return `💝${currentProduct.name}`;
     }
-    return product.name;
+    return currentProduct.name;
   };
 
   const getPriceDisplay = (): React.ReactNode => {
-    if (product.onSale || product.suggestSale) {
+    if (currentProduct.onSale || currentProduct.suggestSale) {
       return (
         <>
-          <span className="line-through text-gray-400">₩{product.originalPrice.toLocaleString()}</span>{" "}
-          <span className={product.onSale && product.suggestSale ? "text-purple-600" : product.onSale ? "text-red-500" : "text-blue-500"}>₩{product.price.toLocaleString()}</span>
+          <span className="line-through text-gray-400">₩{currentProduct.originalPrice.toLocaleString()}</span>{" "}
+          <span className={currentProduct.onSale && currentProduct.suggestSale ? "text-purple-600" : currentProduct.onSale ? "text-red-500" : "text-blue-500"}>
+            ₩{currentProduct.price.toLocaleString()}
+          </span>
         </>
       );
     }
-    return `₩${product.price.toLocaleString()}`;
+    return `₩${currentProduct.price.toLocaleString()}`;
   };
 
   const getDiscountDisplay = (): React.ReactNode => {
-    if (product.onSale || product.suggestSale) {
-      const discountRate = product.onSale && product.suggestSale ? 25 : product.onSale ? 20 : 5;
-      const discountStatus = product.onSale && product.suggestSale ? "SUPER SALE" : product.onSale ? "SALE" : "추천할인";
+    if (currentProduct.onSale || currentProduct.suggestSale) {
+      const discountRate = currentProduct.onSale && currentProduct.suggestSale ? 25 : currentProduct.onSale ? 20 : 5;
+      const discountStatus = currentProduct.onSale && currentProduct.suggestSale ? "SUPER SALE" : currentProduct.onSale ? "SALE" : "추천할인";
       return (
         <span className="text-xs text-red-500 font-medium">
           -{discountRate}% {discountStatus}
