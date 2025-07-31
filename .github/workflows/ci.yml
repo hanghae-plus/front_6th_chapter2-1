@@ -17,16 +17,26 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
-
+          cache: 'pnpm'
       - name: test basic
         run: |
           pnpm install
           pnpm run test:basic
+  advacned:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: advanced-test
+        run: |
+          pnpm install
+          pnpm run test:advanced
