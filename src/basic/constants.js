@@ -18,3 +18,12 @@ export const POINT_RATES_BULK_BONUS = {
   MEDIUM: 50,
   LARGE: 100,
 };
+
+// 상품 별 할인률
+export const PRODUCT_DEFAULT_DISCOUNT_RATES = {
+  KEYBOARD: 0.1,
+  MOUSE: 0.15,
+  MONITOR_ARM: 0.2,
+  LAPTOP_POUCH: 0.05,
+  SPEAKER: 0.25,
+};

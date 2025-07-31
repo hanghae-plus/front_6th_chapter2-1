@@ -7,6 +7,7 @@ import {
   PRODUCT_SPEAKER,
   QUANTITY_THRESHOLDS,
   POINT_RATES_BULK_BONUS,
+  PRODUCT_DEFAULT_DISCOUNT_RATES,
 } from './constants';
 
 // 상품 데이터 및 장바구니 관련 변수
@@ -520,29 +521,9 @@ function handleCalculateCartStuff() {
         }
       });
 
-      // ----------------------------------------
       // 개별 상품 할인율 적용
-      // ----------------------------------------
       if (quantity >= 10) {
-        if (curItem.id === PRODUCT_KEYBOARD) {
-          disc = 10 / 100;
-        } else {
-          if (curItem.id === PRODUCT_MOUSE) {
-            disc = 15 / 100;
-          } else {
-            if (curItem.id === PRODUCT_MONITOR_ARM) {
-              disc = 20 / 100;
-            } else {
-              if (curItem.id === PRODUCT_LAPTOP_POUCH) {
-                disc = 5 / 100;
-              } else {
-                if (curItem.id === PRODUCT_SPEAKER) {
-                  disc = 25 / 100;
-                }
-              }
-            }
-          }
-        }
+        disc = getProductDiscountRate(curItem.id);
         if (disc > 0) {
           itemDiscounts.push({ name: curItem.name, discount: disc * 100 });
         }
@@ -1060,4 +1041,21 @@ function getBonusPerBulkInfo(itemCount) {
     };
   }
   return null;
+}
+
+function getProductDiscountRate(productId) {
+  switch (productId) {
+    case PRODUCT_KEYBOARD:
+      return PRODUCT_DEFAULT_DISCOUNT_RATES.KEYBOARD;
+    case PRODUCT_MOUSE:
+      return PRODUCT_DEFAULT_DISCOUNT_RATES.MOUSE;
+    case PRODUCT_MONITOR_ARM:
+      return PRODUCT_DEFAULT_DISCOUNT_RATES.MONITOR_ARM;
+    case PRODUCT_LAPTOP_POUCH:
+      return PRODUCT_DEFAULT_DISCOUNT_RATES.LAPTOP_POUCH;
+    case PRODUCT_SPEAKER:
+      return PRODUCT_DEFAULT_DISCOUNT_RATES.SPEAKER;
+    default:
+      return 0;
+  }
 }
