@@ -1,7 +1,39 @@
-let stockStatusElement;
-let lastSelectedProductId;
-let productSelectElement;
-let addToCartButton;
+/**
+ * DOM 요소 및 상태 관리자 (React useRef/useState 패턴)
+ * React 변환 시 useRef/useState로 직접 변환 가능
+ */
+const useDOMManager = {
+  // DOM 요소 참조 (React의 useRef와 동일한 패턴)
+  elements: {
+    stockStatus: null,
+    productSelect: null,
+    addToCartButton: null,
+    cartDisplay: null,
+  },
+
+  // 상태 값 (React의 useState와 동일한 패턴)
+  state: {
+    lastSelectedProductId: null,
+  },
+
+  // DOM 요소 접근자
+  getElement(elementName) {
+    return this.elements[elementName];
+  },
+
+  setElement(elementName, element) {
+    this.elements[elementName] = element;
+  },
+
+  // 상태 접근자
+  getState(stateName) {
+    return this.state[stateName];
+  },
+
+  setState(stateName, value) {
+    this.state[stateName] = value;
+  },
+};
 
 const PRODUCT_IDS = {
   KEYBOARD: "p1",
@@ -548,8 +580,7 @@ const useBonusPointsManager = {
   },
 };
 
-let cartDisplayElement;
-let cartSummaryElement;
+// cartDisplayElement와 cartSummaryElement는 useDOMManager로 이동됨
 
 /**
  * 장바구니 아이템들의 할인 표시 스타일 업데이트
@@ -794,6 +825,9 @@ const TotalPointsRenderer = {
    * @param {Object} displayData - 표시 데이터
    */
   render(displayData) {
+    // DOM 요소 가져오기 (useDOMManager 사용)
+    const cartSummaryElement = useDOMManager.getElement("cartSummary");
+
     const totalDiv = cartSummaryElement.querySelector(".text-2xl");
     const loyaltyPointsDiv = document.getElementById("loyalty-points");
 
@@ -982,6 +1016,9 @@ const ProductSelectRenderer = {
    * @param {Object} selectData - 상품 선택 데이터
    */
   render(selectData) {
+    // DOM 요소 가져오기 (useDOMManager 사용)
+    const productSelectElement = useDOMManager.getElement("productSelect");
+
     // 기존 옵션들 초기화
     productSelectElement.innerHTML = "";
 
@@ -1009,6 +1046,9 @@ function updateProductSelectOptions() {
 }
 
 function renderBonusPointsDisplay() {
+  // DOM 요소 가져오기 (useDOMManager 사용)
+  const cartDisplayElement = useDOMManager.getElement("cartDisplay");
+
   const totalAmount = useCartManager.getTotalAmount();
   const itemCount = useCartManager.getItemCount();
   const nodes = cartDisplayElement.children;
@@ -1045,6 +1085,8 @@ function renderBonusPointsDisplay() {
  * 메인 함수: 장바구니 상태 계산 후 모든 UI 컴포넌트 업데이트
  */
 function updateCartDisplay() {
+  // DOM 요소 가져오기 (useDOMManager 사용)
+  const cartDisplayElement = useDOMManager.getElement("cartDisplay");
   const cartItems = cartDisplayElement.children;
 
   // 1. 장바구니 계산 (비즈니스 로직)
@@ -1149,6 +1191,8 @@ const CartItemPricesRenderer = {
  * 장바구니 아이템 가격 업데이트 (리팩토링된 버전)
  */
 function updateCartItemPrices() {
+  // DOM 요소 가져오기 (useDOMManager 사용)
+  const cartDisplayElement = useDOMManager.getElement("cartDisplay");
   const cartItems = cartDisplayElement.children;
   const itemsData = calculateCartItemPricesData(cartItems);
 
@@ -1159,7 +1203,9 @@ function updateCartItemPrices() {
 function main() {
   let manualOverlay;
   let manualColumn;
-  lastSelectedProductId = null;
+
+  // 상태 초기화 (useDOMManager 사용)
+  useDOMManager.setState("lastSelectedProductId", null);
 
   // 장바구니 상태 초기화
   useCartManager.resetCart();
@@ -1172,30 +1218,47 @@ function main() {
     <div class="text-5xl tracking-tight leading-none">Shopping Cart</div>
     <p id="item-count" class="text-sm text-gray-500 font-normal mt-3">🛍️ 0 items in cart</p>
   `;
-  productSelectElement = document.createElement("select");
-  productSelectElement.id = "product-select";
+
+  // DOM 요소 생성 및 useDOMManager에 저장
+  const productSelect = document.createElement("select");
+  productSelect.id = "product-select";
+  productSelect.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
+  useDOMManager.setElement("productSelect", productSelect);
+
+  const addToCartBtn = document.createElement("button");
+  addToCartBtn.id = "add-to-cart";
+  useDOMManager.setElement("addToCartButton", addToCartBtn);
+
+  const stockStatus = document.createElement("div");
+  stockStatus.id = "stock-status";
+  stockStatus.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
+  useDOMManager.setElement("stockStatus", stockStatus);
+
   const gridContainer = document.createElement("div");
   const leftColumn = document.createElement("div");
   leftColumn.className = "bg-white border border-gray-200 p-8 overflow-y-auto";
   const selectorContainer = document.createElement("div");
   selectorContainer.className = "mb-6 pb-6 border-b border-gray-200";
-  productSelectElement.className = "w-full p-3 border border-gray-300 rounded-lg text-base mb-3";
   gridContainer.className = "grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden";
-  addToCartButton = document.createElement("button");
-  stockStatusElement = document.createElement("div");
-  addToCartButton.id = "add-to-cart";
-  stockStatusElement.id = "stock-status";
-  stockStatusElement.className = "text-xs text-red-500 mt-3 whitespace-pre-line";
+
+  // DOM 요소 속성 설정 (useDOMManager에서 가져오기)
+  const addToCartButton = useDOMManager.getElement("addToCartButton");
+  const productSelectElement = useDOMManager.getElement("productSelect");
+  const stockStatusElement = useDOMManager.getElement("stockStatus");
+
   addToCartButton.innerHTML = "Add to Cart";
   addToCartButton.className =
     "w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all";
+
   selectorContainer.appendChild(productSelectElement);
   selectorContainer.appendChild(addToCartButton);
   selectorContainer.appendChild(stockStatusElement);
   leftColumn.appendChild(selectorContainer);
-  cartDisplayElement = document.createElement("div");
-  leftColumn.appendChild(cartDisplayElement);
+
+  const cartDisplayElement = document.createElement("div");
   cartDisplayElement.id = "cart-items";
+  useDOMManager.setElement("cartDisplay", cartDisplayElement);
+  leftColumn.appendChild(cartDisplayElement);
   const rightColumn = document.createElement("div");
   rightColumn.className = "bg-black text-white p-8 flex flex-col";
   rightColumn.innerHTML = `
@@ -1227,7 +1290,8 @@ function main() {
       <span id="points-notice">Earn loyalty points with purchase.</span>
     </p>
   `;
-  cartSummaryElement = rightColumn.querySelector("#cart-total");
+  const cartSummaryElement = rightColumn.querySelector("#cart-total");
+  useDOMManager.setElement("cartSummary", cartSummaryElement);
 
   const manualToggle = document.createElement("button");
   manualToggle.onclick = function () {
@@ -1339,7 +1403,11 @@ function main() {
   }, lightningDelay);
   setTimeout(function () {
     setInterval(function () {
-      if (cartDisplayElement.children.length === 0) {
+      // DOM 요소 및 상태 가져오기 (useDOMManager 사용)
+      const cartDisplay = useDOMManager.getElement("cartDisplay");
+      const lastSelectedProductId = useDOMManager.getState("lastSelectedProductId");
+
+      if (cartDisplay.children.length === 0) {
         // 빈 장바구니 상태
       }
       if (lastSelectedProductId) {
@@ -1525,6 +1593,11 @@ function calculateQuantityChange(currentQuantity, quantityChange, availableStock
 }
 
 main();
+
+// 이벤트 핸들러 등록 (useDOMManager에서 요소 가져오기)
+const addToCartButton = useDOMManager.getElement("addToCartButton");
+const productSelectElement = useDOMManager.getElement("productSelect");
+
 addToCartButton.addEventListener("click", function () {
   const selItem = productSelectElement.value;
   const itemToAdd = useProductData.findProductById(selItem);
@@ -1557,13 +1630,21 @@ addToCartButton.addEventListener("click", function () {
 
       // HTML 템플릿 생성 (순수 함수 사용)
       newItem.innerHTML = createCartItemHTML(itemDisplayData);
+
+      // DOM 요소 가져오기 (useDOMManager 사용)
+      const cartDisplayElement = useDOMManager.getElement("cartDisplay");
       cartDisplayElement.appendChild(newItem);
       itemToAdd.q -= 1;
     }
     updateCartDisplay();
-    lastSelectedProductId = selItem;
+
+    // 상태 업데이트 (useDOMManager 사용)
+    useDOMManager.setState("lastSelectedProductId", selItem);
   }
 });
+
+// cartDisplayElement 이벤트 핸들러 등록 (useDOMManager에서 요소 가져오기)
+const cartDisplayElement = useDOMManager.getElement("cartDisplay");
 cartDisplayElement.addEventListener("click", function (event) {
   // 이벤트 파싱 (순수 함수 사용)
   const eventInfo = parseCartClickEvent(event);
