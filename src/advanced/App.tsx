@@ -10,6 +10,7 @@ const App = () => {
   const [products, setProducts] = useState<Product[]>(productList);
   const [selectedProductId, setSelectedProductId] = useState<string>(products[0]?.id ?? '');
   const [cart, setCart] = useState<Product[]>([]);
+  const totalCart = cart.reduce((acc, cur) => (acc += cur.quantity), 0);
 
   const handleSelectProduct = (e: ChangeEvent<HTMLSelectElement>) => {
     setSelectedProductId(e.target.value);
@@ -133,7 +134,11 @@ const App = () => {
 
   return (
     <>
-      <Header />
+      <Header>
+        <p id="item-count" className="text-sm text-gray-500 font-normal mt-3">
+          {`🛍️ ${totalCart} items in cart`}
+        </p>
+      </Header>
       {/* gridContainer */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 flex-1 overflow-hidden">
         {/* leftColumn */}
