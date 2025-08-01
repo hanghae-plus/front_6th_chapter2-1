@@ -10,6 +10,7 @@ export class OrderEventListeners {
     this.initOrderEventListeners();
   }
 
+  // 주문 이벤트 리스너를 초기화합니다.
   initOrderEventListeners() {
     // 주문 요약 업데이트 이벤트
     this.uiEventBus.on(ORDER_SUMMARY_UPDATED, data => {
@@ -26,7 +27,7 @@ export class OrderEventListeners {
     });
   }
 
-  // 공통 계산 로직
+  // 주문 요약과 포인트를 계산합니다.
   calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount) {
     // 주문 요약 계산
     const orderSummary = this.orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
@@ -37,6 +38,7 @@ export class OrderEventListeners {
     return { orderSummary, pointsResult };
   }
 
+  // 주문 요약 업데이트를 처리합니다.
   handleOrderSummaryUpdate(cartItems, totalAmount, isTuesday, itemCount) {
     const { orderSummary, pointsResult } = this.calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount);
 
@@ -58,6 +60,7 @@ export class OrderEventListeners {
     this.renderOrderSummary(orderSummary, pointsResult);
   }
 
+  // 주문 계산을 처리합니다.
   handleOrderCalculation(cartItems, totalAmount, isTuesday, itemCount) {
     const { orderSummary, pointsResult } = this.calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount);
 
@@ -65,6 +68,7 @@ export class OrderEventListeners {
     this.renderOrderSummary(orderSummary, pointsResult);
   }
 
+  // 주문 요약을 렌더링합니다.
   renderOrderSummary(orderSummary, pointsResult) {
     const orderState = {
       ...orderSummary,

@@ -4,9 +4,8 @@ import { QUANTITY_THRESHOLDS, DISCOUNT_RATES } from "../constants/index.js";
 
 // 상품 관련 비즈니스 로직 서비스
 export class ProductService {
-  constructor(discountService) {
+  constructor() {
     this.productStore = new ProductStore();
-    this.discountService = discountService;
   }
 
   // 상품 검증 (비즈니스 로직)
@@ -102,15 +101,6 @@ export class ProductService {
   calculateTotalStock() {
     const { products } = this.productStore.getState();
     return products.reduce((total, product) => total + product.quantity, 0);
-  }
-
-  // 할인 정보 계산
-  calculateProductDiscountInfo(products) {
-    return products.map(product => ({
-      productId: product.id,
-      rate: this.discountService.calculateProductDiscountRate(product),
-      status: this.discountService.getProductDiscountStatus(product),
-    }));
   }
 
   // Store 메서드들에 대한 간단한 접근자 (필요한 경우만)

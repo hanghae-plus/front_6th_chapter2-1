@@ -6,13 +6,7 @@ export class CartService {
     this.cartStore = new CartStore();
   }
 
-  /**
-   * 선택된 상품의 유효성을 검증합니다.
-   *
-   * @param {string} selectedProductId - 선택된 상품 ID
-   * @param {Array} productList - 상품 목록
-   * @returns {Object|null} 유효한 상품 객체 또는 null
-   */
+  // 선택된 상품의 유효성을 검증합니다.
   validateSelectedProduct(selectedProductId, productList) {
     if (!selectedProductId) return null;
 
@@ -20,24 +14,12 @@ export class CartService {
     return targetProduct && targetProduct.quantity > 0 ? targetProduct : null;
   }
 
-  /**
-   * 재고 유효성을 검증합니다.
-   *
-   * @param {Object} product - 상품 객체
-   * @param {number} quantity - 요청 수량
-   * @returns {boolean} 재고 유효성
-   */
+  // 재고 유효성을 검증합니다.
   validateStock(product, quantity) {
     return product && quantity > 0 && product.quantity >= quantity;
   }
 
-  /**
-   * 장바구니에 상품을 추가합니다.
-   *
-   * @param {Object} product - 추가할 상품
-   * @param {number} quantity - 추가할 수량
-   * @returns {boolean} 성공 여부
-   */
+  // 장바구니 상품 추가
   addProductToCart(product, quantity = 1) {
     if (!this.validateStock(product, quantity)) {
       alert("재고가 부족합니다.");
@@ -70,14 +52,7 @@ export class CartService {
     return true;
   }
 
-  /**
-   * 장바구니에서 상품 수량을 변경합니다.
-   *
-   * @param {string} productId - 상품 ID
-   * @param {number} quantityChange - 수량 변경값
-   * @param {Array} productList - 상품 목록
-   * @returns {boolean} 성공 여부
-   */
+  // 장바구니에서 상품 수량을 변경합니다.
   updateCartItemQuantity(productId, quantityChange, productList) {
     const { cartItems } = this.cartStore.getState();
     const cartItem = cartItems.find(item => item.id === productId);
@@ -109,13 +84,7 @@ export class CartService {
     return true;
   }
 
-  /**
-   * 장바구니에서 상품을 제거합니다.
-   *
-   * @param {string} productId - 상품 ID
-   * @param {Array} productList - 상품 목록
-   * @returns {boolean} 성공 여부
-   */
+  // 장바구니에서 상품을 제거합니다.
   removeProductFromCart(productId, productList) {
     const { cartItems } = this.cartStore.getState();
     const cartItem = cartItems.find(item => item.id === productId);
@@ -132,9 +101,7 @@ export class CartService {
     return true;
   }
 
-  /**
-   * 장바구니 총액을 계산합니다.
-   */
+  // 장바구니 총액을 계산합니다.
   updateCartTotals() {
     const { cartItems } = this.cartStore.getState();
 
@@ -160,11 +127,7 @@ export class CartService {
     };
   }
 
-  /**
-   * 장바구니를 초기화합니다.
-   *
-   * @param {Array} productList - 상품 목록
-   */
+  // 장바구니를 초기화합니다.
   resetCart(productList) {
     const { cartItems } = this.cartStore.getState();
 
@@ -186,47 +149,27 @@ export class CartService {
     });
   }
 
-  /**
-   * 장바구니 아이템 개수를 반환합니다.
-   *
-   * @returns {number} 장바구니 아이템 개수
-   */
+  // 장바구니 아이템 개수를 반환합니다.
   getItemCount() {
     return this.cartStore.getState().itemCount;
   }
 
-  /**
-   * 장바구니 총액을 반환합니다.
-   *
-   * @returns {number} 장바구니 총액
-   */
+  // 장바구니 총액을 반환합니다.
   getTotalAmount() {
     return this.cartStore.getState().totalAmount;
   }
 
-  /**
-   * 마지막 선택된 상품 ID를 반환합니다.
-   *
-   * @returns {string|null} 마지막 선택된 상품 ID
-   */
+  // 마지막 선택된 상품 ID를 반환합니다.
   getLastSelectedProduct() {
     return this.cartStore.getState().lastSelectedProduct;
   }
 
-  /**
-   * 마지막 선택된 상품을 설정합니다.
-   *
-   * @param {string} productId - 상품 ID
-   */
+  // 마지막 선택된 상품을 설정합니다.
   setLastSelectedProduct(productId) {
     this.cartStore.setState({ lastSelectedProduct: productId });
   }
 
-  /**
-   * 장바구니 상태를 반환합니다.
-   *
-   * @returns {Object} 장바구니 상태
-   */
+  // 장바구니 상태를 반환합니다.
   getState() {
     return this.cartStore.getState();
   }

@@ -7,6 +7,7 @@ import { createLayoutSystem } from "./components/Layout.js";
 import { createCartList } from "./components/CartList.js";
 
 // services
+import { PointService } from "./services/pointService.js";
 import { CartService } from "./services/cartService.js";
 import { TimerService } from "./services/timerService.js";
 import { ProductService } from "./services/productService.js";
@@ -40,22 +41,27 @@ function main() {
   const serviceManager = new ServiceManager();
 
   const discountService = new DiscountService();
+  const pointService = new PointService();
+  const cartService = new CartService();
+  const productService = new ProductService();
+  const orderService = new OrderService(discountService, pointService);
+
   // Service 등록 (의존성 순서 고려)
-  serviceManager.register("product", new ProductService(discountService));
-  serviceManager.register("cart", new CartService());
+  serviceManager.register("product", productService);
+  serviceManager.register("cart", cartService);
   serviceManager.register("discount", discountService);
-
-  // OrderService 생성 시 discountService 주입
-  serviceManager.register("order", new OrderService(discountService));
-
-  const { productService, cartService } = serviceManager.getAllServices();
+  serviceManager.register("point", pointService);
+  serviceManager.register("order", orderService);
 
   const header = createHeader({ itemCount: 0 });
 
   // Layout 시스템 생성
   const layout = createLayoutSystem();
-  const { gridContainer, leftColumn, rightColumn } = layout;
+  const cartList = createCartList();
+  const orderSummary = createOrderSummary();
+  const manualSystem = createManualSystem();
 
+  const { gridContainer, leftColumn, rightColumn } = layout;
   // ProductSelector 컴포넌트 생성
   const productsWithDiscounts = discountService.getProductsWithCurrentDiscounts(productService.getProducts());
   const selectorContainer = createProductSelector({
@@ -63,18 +69,12 @@ function main() {
     discountInfos: calculateProductDiscountInfos(productsWithDiscounts, discountService),
   });
 
-  const cartList = createCartList();
-
   leftColumn.appendChild(selectorContainer);
   leftColumn.appendChild(cartList);
-
-  // OrderSummary 컴포넌트 생성
-  const orderSummary = createOrderSummary();
 
   rightColumn.appendChild(orderSummary);
 
   // Manual 시스템 생성
-  const manualSystem = createManualSystem();
   root.appendChild(header);
   root.appendChild(gridContainer);
   root.appendChild(manualSystem.toggle);

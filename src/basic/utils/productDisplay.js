@@ -28,25 +28,3 @@ export function getPriceDisplayHTML(product) {
     return `₩${product.price.toLocaleString()}`;
   }
 }
-
-// 상품의 할인율을 계산합니다.
-export function calculateDiscountRate(product) {
-  if (!product.onSale && !product.suggestSale) return 0;
-
-  const { originalPrice } = product;
-  const currentPrice = product.price;
-
-  return (originalPrice - currentPrice) / originalPrice;
-}
-
-// 상품의 할인 상태를 확인합니다.
-export function getDiscountStatus(product) {
-  if (product.onSale && product.suggestSale) {
-    return "SUPER SALE";
-  } else if (product.onSale) {
-    return "SALE";
-  } else if (product.suggestSale) {
-    return "추천할인";
-  }
-  return "";
-}

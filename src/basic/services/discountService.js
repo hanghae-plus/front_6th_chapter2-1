@@ -21,58 +21,6 @@ export class DiscountService {
     }
   }
 
-  // 개별 상품 할인을 계산합니다.
-  calculateIndividualDiscounts(cartItems, productList) {
-    const individualDiscounts = [];
-
-    cartItems.forEach(cartItem => {
-      const product = findProductById(cartItem.id, productList);
-      if (!product) return;
-
-      // 수량 추출 (타입 체크 로직 분리)
-      const quantity = this.extractQuantity(cartItem);
-      const discountRate = calculateItemDiscount(cartItem.id, quantity);
-
-      if (discountRate > 0) {
-        individualDiscounts.push({
-          productId: cartItem.id,
-          productName: product.name,
-          quantity,
-          rate: discountRate,
-          amount: product.price * quantity * discountRate,
-        });
-      }
-    });
-
-    this.discountStore.setState({ individualDiscounts });
-    return individualDiscounts;
-  }
-
-  // 대량구매 할인을 계산합니다.
-  calculateBulkDiscount(totalQuantity) {
-    let bulkDiscountRate = 0;
-    let bulkDiscountApplied = false;
-
-    if (totalQuantity >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
-      bulkDiscountRate = DISCOUNT_RATES.BULK_PURCHASE;
-      bulkDiscountApplied = true;
-    }
-
-    this.discountStore.setState({ bulkDiscountRate, bulkDiscountApplied });
-    return { rate: bulkDiscountRate, applied: bulkDiscountApplied };
-  }
-
-  // 화요일 특별 할인을 계산합니다.
-  calculateTuesdayDiscount() {
-    const today = new Date().getDay();
-    const isTuesday = today === 2;
-    const tuesdayDiscountRate = isTuesday ? DISCOUNT_RATES.TUESDAY_SPECIAL : 0;
-    const tuesdayDiscountApplied = isTuesday;
-
-    this.discountStore.setState({ tuesdayDiscountRate, tuesdayDiscountApplied });
-    return { rate: tuesdayDiscountRate, applied: tuesdayDiscountApplied };
-  }
-
   // 모든 할인을 적용하여 최종 금액을 계산합니다.
   applyAllDiscounts(cartItems, productList) {
     // 1. 개별 상품 할인 계산
@@ -160,20 +108,6 @@ export class DiscountService {
     };
   }
 
-  // 할인 적용 전 장바구니 상품들의 총 금액을 계산합니다.
-  // 각 상품의 (가격 × 수량)을 모두 더한 소계(Subtotal)를 반환합니다.
-  calculateSubtotal(cartItems, productList) {
-    return cartItems.reduce((sum, cartItem) => {
-      const product = findProductById(cartItem.id, productList);
-      if (!product) return sum;
-
-      // 수량 추출
-      const quantity = this.extractQuantity(cartItem);
-
-      return sum + product.price * quantity;
-    }, 0);
-  }
-
   // 상품의 할인율을 계산합니다.
   calculateProductDiscountRate(product) {
     if (!product) return 0;
@@ -205,29 +139,9 @@ export class DiscountService {
     return "할인";
   }
 
-  // 할인 상태를 구독합니다.
-  subscribeToChanges(callback) {
-    return this.discountStore.subscribe(callback);
-  }
-
   // 현재 할인 상태를 반환합니다.
   getDiscountState() {
     return this.discountStore.getState();
-  }
-
-  // 할인을 초기화합니다.
-  resetDiscounts() {
-    this.discountStore.setState({
-      individualDiscounts: [],
-      bulkDiscountRate: 0,
-      bulkDiscountApplied: false,
-      tuesdayDiscountRate: 0,
-      tuesdayDiscountApplied: false,
-      totalDiscountRate: 0,
-      totalSavedAmount: 0,
-      hasAnyDiscount: false,
-      discountTypes: [],
-    });
   }
 
   // 현재 할인 상태가 적용된 상품 목록을 반환합니다.
