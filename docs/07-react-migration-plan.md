@@ -17,37 +17,36 @@
 
 ```
 src/advanced/
-├── types/           🔄 수정 예정 - 공통 타입만
-├── constants/       🔄 수정 예정 - 공통 상수만
+├── types/           ✅ 완료 - 공통 타입만 (IProduct)
+├── constants/       ✅ 완료 - 공통 상수만 (현재 없음)
 ├── utils/           ✅ 완료 - 공용 유틸리티 함수
 │   └── dateUtils.ts         (날짜 관련 순수 함수)
 ├── domains/         🔄 진행 예정 - 도메인별 React 훅
 │   ├── products/
-│   │   ├── constants.ts         (PRODUCT_IDS - 상품 ID 정의)
-│   │   ├── types.ts             (상품 관련 타입)
-│   │   ├── useProductData.ts    (상품 데이터 관리 훅)
+│   │   ├── constants.ts         ✅ 완료 (PRODUCT_IDS)
+│   │   ├── useProductData.ts    🎯 다음 (상품 데이터 관리 훅)
 │   │   └── ProductSelect.tsx    (상품 선택 컴포넌트)
 │   ├── cart/
-│   │   ├── types.ts             (ICartItem, ICartCalculation 등)
+│   │   ├── types.ts             ✅ 완료 (ICartItem, ICartCalculation 등)
 │   │   ├── useCartManager.ts    (장바구니 관리 훅)
 │   │   ├── CartDisplay.tsx      (장바구니 목록 컴포넌트)
 │   │   └── OrderSummary.tsx     (주문 요약 컴포넌트)
 │   ├── points/
-│   │   ├── constants.ts         (POINTS_RULES - 포인트 규칙)
-│   │   ├── types.ts             (IBonusPointsResult 등)
+│   │   ├── constants.ts         ✅ 완료 (POINTS_RULES)
+│   │   ├── types.ts             ✅ 완료 (IBonusPointsResult)
 │   │   ├── usePointsManager.ts  (포인트 관리 훅)
 │   │   └── PointsDisplay.tsx    (포인트 표시 컴포넌트)
 │   ├── stock/
-│   │   ├── constants.ts         (STOCK_THRESHOLDS - 재고 임계값)
+│   │   ├── constants.ts         ✅ 완료 (STOCK_THRESHOLDS)
 │   │   ├── useStockManager.ts   (재고 관리 훅)
 │   │   └── StockWarning.tsx     (재고 경고 컴포넌트)
 │   ├── discounts/
-│   │   ├── constants.ts         (DISCOUNT_RULES - 할인 규칙)
-│   │   ├── types.ts             (IDiscountData 등)
+│   │   ├── constants.ts         ✅ 완료 (DISCOUNT_RULES)
+│   │   ├── types.ts             ✅ 완료 (IDiscountData)
 │   │   ├── useDiscountManager.ts (할인 관리 훅)
 │   │   └── DiscountInfo.tsx     (할인 정보 컴포넌트)
 │   └── sales/
-│       ├── constants.ts         (SALE_INTERVALS - 세일 타이머)
+│       ├── constants.ts         ✅ 완료 (SALE_INTERVALS)
 │       └── useSpecialSales.ts   (특별 세일 타이머 훅)
 └── components/      🔄 진행 예정 - 레이아웃 컴포넌트
     ├── App.tsx              (메인 앱 컴포넌트)
@@ -63,28 +62,28 @@ src/advanced/
 
 ## 🚀 **마이그레이션 단계별 계획**
 
-### **0단계: 테스트 파일 마이그레이션** 🎯 **우선 진행**
+### **0단계: 테스트 파일 마이그레이션** ✅ **완료**
 
-- [ ] `src/basic/__tests__/basic.test.js` → `src/advanced/__tests__/advanced.test.js` 마이그레이션
-- [ ] React Testing Library 패턴으로 변환
-- [ ] DOM 조작 → React 컴포넌트 테스트로 변환
-- [ ] 모든 기존 테스트 케이스 동일하게 유지 (기능 검증 목적)
+- [x] `src/basic/__tests__/basic.test.js` → `src/advanced/__tests__/advanced.test.jsx` 마이그레이션
+- [x] React Testing Library 패턴으로 변환
+- [x] DOM 조작 → React 컴포넌트 테스트로 변환
+- [x] 모든 기존 테스트 케이스 동일하게 유지 (기능 검증 목적)
+- [x] PRD 명세와 100% 일치 확인
 
-### **1단계: 공통 모듈 설정** 🔄 **수정 필요**
+### **1단계: 공통 모듈 설정** ✅ **완료**
 
 - [x] 폴더 구조 생성 및 .gitkeep 추가
 - [x] utils/dateUtils.ts: 날짜 유틸리티 복사
-- [ ] **도메인별 상수/타입 분리**:
-  - [ ] products/constants.ts: PRODUCT_IDS
-  - [ ] points/constants.ts: POINTS_RULES
-  - [ ] stock/constants.ts: STOCK_THRESHOLDS
-  - [ ] discounts/constants.ts: DISCOUNT_RULES
-  - [ ] sales/constants.ts: SALE_INTERVALS
-  - [ ] cart/types.ts: ICartItem, ICartCalculation
-  - [ ] points/types.ts: IBonusPointsResult
-  - [ ] discounts/types.ts: IDiscountData
-  - [ ] products/types.ts: IProduct (필요 시)
-- [ ] **공통 모듈 정리**: types/, constants/ 폴더에는 진짜 공통으로 사용되는 것만
+- [x] **도메인별 상수/타입 분리**:
+  - [x] products/constants.ts: PRODUCT_IDS
+  - [x] points/constants.ts: POINTS_RULES
+  - [x] stock/constants.ts: STOCK_THRESHOLDS
+  - [x] discounts/constants.ts: DISCOUNT_RULES
+  - [x] sales/constants.ts: SALE_INTERVALS
+  - [x] cart/types.ts: ICartItem, ICartCalculation
+  - [x] points/types.ts: IBonusPointsResult
+  - [x] discounts/types.ts: IDiscountData
+- [x] **공통 모듈 정리**: types/, constants/ 폴더에는 진짜 공통으로 사용되는 것만
 
 ### **2단계: Products 도메인 React 훅 변환** 🎯 **다음**
 
@@ -442,9 +441,9 @@ function ProductSelect() {
 
 **다음 작업**:
 
-1. **0단계 완료**: `advanced.test.js` 마이그레이션
-2. **1단계 완료**: 도메인별 상수/타입 분리
-3. **2단계 시작**: `src/advanced/domains/products/useProductData.ts` 구현
+1. ✅ **0단계 완료**: `advanced.test.jsx` 마이그레이션
+2. ✅ **1단계 완료**: 도메인별 상수/타입 분리
+3. 🎯 **2단계 시작**: `src/advanced/domains/products/useProductData.ts` 구현
 
 ### **커밋 순서**
 
