@@ -108,7 +108,7 @@ export const getDiscountResult = (state: State) => {
       .map((rule) => rule.detail),
   ];
 
-  return { finalTotal, discounts: finalDiscounts };
+  return { finalTotal, discountDetails: finalDiscounts };
 };
 
 export const getBonusPoints = (state: State) => {
