@@ -3,7 +3,15 @@
 // ============================================
 
 import { TIMER_CONFIG } from './constants.js';
-import { DOMElements } from './domElements.js';
+import {
+  DOMElements,
+  safeSetTextContent,
+  safeSetInnerHTML,
+  safeAppendChild,
+  safeRemoveElement,
+  safeGetTextContent,
+  safeGetValue,
+} from './domElements.js';
 import { updateSelectOptions, calculateCart, updatePricesInCart } from './uiUpdates.js';
 
 // 전역 변수들 (main.basic.js에서 설정됨) - 점진적 정리 중
@@ -35,7 +43,7 @@ export const setupEventListeners = (addButton) => {
 
 // 장바구니에 상품 추가
 const handleAddToCart = () => {
-  const selectedProductId = productSelector.value;
+  const selectedProductId = safeGetValue(productSelector);
 
   if (!selectedProductId) return;
 
@@ -47,10 +55,11 @@ const handleAddToCart = () => {
   if (existingItem) {
     // 기존 아이템 수량 증가
     const quantityElement = DOMElements.getQuantityElement(product.id);
-    const newQuantity = parseInt(quantityElement.textContent) + 1;
+    const currentQuantity = parseInt(safeGetTextContent(quantityElement) || '0');
+    const newQuantity = currentQuantity + 1;
 
-    if (newQuantity <= product.quantity + parseInt(quantityElement.textContent)) {
-      quantityElement.textContent = newQuantity;
+    if (newQuantity <= product.quantity + currentQuantity) {
+      safeSetTextContent(quantityElement, newQuantity.toString());
       product.quantity--;
     } else {
       alert('재고가 부족합니다.');
@@ -59,7 +68,7 @@ const handleAddToCart = () => {
   } else {
     // 새 아이템 추가
     const newItem = createCartItemElement(product);
-    cartDisplay.appendChild(newItem);
+    safeAppendChild(cartDisplay, newItem);
     product.quantity--;
   }
 
@@ -89,7 +98,9 @@ const createCartItemElement = (product) => {
       ? `<span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span> <span class="${product.onSale && product.suggestSale ? 'text-purple-600' : product.onSale ? 'text-red-500' : 'text-blue-500'}">₩${product.value.toLocaleString()}</span>`
       : `₩${product.value.toLocaleString()}`;
 
-  newItem.innerHTML = `
+  safeSetInnerHTML(
+    newItem,
+    `
     <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
       <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
     </div>
@@ -107,7 +118,8 @@ const createCartItemElement = (product) => {
       <div class="text-lg mb-2 tracking-tight tabular-nums">${priceDisplay}</div>
       <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${product.id}">Remove</a>
     </div>
-  `;
+  `,
+  );
 
   return newItem;
 };
@@ -129,30 +141,30 @@ const handleCartInteraction = (event) => {
   if (target.classList.contains('quantity-change')) {
     const quantityChange = parseInt(target.dataset.change);
     const quantityElement = DOMElements.getQuantityElement(productId);
-    const currentQuantity = parseInt(quantityElement.textContent);
+    const currentQuantity = parseInt(safeGetTextContent(quantityElement) || '0');
     const newQuantity = currentQuantity + quantityChange;
 
     // 재고 계산 수정: 현재 장바구니 수량을 고려한 재고 확인
     const availableStock = product.quantity + currentQuantity;
 
     if (newQuantity > 0 && newQuantity <= availableStock) {
-      quantityElement.textContent = newQuantity;
+      safeSetTextContent(quantityElement, newQuantity.toString());
       // 재고 업데이트: 실제로 사용된 수량만큼만 차감
       product.quantity = availableStock - newQuantity;
     } else if (newQuantity <= 0) {
       // 수량이 0이 되면 재고를 모두 복구하고 아이템 제거
       product.quantity = availableStock;
-      itemElement.remove();
+      safeRemoveElement(itemElement);
     } else {
       alert('재고가 부족합니다.');
       return;
     }
   } else if (target.classList.contains('remove-item')) {
     const quantityElement = DOMElements.getQuantityElement(productId);
-    const removedQuantity = parseInt(quantityElement.textContent);
+    const removedQuantity = parseInt(safeGetTextContent(quantityElement) || '0');
     // Remove 버튼: 현재 장바구니 수량을 재고에 복구
     product.quantity += removedQuantity;
-    itemElement.remove();
+    safeRemoveElement(itemElement);
   }
 
   calculateCart();

@@ -56,6 +56,41 @@ export const DOMElements = {
     return item ? item.querySelector('.quantity-number') : null;
   },
 
+  // 추가 DOM 요소 접근 메서드들
+  getCartItemPriceElement(productId) {
+    const item = this.getCartItem(productId);
+    return item ? item.querySelector('.text-lg') : null;
+  },
+
+  getCartItemNameElement(productId) {
+    const item = this.getCartItem(productId);
+    return item ? item.querySelector('h3') : null;
+  },
+
+  getCartItemQuantityElement(productId) {
+    const item = this.getCartItem(productId);
+    return item ? item.querySelector('.quantity-number') : null;
+  },
+
+  getCartItems() {
+    return Array.from(this.getCartDisplay().children || []);
+  },
+
+  getCartItemQuantity(productId) {
+    const quantityElement = this.getQuantityElement(productId);
+    return quantityElement ? parseInt(quantityElement.textContent) : 0;
+  },
+
+  getProductSelectorOptions() {
+    const selector = this.getProductSelector();
+    return selector ? Array.from(selector.options) : [];
+  },
+
+  getTotalDiv() {
+    const cartTotal = this.getCartTotal();
+    return cartTotal ? cartTotal.querySelector('.text-2xl') : null;
+  },
+
   // 모든 DOM 요소를 한 번에 가져오기
   getAllElements() {
     return {
@@ -109,4 +144,116 @@ export const safeToggleClass = (element, className, condition) => {
       element.classList.add(className);
     }
   }
+};
+
+// 추가 DOM 조작 헬퍼 함수들
+export const safeAppendChild = (parent, child) => {
+  if (hasElement(parent) && hasElement(child)) {
+    parent.appendChild(child);
+  }
+};
+
+export const safeRemoveElement = (element) => {
+  if (hasElement(element) && element.parentNode) {
+    element.parentNode.removeChild(element);
+  }
+};
+
+export const safeQuerySelector = (element, selector) => {
+  return hasElement(element) ? element.querySelector(selector) : null;
+};
+
+export const safeQuerySelectorAll = (element, selector) => {
+  return hasElement(element) ? Array.from(element.querySelectorAll(selector)) : [];
+};
+
+export const safeGetAttribute = (element, attribute) => {
+  return hasElement(element) ? element.getAttribute(attribute) : null;
+};
+
+export const safeSetAttribute = (element, attribute, value) => {
+  if (hasElement(element)) {
+    element.setAttribute(attribute, value);
+  }
+};
+
+export const safeGetValue = (element) => {
+  return hasElement(element) ? element.value : null;
+};
+
+export const safeSetValue = (element, value) => {
+  if (hasElement(element)) {
+    element.value = value;
+  }
+};
+
+export const safeGetTextContent = (element) => {
+  return hasElement(element) ? element.textContent : '';
+};
+
+export const safeGetInnerHTML = (element) => {
+  return hasElement(element) ? element.innerHTML : '';
+};
+
+// 특화된 DOM 조작 함수들
+export const safeUpdateQuantity = (productId, newQuantity) => {
+  const quantityElement = DOMElements.getQuantityElement(productId);
+  safeSetTextContent(quantityElement, newQuantity.toString());
+};
+
+export const safeUpdateCartItemPrice = (productId, priceHTML) => {
+  const priceElement = DOMElements.getCartItemPriceElement(productId);
+  safeSetInnerHTML(priceElement, priceHTML);
+};
+
+export const safeUpdateCartItemName = (productId, name) => {
+  const nameElement = DOMElements.getCartItemNameElement(productId);
+  safeSetTextContent(nameElement, name);
+};
+
+export const safeClearProductSelector = () => {
+  const selector = DOMElements.getProductSelector();
+  safeSetInnerHTML(selector, '');
+};
+
+export const safeAddProductOption = (option) => {
+  const selector = DOMElements.getProductSelector();
+  if (hasElement(selector)) {
+    selector.appendChild(option);
+  }
+};
+
+export const safeUpdateTotalDisplay = (total) => {
+  const totalDiv = DOMElements.getTotalDiv();
+  safeSetTextContent(totalDiv, `₩${Math.round(total).toLocaleString()}`);
+};
+
+export const safeUpdateItemCount = (count) => {
+  const itemCount = DOMElements.getItemCount();
+  safeSetTextContent(itemCount, `🛍️ ${count} items in cart`);
+};
+
+export const safeUpdateStockInfo = (message) => {
+  const stockInfo = DOMElements.getStockInfo();
+  safeSetTextContent(stockInfo, message);
+};
+
+export const safeUpdateLoyaltyPoints = (pointsHTML) => {
+  const loyaltyPoints = DOMElements.getLoyaltyPoints();
+  safeSetInnerHTML(loyaltyPoints, pointsHTML);
+};
+
+export const safeUpdateDiscountInfo = (discountHTML) => {
+  const discountInfo = DOMElements.getDiscountInfo();
+  safeSetInnerHTML(discountInfo, discountHTML);
+};
+
+export const safeUpdateSummaryDetails = (summaryHTML) => {
+  const summaryDetails = DOMElements.getSummaryDetails();
+  safeSetInnerHTML(summaryDetails, summaryHTML);
+};
+
+export const safeToggleTuesdaySpecial = (show) => {
+  const tuesdaySpecial = DOMElements.getTuesdaySpecial();
+  safeToggleClass(tuesdaySpecial, 'hidden', show);
 };
