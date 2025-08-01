@@ -1,10 +1,22 @@
-import { productList } from '@basic/features/product/constants';
+import type { Product } from '@advanced/feature/product/type';
 import { getProductOptionStyle, getSalesInfoText, isOutOfStock } from '@basic/features/product/service';
+import type { ChangeEvent } from 'react';
 
-const ProductSelector = () => {
+interface Props {
+  products: Product[];
+  value: string;
+  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+}
+
+const ProductSelector = ({ products, onChange, value }: Props) => {
   return (
-    <select className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3" id="product-select">
-      {productList.map((product) => (
+    <select
+      className="w-full p-3 border border-gray-300 rounded-lg text-base mb-3"
+      id="product-select"
+      value={value}
+      onChange={onChange}
+    >
+      {products.map((product) => (
         <option
           key={product.id}
           className={getProductOptionStyle(product)}
