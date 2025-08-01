@@ -1,6 +1,7 @@
 import Header from '@advanced/components/Header';
 import ProductSelector from '@advanced/components/ProductSelector';
 import { productList } from '@advanced/feature/product/constant';
+import { getStockInfo } from '@basic/features/product/service';
 import { type ChangeEvent, useState } from 'react';
 
 const App = () => {
@@ -27,7 +28,9 @@ const App = () => {
             >
               Add to Cart
             </button>
-            <div className="text-xs text-red-500 mt-3 whitespace-pre-line" id="stock-status"></div>
+            <div className="text-xs text-red-500 mt-3 whitespace-pre-line" id="stock-status">
+              {products.map(getStockInfo).filter(Boolean).join('\n')}
+            </div>
           </div>
           {/* cartContainerEl */}
           <div id="cart-items"></div>
