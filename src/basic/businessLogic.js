@@ -40,6 +40,13 @@ export const calculateCartState = (cartItems, products) => {
 export const updateAppState = (cartState, AppState) => {
   AppState.cart.totalAmount = cartState.totalAmount;
   AppState.cart.itemCount = cartState.itemCount;
+  // 포인트 계산 및 업데이트
+  const pointsResult = calculateAllPoints(
+    cartState.totalAmount,
+    cartState.cartItems,
+    cartState.itemCount,
+  );
+  AppState.cart.bonusPoints = pointsResult.finalPoints;
 };
 
 // 장바구니 아이템 계산 (원본 로직과 동일)
@@ -87,7 +94,7 @@ const calculateTotalWithDiscounts = (
 
   // 1. 대량구매 할인 적용 (30개 이상이면 전체 소계에 25% 할인)
   if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
-    totalAmount = subtotal * (1 - DISCOUNT_RATES.BULK_PURCHASE);
+    totalAmount = individualDiscountedTotal * (1 - DISCOUNT_RATES.BULK_PURCHASE);
     discountRate = DISCOUNT_RATES.BULK_PURCHASE;
   } else {
     // 개별 할인만 적용된 경우 할인율 계산
@@ -98,10 +105,11 @@ const calculateTotalWithDiscounts = (
   const tuesdayDiscount = calculateTuesdayDiscount(totalAmount);
   if (tuesdayDiscount > 0) {
     totalAmount -= tuesdayDiscount;
+    // 화요일 할인이 추가로 적용된 경우 총 할인율 재계산
     discountRate = 1 - totalAmount / originalTotal;
   }
 
-  return { totalAmount, discountRate, tuesdayDiscount };
+  return { totalAmount, discountRate };
 };
 
 // 개별 상품 할인 계산
