@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import App from "../src/App";
+import { App } from "../src/App";
 
 describe("advanced 테스트", () => {
 	// 공통 헬퍼 함수
@@ -495,18 +495,19 @@ describe("advanced 테스트", () => {
 				describe("5.5 도움말 모달", () => {
 					it("도움말 버튼 클릭 시 모달 표시", async () => {
 						const user = userEvent.setup();
-						const helpButton = document.querySelector(".fixed.top-4.right-4") as HTMLElement;
 
-						// 초기 상태: 모달이 존재하지 않음
-						expect(document.querySelector(".fixed.inset-0")).toBeNull();
+						const helpButton = document.querySelector(".fixed.top-4.right-4") as HTMLElement;
+						const modal = document.querySelector(".fixed.inset-0") as HTMLElement;
+						const slidePanel = document.querySelector(".fixed.right-0.top-0") as HTMLElement;
+
+						// 초기 상태: 숨김
+						expect(modal.classList.contains("hidden")).toBe(true);
+						expect(slidePanel.classList.contains("translate-x-full")).toBe(true);
 
 						// 클릭 후: 표시
 						await act(async () => {
 							await user.click(helpButton);
 						});
-
-						const modal = document.querySelector(".fixed.inset-0") as HTMLElement;
-						const slidePanel = document.querySelector(".fixed.right-0.top-0") as HTMLElement;
 
 						expect(modal).toBeTruthy();
 						expect(slidePanel).toBeTruthy();
@@ -530,8 +531,7 @@ describe("advanced 테스트", () => {
 							await user.click(modal);
 						});
 
-						// 모달이 닫혔는지 확인 (DOM에서 제거됨)
-						expect(document.querySelector(".fixed.inset-0")).toBeNull();
+						expect(modal.classList.contains("hidden")).toBe(true);
 					});
 				});
 			});
