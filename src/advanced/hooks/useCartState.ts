@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Product } from '../types'
 import { 
   initializeState, 
   getProducts as getProductsFromState, 
@@ -13,8 +12,6 @@ import {
   setLastSelectedProductId 
 } from '../store/state'
 import { updateCart as updateCartService } from '../services/discount'
-// ❌ updateProductOptions는 DOM 조작하므로 제거
-// import { updateProductOptions as updateProductOptionsService } from '../services/product'
 
 export function useShoppingCartState() {
   const [, forceUpdate] = useState({})
@@ -46,7 +43,6 @@ export function useShoppingCartState() {
     updateProductInState(productId, { stock: product.stock - 1 })
     setLastSelectedProductId(productId)
     updateCartService()
-    // ❌ updateProductOptionsService() 제거 - React가 자동으로 리렌더링
     triggerUpdate()
   }, [triggerUpdate])
 
@@ -74,7 +70,6 @@ export function useShoppingCartState() {
     }
 
     updateCartService()
-    // ❌ updateProductOptionsService() 제거
     triggerUpdate()
   }, [triggerUpdate])
 
@@ -92,7 +87,6 @@ export function useShoppingCartState() {
     setCartQuantity(productId, 0)
 
     updateCartService()
-    // ❌ updateProductOptionsService() 제거
     triggerUpdate()
   }, [triggerUpdate])
 
@@ -101,10 +95,9 @@ export function useShoppingCartState() {
     triggerUpdate()
   }, [triggerUpdate])
 
-  // ❌ updateProductOptions 제거 - React 컴포넌트에서 자동 처리
   const updateProductOptions = useCallback(() => {
     // React에서는 상태 변경 시 자동으로 리렌더링되므로 
-    // DOM 조작이 필요 없음
+    // 단순히 리렌더링만 트리거
     triggerUpdate()
   }, [triggerUpdate])
 
@@ -119,6 +112,6 @@ export function useShoppingCartState() {
     changeQuantity,
     removeFromCart,
     updateCart,
-    updateProductOptions, // 빈 함수로 유지 (호환성 위해)
+    updateProductOptions,
   }
 }
