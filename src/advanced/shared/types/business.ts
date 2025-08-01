@@ -24,6 +24,10 @@ export interface BusinessConstants {
   POINTS_RATE: number;
   TUESDAY_POINTS_MULTIPLIER: number;
 
+  // 프로모션 할인율
+  LIGHTNING_SALE_DISCOUNT_RATE: number;
+  SUGGESTED_SALE_DISCOUNT_RATE: number;
+
   // UI 관련
   TUESDAY_DAY_OF_WEEK: number;
 }

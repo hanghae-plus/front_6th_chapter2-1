@@ -36,6 +36,10 @@ export const BUSINESS_CONSTANTS: BusinessConstants = {
   POINTS_RATE: 0.001, // 0.1%
   TUESDAY_POINTS_MULTIPLIER: 2,
 
+  // 프로모션 할인율
+  LIGHTNING_SALE_DISCOUNT_RATE: 0.2, // 20% 할인
+  SUGGESTED_SALE_DISCOUNT_RATE: 0.05, // 5% 할인
+
   // UI 관련
   TUESDAY_DAY_OF_WEEK: 2,
 };

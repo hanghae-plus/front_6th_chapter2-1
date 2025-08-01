@@ -111,7 +111,7 @@ export const usePricing = (cartItems: CartItem[], products: Product[]): UsePrici
       discounts.push({
         type: 'lightning',
         name: '번개세일 할인',
-        rate: 0.2,
+        rate: BUSINESS_CONSTANTS.LIGHTNING_SALE_DISCOUNT_RATE,
         amount: lightningDiscountAmount,
         description: '번개세일 20% 할인',
       });
@@ -130,7 +130,7 @@ export const usePricing = (cartItems: CartItem[], products: Product[]): UsePrici
       discounts.push({
         type: 'suggested',
         name: '추천상품 할인',
-        rate: 0.05,
+        rate: BUSINESS_CONSTANTS.SUGGESTED_SALE_DISCOUNT_RATE,
         amount: suggestedDiscountAmount,
         description: '추천상품 5% 할인',
       });

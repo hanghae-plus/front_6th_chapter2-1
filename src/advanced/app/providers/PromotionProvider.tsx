@@ -4,7 +4,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { PromotionContextType, Product } from '../../shared/types';
-import { PROMOTION_TIMERS } from '../../shared/constants';
+import { PROMOTION_TIMERS, BUSINESS_CONSTANTS } from '../../shared/constants';
 // import { useCart } from './CartProvider'; // 순환 의존성 방지
 
 const PromotionContext = createContext<PromotionContextType | null>(null);
@@ -49,7 +49,7 @@ export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({
           ? {
               ...p,
               onSale: true,
-              val: Math.round(p.originalVal * 0.8), // 20% 할인
+              val: Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.LIGHTNING_SALE_DISCOUNT_RATE)), // 20% 할인
             }
           : p
       );
@@ -84,7 +84,7 @@ export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({
       const resetProducts = products.map(p => ({
         ...p,
         suggestSale: false,
-        val: p.onSale ? Math.round(p.originalVal * 0.8) : p.originalVal, // 번개세일은 유지
+        val: p.onSale ? Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.LIGHTNING_SALE_DISCOUNT_RATE)) : p.originalVal, // 번개세일은 유지
       }));
 
       // 마지막 선택 상품 제외한 나머지 상품에 5% 할인 적용
@@ -94,8 +94,8 @@ export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({
               ...p,
               suggestSale: true,
               val: p.onSale 
-                ? Math.round(p.originalVal * 0.8 * 0.95) // 번개세일 + 추천할인
-                : Math.round(p.originalVal * 0.95), // 추천할인만
+                ? Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.LIGHTNING_SALE_DISCOUNT_RATE) * (1 - BUSINESS_CONSTANTS.SUGGESTED_SALE_DISCOUNT_RATE)) // 번개세일 + 추천할인
+                : Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.SUGGESTED_SALE_DISCOUNT_RATE)), // 추천할인만
             }
           : p
       );
