@@ -56,7 +56,14 @@ export default [
         'error',
         {
           singleQuote: true,
-          parser: 'flow',
+          jsxSingleQuote: true,
+          semi: true,
+          tabWidth: 2,
+          bracketSpacing: true,
+          bracketSameLine: false,
+          arrowParens: 'always',
+          printWidth: 80,
+          endOfLine: 'auto',
         },
       ],
       'comma-dangle': [
