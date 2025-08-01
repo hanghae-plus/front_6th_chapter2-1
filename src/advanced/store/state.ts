@@ -1,8 +1,8 @@
 // store/state.ts
 import { initializeProducts } from '../data/products.js';
-import type { Product, CartItems, Elements } from '../types/index.js';
+import type { Product, CartItems } from '../types/index.js';
 
-// 전역 상태
+// 전역 상태 (Elements 제거)
 let state = {
   products: [] as Product[],
   cartItems: {} as CartItems,
@@ -10,7 +10,6 @@ let state = {
   totalAmount: 0,
   totalQuantity: 0,
   bonusPoints: 0,
-  elements: {} as Elements,
 };
 
 // 상태 초기화
@@ -56,8 +55,9 @@ export function getBonusPoints(): number {
   return state.bonusPoints;
 }
 
-export function getElements(): Elements {
-  return state.elements;
+// Elements 관련 함수들은 호환성을 위해 유지하되 빈 객체 반환
+export function getElements(): any {
+  return {};
 }
 
 // Setters
@@ -96,6 +96,6 @@ export function setBonusPoints(points: number): void {
   state.bonusPoints = points;
 }
 
-export function setElements(elements: Elements): void {
-  state.elements = elements;
+export function setElements(elements: any): void {
+  // React에서는 사용하지 않으므로 빈 함수로 유지
 }

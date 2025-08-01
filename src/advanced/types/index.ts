@@ -22,17 +22,18 @@ export interface AppState {
   bonusPoints: number;
 }
 
+// Elements 인터페이스는 호환성을 위해 유지하되 optional로 변경
 export interface Elements {
-  productSelect: HTMLSelectElement;
-  addButton: HTMLButtonElement;
-  cartItems: HTMLElement;
-  cartTotal: HTMLElement;
-  stockInfo: HTMLElement;
-  itemCount: HTMLElement;
-  loyaltyPoints: HTMLElement;
-  discountInfo: HTMLElement;
-  tuesdaySpecial: HTMLElement;
-  summaryDetails: HTMLElement;
+  productSelect?: HTMLSelectElement;
+  addButton?: HTMLButtonElement;
+  cartItems?: HTMLElement;
+  cartTotal?: HTMLElement;
+  stockInfo?: HTMLElement;
+  itemCount?: HTMLElement;
+  loyaltyPoints?: HTMLElement;
+  discountInfo?: HTMLElement;
+  tuesdaySpecial?: HTMLElement;
+  summaryDetails?: HTMLElement;
 }
 
 export interface ItemDiscount {

@@ -1,30 +1,12 @@
 // event/eventHandlers.ts
-import { getElements } from '../store/state.js';
 import { addToCart, changeQuantity, removeFromCart } from '../services/cart.js';
 
-// 이벤트 핸들러 설정
+// React에서는 컴포넌트에서 직접 이벤트를 처리하므로 
+// 이 함수는 호환성을 위해 빈 함수로 유지
 export function setupEventHandlers(): void {
-  const elements = getElements();
-
-  // 상품 추가 버튼
-  elements.addButton.addEventListener('click', function () {
-    const selectedProductId = elements.productSelect.value;
-    if (selectedProductId) {
-      addToCart(selectedProductId);
-    }
-  });
-
-  // 장바구니 클릭 이벤트 (이벤트 위임)
-  elements.cartItems.addEventListener('click', function (event) {
-    const target = event.target as HTMLElement;
-
-    if (target.classList.contains('quantity-change')) {
-      const productId = target.dataset.productId!;
-      const change = parseInt(target.dataset.change!);
-      changeQuantity(productId, change);
-    } else if (target.classList.contains('remove-item')) {
-      const productId = target.dataset.productId!;
-      removeFromCart(productId);
-    }
-  });
+  // React 컴포넌트에서 onClick, onChange 등으로 직접 처리
+  // 더 이상 DOM 이벤트 리스너를 직접 등록하지 않음
 }
+
+// 기존 서비스 함수들은 여전히 export하여 다른 곳에서 사용 가능
+export { addToCart, changeQuantity, removeFromCart };

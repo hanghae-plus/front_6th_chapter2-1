@@ -21,16 +21,18 @@ export function toggleElement(element: HTMLElement): void {
 }
 
 export function initializeDOMElements(): Elements {
+  // React에서는 더 이상 사용하지 않지만 호환성을 위해 유지
+  // 빈 객체를 반환하여 오류 방지
   return {
-    productSelect: document.getElementById('product-select') as HTMLSelectElement,
-    addButton: document.getElementById('add-to-cart') as HTMLButtonElement,
-    cartItems: document.getElementById('cart-items') as HTMLElement,
-    cartTotal: document.getElementById('cart-total') as HTMLElement,
-    stockInfo: document.getElementById('stock-status') as HTMLElement,
-    itemCount: document.getElementById('item-count') as HTMLElement,
-    loyaltyPoints: document.getElementById('loyalty-points') as HTMLElement,
-    discountInfo: document.getElementById('discount-info') as HTMLElement,
-    tuesdaySpecial: document.getElementById('tuesday-special') as HTMLElement,
-    summaryDetails: document.getElementById('summary-details') as HTMLElement,
+    productSelect: document.createElement('select') as HTMLSelectElement,
+    addButton: document.createElement('button') as HTMLButtonElement,
+    cartItems: document.createElement('div') as HTMLElement,
+    cartTotal: document.createElement('div') as HTMLElement,
+    stockInfo: document.createElement('div') as HTMLElement,
+    itemCount: document.createElement('div') as HTMLElement,
+    loyaltyPoints: document.createElement('div') as HTMLElement,
+    discountInfo: document.createElement('div') as HTMLElement,
+    tuesdaySpecial: document.createElement('div') as HTMLElement,
+    summaryDetails: document.createElement('div') as HTMLElement,
   };
 }
