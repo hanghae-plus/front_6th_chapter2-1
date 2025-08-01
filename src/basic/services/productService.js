@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 import { ProductStore } from "../store/productStore.js";
 import { QUANTITY_THRESHOLDS, DISCOUNT_RATES } from "../constants/index.js";
 
@@ -11,7 +10,7 @@ export class ProductService {
   // 상품 검증 (비즈니스 로직)
   validateProduct(productId) {
     const { products } = this.productStore.getState();
-    const product = products.find(product => product.id === productId);
+    const product = products.find(item => item.id === productId);
     return product && product.quantity > 0;
   }
 
@@ -37,15 +36,16 @@ export class ProductService {
     const randomProduct = this.selectRandomProduct();
     if (randomProduct && !randomProduct.onSale) {
       const { products } = this.productStore.getState();
-      const updatedProducts = products.map(product =>
-        product.id === randomProduct.id
-          ? {
-              ...product,
-              price: Math.round(product.originalPrice * DISCOUNT_RATES.LIGHTNING_SALE),
-              onSale: true,
-            }
-          : product
-      );
+      const updatedProducts = products.map(product => {
+        if (product.id === randomProduct.id) {
+          return {
+            ...product,
+            price: Math.round(product.originalPrice * DISCOUNT_RATES.LIGHTNING_SALE),
+            onSale: true,
+          };
+        }
+        return product;
+      });
 
       this.productStore.setState({ products: updatedProducts });
 
@@ -63,15 +63,16 @@ export class ProductService {
     const suggestionProduct = this.findSuggestionProduct(selectedProductId);
     if (suggestionProduct) {
       const { products } = this.productStore.getState();
-      const updatedProducts = products.map(product =>
-        product.id === suggestionProduct.id
-          ? {
-              ...product,
-              price: Math.round(product.price * DISCOUNT_RATES.SUGGEST_SALE),
-              suggestSale: true,
-            }
-          : product
-      );
+      const updatedProducts = products.map(product => {
+        if (product.id === suggestionProduct.id) {
+          return {
+            ...product,
+            price: Math.round(product.price * DISCOUNT_RATES.SUGGEST_SALE),
+            suggestSale: true,
+          };
+        }
+        return product;
+      });
 
       this.productStore.setState({ products: updatedProducts });
 
@@ -141,16 +142,17 @@ export class ProductService {
   // 원래 가격으로 복원
   resetPrice(productId) {
     const { products } = this.productStore.getState();
-    const updatedProducts = products.map(product =>
-      product.id === productId
-        ? {
-            ...product,
-            price: product.originalPrice,
-            onSale: false,
-            suggestSale: false,
-          }
-        : product
-    );
+    const updatedProducts = products.map(product => {
+      if (product.id === productId) {
+        return {
+          ...product,
+          price: product.originalPrice,
+          onSale: false,
+          suggestSale: false,
+        };
+      }
+      return product;
+    });
 
     this.productStore.setState({ products: updatedProducts });
     return true;
