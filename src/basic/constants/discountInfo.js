@@ -1,0 +1,17 @@
+/**
+ * 할인 관련 상수 정의
+ */
+export const DISCOUNT_THRESHOLDS = {
+  INDIVIDUAL_ITEM: 10,
+  BULK_PURCHASE: 30,
+};
+
+export const DISCOUNT_RATES = {
+  KEYBOARD: 0.1,
+  MOUSE: 0.15,
+  MONITOR_ARM: 0.2,
+  LAPTOP_CASE: 0.05,
+  SPEAKER: 0.25,
+  BULK_PURCHASE: 0.25,
+  TUESDAY: 0.1,
+};
