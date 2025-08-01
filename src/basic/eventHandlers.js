@@ -109,13 +109,13 @@ const createCartItemElement = (product) => {
 
 // 장바구니 상호작용 처리
 const handleCartInteraction = (event) => {
-  const target = event.target;
+  const { target } = event;
 
   if (!target.classList.contains('quantity-change') && !target.classList.contains('remove-item')) {
     return;
   }
 
-  const productId = target.dataset.productId;
+  const { productId } = target.dataset;
   const itemElement = document.getElementById(productId);
   const product = productList.find((p) => p.id === productId);
 
