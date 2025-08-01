@@ -5,8 +5,6 @@ import { App } from "./App";
 
 const rootElement = document.getElementById("app");
 
-window.alert = console.log;
-
 if (!rootElement) {
 	throw new Error('Root element with id "app" not found');
 }
