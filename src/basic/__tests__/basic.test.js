@@ -1,5 +1,5 @@
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
-import userEvent from "@testing-library/user-event";
+import userEvent from '@testing-library/user-event';
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 
 describe('basic 테스트', () => {
   // 공통 헬퍼 함수

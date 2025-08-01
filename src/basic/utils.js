@@ -34,12 +34,11 @@ const getCachedTuesdayCheck = () => {
 export const isTuesdayDay = () => getCachedTuesdayCheck();
 
 // 상품 ID로 상품 찾기
-export function findProductById(productList, productId) {
-  return productList.find((product) => product.id === productId);
-}
+export const findProductById = (productList, productId) =>
+  productList.find((product) => product.id === productId);
 
 // 개별 상품 할인율 계산
-export function getIndividualDiscountRate(productId, quantity) {
+export const getIndividualDiscountRate = (productId, quantity) => {
   if (quantity < QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
     return 0;
   }
@@ -53,15 +52,14 @@ export function getIndividualDiscountRate(productId, quantity) {
   };
 
   return discountRates[productId] || 0;
-}
+};
 
 // 총 재고 계산
-export function getTotalStock(productList) {
-  return productList.reduce((total, product) => total + product.quantity, 0);
-}
+export const getTotalStock = (productList) =>
+  productList.reduce((total, product) => total + product.quantity, 0);
 
 // 재고 상태 메시지 생성
-export function getStockStatusMessage(productList) {
+export const getStockStatusMessage = (productList) => {
   let message = '';
 
   productList.forEach((product) => {
@@ -75,10 +73,10 @@ export function getStockStatusMessage(productList) {
   });
 
   return message;
-}
+};
 
 // 포인트 계산 함수
-export function calculatePoints(totalAmount, cartItems, itemCount) {
+export const calculatePoints = (totalAmount, cartItems, itemCount) => {
   let finalPoints = Math.floor(totalAmount / POINTS_CONFIG.POINTS_DIVISOR);
   const pointsDetail = [];
 
@@ -93,9 +91,10 @@ export function calculatePoints(totalAmount, cartItems, itemCount) {
   }
 
   // 세트 보너스
-  const hasKeyboard = cartItems.some((item) => item.id === PRODUCT_ONE);
-  const hasMouse = cartItems.some((item) => item.id === PRODUCT_TWO);
-  const hasMonitorArm = cartItems.some((item) => item.id === PRODUCT_THREE);
+  const cartItemsArray = Array.from(cartItems);
+  const hasKeyboard = cartItemsArray.some((item) => item.id === PRODUCT_ONE);
+  const hasMouse = cartItemsArray.some((item) => item.id === PRODUCT_TWO);
+  const hasMonitorArm = cartItemsArray.some((item) => item.id === PRODUCT_THREE);
 
   if (hasKeyboard && hasMouse) {
     finalPoints += POINTS_CONFIG.KEYBOARD_MOUSE_BONUS;
@@ -108,16 +107,16 @@ export function calculatePoints(totalAmount, cartItems, itemCount) {
   }
 
   // 수량 보너스
-  if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
-    finalPoints += POINTS_CONFIG.BONUS_30_ITEMS;
-    pointsDetail.push('대량구매(30개+) +100p');
-  } else if (itemCount >= 20) {
-    finalPoints += POINTS_CONFIG.BONUS_20_ITEMS;
-    pointsDetail.push('대량구매(20개+) +50p');
-  } else if (itemCount >= QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
-    finalPoints += POINTS_CONFIG.BONUS_10_ITEMS;
-    pointsDetail.push('대량구매(10개+) +20p');
+  if (itemCount >= QUANTITY_THRESHOLDS.BONUS_30) {
+    finalPoints += POINTS_CONFIG.BONUS_30;
+    pointsDetail.push(`대량구매(30개+) +${POINTS_CONFIG.BONUS_30}p`);
+  } else if (itemCount >= QUANTITY_THRESHOLDS.BONUS_20) {
+    finalPoints += POINTS_CONFIG.BONUS_20;
+    pointsDetail.push(`대량구매(20개+) +${POINTS_CONFIG.BONUS_20}p`);
+  } else if (itemCount >= QUANTITY_THRESHOLDS.BONUS_10) {
+    finalPoints += POINTS_CONFIG.BONUS_10;
+    pointsDetail.push(`대량구매(10개+) +${POINTS_CONFIG.BONUS_10}p`);
   }
 
   return { finalPoints, pointsDetail };
-}
+};
