@@ -3,7 +3,10 @@
 // ============================================
 
 import { PRODUCT_IDS, DISCOUNT_RATES, QUANTITY_THRESHOLDS, POINTS_CONFIG } from './constants.js';
-import { isTuesday, findProductById } from './utils.js';
+import { isTuesdayDay, findProductById } from './utils.js';
+
+// 캐싱을 위한 Map
+const discountCache = new Map();
 
 // 안전한 계산을 위한 헬퍼 함수들
 const safeCalculate = (fn, fallback = 0) => {
@@ -24,9 +27,23 @@ const safeFindProduct = (products, productId) => {
   return product;
 };
 
+// 캐시된 할인 계산
+const getCachedDiscount = (productId, quantity) => {
+  const cacheKey = `${productId}-${quantity}`;
+
+  if (discountCache.has(cacheKey)) {
+    return discountCache.get(cacheKey);
+  }
+
+  const discount = calculateIndividualDiscount(productId, quantity);
+  discountCache.set(cacheKey, discount);
+
+  return discount;
+};
+
 // 장바구니 상태 계산 함수 (원본 로직과 동일)
-export const calculateCartState = (cartItems, products) => {
-  return safeCalculate(
+export const calculateCartState = (cartItems, products) =>
+  safeCalculate(
     () => {
       // 1. 장바구니 아이템 계산 (개별 할인 포함)
       const {
@@ -54,7 +71,6 @@ export const calculateCartState = (cartItems, products) => {
     },
     { subtotal: 0, itemCount: 0, itemDiscounts: [], totalAmount: 0, discountRate: 0 },
   );
-};
 
 // AppState 업데이트 함수
 export const updateAppState = (cartState, AppState) => {
@@ -69,8 +85,8 @@ export const updateAppState = (cartState, AppState) => {
 };
 
 // 장바구니 아이템 계산 (개선된 버전)
-const calculateCartItems = (cartItems, products) => {
-  return cartItems.reduce(
+const calculateCartItems = (cartItems, products) =>
+  cartItems.reduce(
     (acc, cartItem) => {
       const currentProduct = safeFindProduct(products, cartItem.productId);
 
@@ -83,7 +99,7 @@ const calculateCartItems = (cartItems, products) => {
 
       // 개별 함수로 분리
       const itemTotal = calculateItemTotal(currentProduct, quantity);
-      const discount = calculateIndividualDiscount(currentProduct.id, quantity);
+      const discount = getCachedDiscount(currentProduct.id, quantity);
 
       // 누적 계산을 별도 함수로 분리
       updateCartAccumulator(acc, {
@@ -97,7 +113,6 @@ const calculateCartItems = (cartItems, products) => {
     },
     { subtotal: 0, itemCount: 0, totalAmount: 0, itemDiscounts: [] },
   );
-};
 
 // 개별 아이템 총액 계산
 const calculateItemTotal = (product, quantity) => product.value * quantity;
@@ -169,9 +184,6 @@ const calculateIndividualDiscount = (productId, quantity) => {
   return discountRates[productId] || 0;
 };
 
-// 화요일 관련 로직 통합
-const isTuesdayDay = () => isTuesday();
-
 // 화요일 할인 계산
 const calculateTuesdayDiscount = (totalAmount) =>
   isTuesdayDay() ? totalAmount * DISCOUNT_RATES.TUESDAY : 0;
@@ -192,8 +204,11 @@ export const calculateAllPoints = (totalAmount, cartItems, itemCount) => {
   const setBonus = calculateSetBonus(checkProductSet(cartItems));
   const quantityBonus = calculateQuantityBonus(itemCount);
 
+  // 화요일 보너스는 기본 포인트에만 적용 (중복 방지)
+  const finalBasePoints = isTuesdayDay() ? basePoints * 2 : basePoints;
+
   return {
-    finalPoints: basePoints + tuesdayBonus.points + setBonus.bonus + quantityBonus.bonus,
+    finalPoints: finalBasePoints + setBonus.bonus + quantityBonus.bonus,
     pointsDetail: [
       ...(basePoints > 0 ? [`기본: ${basePoints}p`] : []),
       ...(tuesdayBonus.points > 0 ? [tuesdayBonus.detail] : []),

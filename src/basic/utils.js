@@ -2,16 +2,40 @@
 // UTILITY FUNCTIONS
 // ============================================
 
-import { PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE, QUANTITY_THRESHOLDS, POINTS_CONFIG } from './constants.js';
+import {
+  PRODUCT_ONE,
+  PRODUCT_TWO,
+  PRODUCT_THREE,
+  PRODUCT_FOUR,
+  PRODUCT_FIVE,
+  QUANTITY_THRESHOLDS,
+  POINTS_CONFIG,
+  DISCOUNT_RATES,
+} from './constants.js';
 
-// 화요일 체크 함수
-export function isTuesday() {
-  return new Date().getDay() === 2;
-}
+// 화요일 체크 캐시
+const tuesdayCache = new Map();
+
+// 캐시된 화요일 체크 함수
+const getCachedTuesdayCheck = () => {
+  const today = new Date().toDateString();
+
+  if (tuesdayCache.has(today)) {
+    return tuesdayCache.get(today);
+  }
+
+  const isTuesdayToday = new Date().getDay() === 2;
+  tuesdayCache.set(today, isTuesdayToday);
+
+  return isTuesdayToday;
+};
+
+// 화요일인지 확인하는 유틸리티 함수
+export const isTuesdayDay = () => getCachedTuesdayCheck();
 
 // 상품 ID로 상품 찾기
 export function findProductById(productList, productId) {
-  return productList.find(product => product.id === productId);
+  return productList.find((product) => product.id === productId);
 }
 
 // 개별 상품 할인율 계산
@@ -21,11 +45,11 @@ export function getIndividualDiscountRate(productId, quantity) {
   }
 
   const discountRates = {
-    [PRODUCT_ONE]: 0.1, // 10%
-    [PRODUCT_TWO]: 0.15, // 15%
-    [PRODUCT_THREE]: 0.2, // 20%
-    'p4': 0.05, // 5%
-    'p5': 0.25, // 25%
+    [PRODUCT_ONE]: DISCOUNT_RATES.KEYBOARD,
+    [PRODUCT_TWO]: DISCOUNT_RATES.MOUSE,
+    [PRODUCT_THREE]: DISCOUNT_RATES.MONITOR_ARM,
+    [PRODUCT_FOUR]: DISCOUNT_RATES.LAPTOP_POUCH,
+    [PRODUCT_FIVE]: DISCOUNT_RATES.SPEAKER,
   };
 
   return discountRates[productId] || 0;
@@ -39,8 +63,8 @@ export function getTotalStock(productList) {
 // 재고 상태 메시지 생성
 export function getStockStatusMessage(productList) {
   let message = '';
-  
-  productList.forEach(product => {
+
+  productList.forEach((product) => {
     if (product.quantity < QUANTITY_THRESHOLDS.LOW_STOCK) {
       if (product.quantity > 0) {
         message += `${product.name}: 재고 부족 (${product.quantity}개 남음)\n`;
@@ -49,7 +73,7 @@ export function getStockStatusMessage(productList) {
       }
     }
   });
-  
+
   return message;
 }
 
@@ -62,16 +86,16 @@ export function calculatePoints(totalAmount, cartItems, itemCount) {
     pointsDetail.push(`기본: ${finalPoints}p`);
   }
 
-  // 화요일 보너스
-  if (isTuesday() && finalPoints > 0) {
+  // 화요일 보너스 - isTuesdayDay 함수 사용
+  if (isTuesdayDay() && finalPoints > 0) {
     finalPoints = finalPoints * 2;
     pointsDetail.push('화요일 2배');
   }
 
   // 세트 보너스
-  const hasKeyboard = cartItems.some(item => item.id === PRODUCT_ONE);
-  const hasMouse = cartItems.some(item => item.id === PRODUCT_TWO);
-  const hasMonitorArm = cartItems.some(item => item.id === PRODUCT_THREE);
+  const hasKeyboard = cartItems.some((item) => item.id === PRODUCT_ONE);
+  const hasMouse = cartItems.some((item) => item.id === PRODUCT_TWO);
+  const hasMonitorArm = cartItems.some((item) => item.id === PRODUCT_THREE);
 
   if (hasKeyboard && hasMouse) {
     finalPoints += POINTS_CONFIG.KEYBOARD_MOUSE_BONUS;

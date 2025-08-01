@@ -10,6 +10,15 @@ describe('basic 테스트', () => {
     }
   };
 
+  // 화요일 날짜 계산 헬퍼 함수
+  const getNextTuesday = () => {
+    const today = new Date();
+    const daysUntilTuesday = (2 - today.getDay() + 7) % 7;
+    const nextTuesday = new Date(today);
+    nextTuesday.setDate(today.getDate() + daysUntilTuesday);
+    return nextTuesday;
+  };
+
   const expectProductInfo = (option, product) => {
     expect(option.value).toBe(product.id);
     expect(option.textContent).toContain(product.name);
@@ -149,7 +158,7 @@ describe('basic 테스트', () => {
       describe('3.3 특별 할인', () => {
         describe('3.3.1 화요일 할인', () => {
           it('화요일에 10% 추가 할인 적용', () => {
-            const tuesday = new Date('2024-10-15'); // 화요일
+            const tuesday = getNextTuesday();
             vi.useFakeTimers();
             vi.setSystemTime(tuesday);
 
@@ -168,7 +177,7 @@ describe('basic 테스트', () => {
           });
 
           it('화요일 할인은 다른 할인과 중복 적용', () => {
-            const tuesday = new Date('2024-10-15');
+            const tuesday = getNextTuesday();
             vi.useFakeTimers();
             vi.setSystemTime(tuesday);
 
@@ -330,7 +339,7 @@ describe('basic 테스트', () => {
 
       describe('4.2 추가 적립', () => {
         it('화요일 구매 시 기본 포인트 2배', () => {
-          const tuesday = new Date('2024-10-15');
+          const tuesday = getNextTuesday();
           vi.useFakeTimers();
           vi.setSystemTime(tuesday);
 
@@ -753,7 +762,7 @@ describe('basic 테스트', () => {
     // 복잡한 시나리오 테스트
     describe('복잡한 통합 시나리오', () => {
       it('화요일 + 풀세트 + 대량구매 시나리오', () => {
-        const tuesday = new Date('2024-10-15');
+        const tuesday = getNextTuesday();
         vi.useFakeTimers();
         vi.setSystemTime(tuesday);
 
@@ -772,7 +781,7 @@ describe('basic 테스트', () => {
       });
 
       it('번개세일 + 추천할인 + 화요일 시나리오', async () => {
-        const tuesday = new Date('2024-10-15');
+        const tuesday = getNextTuesday();
         vi.useFakeTimers();
         vi.setSystemTime(tuesday);
 
