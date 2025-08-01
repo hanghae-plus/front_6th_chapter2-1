@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2020", // 출력 JS 버전
+    "lib": ["DOM", "DOM.Iterable", "ES2020"], // 사용할 라이브러리
+    "jsx": "react-jsx", // React 17+ JSX 변환
+    "module": "ESNext", // 모듈 시스템 (번들러가 처리)
+    "moduleResolution": "Node", // node 스타일 경로 해석
+    "allowSyntheticDefaultImports": true, // default import 허용 (예: import React from 'react')
+    "esModuleInterop": true, // CommonJS interop
+    "strict": true, // 엄격 모드 전체 켬 (모든 개별 strict 옵션 일괄)
+    "forceConsistentCasingInFileNames": true, // 파일명 대소문자 일관성
+    "skipLibCheck": true, // 외부 타입 체크 생략 (속도)
+    "noEmit": true, // 빌드 시 .js 산출물 생략 (번들러가 처리)
+    "isolatedModules": true, // 각 파일을 독립적으로 처리 (예: Vite/ESM 환경)
+    "resolveJsonModule": true, // JSON import 허용
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src/advanced"],
+  "exclude": []
+}
