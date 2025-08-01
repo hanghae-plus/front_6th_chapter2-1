@@ -4,7 +4,12 @@
 
 import { useMemo } from 'react';
 import { CartItem, Product, Discount, UsePricingReturn } from '../types';
-import { BUSINESS_CONSTANTS, PRODUCT_IDS } from '../constants';
+import { BUSINESS_CONSTANTS, PRODUCT_DISCOUNT_CONFIG } from '../constants';
+
+// 총 수량 계산
+const calculateTotalQuantity = (cartItems: CartItem[]): number => {
+  return cartItems.reduce((sum, item) => sum + item.quantity, 0);
+};
 
 // 기본 소계 계산
 const calculateSubtotal = (cartItems: CartItem[]): number => {
@@ -19,34 +24,12 @@ const calculateIndividualDiscounts = (cartItems: CartItem[]): Discount[] => {
   
   cartItems.forEach(item => {
     if (item.quantity >= BUSINESS_CONSTANTS.BULK_DISCOUNT_THRESHOLD) {
-      let discountRate = 0;
-      let discountName = '';
-
-      switch (item.product.id) {
-        case PRODUCT_IDS.KEYBOARD:
-          discountRate = BUSINESS_CONSTANTS.KEYBOARD_DISCOUNT;
-          discountName = '키보드 대량구매 할인';
-          break;
-        case PRODUCT_IDS.MOUSE:
-          discountRate = BUSINESS_CONSTANTS.MOUSE_DISCOUNT;
-          discountName = '마우스 대량구매 할인';
-          break;
-        case PRODUCT_IDS.MONITOR_ARM:
-          discountRate = BUSINESS_CONSTANTS.MONITOR_ARM_DISCOUNT;
-          discountName = '모니터암 대량구매 할인';
-          break;
-        case PRODUCT_IDS.LAPTOP_POUCH:
-          discountRate = BUSINESS_CONSTANTS.LAPTOP_POUCH_DISCOUNT;
-          discountName = '노트북파우치 대량구매 할인';
-          break;
-        case PRODUCT_IDS.SPEAKER:
-          discountRate = BUSINESS_CONSTANTS.SPEAKER_DISCOUNT;
-          discountName = '스피커 대량구매 할인';
-          break;
-      }
-
-      if (discountRate > 0) {
+      const discountConfig = PRODUCT_DISCOUNT_CONFIG[item.product.id];
+      
+      if (discountConfig) {
+        const { discountRate, discountName } = discountConfig;
         const discountAmount = Math.round(item.product.originalVal * item.quantity * discountRate);
+        
         discounts.push({
           type: 'individual',
           name: discountName,
@@ -63,7 +46,7 @@ const calculateIndividualDiscounts = (cartItems: CartItem[]): Discount[] => {
 
 // 전체 수량 할인 계산
 const calculateBulkDiscount = (cartItems: CartItem[], totalAmount: number): Discount | null => {
-  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQuantity = calculateTotalQuantity(cartItems);
   
   if (totalQuantity >= BUSINESS_CONSTANTS.BULK_QUANTITY_THRESHOLD) {
     const bulkDiscountAmount = Math.round(totalAmount * BUSINESS_CONSTANTS.BULK_QUANTITY_DISCOUNT_RATE);
@@ -97,16 +80,27 @@ const calculateTuesdayDiscount = (totalAmount: number): Discount | null => {
   return null;
 };
 
-// 번개세일 할인 계산
-const calculateLightningDiscount = (cartItems: CartItem[]): Discount | null => {
-  const lightningDiscountAmount = cartItems.reduce((sum, item) => {
-    if (item.product.onSale) {
+// 프로모션 할인 금액 계산 (공통 로직)
+const calculatePromotionDiscountAmount = (
+  cartItems: CartItem[], 
+  condition: (item: CartItem) => boolean
+): number => {
+  return cartItems.reduce((sum, item) => {
+    if (condition(item)) {
       const originalTotal = item.product.originalVal * item.quantity;
       const discountedTotal = item.product.val * item.quantity;
       return sum + (originalTotal - discountedTotal);
     }
     return sum;
   }, 0);
+};
+
+// 번개세일 할인 계산
+const calculateLightningDiscount = (cartItems: CartItem[]): Discount | null => {
+  const lightningDiscountAmount = calculatePromotionDiscountAmount(
+    cartItems, 
+    (item) => item.product.onSale
+  );
 
   if (lightningDiscountAmount > 0) {
     return {
@@ -123,14 +117,10 @@ const calculateLightningDiscount = (cartItems: CartItem[]): Discount | null => {
 
 // 추천할인 계산
 const calculateSuggestedDiscount = (cartItems: CartItem[]): Discount | null => {
-  const suggestedDiscountAmount = cartItems.reduce((sum, item) => {
-    if (item.product.suggestSale && !item.product.onSale) {
-      const originalTotal = item.product.originalVal * item.quantity;
-      const discountedTotal = item.product.val * item.quantity;
-      return sum + (originalTotal - discountedTotal);
-    }
-    return sum;
-  }, 0);
+  const suggestedDiscountAmount = calculatePromotionDiscountAmount(
+    cartItems,
+    (item) => item.product.suggestSale && !item.product.onSale
+  );
 
   if (suggestedDiscountAmount > 0) {
     return {

@@ -44,6 +44,30 @@ export const BUSINESS_CONSTANTS: BusinessConstants = {
   TUESDAY_DAY_OF_WEEK: 2,
 };
 
+// 상품별 할인율 매핑
+export const PRODUCT_DISCOUNT_CONFIG = {
+  [PRODUCT_IDS.KEYBOARD]: {
+    discountRate: BUSINESS_CONSTANTS.KEYBOARD_DISCOUNT,
+    discountName: '키보드 대량구매 할인',
+  },
+  [PRODUCT_IDS.MOUSE]: {
+    discountRate: BUSINESS_CONSTANTS.MOUSE_DISCOUNT,
+    discountName: '마우스 대량구매 할인',
+  },
+  [PRODUCT_IDS.MONITOR_ARM]: {
+    discountRate: BUSINESS_CONSTANTS.MONITOR_ARM_DISCOUNT,
+    discountName: '모니터암 대량구매 할인',
+  },
+  [PRODUCT_IDS.LAPTOP_POUCH]: {
+    discountRate: BUSINESS_CONSTANTS.LAPTOP_POUCH_DISCOUNT,
+    discountName: '노트북파우치 대량구매 할인',
+  },
+  [PRODUCT_IDS.SPEAKER]: {
+    discountRate: BUSINESS_CONSTANTS.SPEAKER_DISCOUNT,
+    discountName: '스피커 대량구매 할인',
+  },
+} as const;
+
 // 상품 데이터
 export const INITIAL_PRODUCTS: Product[] = [
   {
