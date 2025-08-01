@@ -1,6 +1,6 @@
-export interface ICartItem {
-  name: string;
-  quantity: number;
+import { IProduct } from "../../types";
+
+export interface ICartItem extends IProduct {
   itemTotal: number;
 }
 
