@@ -1,3 +1,4 @@
+import CartProduct from '@advanced/components/CartProduct';
 import Header from '@advanced/components/Header';
 import ProductSelector from '@advanced/components/ProductSelector';
 import { productList } from '@advanced/feature/product/constant';
@@ -63,6 +64,73 @@ const App = () => {
     );
   };
 
+  const handleIncrease = (cartProduct: Product) => {
+    const product = products.find((product) => product.id === cartProduct.id);
+
+    if (product?.quantity === 0) {
+      alert('재고가 부족합니다.');
+
+      return;
+    }
+
+    setCart((prevCart) =>
+      prevCart.map((product) => {
+        if (product.id === cartProduct.id) {
+          return { ...product, quantity: product.quantity + 1 };
+        }
+
+        return product;
+      })
+    );
+
+    setProducts((prevProducts) =>
+      prevProducts.map((product) => {
+        if (product.id === cartProduct.id) {
+          return { ...product, quantity: product.quantity - 1 };
+        }
+
+        return product;
+      })
+    );
+  };
+
+  const handleDecrease = (cartProduct: Product) => {
+    if (cartProduct.quantity === 1) {
+      handleRemove(cartProduct);
+
+      return;
+    }
+
+    setCart((prevCart) =>
+      prevCart.map((product) => {
+        if (product.id === cartProduct.id) {
+          return { ...product, quantity: product.quantity - 1 };
+        }
+
+        return product;
+      })
+    );
+
+    setProducts((prevProducts) =>
+      prevProducts.map((product) => {
+        if (product.id === cartProduct.id) {
+          return { ...product, quantity: product.quantity + 1 };
+        }
+
+        return product;
+      })
+    );
+  };
+
+  const handleRemove = (cartProduct: Product) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== cartProduct.id));
+    setProducts((prevProduct) =>
+      prevProduct.map((item) =>
+        item.id === cartProduct.id ? { ...item, quantity: item.quantity + cartProduct.quantity } : item
+      )
+    );
+  };
+
   return (
     <>
       <Header />
@@ -80,6 +148,7 @@ const App = () => {
             >
               Add to Cart
             </button>
+            {/* stockInfo */}
             <div className="text-xs text-red-500 mt-3 whitespace-pre-line" id="stock-status">
               {products.map(getStockInfo).filter(Boolean).join('\n')}
             </div>
@@ -87,7 +156,13 @@ const App = () => {
           {/* cartContainerEl */}
           <div id="cart-items">
             {cart.map((cartProduct) => (
-              <div>{`${cartProduct.name}: ${cartProduct.quantity}`}</div>
+              <CartProduct
+                key={cartProduct.id}
+                product={cartProduct}
+                onIncrease={() => handleIncrease(cartProduct)}
+                onDecrease={() => handleDecrease(cartProduct)}
+                onRemove={() => handleRemove(cartProduct)}
+              />
             ))}
           </div>
         </div>
