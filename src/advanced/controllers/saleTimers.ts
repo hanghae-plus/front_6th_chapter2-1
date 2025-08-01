@@ -5,10 +5,7 @@ import {
   getLastSelectedProductId,
   updateProduct,
   getCartItems,
-  getElements,
 } from '../store/state.js';
-import { updateProductOptions } from '../services/product.js';
-import { updateCartItemPrice } from '../services/cart.js';
 import { updateCart } from '../services/discount.js';
 
 export function setupSaleTimers(): void {
@@ -39,8 +36,7 @@ function setupLightningSale(): void {
 
       alert(`⚡번개세일! ${randomProduct.name}이(가) 20% 할인 중입니다!`);
 
-      updateProductOptions();
-      updateCartPrices();
+      updateCart();
     }, TIMERS.LIGHTNING_SALE_INTERVAL);
   }, delay);
 }
@@ -76,26 +72,7 @@ function setupRecommendSale(): void {
         recommendSale: true,
       });
 
-      updateProductOptions();
-      updateCartPrices();
+      updateCart();
     }, TIMERS.RECOMMEND_SALE_INTERVAL);
   }, delay);
-}
-
-function updateCartPrices(): void {
-  const elements = getElements();
-  const cartItemElements = elements.cartItems.children;
-
-  for (let i = 0; i < cartItemElements.length; i++) {
-    const itemElement = cartItemElements[i] as HTMLElement;
-    const productId = itemElement.id;
-    const products = getProducts();
-    const product = products.find((p) => p.id === productId);
-
-    if (product) {
-      updateCartItemPrice(itemElement, product);
-    }
-  }
-
-  updateCart();
 }

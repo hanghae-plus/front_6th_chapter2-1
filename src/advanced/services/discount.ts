@@ -5,17 +5,8 @@ import {
   getCartItems,
   setTotalAmount,
   setTotalQuantity,
-  getElements,
 } from '../store/state.js';
 import { calculatePoints } from './points.js';
-import { updateStockStatus } from './product.js';
-import {
-  updateSummaryDetails,
-  updateTotal,
-  updateDiscountInfo,
-} from './orderSummary.js';
-import { formatItemCount } from '../utils/formatters.js';
-import { showElement, hideElement } from '../utils/dom.js';
 import type { ItemDiscount } from '../types/index.js';
 
 export function calculateItemDiscount(productId: string, quantity: number): number {
@@ -75,12 +66,10 @@ export function applyTuesdayDiscount(amount: number): number {
 
 export function updateCart(): void {
   const cartItems = getCartItems();
-  const elements = getElements();
 
   let totalAmount = 0;
   let totalQuantity = 0;
   let subtotal = 0;
-  let itemDiscounts: ItemDiscount[] = [];
 
   // 각 아이템별 계산
   Object.entries(cartItems).forEach(([productId, quantity]) => {
@@ -103,25 +92,12 @@ export function updateCart(): void {
       };
 
       discountRate = discountMap[productId] || 0;
-      if (discountRate > 0) {
-        itemDiscounts.push({ name: product.name, discount: discountRate * 100 });
-      }
     }
 
     totalAmount += itemTotal * (1 - discountRate);
-
-    // 10개 이상일 때 가격 강조
-    const cartItem = document.getElementById(productId);
-    if (cartItem) {
-      const priceElement = cartItem.querySelector('.text-lg') as HTMLElement;
-      if (priceElement) {
-        priceElement.style.fontWeight = quantity >= 10 ? 'bold' : 'normal';
-      }
-    }
   });
 
   // 대량 구매 할인 (30개 이상이면 개별 할인 무시하고 25% 적용)
-  const originalTotal = subtotal;
   if (totalQuantity >= THRESHOLDS.MIN_QUANTITY_FOR_BULK) {
     totalAmount = subtotal * (1 - DISCOUNT_RATES.BULK);
   }
@@ -130,28 +106,12 @@ export function updateCart(): void {
   const isTuesday = new Date().getDay() === 2;
   if (isTuesday && totalAmount > 0) {
     totalAmount = totalAmount * (1 - DISCOUNT_RATES.TUESDAY);
-    showElement(elements.tuesdaySpecial);
-  } else {
-    hideElement(elements.tuesdaySpecial);
   }
 
-  // 할인율 계산
-  const discountRate =
-    subtotal > 0 ? (originalTotal - totalAmount) / originalTotal : 0;
-
-  // 상태 업데이트
+  // 상태 업데이트만 (DOM 조작 제거)
   setTotalAmount(totalAmount);
   setTotalQuantity(totalQuantity);
 
-  // UI 업데이트
-  elements.itemCount.textContent = formatItemCount(totalQuantity);
-  updateSummaryDetails(subtotal, itemDiscounts, isTuesday, totalQuantity);
-  updateTotal(totalAmount);
-  updateDiscountInfo(discountRate, originalTotal, totalAmount);
-
   // 포인트 계산
   calculatePoints();
-
-  // 재고 상태 업데이트
-  updateStockStatus();
 }
