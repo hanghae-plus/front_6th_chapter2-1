@@ -55,11 +55,6 @@ export function getBonusPoints(): number {
   return state.bonusPoints;
 }
 
-// Elements 관련 함수들은 호환성을 위해 유지하되 빈 객체 반환
-export function getElements(): any {
-  return {};
-}
-
 // Setters
 export function setProducts(products: Product[]): void {
   state.products = products;
@@ -94,8 +89,4 @@ export function setTotalQuantity(quantity: number): void {
 
 export function setBonusPoints(points: number): void {
   state.bonusPoints = points;
-}
-
-export function setElements(elements: any): void {
-  // React에서는 사용하지 않으므로 빈 함수로 유지
 }

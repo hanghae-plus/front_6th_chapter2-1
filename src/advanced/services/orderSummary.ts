@@ -3,26 +3,6 @@ import { getCartItems, getProduct } from '../store/state.js';
 import { THRESHOLDS } from '../constants/index.js';
 import type { ItemDiscount } from '../types/index.js';
 
-export function updateSummaryDetails(
-  subtotal: number,
-  itemDiscounts: ItemDiscount[],
-  isTuesday: boolean,
-  totalQuantity: number,
-): void {
-  // React 컴포넌트에서 자동으로 처리되므로 빈 함수로 유지
-  // 호환성을 위해 함수는 남겨둠
-}
-
-export function updateTotal(amount: number): void {
-  // React 컴포넌트에서 자동으로 처리되므로 빈 함수로 유지
-  // 호환성을 위해 함수는 남겨둠
-}
-
-export function updateDiscountInfo(discountRate: number, originalTotal: number, totalAmount: number): void {
-  // React 컴포넌트에서 자동으로 처리되므로 빈 함수로 유지
-  // 호완성을 위해 함수는 남겨둠
-}
-
 export function getSummaryData() {
   const cartItems = getCartItems();
   const summaryItems: Array<{productId: string, name: string, quantity: number, itemTotal: number}> = [];

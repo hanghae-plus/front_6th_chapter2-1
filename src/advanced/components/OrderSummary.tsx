@@ -2,7 +2,7 @@ import React from 'react'
 import { useShoppingCart } from '../providers/ShoppingCartProvider'
 import { formatPrice, formatDiscountRate } from '../utils/formatters'
 import { getSummaryData, getItemDiscounts } from '../services/orderSummary'
-import { PRODUCT_IDS, THRESHOLDS } from '../constants'
+import { PRODUCT_IDS } from '../constants'
 
 export function OrderSummary() {
   const { getCartItems, getTotalAmount, getTotalQuantity, getBonusPoints } = useShoppingCart()
