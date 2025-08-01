@@ -45,8 +45,3 @@ export function calculateBonusPoints(
 
   return finalPoints;
 }
-
-// 기존 함수는 호환성을 위해 유지 (빈 함수)
-export function calculatePoints(): void {
-  // React에서는 Provider가 처리하므로 빈 함수
-}
