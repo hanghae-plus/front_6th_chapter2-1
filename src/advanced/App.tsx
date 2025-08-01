@@ -12,20 +12,7 @@ import { CartItemBox } from "./components/CartItemBox";
 import { StockInfoText } from "./components/selector/StockInfoText";
 import { useIntervalPromotion } from "./hooks/useIntervalPromotion";
 import { CartItem, Product } from "./model/types";
-
-// TODO: 추후 분리 예정
-const getStockInfoMessage = (productList: Product[]) => {
-  return productList.reduce((acc, item) => {
-    if (item.quantity < 5) {
-      if (item.quantity > 0) {
-        acc += `${item.name}: 재고 부족 (${item.quantity}개 남음)\n`;
-      } else {
-        acc += `${item.name}: 품절\n`;
-      }
-    }
-    return acc;
-  }, "");
-};
+import { getStockInfoMessage } from "./services/stock";
 
 function App() {
   const [lastSelectedItem, setLastSelectedItem] = useState<Product | null>(
@@ -47,7 +34,6 @@ function App() {
     [productList]
   );
 
-  // Cart에 상품이 담길 때 쓰일 예정
   const addToCart = (selected: Product) => {
     const newCartItems = [...cartItems];
     const selectedCartItem = newCartItems.find((x) => x.id === selected.id);
