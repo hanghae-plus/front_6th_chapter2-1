@@ -17,12 +17,12 @@ import {
   safeAddClass,
 } from './domElements.js';
 import { getTotalStock, getStockStatusMessage, isTuesdayDay } from './utils.js';
+// 순환 참조 방지를 위해 main.basic.js import 제거
+// 대신 함수를 매개변수로 받도록 수정
 
 // 전역 변수들 (main.basic.js에서 설정됨) - 점진적 정리 중
 // 상품 목록과 장바구니 상태는 래퍼 함수로 접근
-let productList, totalAmount, itemCount;
 // DOM 요소들은 래퍼 함수로 접근
-let productSelector, cartDisplay, stockInfo;
 
 // DOM 요소 캐싱
 let cachedElements = null;
@@ -34,28 +34,15 @@ const initializeCachedElements = () => {
   return cachedElements;
 };
 
-// 전역 변수 설정 함수
+// 전역 변수 설정 함수 (더 이상 필요하지 않음)
 export const setGlobalVariables = (globals) => {
-  const {
-    productList: pl,
-    productSelector: ps,
-    cartDisplay: cd,
-    stockInfo: si,
-    totalAmount: ta,
-    itemCount: ic,
-  } = globals;
-
-  productList = pl;
-  productSelector = ps;
-  cartDisplay = cd;
-  stockInfo = si;
-  totalAmount = ta;
-  itemCount = ic;
+  // DOM 요소들은 getDOMElements()를 통해 접근
 };
 
 // 상품 선택 옵션 업데이트
-export const updateSelectOptions = () => {
+export const updateSelectOptions = (getProductList, getDOMElements) => {
   safeClearProductSelector();
+  const productList = getProductList();
   const totalStock = getTotalStock(productList);
 
   productList.forEach((product) => {
@@ -98,10 +85,11 @@ export const updateSelectOptions = () => {
   });
 
   // 재고 경고 표시
+  const elements = getDOMElements();
   if (totalStock < QUANTITY_THRESHOLDS.TOTAL_STOCK_WARNING) {
-    productSelector.style.borderColor = 'orange';
+    elements.productSelector.style.borderColor = 'orange';
   } else {
-    productSelector.style.borderColor = '';
+    elements.productSelector.style.borderColor = '';
   }
 };
 
@@ -128,14 +116,13 @@ const updateQuantityStyles = () => {
 };
 
 // 전역 변수 업데이트
-const updateGlobalState = (cartState) => {
-  const { totalAmount: newTotalAmount, itemCount: newItemCount } = cartState;
-  totalAmount = newTotalAmount;
-  itemCount = newItemCount;
+const updateGlobalState = (cartState, setCartState) => {
+  // main.basic.js의 상태 업데이트
+  setCartState(cartState);
 };
 
 // 장바구니 계산 및 UI 업데이트
-export const calculateCart = () => {
+export const calculateCart = (getProductList, getCartState, setCartState, getDOMElements) => {
   // 1. 장바구니 아이템 정보 추출
   const cartItems = extractCartItems();
 
@@ -143,28 +130,31 @@ export const calculateCart = () => {
   updateQuantityStyles();
 
   // 3. 장바구니 상태 계산
+  const productList = getProductList();
   const cartState = calculateCartStatePure(cartItems, productList);
 
   // 4. 전역 변수 업데이트
-  updateGlobalState(cartState);
+  updateGlobalState(cartState, setCartState);
 
   // 5. UI 업데이트
-  updateCartUI(cartState);
-  updatePointsDisplay();
-  updateStockInfo();
+  updateCartUI(cartState, getDOMElements, getProductList, getCartState);
+  updatePointsDisplay(getCartState, getDOMElements);
+  updateStockInfo(getProductList, getDOMElements);
 };
 
 // 아이템 수 표시 업데이트
-const updateItemCountDisplay = (elements) => {
+const updateItemCountDisplay = (elements, getCartState) => {
   if (elements.itemCount) {
+    const { itemCount } = getCartState();
     safeSetTextContent(elements.itemCount, `🛍️ ${itemCount} items in cart`);
   }
 };
 
 // 상품별 정보 HTML 생성
-const generateProductItemsHTML = () => {
+const generateProductItemsHTML = (getProductList) => {
   let html = '';
   const cartItems = DOMElements.getCartItems();
+  const productList = getProductList();
 
   for (let i = 0; i < cartItems.length; i++) {
     const cartItem = cartItems[i];
@@ -185,8 +175,9 @@ const generateProductItemsHTML = () => {
 };
 
 // 할인 정보 HTML 생성
-const generateDiscountHTML = (itemDiscounts, finalTotal) => {
+const generateDiscountHTML = (itemDiscounts, finalTotal, getCartState) => {
   let html = '';
+  const { itemCount } = getCartState();
 
   if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
     html += `
@@ -219,37 +210,41 @@ const generateDiscountHTML = (itemDiscounts, finalTotal) => {
 };
 
 // 요약 상세 정보 업데이트
-const updateSummaryDetails = (elements, subtotal, itemDiscounts, finalTotal) => {
+const updateSummaryDetails = (
+  elements,
+  subtotal,
+  itemDiscounts,
+  finalTotal,
+  getProductList,
+  getCartState,
+) => {
   if (!elements.summaryDetails) return;
 
-  safeSetInnerHTML(elements.summaryDetails, '');
-
   if (subtotal > 0) {
-    // 상품별 정보
-    safeSetInnerHTML(elements.summaryDetails, generateProductItemsHTML());
-
-    // 구분선
-    safeSetInnerHTML(
-      elements.summaryDetails,
-      `
+    // 모든 내용을 하나의 HTML로 조합
+    const summaryHTML = `
+      ${generateProductItemsHTML(getProductList)}
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
         <span>Subtotal</span>
         <span>₩${subtotal.toLocaleString()}</span>
       </div>
-    `,
-    );
-
-    // 할인 정보
-    safeSetInnerHTML(elements.summaryDetails, generateDiscountHTML(itemDiscounts, finalTotal));
-
-    // 배송비
-    safeSetInnerHTML(
-      elements.summaryDetails,
-      `
+      ${generateDiscountHTML(itemDiscounts, finalTotal, getCartState)}
       <div class="flex justify-between text-sm tracking-wide text-gray-400">
         <span>Shipping</span>
         <span>Free</span>
+      </div>
+    `;
+
+    safeSetInnerHTML(elements.summaryDetails, summaryHTML);
+  } else {
+    // 장바구니가 비어있을 때 기본 메시지
+    safeSetInnerHTML(
+      elements.summaryDetails,
+      `
+      <div class="text-center text-gray-400 py-8">
+        <p class="text-sm">장바구니가 비어있습니다</p>
+        <p class="text-xs mt-2">상품을 추가해주세요</p>
       </div>
     `,
     );
@@ -299,19 +294,19 @@ const updateTuesdaySpecialBanner = (elements, finalTotal) => {
 };
 
 // 장바구니 UI 업데이트
-const updateCartUI = (cartState) => {
+const updateCartUI = (cartState, getDOMElements, getProductList, getCartState) => {
   const { subtotal, itemDiscounts, totalAmount: finalTotal, discountRate } = cartState;
   const elements = initializeCachedElements();
 
-  updateItemCountDisplay(elements);
-  updateSummaryDetails(elements, subtotal, itemDiscounts, finalTotal);
+  updateItemCountDisplay(elements, getCartState);
+  updateSummaryDetails(elements, subtotal, itemDiscounts, finalTotal, getProductList, getCartState);
   updateTotalDisplay(elements, finalTotal);
   updateDiscountInfo(elements, subtotal, finalTotal, discountRate);
   updateTuesdaySpecialBanner(elements, finalTotal);
 };
 
 // 포인트 표시 업데이트
-const updatePointsDisplay = () => {
+const updatePointsDisplay = (getCartState, getDOMElements) => {
   const elements = initializeCachedElements();
   if (!elements.loyaltyPoints) return;
 
@@ -326,6 +321,7 @@ const updatePointsDisplay = () => {
     quantity: parseInt(safeQuerySelector(item, '.quantity-number')?.textContent || '0'),
   }));
 
+  const { totalAmount, itemCount } = getCartState();
   const { finalPoints, pointsDetail } = calculateAllPoints(totalAmount, cartItems, itemCount);
 
   if (finalPoints > 0) {
@@ -344,14 +340,16 @@ const updatePointsDisplay = () => {
 };
 
 // 재고 정보 업데이트
-const updateStockInfo = () => {
+const updateStockInfo = (getProductList, getDOMElements) => {
+  const productList = getProductList();
   const stockMessage = getStockStatusMessage(productList);
   safeUpdateStockInfo(stockMessage);
 };
 
 // 장바구니 내 가격 업데이트
-export const updatePricesInCart = () => {
+export const updatePricesInCart = (getProductList, getCartState, setCartState, getDOMElements) => {
   const cartItems = DOMElements.getCartItems();
+  const productList = getProductList();
 
   for (let i = 0; i < cartItems.length; i++) {
     const cartItem = cartItems[i];
@@ -386,5 +384,5 @@ export const updatePricesInCart = () => {
     }
   }
 
-  calculateCart();
+  calculateCart(getProductList, getCartState, setCartState, getDOMElements);
 };

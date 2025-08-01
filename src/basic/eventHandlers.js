@@ -16,65 +16,96 @@ import { updateSelectOptions, calculateCart, updatePricesInCart } from './uiUpda
 
 // 전역 변수들 (main.basic.js에서 설정됨) - 점진적 정리 중
 // 상품 목록과 lastSelectedProduct는 래퍼 함수로 접근
-let productList, lastSelectedProduct;
 // productSelector와 cartDisplay는 래퍼 함수로 접근
-let productSelector, cartDisplay;
 
-// 전역 변수 설정 함수
+// 전역 변수 설정 함수 (더 이상 필요하지 않음)
 export const setGlobalVariables = (globals) => {
-  const {
-    productList: pl,
-    productSelector: ps,
-    cartDisplay: cd,
-    lastSelectedProduct: lsp,
-  } = globals;
-
-  productList = pl;
-  productSelector = ps;
-  cartDisplay = cd;
-  lastSelectedProduct = lsp;
+  // 모든 상태는 래퍼 함수를 통해 접근
 };
 
-// 이벤트 리스너 설정
-export const setupEventListeners = (addButton) => {
-  addButton.addEventListener('click', handleAddToCart);
-  cartDisplay.addEventListener('click', handleCartInteraction);
-};
+// 이벤트 리스너 설정 함수 (매개변수로 필요한 함수들을 받음)
+export const createSetupEventListeners = (
+  getDOMElements,
+  getProductList,
+  updateLastSelectedProduct,
+  getCartState,
+  setCartState,
+  calculateCart,
+  updateSelectOptions,
+) => {
+  return (addButton) => {
+    const handleAddToCart = createHandleAddToCart(
+      getDOMElements,
+      getProductList,
+      updateLastSelectedProduct,
+      getCartState,
+      setCartState,
+      calculateCart,
+    );
+    const handleCartInteraction = createHandleCartInteraction(
+      getDOMElements,
+      getProductList,
+      getCartState,
+      setCartState,
+      calculateCart,
+      updateSelectOptions,
+    );
 
-// 장바구니에 상품 추가
-const handleAddToCart = () => {
-  const selectedProductId = safeGetValue(productSelector);
+    addButton.addEventListener('click', handleAddToCart);
 
-  if (!selectedProductId) return;
-
-  const product = productList.find((p) => p.id === selectedProductId);
-  if (!product || product.quantity <= 0) return;
-
-  const existingItem = DOMElements.getCartItem(product.id);
-
-  if (existingItem) {
-    // 기존 아이템 수량 증가
-    const quantityElement = DOMElements.getQuantityElement(product.id);
-    const currentQuantity = parseInt(safeGetTextContent(quantityElement) || '0');
-    const newQuantity = currentQuantity + 1;
-
-    if (newQuantity <= product.quantity + currentQuantity) {
-      safeSetTextContent(quantityElement, newQuantity.toString());
-      product.quantity--;
-    } else {
-      alert('재고가 부족합니다.');
-      return;
+    const elements = getDOMElements();
+    if (elements && elements.cartDisplay) {
+      elements.cartDisplay.addEventListener('click', handleCartInteraction);
     }
-  } else {
-    // 새 아이템 추가
-    const newItem = createCartItemElement(product);
-    safeAppendChild(cartDisplay, newItem);
-    product.quantity--;
-  }
+  };
+};
 
-  calculateCart();
-  // lastSelectedProduct 업데이트는 래퍼 함수 사용
-  lastSelectedProduct = selectedProductId; // 임시로 직접 할당 (나중에 래퍼 함수로 변경)
+// 장바구니에 상품 추가 함수 (매개변수로 필요한 함수들을 받음)
+const createHandleAddToCart = (
+  getDOMElements,
+  getProductList,
+  updateLastSelectedProduct,
+  getCartState,
+  setCartState,
+  calculateCart,
+) => {
+  return () => {
+    const elements = getDOMElements();
+    const selectedProductId = safeGetValue(elements.productSelector);
+
+    if (!selectedProductId) return;
+
+    const productList = getProductList();
+    const product = productList.find((p) => p.id === selectedProductId);
+    if (!product || product.quantity <= 0) return;
+
+    const existingItem = DOMElements.getCartItem(product.id);
+
+    if (existingItem) {
+      // 기존 아이템 수량 증가
+      const quantityElement = DOMElements.getQuantityElement(product.id);
+      const currentQuantity = parseInt(safeGetTextContent(quantityElement) || '0');
+      const newQuantity = currentQuantity + 1;
+
+      if (newQuantity <= product.quantity + currentQuantity) {
+        safeSetTextContent(quantityElement, newQuantity.toString());
+        product.quantity--;
+      } else {
+        alert('재고가 부족합니다.');
+        return;
+      }
+    } else {
+      // 새 아이템 추가
+      const newItem = createCartItemElement(product);
+      const elements = getDOMElements();
+      safeAppendChild(elements.cartDisplay, newItem);
+      product.quantity--;
+    }
+
+    calculateCart(getProductList, getCartState, setCartState, getDOMElements);
+    // lastSelectedProduct 업데이트는 래퍼 함수 사용
+    updateLastSelectedProduct(selectedProductId);
+  };
 };
 
 // 장바구니 아이템 요소 생성
@@ -124,51 +155,64 @@ const createCartItemElement = (product) => {
   return newItem;
 };
 
-// 장바구니 상호작용 처리
-const handleCartInteraction = (event) => {
-  const { target } = event;
+// 장바구니 상호작용 처리 함수 (매개변수로 필요한 함수들을 받음)
+const createHandleCartInteraction = (
+  getDOMElements,
+  getProductList,
+  getCartState,
+  setCartState,
+  calculateCart,
+  updateSelectOptions,
+) => {
+  return (event) => {
+    const { target } = event;
 
-  if (!target.classList.contains('quantity-change') && !target.classList.contains('remove-item')) {
-    return;
-  }
-
-  const { productId } = target.dataset;
-  const itemElement = DOMElements.getCartItem(productId);
-  const product = productList.find((p) => p.id === productId);
-
-  if (!product || !itemElement) return;
-
-  if (target.classList.contains('quantity-change')) {
-    const quantityChange = parseInt(target.dataset.change);
-    const quantityElement = DOMElements.getQuantityElement(productId);
-    const currentQuantity = parseInt(safeGetTextContent(quantityElement) || '0');
-    const newQuantity = currentQuantity + quantityChange;
-
-    // 재고 계산 수정: 현재 장바구니 수량을 고려한 재고 확인
-    const availableStock = product.quantity + currentQuantity;
-
-    if (newQuantity > 0 && newQuantity <= availableStock) {
-      safeSetTextContent(quantityElement, newQuantity.toString());
-      // 재고 업데이트: 실제로 사용된 수량만큼만 차감
-      product.quantity = availableStock - newQuantity;
-    } else if (newQuantity <= 0) {
-      // 수량이 0이 되면 재고를 모두 복구하고 아이템 제거
-      product.quantity = availableStock;
-      safeRemoveElement(itemElement);
-    } else {
-      alert('재고가 부족합니다.');
+    if (
+      !target.classList.contains('quantity-change') &&
+      !target.classList.contains('remove-item')
+    ) {
       return;
     }
-  } else if (target.classList.contains('remove-item')) {
-    const quantityElement = DOMElements.getQuantityElement(productId);
-    const removedQuantity = parseInt(safeGetTextContent(quantityElement) || '0');
-    // Remove 버튼: 현재 장바구니 수량을 재고에 복구
-    product.quantity += removedQuantity;
-    safeRemoveElement(itemElement);
-  }
 
-  calculateCart();
-  updateSelectOptions();
+    const { productId } = target.dataset;
+    const itemElement = DOMElements.getCartItem(productId);
+    const productList = getProductList();
+    const product = productList.find((p) => p.id === productId);
+
+    if (!product || !itemElement) return;
+
+    if (target.classList.contains('quantity-change')) {
+      const quantityChange = parseInt(target.dataset.change);
+      const quantityElement = DOMElements.getQuantityElement(productId);
+      const currentQuantity = parseInt(safeGetTextContent(quantityElement) || '0');
+      const newQuantity = currentQuantity + quantityChange;
+
+      // 재고 계산 수정: 현재 장바구니 수량을 고려한 재고 확인
+      const availableStock = product.quantity + currentQuantity;
+
+      if (newQuantity > 0 && newQuantity <= availableStock) {
+        safeSetTextContent(quantityElement, newQuantity.toString());
+        // 재고 업데이트: 실제로 사용된 수량만큼만 차감
+        product.quantity = availableStock - newQuantity;
+      } else if (newQuantity <= 0) {
+        // 수량이 0이 되면 재고를 모두 복구하고 아이템 제거
+        product.quantity = availableStock;
+        safeRemoveElement(itemElement);
+      } else {
+        alert('재고가 부족합니다.');
+        return;
+      }
+    } else if (target.classList.contains('remove-item')) {
+      const quantityElement = DOMElements.getQuantityElement(productId);
+      const removedQuantity = parseInt(safeGetTextContent(quantityElement) || '0');
+      // Remove 버튼: 현재 장바구니 수량을 재고에 복구
+      product.quantity += removedQuantity;
+      safeRemoveElement(itemElement);
+    }
+
+    calculateCart(getProductList, getCartState, setCartState, getDOMElements);
+    updateSelectOptions(getProductList, getDOMElements);
+  };
 };
 
 // 타이머 설정
@@ -177,6 +221,7 @@ export const setupTimers = () => {
   const lightningDelay = Math.random() * TIMER_CONFIG.LIGHTNING_DELAY_MAX;
   setTimeout(() => {
     setInterval(() => {
+      const productList = getProductList();
       const luckyIndex = Math.floor(Math.random() * productList.length);
       const luckyProduct = productList[luckyIndex];
 
@@ -193,10 +238,13 @@ export const setupTimers = () => {
   // 추천할인 타이머 - 원본과 동일한 지연 시간 적용
   setTimeout(() => {
     setInterval(() => {
-      if (cartDisplay.children.length === 0) {
+      const elements = getDOMElements();
+      if (elements.cartDisplay.children.length === 0) {
         return;
       }
+      const { lastSelectedProduct } = getCartState();
       if (lastSelectedProduct) {
+        const productList = getProductList();
         const suggestProduct = productList.find(
           (product) =>
             product.id !== lastSelectedProduct && product.quantity > 0 && !product.suggestSale,

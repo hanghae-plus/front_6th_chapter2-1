@@ -9,13 +9,8 @@ import {
   PRODUCT_FOUR,
   PRODUCT_FIVE,
 } from './constants.js';
-import {
-  setGlobalVariables as setEventGlobals,
-  setupEventListeners,
-  setupTimers,
-} from './eventHandlers.js';
-import { setGlobalVariables as setUIGlobals } from './uiUpdates.js';
-
+import { createSetupEventListeners } from './eventHandlers.js';
+import { updateSelectOptions, calculateCart } from './uiUpdates.js';
 // ============================================
 // GLOBAL STATE
 // ============================================
@@ -157,6 +152,65 @@ export const updateLastSelectedProduct = (productId) => {
 // const lastSelectedProduct = AppState.cart.lastSelectedProduct;
 
 // ============================================
+// TIMER FUNCTIONS
+// ============================================
+
+const setupLightningSaleTimer = () => {
+  const lightningDelay = Math.random() * 10000;
+  setTimeout(() => {
+    setInterval(() => {
+      const productList = getProductList();
+      const luckyIndex = Math.floor(Math.random() * productList.length);
+      const luckyProduct = productList[luckyIndex];
+
+      if (luckyProduct.quantity > 0 && !luckyProduct.onSale) {
+        luckyProduct.value = Math.round(luckyProduct.originalValue * 0.8);
+        luckyProduct.onSale = true;
+        alert(`⚡번개세일! ${luckyProduct.name}이(가) 20% 할인 중입니다!`);
+
+        // 동적 import로 updateSelectOptions와 updatePricesInCart 가져오기
+        import('./uiUpdates.js').then(({ updateSelectOptions, updatePricesInCart }) => {
+          updateSelectOptions(getProductList, getDOMElements);
+          updatePricesInCart(getProductList, getCartState, setCartState, getDOMElements);
+        });
+      }
+    }, 30000);
+  }, lightningDelay);
+};
+
+const setupRecommendationTimer = () => {
+  setTimeout(() => {
+    setInterval(() => {
+      const elements = getDOMElements();
+      if (elements.cartDisplay.children.length === 0) {
+        return;
+      }
+
+      const { lastSelectedProduct } = getCartState();
+      if (lastSelectedProduct) {
+        const productList = getProductList();
+        const suggestProduct = productList.find(
+          (product) =>
+            product.id !== lastSelectedProduct && product.quantity > 0 && !product.suggestSale,
+        );
+
+        if (suggestProduct) {
+          alert(`💝 ${suggestProduct.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
+          suggestProduct.value = Math.round(suggestProduct.value * 0.95);
+          suggestProduct.suggestSale = true;
+
+          // 동적 import로 updateSelectOptions와 updatePricesInCart 가져오기
+          import('./uiUpdates.js').then(({ updateSelectOptions, updatePricesInCart }) => {
+            updateSelectOptions(getProductList, getDOMElements);
+            updatePricesInCart(getProductList, getCartState, setCartState, getDOMElements);
+          });
+        }
+      }
+    }, 60000);
+  }, Math.random() * 20000);
+};
+
+// ============================================
 // MAIN FUNCTION
 // ============================================
 
@@ -166,54 +220,7 @@ const main = () => {
   AppState.cart.itemCount = 0;
   AppState.cart.lastSelectedProduct = null;
 
-  // 상품 목록 초기화
-  AppState.products = [
-    {
-      id: PRODUCT_ONE,
-      name: '버그 없애는 키보드',
-      value: 10000,
-      originalValue: 10000,
-      quantity: 50,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_TWO,
-      name: '생산성 폭발 마우스',
-      value: 20000,
-      originalValue: 20000,
-      quantity: 30,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_THREE,
-      name: '거북목 탈출 모니터암',
-      value: 30000,
-      originalValue: 30000,
-      quantity: 20,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_FOUR,
-      name: '에러 방지 노트북 파우치',
-      value: 15000,
-      originalValue: 15000,
-      quantity: 0,
-      onSale: false,
-      suggestSale: false,
-    },
-    {
-      id: PRODUCT_FIVE,
-      name: '코딩할 때 듣는 Lo-Fi 스피커',
-      value: 25000,
-      originalValue: 25000,
-      quantity: 10,
-      onSale: false,
-      suggestSale: false,
-    },
-  ];
+  // 상품 목록 초기화는 나중에 setProductList로 처리
 
   // DOM 요소 생성
   const root = document.getElementById('app');
@@ -414,33 +421,100 @@ const main = () => {
   // summaryElement 설정 (rightColumn에서 찾기)
   AppState.elements.summaryElement = rightColumn.querySelector('#cart-total');
 
-  // 전역 변수 설정
-  const globals = {
-    productList: AppState.products,
-    productSelector: AppState.elements.productSelector,
-    cartDisplay: AppState.elements.cartDisplay,
-    summaryElement: AppState.elements.summaryElement,
-    stockInfo: AppState.elements.stockInfo,
-    totalAmount: AppState.cart.totalAmount,
-    itemCount: AppState.cart.itemCount,
-    bonusPoints: AppState.cart.bonusPoints,
-    lastSelectedProduct: AppState.cart.lastSelectedProduct,
-  };
+  // 전역 변수 설정이 더 이상 필요하지 않음
+  // 모든 상태는 래퍼 함수를 통해 접근
 
-  setUIGlobals(globals);
-  setEventGlobals(globals);
+  // 초기화 순서 재구성 - 즉시 실행으로 테스트 호환성 확보
+  // 1단계: 기본 초기화
+  try {
+    // 상품 목록 설정
+    setProductList([
+      {
+        id: PRODUCT_ONE,
+        name: '버그 없애는 키보드',
+        value: 10000,
+        originalValue: 10000,
+        quantity: 50,
+        onSale: false,
+        suggestSale: false,
+      },
+      {
+        id: PRODUCT_TWO,
+        name: '생산성 폭발 마우스',
+        value: 20000,
+        originalValue: 20000,
+        quantity: 30,
+        onSale: false,
+        suggestSale: false,
+      },
+      {
+        id: PRODUCT_THREE,
+        name: '거북목 탈출 모니터암',
+        value: 30000,
+        originalValue: 30000,
+        quantity: 20,
+        onSale: false,
+        suggestSale: false,
+      },
+      {
+        id: PRODUCT_FOUR,
+        name: '에러 방지 노트북 파우치',
+        value: 15000,
+        originalValue: 15000,
+        quantity: 0,
+        onSale: false,
+        suggestSale: false,
+      },
+      {
+        id: PRODUCT_FIVE,
+        name: '코딩할 때 듣는 Lo-Fi 스피커',
+        value: 25000,
+        originalValue: 25000,
+        quantity: 10,
+        onSale: false,
+        suggestSale: false,
+      },
+    ]);
 
-  // 초기화
-  import('./uiUpdates.js').then(({ updateSelectOptions, calculateCart }) => {
-    updateSelectOptions();
-    calculateCart();
-  });
+    // DOM 요소 설정
+    setDOMElements({
+      productSelector,
+      addButton,
+      cartDisplay,
+      stockInfo,
+      summaryElement: rightColumn.querySelector('#cart-total'),
+    });
+  } catch (error) {
+    console.warn('기본 초기화 중 오류 발생:', error);
+  }
 
-  // 타이머 설정
-  setupTimers();
+  // 2단계: UI 업데이트 (즉시 실행)
+  try {
+    updateSelectOptions(getProductList, getDOMElements);
+    calculateCart(getProductList, getCartState, setCartState, getDOMElements);
+  } catch (error) {
+    console.warn('UI 업데이트 중 오류 발생:', error);
+  }
 
-  // 이벤트 리스너 설정
-  setupEventListeners(addButton);
+  // 3단계: 타이머 설정
+  setupLightningSaleTimer();
+  setupRecommendationTimer();
+
+  // 4단계: 이벤트 리스너 설정 (즉시 실행)
+  try {
+    const setupEventListeners = createSetupEventListeners(
+      getDOMElements,
+      getProductList,
+      updateLastSelectedProduct,
+      getCartState,
+      setCartState,
+      calculateCart,
+      updateSelectOptions,
+    );
+    setupEventListeners(addButton);
+  } catch (error) {
+    console.warn('이벤트 리스너 설정 중 오류 발생:', error);
+  }
 };
 
 // ============================================

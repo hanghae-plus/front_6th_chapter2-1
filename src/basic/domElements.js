@@ -73,7 +73,8 @@ export const DOMElements = {
   },
 
   getCartItems() {
-    return Array.from(this.getCartDisplay().children || []);
+    const cartDisplay = this.getCartDisplay();
+    return cartDisplay ? Array.from(cartDisplay.children || []) : [];
   },
 
   getCartItemQuantity(productId) {
