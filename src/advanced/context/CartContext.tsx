@@ -20,116 +20,131 @@ const initialState: AppState = {
   selectedProductId: null,
 };
 
+// 헬퍼 함수들
+const handleAddToCart = (state: AppState, productId: string): AppState => {
+  const product = state.products.find(p => p.id === productId);
+  if (!product || product.quantity <= 0) return state;
+
+  const existingItem = state.cartItems.find(item => item.id === productId);
+
+  if (existingItem) {
+    // 이미 장바구니에 있는 경우 수량만 증가
+    const updatedItems = state.cartItems.map(item => (item.id === productId ? { ...item, quantity: item.quantity + 1 } : item));
+    const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, quantity: p.quantity - 1 } : p));
+
+    return {
+      ...state,
+      cartItems: updatedItems,
+      products: updatedProducts,
+    };
+  } else {
+    // 새로운 아이템 추가
+    const newItem: Cart = {
+      id: productId,
+      quantity: 1,
+      product: { ...product },
+    };
+    const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, quantity: p.quantity - 1 } : p));
+
+    return {
+      ...state,
+      cartItems: [...state.cartItems, newItem],
+      products: updatedProducts,
+    };
+  }
+};
+
+const handleUpdateQuantity = (state: AppState, productId: string, change: number): AppState => {
+  const item = state.cartItems.find(item => item.id === productId);
+  if (!item) return state;
+
+  const newQuantity = item.quantity + change;
+
+  if (newQuantity <= 0) {
+    // 아이템 제거
+    const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, quantity: p.quantity + item.quantity } : p));
+
+    return {
+      ...state,
+      cartItems: state.cartItems.filter(item => item.id !== productId),
+      products: updatedProducts,
+    };
+  }
+
+  // 재고 확인
+  const product = state.products.find(p => p.id === productId);
+  if (!product || product.quantity < change) return state;
+
+  const updatedItems = state.cartItems.map(item => (item.id === productId ? { ...item, quantity: newQuantity } : item));
+  const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, quantity: p.quantity - change } : p));
+
+  return {
+    ...state,
+    cartItems: updatedItems,
+    products: updatedProducts,
+  };
+};
+
+const handleRemoveFromCart = (state: AppState, productId: string): AppState => {
+  const item = state.cartItems.find(item => item.id === productId);
+  if (!item) return state;
+
+  const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, quantity: p.quantity + item.quantity } : p));
+
+  return {
+    ...state,
+    cartItems: state.cartItems.filter(item => item.id !== productId),
+    products: updatedProducts,
+  };
+};
+
+const handleClearCart = (state: AppState): AppState => {
+  // 모든 아이템을 재고로 반환
+  const updatedProducts = state.products.map(product => {
+    const cartItem = state.cartItems.find(item => item.id === product.id);
+    return cartItem ? { ...product, quantity: product.quantity + cartItem.quantity } : product;
+  });
+
+  return {
+    ...state,
+    cartItems: [],
+    products: updatedProducts,
+  };
+};
+
+const handleUpdateProducts = (state: AppState, products: Product[]): AppState => {
+  return {
+    ...state,
+    products,
+  };
+};
+
+const handleSetSelectedProduct = (state: AppState, productId: string | null): AppState => {
+  return {
+    ...state,
+    selectedProductId: productId,
+  };
+};
+
 const cartReducer = (state: AppState, action: CartAction): AppState => {
   switch (action.type) {
-    case "ADD_TO_CART": {
-      const product = state.products.find(p => p.id === action.productId);
-      if (!product || product.quantity <= 0) return state;
+    case "ADD_TO_CART":
+      return handleAddToCart(state, action.productId);
 
-      const existingItem = state.cartItems.find(item => item.id === action.productId);
+    case "UPDATE_QUANTITY":
+      return handleUpdateQuantity(state, action.productId, action.change);
 
-      if (existingItem) {
-        // 이미 장바구니에 있는 경우 수량만 증가
-        const updatedItems = state.cartItems.map(item => (item.id === action.productId ? { ...item, quantity: item.quantity + 1 } : item));
+    case "REMOVE_FROM_CART":
+      return handleRemoveFromCart(state, action.productId);
 
-        const updatedProducts = state.products.map(p => (p.id === action.productId ? { ...p, quantity: p.quantity - 1 } : p));
+    case "CLEAR_CART":
+      return handleClearCart(state);
 
-        return {
-          ...state,
-          cartItems: updatedItems,
-          products: updatedProducts,
-        };
-      } else {
-        // 새로운 아이템 추가
-        const newItem: Cart = {
-          id: action.productId,
-          quantity: 1,
-          product: { ...product },
-        };
+    case "UPDATE_PRODUCTS":
+      return handleUpdateProducts(state, action.products);
 
-        const updatedProducts = state.products.map(p => (p.id === action.productId ? { ...p, quantity: p.quantity - 1 } : p));
-
-        return {
-          ...state,
-          cartItems: [...state.cartItems, newItem],
-          products: updatedProducts,
-        };
-      }
-    }
-
-    case "UPDATE_QUANTITY": {
-      const { productId, change } = action;
-      const item = state.cartItems.find(item => item.id === productId);
-      if (!item) return state;
-
-      const newQuantity = item.quantity + change;
-
-      if (newQuantity <= 0) {
-        // 아이템 제거
-        const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, quantity: p.quantity + item.quantity } : p));
-
-        return {
-          ...state,
-          cartItems: state.cartItems.filter(item => item.id !== productId),
-          products: updatedProducts,
-        };
-      }
-
-      // 재고 확인
-      const product = state.products.find(p => p.id === productId);
-      if (!product || product.quantity < change) return state;
-
-      const updatedItems = state.cartItems.map(item => (item.id === productId ? { ...item, quantity: newQuantity } : item));
-
-      const updatedProducts = state.products.map(p => (p.id === productId ? { ...p, quantity: p.quantity - change } : p));
-
-      return {
-        ...state,
-        cartItems: updatedItems,
-        products: updatedProducts,
-      };
-    }
-
-    case "REMOVE_FROM_CART": {
-      const item = state.cartItems.find(item => item.id === action.productId);
-      if (!item) return state;
-
-      const updatedProducts = state.products.map(p => (p.id === action.productId ? { ...p, quantity: p.quantity + item.quantity } : p));
-
-      return {
-        ...state,
-        cartItems: state.cartItems.filter(item => item.id !== action.productId),
-        products: updatedProducts,
-      };
-    }
-
-    case "CLEAR_CART": {
-      // 모든 아이템을 재고로 반환
-      const updatedProducts = state.products.map(product => {
-        const cartItem = state.cartItems.find(item => item.id === product.id);
-        return cartItem ? { ...product, quantity: product.quantity + cartItem.quantity } : product;
-      });
-
-      return {
-        ...state,
-        cartItems: [],
-        products: updatedProducts,
-      };
-    }
-
-    case "UPDATE_PRODUCTS": {
-      return {
-        ...state,
-        products: action.products,
-      };
-    }
-
-    case "SET_SELECTED_PRODUCT": {
-      return {
-        ...state,
-        selectedProductId: action.productId,
-      };
-    }
+    case "SET_SELECTED_PRODUCT":
+      return handleSetSelectedProduct(state, action.productId);
 
     default:
       return state;
