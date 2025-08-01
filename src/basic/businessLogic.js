@@ -131,8 +131,7 @@ export const updateCartState = (cartState, updateFunctions) => {
   updateTotalAmount(cartState.totalAmount);
   updateItemCount(cartState.itemCount);
 
-  // 포인트 계산 완료 로그
-  console.log('포인트 계산 완료:', cartState.finalPoints);
+  // 포인트 계산 완료
 };
 
 // 장바구니 아이템 계산 (개선된 버전)

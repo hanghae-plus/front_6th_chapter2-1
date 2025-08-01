@@ -58,10 +58,7 @@ const safeExecute = (fn, fallback) => {
 };
 
 // 초기화 상태 확인
-export const ensureInitialized = () => {
-  // 아직 초기화 상태 추적 시스템은 나중에 추가
-  return true;
-};
+export const ensureInitialized = () => true;
 
 // 상품 목록 관리 (안전한 래퍼)
 export const getProductList = () => {
@@ -81,8 +78,8 @@ export const setProductList = (newProductList) => {
 };
 
 // 장바구니 상태 관리 (안전한 래퍼)
-export const getCartState = () => {
-  return safeExecute(
+export const getCartState = () =>
+  safeExecute(
     () => ({
       itemCount: AppState.cart.itemCount,
       totalAmount: AppState.cart.totalAmount,
@@ -91,29 +88,25 @@ export const getCartState = () => {
     }),
     { itemCount: 0, totalAmount: 0, lastSelectedProduct: null, bonusPoints: 0 },
   );
-};
 
 export const setCartState = (newState) => {
   if (newState.itemCount !== undefined) {
-    console.log(`itemCount 변경: ${AppState.cart.itemCount} → ${newState.itemCount}`);
     AppState.cart.itemCount = newState.itemCount;
   }
   if (newState.totalAmount !== undefined) {
-    console.log(`totalAmount 변경: ${AppState.cart.totalAmount} → ${newState.totalAmount}`);
     AppState.cart.totalAmount = newState.totalAmount;
   }
   if (newState.lastSelectedProduct !== undefined) {
     AppState.cart.lastSelectedProduct = newState.lastSelectedProduct;
   }
   if (newState.bonusPoints !== undefined) {
-    console.log(`bonusPoints 변경: ${AppState.cart.bonusPoints} → ${newState.bonusPoints}`);
     AppState.cart.bonusPoints = newState.bonusPoints;
   }
 };
 
 // DOM 요소 관리 (안전한 래퍼)
-export const getDOMElements = () => {
-  return safeExecute(
+export const getDOMElements = () =>
+  safeExecute(
     () => ({
       productSelector: AppState.elements.productSelector,
       addButton: AppState.elements.addButton,
@@ -123,7 +116,6 @@ export const getDOMElements = () => {
     }),
     {},
   );
-};
 
 export const setDOMElements = (elements) => {
   if (elements.productSelector) AppState.elements.productSelector = elements.productSelector;
@@ -139,7 +131,6 @@ export const updateItemCount = (newCount) => {
     console.error('itemCount는 0 이상의 숫자여야 합니다');
     return;
   }
-  console.log(`itemCount 변경: ${AppState.cart.itemCount} → ${newCount}`);
   AppState.cart.itemCount = newCount;
 };
 
@@ -148,7 +139,6 @@ export const updateTotalAmount = (newAmount) => {
     console.error('totalAmount는 0 이상의 숫자여야 합니다');
     return;
   }
-  console.log(`totalAmount 변경: ${AppState.cart.totalAmount} → ${newAmount}`);
   AppState.cart.totalAmount = newAmount;
 };
 
@@ -161,10 +151,10 @@ export const updateLastSelectedProduct = (productId) => {
 };
 
 // 호환성을 위한 기존 변수 참조 (점진적 제거 예정)
-const bonusPoints = AppState.cart.bonusPoints;
-const itemCount = AppState.cart.itemCount;
-const totalAmount = AppState.cart.totalAmount;
-const lastSelectedProduct = AppState.cart.lastSelectedProduct;
+// const bonusPoints = AppState.cart.bonusPoints;
+// const itemCount = AppState.cart.itemCount;
+// const totalAmount = AppState.cart.totalAmount;
+// const lastSelectedProduct = AppState.cart.lastSelectedProduct;
 
 // ============================================
 // MAIN FUNCTION
@@ -433,7 +423,7 @@ const main = () => {
     stockInfo: AppState.elements.stockInfo,
     totalAmount: AppState.cart.totalAmount,
     itemCount: AppState.cart.itemCount,
-    bonusPoints,
+    bonusPoints: AppState.cart.bonusPoints,
     lastSelectedProduct: AppState.cart.lastSelectedProduct,
   };
 

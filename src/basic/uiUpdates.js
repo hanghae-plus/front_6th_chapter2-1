@@ -2,7 +2,7 @@
 // UI UPDATE FUNCTIONS
 // ============================================
 
-import { calculateAllPoints, calculateCartState, calculateCartStatePure } from './businessLogic.js';
+import { calculateAllPoints, calculateCartStatePure } from './businessLogic.js';
 import { QUANTITY_THRESHOLDS } from './constants.js';
 import { getTotalStock, getStockStatusMessage, isTuesdayDay } from './utils.js';
 

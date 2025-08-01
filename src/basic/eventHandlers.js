@@ -131,11 +131,16 @@ const handleCartInteraction = (event) => {
     const currentQuantity = parseInt(quantityElement.textContent);
     const newQuantity = currentQuantity + quantityChange;
 
-    if (newQuantity > 0 && newQuantity <= product.quantity + currentQuantity) {
+    // 재고 계산 수정: 현재 장바구니 수량을 고려한 재고 확인
+    const availableStock = product.quantity + currentQuantity;
+
+    if (newQuantity > 0 && newQuantity <= availableStock) {
       quantityElement.textContent = newQuantity;
-      product.quantity -= quantityChange;
+      // 재고 업데이트: 실제로 사용된 수량만큼만 차감
+      product.quantity = availableStock - newQuantity;
     } else if (newQuantity <= 0) {
-      product.quantity += currentQuantity;
+      // 수량이 0이 되면 재고를 모두 복구하고 아이템 제거
+      product.quantity = availableStock;
       itemElement.remove();
     } else {
       alert('재고가 부족합니다.');
@@ -144,6 +149,7 @@ const handleCartInteraction = (event) => {
   } else if (target.classList.contains('remove-item')) {
     const quantityElement = itemElement.querySelector('.quantity-number');
     const removedQuantity = parseInt(quantityElement.textContent);
+    // Remove 버튼: 현재 장바구니 수량을 재고에 복구
     product.quantity += removedQuantity;
     itemElement.remove();
   }
