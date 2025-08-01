@@ -37,16 +37,16 @@ export class ServiceManager {
   }
 
   /**
-   * 모든 Service를 반환합니다.
+   * 모든 Service를 동적으로 반환합니다.
    *
    * @returns {Object} Service 객체들
    */
   getAllServices() {
-    return {
-      productService: this.get("product"),
-      cartService: this.get("cart"),
-      orderService: this.get("order"),
-      discountService: this.get("discount"),
-    };
+    const services = {};
+    for (const [name, service] of this.services) {
+      const serviceName = name + "Service";
+      services[serviceName] = service;
+    }
+    return services;
   }
 }
