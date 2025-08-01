@@ -1,6 +1,7 @@
-// ============================================
-// UI UPDATE FUNCTIONS
-// ============================================
+/**
+ * UI 업데이트 함수들
+ * 사용자 인터페이스 업데이트를 담당하는 함수들을 관리
+ */
 
 import { calculateAllPoints, calculateCartStatePure } from './businessLogic.js';
 import { QUANTITY_THRESHOLDS } from './constants.js';
@@ -17,29 +18,25 @@ import {
   safeAddClass,
 } from './domElements.js';
 import { getTotalStock, getStockStatusMessage, isTuesdayDay } from './utils.js';
-// 순환 참조 방지를 위해 main.basic.js import 제거
-// 대신 함수를 매개변수로 받도록 수정
-
-// 전역 변수들 (main.basic.js에서 설정됨) - 점진적 정리 중
-// 상품 목록과 장바구니 상태는 래퍼 함수로 접근
-// DOM 요소들은 래퍼 함수로 접근
 
 // DOM 요소 캐싱
 let cachedElements = null;
 
-// DOM 요소 캐싱 초기화
+/**
+ * DOM 요소 캐싱 초기화
+ * @returns {Object} 캐시된 DOM 요소들
+ */
 const initializeCachedElements = () => {
   if (cachedElements) return cachedElements;
   cachedElements = DOMElements.getAllElements();
   return cachedElements;
 };
 
-// 전역 변수 설정 함수 (더 이상 필요하지 않음)
-export const setGlobalVariables = (globals) => {
-  // DOM 요소들은 getDOMElements()를 통해 접근
-};
-
-// 상품 선택 옵션 업데이트
+/**
+ * 상품 선택 옵션 업데이트
+ * @param {Function} getProductList - 상품 목록 가져오기 함수
+ * @param {Function} getDOMElements - DOM 요소 가져오기 함수
+ */
 export const updateSelectOptions = (getProductList, getDOMElements) => {
   safeClearProductSelector();
   const productList = getProductList();
@@ -93,14 +90,19 @@ export const updateSelectOptions = (getProductList, getDOMElements) => {
   }
 };
 
-// 장바구니 아이템 정보 추출
+/**
+ * 장바구니 아이템 정보 추출
+ * @returns {Array} 장바구니 아이템 정보 배열
+ */
 const extractCartItems = () =>
   DOMElements.getCartItems().map((item) => ({
     productId: item.id,
     quantity: parseInt(safeQuerySelector(item, '.quantity-number')?.textContent || '0'),
   }));
 
-// 수량에 따른 폰트 스타일 업데이트
+/**
+ * 수량에 따른 폰트 스타일 업데이트
+ */
 const updateQuantityStyles = () => {
   DOMElements.getCartItems().forEach((item) => {
     const quantityElement = safeQuerySelector(item, '.quantity-number');
@@ -115,14 +117,22 @@ const updateQuantityStyles = () => {
   });
 };
 
-// 전역 변수 업데이트
+/**
+ * 전역 변수 업데이트
+ * @param {Object} cartState - 장바구니 상태
+ * @param {Function} setCartState - 장바구니 상태 설정 함수
+ */
 const updateGlobalState = (cartState, setCartState) => {
-  // main.basic.js의 상태 업데이트
   setCartState(cartState);
 };
 
-// 장바구니 계산 및 UI 업데이트
-export const calculateCart = (getProductList, getCartState, setCartState, getDOMElements) => {
+/**
+ * 장바구니 계산 및 UI 업데이트
+ * @param {Function} getProductList - 상품 목록 가져오기 함수
+ * @param {Function} getCartState - 장바구니 상태 가져오기 함수
+ * @param {Function} setCartState - 장바구니 상태 설정 함수
+ */
+export const calculateCart = (getProductList, getCartState, setCartState) => {
   // 1. 장바구니 아이템 정보 추출
   const cartItems = extractCartItems();
 
@@ -137,12 +147,16 @@ export const calculateCart = (getProductList, getCartState, setCartState, getDOM
   updateGlobalState(cartState, setCartState);
 
   // 5. UI 업데이트
-  updateCartUI(cartState, getDOMElements, getProductList, getCartState);
-  updatePointsDisplay(getCartState, getDOMElements);
-  updateStockInfo(getProductList, getDOMElements);
+  updateCartUI(cartState, getProductList, getCartState);
+  updatePointsDisplay(getCartState);
+  updateStockInfo(getProductList);
 };
 
-// 아이템 수 표시 업데이트
+/**
+ * 아이템 수 표시 업데이트
+ * @param {Object} elements - DOM 요소들
+ * @param {Function} getCartState - 장바구니 상태 가져오기 함수
+ */
 const updateItemCountDisplay = (elements, getCartState) => {
   if (elements.itemCount) {
     const { itemCount } = getCartState();
@@ -150,7 +164,11 @@ const updateItemCountDisplay = (elements, getCartState) => {
   }
 };
 
-// 상품별 정보 HTML 생성
+/**
+ * 상품별 정보 HTML 생성
+ * @param {Function} getProductList - 상품 목록 가져오기 함수
+ * @returns {string} 생성된 HTML
+ */
 const generateProductItemsHTML = (getProductList) => {
   let html = '';
   const cartItems = DOMElements.getCartItems();
@@ -174,7 +192,13 @@ const generateProductItemsHTML = (getProductList) => {
   return html;
 };
 
-// 할인 정보 HTML 생성
+/**
+ * 할인 정보 HTML 생성
+ * @param {Array} itemDiscounts - 아이템 할인 목록
+ * @param {number} finalTotal - 최종 총액
+ * @param {Function} getCartState - 장바구니 상태 가져오기 함수
+ * @returns {string} 생성된 HTML
+ */
 const generateDiscountHTML = (itemDiscounts, finalTotal, getCartState) => {
   let html = '';
   const { itemCount } = getCartState();
@@ -209,7 +233,15 @@ const generateDiscountHTML = (itemDiscounts, finalTotal, getCartState) => {
   return html;
 };
 
-// 요약 상세 정보 업데이트
+/**
+ * 요약 상세 정보 업데이트
+ * @param {Object} elements - DOM 요소들
+ * @param {number} subtotal - 소계
+ * @param {Array} itemDiscounts - 아이템 할인 목록
+ * @param {number} finalTotal - 최종 총액
+ * @param {Function} getProductList - 상품 목록 가져오기 함수
+ * @param {Function} getCartState - 장바구니 상태 가져오기 함수
+ */
 const updateSummaryDetails = (
   elements,
   subtotal,
@@ -251,7 +283,11 @@ const updateSummaryDetails = (
   }
 };
 
-// 총액 표시 업데이트
+/**
+ * 총액 표시 업데이트
+ * @param {Object} elements - DOM 요소들
+ * @param {number} finalTotal - 최종 총액
+ */
 const updateTotalDisplay = (elements, finalTotal) => {
   const totalDiv = safeQuerySelector(elements.cartTotal, '.text-2xl');
   if (totalDiv) {
@@ -259,7 +295,13 @@ const updateTotalDisplay = (elements, finalTotal) => {
   }
 };
 
-// 할인 정보 업데이트
+/**
+ * 할인 정보 업데이트
+ * @param {Object} elements - DOM 요소들
+ * @param {number} subtotal - 소계
+ * @param {number} finalTotal - 최종 총액
+ * @param {number} discountRate - 할인율
+ */
 const updateDiscountInfo = (elements, subtotal, finalTotal, discountRate) => {
   if (!elements.discountInfo) return;
 
@@ -282,7 +324,11 @@ const updateDiscountInfo = (elements, subtotal, finalTotal, discountRate) => {
   }
 };
 
-// 화요일 특별 할인 배너 업데이트
+/**
+ * 화요일 특별 할인 배너 업데이트
+ * @param {Object} elements - DOM 요소들
+ * @param {number} finalTotal - 최종 총액
+ */
 const updateTuesdaySpecialBanner = (elements, finalTotal) => {
   if (elements.tuesdaySpecial) {
     if (isTuesdayDay() && finalTotal > 0) {
@@ -293,8 +339,13 @@ const updateTuesdaySpecialBanner = (elements, finalTotal) => {
   }
 };
 
-// 장바구니 UI 업데이트
-const updateCartUI = (cartState, getDOMElements, getProductList, getCartState) => {
+/**
+ * 장바구니 UI 업데이트
+ * @param {Object} cartState - 장바구니 상태
+ * @param {Function} getProductList - 상품 목록 가져오기 함수
+ * @param {Function} getCartState - 장바구니 상태 가져오기 함수
+ */
+const updateCartUI = (cartState, getProductList, getCartState) => {
   const { subtotal, itemDiscounts, totalAmount: finalTotal, discountRate } = cartState;
   const elements = initializeCachedElements();
 
@@ -305,8 +356,11 @@ const updateCartUI = (cartState, getDOMElements, getProductList, getCartState) =
   updateTuesdaySpecialBanner(elements, finalTotal);
 };
 
-// 포인트 표시 업데이트
-const updatePointsDisplay = (getCartState, getDOMElements) => {
+/**
+ * 포인트 표시 업데이트
+ * @param {Function} getCartState - 장바구니 상태 가져오기 함수
+ */
+const updatePointsDisplay = (getCartState) => {
   const elements = initializeCachedElements();
   if (!elements.loyaltyPoints) return;
 
@@ -339,15 +393,23 @@ const updatePointsDisplay = (getCartState, getDOMElements) => {
   }
 };
 
-// 재고 정보 업데이트
-const updateStockInfo = (getProductList, getDOMElements) => {
+/**
+ * 재고 정보 업데이트
+ * @param {Function} getProductList - 상품 목록 가져오기 함수
+ */
+const updateStockInfo = (getProductList) => {
   const productList = getProductList();
   const stockMessage = getStockStatusMessage(productList);
   safeUpdateStockInfo(stockMessage);
 };
 
-// 장바구니 내 가격 업데이트
-export const updatePricesInCart = (getProductList, getCartState, setCartState, getDOMElements) => {
+/**
+ * 장바구니 내 가격 업데이트
+ * @param {Function} getProductList - 상품 목록 가져오기 함수
+ * @param {Function} getCartState - 장바구니 상태 가져오기 함수
+ * @param {Function} setCartState - 장바구니 상태 설정 함수
+ */
+export const updatePricesInCart = (getProductList, getCartState, setCartState) => {
   const cartItems = DOMElements.getCartItems();
   const productList = getProductList();
 
@@ -384,5 +446,5 @@ export const updatePricesInCart = (getProductList, getCartState, setCartState, g
     }
   }
 
-  calculateCart(getProductList, getCartState, setCartState, getDOMElements);
+  calculateCart(getProductList, getCartState, setCartState);
 };

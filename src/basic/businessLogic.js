@@ -1,6 +1,7 @@
-// ============================================
-// BUSINESS LOGIC - 계산 및 상태 관리
-// ============================================
+/**
+ * 비즈니스 로직 - 계산 및 상태 관리
+ * 장바구니 계산, 할인 적용, 포인트 계산 등의 핵심 비즈니스 로직을 담당
+ */
 
 import { PRODUCT_IDS, DISCOUNT_RATES, QUANTITY_THRESHOLDS, POINTS_CONFIG } from './constants.js';
 import { isTuesdayDay, findProductById } from './utils.js';
@@ -8,7 +9,12 @@ import { isTuesdayDay, findProductById } from './utils.js';
 // 캐싱을 위한 Map
 const discountCache = new Map();
 
-// 안전한 계산을 위한 헬퍼 함수들
+/**
+ * 안전한 계산을 위한 헬퍼 함수
+ * @param {Function} fn - 실행할 함수
+ * @param {*} fallback - 에러 시 반환할 기본값
+ * @returns {*} 함수 실행 결과 또는 기본값
+ */
 const safeCalculate = (fn, fallback = 0) => {
   try {
     return fn();
@@ -18,6 +24,12 @@ const safeCalculate = (fn, fallback = 0) => {
   }
 };
 
+/**
+ * 안전한 상품 찾기 함수
+ * @param {Array} products - 상품 목록
+ * @param {string} productId - 상품 ID
+ * @returns {Object|null} 찾은 상품 객체 또는 null
+ */
 const safeFindProduct = (products, productId) => {
   // 입력 검증
   if (!Array.isArray(products)) {
@@ -38,7 +50,12 @@ const safeFindProduct = (products, productId) => {
   return product;
 };
 
-// 캐시된 할인 계산
+/**
+ * 캐시된 할인 계산
+ * @param {string} productId - 상품 ID
+ * @param {number} quantity - 수량
+ * @returns {number} 할인율
+ */
 const getCachedDiscount = (productId, quantity) => {
   const cacheKey = `${productId}-${quantity}`;
 
@@ -52,7 +69,12 @@ const getCachedDiscount = (productId, quantity) => {
   return discount;
 };
 
-// 장바구니 상태 계산 함수 (원본 로직과 동일)
+/**
+ * 장바구니 상태 계산 함수
+ * @param {Array} cartItems - 장바구니 아이템 목록
+ * @param {Array} products - 상품 목록
+ * @returns {Object} 계산된 장바구니 상태
+ */
 export const calculateCartState = (cartItems, products) => {
   // 입력 검증
   if (!Array.isArray(cartItems)) {
@@ -95,7 +117,12 @@ export const calculateCartState = (cartItems, products) => {
   );
 };
 
-// 순수 함수: 장바구니 상태 계산 (UI 업데이트 없음)
+/**
+ * 순수 함수: 장바구니 상태 계산 (UI 업데이트 없음)
+ * @param {Array} cartItems - 장바구니 아이템 목록
+ * @param {Array} products - 상품 목록
+ * @returns {Object} 계산된 장바구니 상태 (포인트 포함)
+ */
 export const calculateCartStatePure = (cartItems, products) => {
   // 장바구니 아이템 계산
   const cartCalculation = calculateCartItems(cartItems, products);
@@ -124,17 +151,24 @@ export const calculateCartStatePure = (cartItems, products) => {
   };
 };
 
-// UI 업데이트 함수 (별도 분리)
+/**
+ * UI 업데이트 함수 (별도 분리)
+ * @param {Object} cartState - 장바구니 상태
+ * @param {Object} updateFunctions - 업데이트 함수들
+ */
 export const updateCartState = (cartState, updateFunctions) => {
   const { updateTotalAmount, updateItemCount } = updateFunctions;
 
   updateTotalAmount(cartState.totalAmount);
   updateItemCount(cartState.itemCount);
-
-  // 포인트 계산 완료
 };
 
-// 장바구니 아이템 계산 (개선된 버전)
+/**
+ * 장바구니 아이템 계산
+ * @param {Array} cartItems - 장바구니 아이템 목록
+ * @param {Array} products - 상품 목록
+ * @returns {Object} 계산된 장바구니 정보
+ */
 const calculateCartItems = (cartItems, products) =>
   cartItems.reduce(
     (acc, cartItem) => {
@@ -156,10 +190,20 @@ const calculateCartItems = (cartItems, products) =>
     { subtotal: 0, itemCount: 0, itemDiscounts: [], totalAmount: 0 },
   );
 
-// 아이템 총액 계산
+/**
+ * 아이템 총액 계산
+ * @param {Object} product - 상품 객체
+ * @param {number} quantity - 수량
+ * @returns {number} 아이템 총액
+ */
 const calculateItemTotal = (product, quantity) => product.value * quantity;
 
-// 장바구니 누적기 업데이트
+/**
+ * 장바구니 누적기 업데이트
+ * @param {Object} acc - 누적 객체
+ * @param {Object} params - 계산 파라미터
+ * @returns {Object} 업데이트된 누적 객체
+ */
 const updateCartAccumulator = (acc, { product, quantity, itemTotal, discount }) => {
   const discountedTotal = itemTotal * (1 - discount);
   const discountRate = calculateDiscountRate(itemTotal, discountedTotal);
@@ -175,11 +219,23 @@ const updateCartAccumulator = (acc, { product, quantity, itemTotal, discount }) 
   };
 };
 
-// 할인율 계산
+/**
+ * 할인율 계산
+ * @param {number} originalAmount - 원래 금액
+ * @param {number} discountedAmount - 할인된 금액
+ * @returns {number} 할인율 (%)
+ */
 const calculateDiscountRate = (originalAmount, discountedAmount) =>
   originalAmount > 0 ? ((originalAmount - discountedAmount) / originalAmount) * 100 : 0;
 
-// 총 할인 적용
+/**
+ * 총 할인 적용
+ * @param {number} subtotal - 소계
+ * @param {number} itemCount - 아이템 수
+ * @param {Array} itemDiscounts - 아이템 할인 목록
+ * @param {number} individualDiscountedTotal - 개별 할인 적용된 총액
+ * @returns {Object} 최종 금액과 할인율
+ */
 const calculateTotalWithDiscounts = (
   subtotal,
   itemCount,
@@ -239,7 +295,12 @@ const calculateTotalWithDiscounts = (
   return { totalAmount, discountRate };
 };
 
-// 개별 상품 할인 계산 (개선된 버전)
+/**
+ * 개별 상품 할인 계산
+ * @param {string} productId - 상품 ID
+ * @param {number} quantity - 수량
+ * @returns {number} 할인율
+ */
 const calculateIndividualDiscount = (productId, quantity) => {
   // 입력 검증
   if (!productId || typeof productId !== 'string') {
@@ -282,11 +343,19 @@ const calculateIndividualDiscount = (productId, quantity) => {
   return discountRate;
 };
 
-// 화요일 할인 계산
+/**
+ * 화요일 할인 계산
+ * @param {number} totalAmount - 총 금액
+ * @returns {number} 화요일 할인 금액
+ */
 const calculateTuesdayDiscount = (totalAmount) =>
   isTuesdayDay() ? totalAmount * DISCOUNT_RATES.TUESDAY : 0;
 
-// 화요일 보너스 포인트 계산
+/**
+ * 화요일 보너스 포인트 계산
+ * @param {number} basePoints - 기본 포인트
+ * @returns {number} 보너스 적용된 포인트
+ */
 const calculateTuesdayBonus = (basePoints) => {
   if (isTuesdayDay() && basePoints > 0) {
     return basePoints * 2;
@@ -294,7 +363,13 @@ const calculateTuesdayBonus = (basePoints) => {
   return basePoints;
 };
 
-// 모든 포인트 계산 (개선된 버전)
+/**
+ * 모든 포인트 계산
+ * @param {number} totalAmount - 총 금액
+ * @param {Array} cartItems - 장바구니 아이템 목록
+ * @param {number} itemCount - 아이템 수
+ * @returns {Object} 최종 포인트와 상세 정보
+ */
 export const calculateAllPoints = (totalAmount, cartItems, itemCount) => {
   // 입력 검증
   if (typeof totalAmount !== 'number' || totalAmount < 0) {
@@ -350,10 +425,18 @@ export const calculateAllPoints = (totalAmount, cartItems, itemCount) => {
   return { finalPoints, pointsDetail };
 };
 
-// 기본 포인트 계산
+/**
+ * 기본 포인트 계산
+ * @param {number} totalAmount - 총 금액
+ * @returns {number} 기본 포인트
+ */
 const calculateBasePoints = (totalAmount) => Math.floor(totalAmount / POINTS_CONFIG.POINTS_DIVISOR);
 
-// 상품 세트 확인 (개선된 버전)
+/**
+ * 상품 세트 확인
+ * @param {Array} cartItems - 장바구니 아이템 목록
+ * @returns {Object} 세트 정보
+ */
 const checkProductSet = (cartItems) => {
   // 입력 검증
   if (!Array.isArray(cartItems)) {
@@ -381,7 +464,11 @@ const checkProductSet = (cartItems) => {
   return { type: 'none', bonus: 0 };
 };
 
-// 세트 보너스 계산
+/**
+ * 세트 보너스 계산
+ * @param {Object} productSet - 상품 세트 정보
+ * @returns {number} 세트 보너스 포인트
+ */
 const calculateSetBonus = (productSet) => {
   switch (productSet.type) {
     case 'full':
@@ -393,7 +480,11 @@ const calculateSetBonus = (productSet) => {
   }
 };
 
-// 수량 보너스 계산
+/**
+ * 수량 보너스 계산
+ * @param {number} itemCount - 아이템 수
+ * @returns {number} 수량 보너스 포인트
+ */
 const calculateQuantityBonus = (itemCount) => {
   if (itemCount >= QUANTITY_THRESHOLDS.BONUS_30) {
     return POINTS_CONFIG.BONUS_30;
@@ -407,7 +498,11 @@ const calculateQuantityBonus = (itemCount) => {
   return 0;
 };
 
-// 재고 상태 메시지 생성
+/**
+ * 재고 상태 메시지 생성
+ * @param {Array} products - 상품 목록
+ * @returns {string} 재고 상태 메시지
+ */
 export const getStockStatusMessage = (products) =>
   products
     .filter((product) => product.quantity < QUANTITY_THRESHOLDS.LOW_STOCK)

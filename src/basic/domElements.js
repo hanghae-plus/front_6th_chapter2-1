@@ -1,8 +1,11 @@
-// ============================================
-// DOM ELEMENTS ABSTRACTION
-// ============================================
+/**
+ * DOM 요소 추상화
+ * DOM 요소 접근과 조작을 위한 안전한 래퍼 함수들을 제공
+ */
 
-// DOM 요소 접근 추상화
+/**
+ * DOM 요소 접근 추상화 객체
+ */
 export const DOMElements = {
   // 장바구니 관련 요소
   getItemCount() {
@@ -109,7 +112,11 @@ export const DOMElements = {
   },
 };
 
-// DOM 요소 존재 여부 확인
+/**
+ * DOM 요소 존재 여부 확인
+ * @param {Element} element - 확인할 DOM 요소
+ * @returns {boolean} 요소가 존재하는지 여부
+ */
 export const hasElement = (element) => element !== null && element !== undefined;
 
 // 안전한 DOM 조작을 위한 헬퍼 함수들
@@ -160,17 +167,14 @@ export const safeRemoveElement = (element) => {
   }
 };
 
-export const safeQuerySelector = (element, selector) => {
-  return hasElement(element) ? element.querySelector(selector) : null;
-};
+export const safeQuerySelector = (element, selector) =>
+  hasElement(element) ? element.querySelector(selector) : null;
 
-export const safeQuerySelectorAll = (element, selector) => {
-  return hasElement(element) ? Array.from(element.querySelectorAll(selector)) : [];
-};
+export const safeQuerySelectorAll = (element, selector) =>
+  hasElement(element) ? Array.from(element.querySelectorAll(selector)) : [];
 
-export const safeGetAttribute = (element, attribute) => {
-  return hasElement(element) ? element.getAttribute(attribute) : null;
-};
+export const safeGetAttribute = (element, attribute) =>
+  hasElement(element) ? element.getAttribute(attribute) : null;
 
 export const safeSetAttribute = (element, attribute, value) => {
   if (hasElement(element)) {
@@ -178,9 +182,7 @@ export const safeSetAttribute = (element, attribute, value) => {
   }
 };
 
-export const safeGetValue = (element) => {
-  return hasElement(element) ? element.value : null;
-};
+export const safeGetValue = (element) => (hasElement(element) ? element.value : null);
 
 export const safeSetValue = (element, value) => {
   if (hasElement(element)) {
@@ -188,13 +190,9 @@ export const safeSetValue = (element, value) => {
   }
 };
 
-export const safeGetTextContent = (element) => {
-  return hasElement(element) ? element.textContent : '';
-};
+export const safeGetTextContent = (element) => (hasElement(element) ? element.textContent : '');
 
-export const safeGetInnerHTML = (element) => {
-  return hasElement(element) ? element.innerHTML : '';
-};
+export const safeGetInnerHTML = (element) => (hasElement(element) ? element.innerHTML : '');
 
 // 특화된 DOM 조작 함수들
 export const safeUpdateQuantity = (productId, newQuantity) => {

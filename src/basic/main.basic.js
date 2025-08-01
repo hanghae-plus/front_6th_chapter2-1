@@ -1,6 +1,7 @@
-// ============================================
-// MAIN APPLICATION
-// ============================================
+/**
+ * 메인 애플리케이션
+ * 쇼핑 카트 애플리케이션의 진입점과 초기화를 담당
+ */
 
 import {
   PRODUCT_ONE,
@@ -11,11 +12,11 @@ import {
 } from './constants.js';
 import { createSetupEventListeners } from './eventHandlers.js';
 import { updateSelectOptions, calculateCart } from './uiUpdates.js';
-// ============================================
-// GLOBAL STATE
-// ============================================
 
-// 점진적 정리: 모든 상태 변수들을 객체로 분리
+/**
+ * 애플리케이션 상태 관리
+ * 모든 상태 변수들을 객체로 분리하여 관리
+ */
 const AppState = {
   // 상품 관련 상태
   products: [],
@@ -28,7 +29,7 @@ const AppState = {
     lastSelectedProduct: null,
   },
 
-  // DOM 요소 참조 (점진적 정리 완료)
+  // DOM 요소 참조
   elements: {
     productSelector: null,
     addButton: null,
@@ -38,11 +39,12 @@ const AppState = {
   },
 };
 
-// ============================================
-// 안전한 전역 변수 접근 래퍼 함수들
-// ============================================
-
-// 안전한 함수 실행 래퍼
+/**
+ * 안전한 함수 실행 래퍼
+ * @param {Function} fn - 실행할 함수
+ * @param {*} fallback - 에러 시 반환할 기본값
+ * @returns {*} 함수 실행 결과 또는 기본값
+ */
 const safeExecute = (fn, fallback) => {
   try {
     return fn();
@@ -52,10 +54,16 @@ const safeExecute = (fn, fallback) => {
   }
 };
 
-// 초기화 상태 확인
+/**
+ * 초기화 상태 확인
+ * @returns {boolean} 초기화 완료 여부
+ */
 export const ensureInitialized = () => true;
 
-// 상품 목록 관리 (안전한 래퍼)
+/**
+ * 상품 목록 관리 (안전한 래퍼)
+ * @returns {Array} 상품 목록
+ */
 export const getProductList = () => {
   if (!AppState.products || !Array.isArray(AppState.products)) {
     console.warn('productList가 초기화되지 않았습니다');
@@ -64,6 +72,10 @@ export const getProductList = () => {
   return AppState.products;
 };
 
+/**
+ * 상품 목록 설정
+ * @param {Array} newProductList - 새로운 상품 목록
+ */
 export const setProductList = (newProductList) => {
   if (!Array.isArray(newProductList)) {
     console.error('productList는 배열이어야 합니다');
@@ -72,7 +84,10 @@ export const setProductList = (newProductList) => {
   AppState.products = newProductList;
 };
 
-// 장바구니 상태 관리 (안전한 래퍼)
+/**
+ * 장바구니 상태 관리 (안전한 래퍼)
+ * @returns {Object} 장바구니 상태
+ */
 export const getCartState = () =>
   safeExecute(
     () => ({
@@ -84,6 +99,10 @@ export const getCartState = () =>
     { itemCount: 0, totalAmount: 0, lastSelectedProduct: null, bonusPoints: 0 },
   );
 
+/**
+ * 장바구니 상태 설정
+ * @param {Object} newState - 새로운 장바구니 상태
+ */
 export const setCartState = (newState) => {
   if (newState.itemCount !== undefined) {
     AppState.cart.itemCount = newState.itemCount;
@@ -99,7 +118,10 @@ export const setCartState = (newState) => {
   }
 };
 
-// DOM 요소 관리 (안전한 래퍼)
+/**
+ * DOM 요소 관리 (안전한 래퍼)
+ * @returns {Object} DOM 요소들
+ */
 export const getDOMElements = () =>
   safeExecute(
     () => ({
@@ -112,6 +134,10 @@ export const getDOMElements = () =>
     {},
   );
 
+/**
+ * DOM 요소 설정
+ * @param {Object} elements - 설정할 DOM 요소들
+ */
 export const setDOMElements = (elements) => {
   if (elements.productSelector) AppState.elements.productSelector = elements.productSelector;
   if (elements.addButton) AppState.elements.addButton = elements.addButton;
@@ -120,7 +146,10 @@ export const setDOMElements = (elements) => {
   if (elements.summaryElement) AppState.elements.summaryElement = elements.summaryElement;
 };
 
-// 개별 상태 업데이트 함수들 (안전한 래퍼)
+/**
+ * 개별 상태 업데이트 함수들 (안전한 래퍼)
+ * @param {number} newCount - 새로운 아이템 수
+ */
 export const updateItemCount = (newCount) => {
   if (typeof newCount !== 'number' || newCount < 0) {
     console.error('itemCount는 0 이상의 숫자여야 합니다');
@@ -129,6 +158,10 @@ export const updateItemCount = (newCount) => {
   AppState.cart.itemCount = newCount;
 };
 
+/**
+ * 총액 업데이트
+ * @param {number} newAmount - 새로운 총액
+ */
 export const updateTotalAmount = (newAmount) => {
   if (typeof newAmount !== 'number' || newAmount < 0) {
     console.error('totalAmount는 0 이상의 숫자여야 합니다');
@@ -137,6 +170,10 @@ export const updateTotalAmount = (newAmount) => {
   AppState.cart.totalAmount = newAmount;
 };
 
+/**
+ * 마지막 선택 상품 업데이트
+ * @param {string} productId - 상품 ID
+ */
 export const updateLastSelectedProduct = (productId) => {
   if (typeof productId !== 'string') {
     console.error('productId는 문자열이어야 합니다');
@@ -145,16 +182,9 @@ export const updateLastSelectedProduct = (productId) => {
   AppState.cart.lastSelectedProduct = productId;
 };
 
-// 호환성을 위한 기존 변수 참조 (점진적 제거 예정)
-// const bonusPoints = AppState.cart.bonusPoints;
-// const itemCount = AppState.cart.itemCount;
-// const totalAmount = AppState.cart.totalAmount;
-// const lastSelectedProduct = AppState.cart.lastSelectedProduct;
-
-// ============================================
-// TIMER FUNCTIONS
-// ============================================
-
+/**
+ * 번개세일 타이머 설정
+ */
 const setupLightningSaleTimer = () => {
   const lightningDelay = Math.random() * 10000;
   setTimeout(() => {
@@ -171,13 +201,16 @@ const setupLightningSaleTimer = () => {
         // 동적 import로 updateSelectOptions와 updatePricesInCart 가져오기
         import('./uiUpdates.js').then(({ updateSelectOptions, updatePricesInCart }) => {
           updateSelectOptions(getProductList, getDOMElements);
-          updatePricesInCart(getProductList, getCartState, setCartState, getDOMElements);
+          updatePricesInCart(getProductList, getCartState, setCartState);
         });
       }
     }, 30000);
   }, lightningDelay);
 };
 
+/**
+ * 추천할인 타이머 설정
+ */
 const setupRecommendationTimer = () => {
   setTimeout(() => {
     setInterval(() => {
@@ -202,7 +235,7 @@ const setupRecommendationTimer = () => {
           // 동적 import로 updateSelectOptions와 updatePricesInCart 가져오기
           import('./uiUpdates.js').then(({ updateSelectOptions, updatePricesInCart }) => {
             updateSelectOptions(getProductList, getDOMElements);
-            updatePricesInCart(getProductList, getCartState, setCartState, getDOMElements);
+            updatePricesInCart(getProductList, getCartState, setCartState);
           });
         }
       }
@@ -210,17 +243,15 @@ const setupRecommendationTimer = () => {
   }, Math.random() * 20000);
 };
 
-// ============================================
-// MAIN FUNCTION
-// ============================================
-
+/**
+ * 메인 함수
+ * 애플리케이션 초기화 및 실행
+ */
 const main = () => {
   // 초기화
   AppState.cart.totalAmount = 0;
   AppState.cart.itemCount = 0;
   AppState.cart.lastSelectedProduct = null;
-
-  // 상품 목록 초기화는 나중에 setProductList로 처리
 
   // DOM 요소 생성
   const root = document.getElementById('app');
@@ -238,7 +269,7 @@ const main = () => {
   const productSelector = document.createElement('select');
   productSelector.id = 'product-select';
   productSelector.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
-  AppState.elements.productSelector = productSelector; // 전역 변수에 할당
+  AppState.elements.productSelector = productSelector;
 
   // 그리드 컨테이너 생성
   const gridContainer = document.createElement('div');
@@ -259,18 +290,18 @@ const main = () => {
   addButton.innerHTML = 'Add to Cart';
   addButton.className =
     'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
-  AppState.elements.addButton = addButton; // 전역 변수에 할당
+  AppState.elements.addButton = addButton;
 
   // 재고 정보 생성
   const stockInfo = document.createElement('div');
   stockInfo.id = 'stock-status';
   stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
-  AppState.elements.stockInfo = stockInfo; // 전역 변수에 할당
+  AppState.elements.stockInfo = stockInfo;
 
   // 장바구니 표시 영역 생성
   const cartDisplay = document.createElement('div');
   cartDisplay.id = 'cart-items';
-  AppState.elements.cartDisplay = cartDisplay; // 전역 변수에 할당
+  AppState.elements.cartDisplay = cartDisplay;
 
   // 오른쪽 컬럼 생성
   const rightColumn = document.createElement('div');
@@ -421,9 +452,6 @@ const main = () => {
   // summaryElement 설정 (rightColumn에서 찾기)
   AppState.elements.summaryElement = rightColumn.querySelector('#cart-total');
 
-  // 전역 변수 설정이 더 이상 필요하지 않음
-  // 모든 상태는 래퍼 함수를 통해 접근
-
   // 초기화 순서 재구성 - 즉시 실행으로 테스트 호환성 확보
   // 1단계: 기본 초기화
   try {
@@ -491,7 +519,7 @@ const main = () => {
   // 2단계: UI 업데이트 (즉시 실행)
   try {
     updateSelectOptions(getProductList, getDOMElements);
-    calculateCart(getProductList, getCartState, setCartState, getDOMElements);
+    calculateCart(getProductList, getCartState, setCartState);
   } catch (error) {
     console.warn('UI 업데이트 중 오류 발생:', error);
   }
@@ -517,8 +545,5 @@ const main = () => {
   }
 };
 
-// ============================================
-// INITIALIZATION
-// ============================================
-
+// 애플리케이션 실행
 main();

@@ -1,8 +1,8 @@
-// ============================================
-// EVENT HANDLERS & TIMER FUNCTIONS
-// ============================================
+/**
+ * 이벤트 핸들러 및 타이머 함수들
+ * 사용자 상호작용과 자동 이벤트를 처리하는 함수들을 관리
+ */
 
-import { TIMER_CONFIG } from './constants.js';
 import {
   DOMElements,
   safeSetTextContent,
@@ -12,28 +12,29 @@ import {
   safeGetTextContent,
   safeGetValue,
 } from './domElements.js';
-import { updateSelectOptions, calculateCart, updatePricesInCart } from './uiUpdates.js';
 
-// 전역 변수들 (main.basic.js에서 설정됨) - 점진적 정리 중
-// 상품 목록과 lastSelectedProduct는 래퍼 함수로 접근
-// productSelector와 cartDisplay는 래퍼 함수로 접근
-
-// 전역 변수 설정 함수 (더 이상 필요하지 않음)
-export const setGlobalVariables = (globals) => {
-  // 모든 상태는 래퍼 함수를 통해 접근
-};
-
-// 이벤트 리스너 설정 함수 (매개변수로 필요한 함수들을 받음)
-export const createSetupEventListeners = (
-  getDOMElements,
-  getProductList,
-  updateLastSelectedProduct,
-  getCartState,
-  setCartState,
-  calculateCart,
-  updateSelectOptions,
-) => {
-  return (addButton) => {
+/**
+ * 이벤트 리스너 설정 함수
+ * @param {Function} getDOMElements - DOM 요소 가져오기 함수
+ * @param {Function} getProductList - 상품 목록 가져오기 함수
+ * @param {Function} updateLastSelectedProduct - 마지막 선택 상품 업데이트 함수
+ * @param {Function} getCartState - 장바구니 상태 가져오기 함수
+ * @param {Function} setCartState - 장바구니 상태 설정 함수
+ * @param {Function} calculateCart - 장바구니 계산 함수
+ * @param {Function} updateSelectOptions - 선택 옵션 업데이트 함수
+ * @returns {Function} 이벤트 리스너 설정 함수
+ */
+export const createSetupEventListeners =
+  (
+    getDOMElements,
+    getProductList,
+    updateLastSelectedProduct,
+    getCartState,
+    setCartState,
+    calculateCart,
+    updateSelectOptions,
+  ) =>
+  (addButton) => {
     const handleAddToCart = createHandleAddToCart(
       getDOMElements,
       getProductList,
@@ -58,18 +59,27 @@ export const createSetupEventListeners = (
       elements.cartDisplay.addEventListener('click', handleCartInteraction);
     }
   };
-};
 
-// 장바구니에 상품 추가 함수 (매개변수로 필요한 함수들을 받음)
-const createHandleAddToCart = (
-  getDOMElements,
-  getProductList,
-  updateLastSelectedProduct,
-  getCartState,
-  setCartState,
-  calculateCart,
-) => {
-  return () => {
+/**
+ * 장바구니에 상품 추가 함수
+ * @param {Function} getDOMElements - DOM 요소 가져오기 함수
+ * @param {Function} getProductList - 상품 목록 가져오기 함수
+ * @param {Function} updateLastSelectedProduct - 마지막 선택 상품 업데이트 함수
+ * @param {Function} getCartState - 장바구니 상태 가져오기 함수
+ * @param {Function} setCartState - 장바구니 상태 설정 함수
+ * @param {Function} calculateCart - 장바구니 계산 함수
+ * @returns {Function} 장바구니 추가 핸들러
+ */
+const createHandleAddToCart =
+  (
+    getDOMElements,
+    getProductList,
+    updateLastSelectedProduct,
+    getCartState,
+    setCartState,
+    calculateCart,
+  ) =>
+  () => {
     const elements = getDOMElements();
     const selectedProductId = safeGetValue(elements.productSelector);
 
@@ -102,13 +112,15 @@ const createHandleAddToCart = (
       product.quantity--;
     }
 
-    calculateCart(getProductList, getCartState, setCartState, getDOMElements);
-    // lastSelectedProduct 업데이트는 래퍼 함수 사용
+    calculateCart(getProductList, getCartState, setCartState);
     updateLastSelectedProduct(selectedProductId);
   };
-};
 
-// 장바구니 아이템 요소 생성
+/**
+ * 장바구니 아이템 요소 생성
+ * @param {Object} product - 상품 객체
+ * @returns {Element} 생성된 장바구니 아이템 요소
+ */
 const createCartItemElement = (product) => {
   const newItem = document.createElement('div');
   newItem.id = product.id;
@@ -155,16 +167,26 @@ const createCartItemElement = (product) => {
   return newItem;
 };
 
-// 장바구니 상호작용 처리 함수 (매개변수로 필요한 함수들을 받음)
-const createHandleCartInteraction = (
-  getDOMElements,
-  getProductList,
-  getCartState,
-  setCartState,
-  calculateCart,
-  updateSelectOptions,
-) => {
-  return (event) => {
+/**
+ * 장바구니 상호작용 처리 함수
+ * @param {Function} getDOMElements - DOM 요소 가져오기 함수
+ * @param {Function} getProductList - 상품 목록 가져오기 함수
+ * @param {Function} getCartState - 장바구니 상태 가져오기 함수
+ * @param {Function} setCartState - 장바구니 상태 설정 함수
+ * @param {Function} calculateCart - 장바구니 계산 함수
+ * @param {Function} updateSelectOptions - 선택 옵션 업데이트 함수
+ * @returns {Function} 장바구니 상호작용 핸들러
+ */
+const createHandleCartInteraction =
+  (
+    getDOMElements,
+    getProductList,
+    getCartState,
+    setCartState,
+    calculateCart,
+    updateSelectOptions,
+  ) =>
+  (event) => {
     const { target } = event;
 
     if (
@@ -210,54 +232,15 @@ const createHandleCartInteraction = (
       safeRemoveElement(itemElement);
     }
 
-    calculateCart(getProductList, getCartState, setCartState, getDOMElements);
+    calculateCart(getProductList, getCartState, setCartState);
     updateSelectOptions(getProductList, getDOMElements);
   };
-};
 
-// 타이머 설정
+/**
+ * 타이머 설정 (사용하지 않음 - main.basic.js에서 직접 처리)
+ * @returns {void}
+ */
 export const setupTimers = () => {
-  // 번개세일 타이머 - 원본과 동일한 지연 시간 적용
-  const lightningDelay = Math.random() * TIMER_CONFIG.LIGHTNING_DELAY_MAX;
-  setTimeout(() => {
-    setInterval(() => {
-      const productList = getProductList();
-      const luckyIndex = Math.floor(Math.random() * productList.length);
-      const luckyProduct = productList[luckyIndex];
-
-      if (luckyProduct.quantity > 0 && !luckyProduct.onSale) {
-        luckyProduct.value = Math.round(luckyProduct.originalValue * 0.8);
-        luckyProduct.onSale = true;
-        alert(`⚡번개세일! ${luckyProduct.name}이(가) 20% 할인 중입니다!`);
-        updateSelectOptions();
-        updatePricesInCart();
-      }
-    }, TIMER_CONFIG.LIGHTNING_INTERVAL);
-  }, lightningDelay);
-
-  // 추천할인 타이머 - 원본과 동일한 지연 시간 적용
-  setTimeout(() => {
-    setInterval(() => {
-      const elements = getDOMElements();
-      if (elements.cartDisplay.children.length === 0) {
-        return;
-      }
-      const { lastSelectedProduct } = getCartState();
-      if (lastSelectedProduct) {
-        const productList = getProductList();
-        const suggestProduct = productList.find(
-          (product) =>
-            product.id !== lastSelectedProduct && product.quantity > 0 && !product.suggestSale,
-        );
-
-        if (suggestProduct) {
-          alert(`💝 ${suggestProduct.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
-          suggestProduct.value = Math.round(suggestProduct.value * 0.95);
-          suggestProduct.suggestSale = true;
-          updateSelectOptions();
-          updatePricesInCart();
-        }
-      }
-    }, TIMER_CONFIG.RECOMMENDATION_INTERVAL);
-  }, Math.random() * TIMER_CONFIG.RECOMMENDATION_DELAY_MAX);
+  // 이 함수는 더 이상 사용되지 않습니다.
+  // 타이머 설정은 main.basic.js에서 직접 처리됩니다.
 };
