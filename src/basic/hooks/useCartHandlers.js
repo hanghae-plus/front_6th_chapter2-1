@@ -1,10 +1,10 @@
+import { CartItem } from '../components/ui';
 import {
   validateProductSelection,
   calculateQuantityUpdate,
   processAddToCart,
   toggleManualModal,
-} from '../cartActions';
-import { CartItem } from '../components/ui';
+} from '../services/cartActions';
 
 // React 커스텀 훅 스타일의 장바구니 핸들러
 export function createCartHandlers({
