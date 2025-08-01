@@ -1,6 +1,6 @@
 import { DiscountStore } from "../store/discountStore.js";
 import { DISCOUNT_RATES, QUANTITY_THRESHOLDS } from "../constants/index.js";
-import { findProductById, calculateItemDiscount } from "../utils/productUtils.js";
+import { calculateItemDiscount } from "../utils/productUtils.js";
 import { calcTotalDiscount } from "../utils/discountUtils.js";
 
 export class DiscountService {
@@ -26,7 +26,8 @@ export class DiscountService {
     // 1. 개별 상품 할인 계산
     const itemCalculations = cartItems
       .map(cartItem => {
-        const currentItem = findProductById(cartItem.id, productList);
+        const currentItem = productList.find(product => product.id === cartItem.id) || null;
+
         if (!currentItem) return null;
 
         const quantity = this.extractQuantity(cartItem);

@@ -2,10 +2,7 @@ import { POINTS, POINTS_QUANTITY_THRESHOLDS, QUANTITY_BONUS_POINTS, PRODUCT_IDS 
 
 // 포인트 계산 관련 비즈니스 로직을 처리하는 서비스 클래스
 export class PointService {
-  // PointService 인스턴스를 생성합니다.
-  constructor() {
-    // 순수 계산 로직만 담당하는 서비스
-  }
+  constructor() {}
 
   // 포인트를 계산합니다.
   calculatePoints(cartItems, totalAmount, isTuesday, itemCount) {

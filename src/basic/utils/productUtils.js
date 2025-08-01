@@ -1,9 +1,5 @@
 import { QUANTITY_THRESHOLDS, PRODUCT_IDS } from "../constants/index.js";
 
-export function findProductById(productId, productList) {
-  return productList.find(product => product.id === productId) || null;
-}
-
 export function calculateItemDiscount(productId, quantity) {
   const discountMap = {
     [PRODUCT_IDS.KEYBOARD]: 0.1, // 키보드

@@ -1,9 +1,22 @@
 import { updateProductOptions, updateStockInfo } from "../../components/ProductSelector.js";
 import { updateCartItemPrice } from "../../components/CartItem.js";
-import { generateStockWarningMessage } from "../../utils/stockUtils.js";
 import { PRODUCT_OPTIONS_UPDATED, PRODUCT_STOCK_UPDATED, PRODUCT_PRICES_UPDATED, PRODUCT_REFRESH_REQUESTED, STOCK_UPDATE_REQUESTED } from "../../constants/events.js";
-
+import { QUANTITY_THRESHOLDS } from "../../constants/index.js";
 // Product 관련 이벤트 리스너
+
+function generateStockWarningMessage(productList) {
+  return productList
+    .filter(item => item.quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING)
+    .map(item => {
+      if (item.quantity > 0) {
+        return `${item.name}: 재고 부족 (${item.quantity}개 남음)`;
+      } else {
+        return `${item.name}: 품절`;
+      }
+    })
+    .join("\n");
+}
+
 export class ProductEventListeners {
   constructor(uiEventBus, productService, discountService) {
     this.uiEventBus = uiEventBus;
