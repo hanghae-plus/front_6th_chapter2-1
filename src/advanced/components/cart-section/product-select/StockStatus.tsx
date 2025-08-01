@@ -1,5 +1,5 @@
 import { useCartState } from '../../../contexts/CartContext';
-import { getStockMessages } from '../../../reducer';
+import { getStockMessages } from '../../../contexts/getters';
 
 export const StockStatus = () => {
   const state = useCartState();

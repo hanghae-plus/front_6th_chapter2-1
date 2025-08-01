@@ -1,7 +1,7 @@
 import { ItemDetails } from './ItemDetails';
 import { PriceDetails } from './PriceDetails';
 import { useCartState } from '../../../contexts/CartContext';
-import { getTotalQuantity } from '../../../reducer';
+import { getTotalQuantity } from '../../../contexts/getters';
 
 export const SummaryDetails = () => {
   const state = useCartState();

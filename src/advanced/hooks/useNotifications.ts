@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useCartState, useCartDispatch } from '../contexts/CartContext';
-import { getNotifications } from '../reducer';
+import { getNotifications } from '../contexts/getters';
 
 export function useNotifications() {
   const state = useCartState();

@@ -1,9 +1,9 @@
 import { useCartState } from '../../contexts/CartContext';
-import { getTotalQuantity } from '../../reducer';
+import { getTotalQuantity } from '../../contexts/getters';
 
 export const Header = () => {
   const state = useCartState();
-  const { totalQuantity } = getTotalQuantity(state);
+  const totalQuantity = getTotalQuantity(state);
 
   return (
     <div className='mb-8'>

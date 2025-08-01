@@ -1,4 +1,4 @@
-import { getIsTuesday } from '../../../reducer';
+import { getIsTuesday } from '../../../contexts/getters';
 
 export const TuesdaySpecial = () => {
   const isTuesday = getIsTuesday();

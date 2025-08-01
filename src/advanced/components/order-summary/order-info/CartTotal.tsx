@@ -1,6 +1,6 @@
 import { LoyaltyPoints } from './LoyaltyPoints';
 import { useCartState } from '../../../contexts/CartContext';
-import { getBonusPoints, getDiscountResult } from '../../../reducer';
+import { getBonusPoints, getDiscountResult } from '../../../contexts/getters';
 
 export const CartTotal = () => {
   const state = useCartState();

@@ -1,5 +1,5 @@
 import { useCartState } from '../../../contexts/CartContext';
-import { getDiscountResult, getSubtotal } from '../../../reducer';
+import { getDiscountResult, getSubtotal } from '../../../contexts/getters';
 
 export const DiscountInfo = () => {
   const state = useCartState();
