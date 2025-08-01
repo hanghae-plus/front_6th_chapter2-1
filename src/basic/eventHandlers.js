@@ -5,8 +5,10 @@
 import { TIMER_CONFIG } from './constants.js';
 import { updateSelectOptions, calculateCart, updatePricesInCart } from './uiUpdates.js';
 
-// 전역 변수들 (main.basic.js에서 설정됨)
-let productList, productSelector, cartDisplay, lastSelectedProduct;
+// 전역 변수들 (main.basic.js에서 설정됨) - 점진적 정리 중
+let productSelector, cartDisplay;
+// 상품 목록과 lastSelectedProduct는 래퍼 함수로 접근
+let productList, lastSelectedProduct;
 
 // 전역 변수 설정 함수
 export const setGlobalVariables = (globals) => {
@@ -60,7 +62,8 @@ const handleAddToCart = () => {
   }
 
   calculateCart();
-  lastSelectedProduct = selectedProductId;
+  // lastSelectedProduct 업데이트는 래퍼 함수 사용
+  lastSelectedProduct = selectedProductId; // 임시로 직접 할당 (나중에 래퍼 함수로 변경)
 };
 
 // 장바구니 아이템 요소 생성

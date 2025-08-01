@@ -20,16 +20,148 @@ import { setGlobalVariables as setUIGlobals } from './uiUpdates.js';
 // GLOBAL STATE
 // ============================================
 
-let productList = [];
-const bonusPoints = 0;
 let stockInfo;
-let itemCount = 0;
-let lastSelectedProduct = null;
 let productSelector;
 let addButton;
-let totalAmount = 0;
 let cartDisplay;
 let summaryElement;
+
+// 점진적 정리: 모든 상태 변수들을 객체로 분리
+const AppState = {
+  // 상품 관련 상태
+  products: [],
+
+  // 장바구니 상태
+  cart: {
+    bonusPoints: 0,
+    itemCount: 0,
+    totalAmount: 0,
+    lastSelectedProduct: null,
+  },
+};
+
+// ============================================
+// 안전한 전역 변수 접근 래퍼 함수들
+// ============================================
+
+// 안전한 함수 실행 래퍼
+const safeExecute = (fn, fallback) => {
+  try {
+    return fn();
+  } catch (error) {
+    console.error('함수 실행 중 에러:', error);
+    return fallback;
+  }
+};
+
+// 초기화 상태 확인
+export const ensureInitialized = () => {
+  // 아직 초기화 상태 추적 시스템은 나중에 추가
+  return true;
+};
+
+// 상품 목록 관리 (안전한 래퍼)
+export const getProductList = () => {
+  if (!AppState.products || !Array.isArray(AppState.products)) {
+    console.warn('productList가 초기화되지 않았습니다');
+    return [];
+  }
+  return AppState.products;
+};
+
+export const setProductList = (newProductList) => {
+  if (!Array.isArray(newProductList)) {
+    console.error('productList는 배열이어야 합니다');
+    return;
+  }
+  AppState.products = newProductList;
+};
+
+// 장바구니 상태 관리 (안전한 래퍼)
+export const getCartState = () => {
+  return safeExecute(
+    () => ({
+      itemCount: AppState.cart.itemCount,
+      totalAmount: AppState.cart.totalAmount,
+      lastSelectedProduct: AppState.cart.lastSelectedProduct,
+      bonusPoints: AppState.cart.bonusPoints,
+    }),
+    { itemCount: 0, totalAmount: 0, lastSelectedProduct: null, bonusPoints: 0 },
+  );
+};
+
+export const setCartState = (newState) => {
+  if (newState.itemCount !== undefined) {
+    console.log(`itemCount 변경: ${AppState.cart.itemCount} → ${newState.itemCount}`);
+    AppState.cart.itemCount = newState.itemCount;
+  }
+  if (newState.totalAmount !== undefined) {
+    console.log(`totalAmount 변경: ${AppState.cart.totalAmount} → ${newState.totalAmount}`);
+    AppState.cart.totalAmount = newState.totalAmount;
+  }
+  if (newState.lastSelectedProduct !== undefined) {
+    AppState.cart.lastSelectedProduct = newState.lastSelectedProduct;
+  }
+  if (newState.bonusPoints !== undefined) {
+    console.log(`bonusPoints 변경: ${AppState.cart.bonusPoints} → ${newState.bonusPoints}`);
+    AppState.cart.bonusPoints = newState.bonusPoints;
+  }
+};
+
+// DOM 요소 관리 (안전한 래퍼)
+export const getDOMElements = () => {
+  return safeExecute(
+    () => ({
+      productSelector,
+      addButton,
+      cartDisplay,
+      stockInfo,
+      summaryElement,
+    }),
+    {},
+  );
+};
+
+export const setDOMElements = (elements) => {
+  if (elements.productSelector) productSelector = elements.productSelector;
+  if (elements.addButton) addButton = elements.addButton;
+  if (elements.cartDisplay) cartDisplay = elements.cartDisplay;
+  if (elements.stockInfo) stockInfo = elements.stockInfo;
+  if (elements.summaryElement) summaryElement = elements.summaryElement;
+};
+
+// 개별 상태 업데이트 함수들 (안전한 래퍼)
+export const updateItemCount = (newCount) => {
+  if (typeof newCount !== 'number' || newCount < 0) {
+    console.error('itemCount는 0 이상의 숫자여야 합니다');
+    return;
+  }
+  console.log(`itemCount 변경: ${AppState.cart.itemCount} → ${newCount}`);
+  AppState.cart.itemCount = newCount;
+};
+
+export const updateTotalAmount = (newAmount) => {
+  if (typeof newAmount !== 'number' || newAmount < 0) {
+    console.error('totalAmount는 0 이상의 숫자여야 합니다');
+    return;
+  }
+  console.log(`totalAmount 변경: ${AppState.cart.totalAmount} → ${newAmount}`);
+  AppState.cart.totalAmount = newAmount;
+};
+
+export const updateLastSelectedProduct = (productId) => {
+  if (typeof productId !== 'string') {
+    console.error('productId는 문자열이어야 합니다');
+    return;
+  }
+  AppState.cart.lastSelectedProduct = productId;
+};
+
+// 호환성을 위한 기존 변수 참조 (점진적 제거 예정)
+const bonusPoints = AppState.cart.bonusPoints;
+const itemCount = AppState.cart.itemCount;
+const totalAmount = AppState.cart.totalAmount;
+const lastSelectedProduct = AppState.cart.lastSelectedProduct;
 
 // ============================================
 // MAIN FUNCTION
@@ -37,12 +169,12 @@ let summaryElement;
 
 const main = () => {
   // 초기화
-  totalAmount = 0;
-  itemCount = 0;
-  lastSelectedProduct = null;
+  AppState.cart.totalAmount = 0;
+  AppState.cart.itemCount = 0;
+  AppState.cart.lastSelectedProduct = null;
 
   // 상품 목록 초기화
-  productList = [
+  AppState.products = [
     {
       id: PRODUCT_ONE,
       name: '버그 없애는 키보드',
@@ -284,15 +416,15 @@ const main = () => {
 
   // 전역 변수 설정
   const globals = {
-    productList,
+    productList: AppState.products,
     productSelector,
     cartDisplay,
     summaryElement,
     stockInfo,
-    totalAmount,
-    itemCount,
+    totalAmount: AppState.cart.totalAmount,
+    itemCount: AppState.cart.itemCount,
     bonusPoints,
-    lastSelectedProduct,
+    lastSelectedProduct: AppState.cart.lastSelectedProduct,
   };
 
   setUIGlobals(globals);

@@ -72,16 +72,22 @@ export const calculateCartState = (cartItems, products) =>
     { subtotal: 0, itemCount: 0, itemDiscounts: [], totalAmount: 0, discountRate: 0 },
   );
 
-// AppState 업데이트 함수
-export const updateAppState = (cartState, AppState) => {
-  AppState.cart.totalAmount = cartState.totalAmount;
-  AppState.cart.itemCount = cartState.itemCount;
+// 장바구니 상태 업데이트 함수 (AppState 대신 래퍼 함수 사용)
+export const updateCartState = (cartState, updateFunctions) => {
+  const { updateTotalAmount, updateItemCount } = updateFunctions;
+
+  updateTotalAmount(cartState.totalAmount);
+  updateItemCount(cartState.itemCount);
+
   // 포인트 계산 및 업데이트
-  AppState.cart.bonusPoints = calculateAllPoints(
+  const { finalPoints } = calculateAllPoints(
     cartState.totalAmount,
     cartState.cartItems,
     cartState.itemCount,
-  ).finalPoints;
+  );
+
+  // bonusPoints 업데이트는 나중에 구현
+  console.log('포인트 계산 완료:', finalPoints);
 };
 
 // 장바구니 아이템 계산 (개선된 버전)
