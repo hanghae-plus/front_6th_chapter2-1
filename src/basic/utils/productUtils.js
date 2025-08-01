@@ -1,5 +1,6 @@
 import { QUANTITY_THRESHOLDS, PRODUCT_IDS } from "../constants/index.js";
 
+// 상품별 할인율을 계산합니다.
 export function calculateItemDiscount(productId, quantity) {
   const discountMap = {
     [PRODUCT_IDS.KEYBOARD]: 0.1, // 키보드

@@ -21,23 +21,11 @@ import { CartEventListeners } from "./events/listeners/cartListeners.js";
 import { ProductEventListeners } from "./events/listeners/productListeners.js";
 import { OrderEventListeners } from "./events/listeners/orderListeners.js";
 
-// utils
-import { calculateProductDiscountInfos } from "./utils/discountUtils.js";
+// data
+import { PRODUCT_LIST } from "./data/product.js";
 
-// Event Bus 이벤트 리스너 초기화
-function initEventBusListeners(serviceManager) {
-  const { productService, cartService, orderService, discountService } = serviceManager.getAllServices();
-
-  // 각 컴포넌트별 이벤트 리스너 초기화
-  new CartEventListeners(uiEventBus, cartService, discountService, productService);
-  new ProductEventListeners(uiEventBus, productService, discountService);
-  new OrderEventListeners(uiEventBus, orderService);
-}
-
-function main() {
-  const root = document.getElementById("app");
-
-  // Service Manager 초기화
+// 서비스를 초기화하고 등록합니다.
+function initServices() {
   const serviceManager = new ServiceManager();
 
   const discountService = new DiscountService();
@@ -53,6 +41,26 @@ function main() {
   serviceManager.register("point", pointService);
   serviceManager.register("order", orderService);
 
+  return serviceManager;
+}
+
+// Event Bus 이벤트 리스너 초기화
+function initEventBusListeners(serviceManager) {
+  const { productService, cartService, orderService, discountService } = serviceManager.getAllServices();
+
+  // 각 컴포넌트별 이벤트 리스너 초기화
+  new CartEventListeners(uiEventBus, cartService, discountService, productService);
+  new ProductEventListeners(uiEventBus, productService, discountService);
+  new OrderEventListeners(uiEventBus, orderService);
+}
+
+function main() {
+  const root = document.getElementById("app");
+
+  // 서비스 초기화 및 등록
+  const serviceManager = initServices();
+  const { productService, cartService, discountService } = serviceManager.getAllServices();
+
   const header = createHeader({ itemCount: 0 });
 
   // Layout 시스템 생성
@@ -62,11 +70,11 @@ function main() {
   const manualSystem = createManualSystem();
 
   const { gridContainer, leftColumn, rightColumn } = layout;
+
   // ProductSelector 컴포넌트 생성
-  const productsWithDiscounts = discountService.getProductsWithCurrentDiscounts(productService.getProducts());
   const selectorContainer = createProductSelector({
-    products: productsWithDiscounts,
-    discountInfos: calculateProductDiscountInfos(productsWithDiscounts, discountService),
+    products: PRODUCT_LIST,
+    discountInfos: [],
   });
 
   leftColumn.appendChild(selectorContainer);
