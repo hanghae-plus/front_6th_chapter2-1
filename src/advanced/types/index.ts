@@ -20,6 +20,23 @@ export interface Notification {
   message: string;
 }
 
+export interface DiscountDetail {
+  reason: string;
+  amount: string;
+}
+
+export interface CartDetail {
+  productId: string;
+  quantity: number;
+  product?: {
+    name: string;
+    price: number;
+    id: string;
+    quantity: number;
+  };
+  itemTotal: number;
+}
+
 // --- 전체 상태(State) 타입 정의 ---
 
 export interface State {

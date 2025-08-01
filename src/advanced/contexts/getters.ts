@@ -6,7 +6,7 @@ import {
   POINTS,
   PRODUCT_IDS,
 } from '../constant';
-import { State } from '../types';
+import { CartDetail, DiscountDetail, State } from '../types';
 
 export const getIsTuesday = () => new Date().getDay() === 2;
 
@@ -42,8 +42,29 @@ export const getSubtotal = (state: State) => {
   return cartDetails.reduce((sum, item) => sum + item.itemTotal, 0);
 };
 
+const calculateIndividualDiscounts = (
+  cartDetails: CartDetail[],
+): {
+  total: number;
+  details: DiscountDetail[];
+} => {
+  const details: DiscountDetail[] = [];
+  const total = cartDetails.reduce((acc, item) => {
+    let itemDiscountRate = 0;
+    const individualDiscount = DISCOUNT_RATES.INDIVIDUAL[item.productId];
+    if (item.quantity >= 10 && individualDiscount) {
+      itemDiscountRate = individualDiscount;
+      details.push({
+        reason: `${item.product?.name} (10개↑)`,
+        amount: `${itemDiscountRate * 100}%`,
+      });
+    }
+    return acc + item.itemTotal * (1 - itemDiscountRate);
+  }, 0);
+  return { total, details };
+};
+
 export const getDiscountResult = (state: State) => {
-  const cartDetails = getCartDetails(state);
   const subtotal = getSubtotal(state);
   const totalQuantity = getTotalQuantity(state);
   const isTuesday = getIsTuesday();
@@ -58,47 +79,45 @@ export const getDiscountResult = (state: State) => {
     },
     {
       condition: true,
-      apply: () => {
-        const details: { reason: string; amount: string }[] = [];
-        const total = cartDetails.reduce((acc, item) => {
-          let itemDiscountRate = 0;
-          const individualDiscount = DISCOUNT_RATES.INDIVIDUAL[item.productId];
-          if (item.quantity >= 10 && individualDiscount) {
-            itemDiscountRate = individualDiscount;
-            details.push({
-              reason: `${item.product?.name} (10개↑)`,
-              amount: `${itemDiscountRate * 100}%`,
-            });
-          }
-          return acc + item.itemTotal * (1 - itemDiscountRate);
-        }, 0);
-        return { total, details };
-      },
+      apply: () => calculateIndividualDiscounts(getCartDetails(state)),
     },
   ];
 
-  const { total: totalAfterBaseDiscount, details: baseDiscountDetails } = baseDiscountRules
-    .find((rule) => rule.condition)
-    ?.apply() ?? { total: subtotal, details: [] };
+  const baseDiscount = baseDiscountRules.find((rule) => rule.condition)?.apply();
 
-  let finalTotal = totalAfterBaseDiscount;
-  const finalDiscountDetails = [...baseDiscountDetails];
+  const finalDiscountRules = [
+    {
+      condition: isTuesday,
+      apply: (currentTotal: number) => currentTotal * (1 - DISCOUNT_RATES.TUESDAY),
+      detail: { reason: '🌟 화요일 추가 할인', amount: '10%' },
+    },
+  ];
 
-  if (isTuesday && finalTotal > 0) {
-    finalTotal *= 1 - DISCOUNT_RATES.TUESDAY;
-    finalDiscountDetails.push({ reason: '🌟 화요일 추가 할인', amount: '10%' });
+  if (!baseDiscount) {
+    return { finalTotal: subtotal, discounts: [] };
   }
 
-  return { finalTotal, discounts: finalDiscountDetails };
+  const finalTotal = finalDiscountRules
+    .filter((rule) => rule.condition && baseDiscount.total > 0)
+    .reduce((total, rule) => rule.apply(total), baseDiscount.total);
+
+  const finalDiscounts = [
+    ...baseDiscount.details,
+    ...finalDiscountRules
+      .filter((rule) => rule.condition && baseDiscount.total > 0)
+      .map((rule) => rule.detail),
+  ];
+
+  return { finalTotal, discounts: finalDiscounts };
 };
 
 export const getBonusPoints = (state: State) => {
+  const isTuesday = getIsTuesday();
   const totalQuantity = getTotalQuantity(state);
   if (totalQuantity === 0) return { bonusPoints: 0, pointsDetail: [] };
 
   const { finalTotal } = getDiscountResult(state);
   const basePoints = Math.floor(finalTotal / 1000);
-  const isTuesday = getIsTuesday();
 
   const has = (productId: string) =>
     getCartList(state).some((item) => item.productId === productId);
@@ -143,18 +162,19 @@ export const getBonusPoints = (state: State) => {
   ];
 
   const activeCumulativeBonuses = cumulativeRules.filter((rule) => rule.condition);
-
   const activeExclusiveBonus = exclusiveRules.find((rule) => rule.condition);
 
-  const allActiveBonuses = [...activeCumulativeBonuses];
-  if (activeExclusiveBonus) {
-    allActiveBonuses.push(activeExclusiveBonus);
-  }
+  const allActiveBonuses = [
+    ...activeCumulativeBonuses,
+    ...(activeExclusiveBonus ? [activeExclusiveBonus] : []),
+  ];
 
   const totalBonusPoints = allActiveBonuses.reduce((sum, rule) => sum + rule.points, basePoints);
 
-  const pointsDetail = basePoints > 0 ? [`기본: ${basePoints}p`] : [];
-  allActiveBonuses.forEach((rule) => pointsDetail.push(rule.detail));
+  const pointsDetail = [
+    ...(basePoints > 0 ? [`기본: ${basePoints}p`] : []),
+    ...allActiveBonuses.map((rule) => rule.detail),
+  ];
 
   return { bonusPoints: totalBonusPoints, pointsDetail };
 };
