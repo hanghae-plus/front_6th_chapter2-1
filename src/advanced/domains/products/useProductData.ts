@@ -17,7 +17,7 @@ export function useProductData() {
       name: "버그 없애는 키보드",
       val: 10000,
       originalVal: 10000,
-      q: 50,
+      quantity: 50,
       onSale: false,
       suggestSale: false,
     },
@@ -26,7 +26,7 @@ export function useProductData() {
       name: "생산성 폭발 마우스",
       val: 20000,
       originalVal: 20000,
-      q: 30,
+      quantity: 30,
       onSale: false,
       suggestSale: false,
     },
@@ -35,7 +35,7 @@ export function useProductData() {
       name: "거북목 탈출 모니터암",
       val: 30000,
       originalVal: 30000,
-      q: 20,
+      quantity: 20,
       onSale: false,
       suggestSale: false,
     },
@@ -44,7 +44,7 @@ export function useProductData() {
       name: "에러 방지 노트북 파우치",
       val: 15000,
       originalVal: 15000,
-      q: 0,
+      quantity: 0,
       onSale: false,
       suggestSale: false,
     },
@@ -53,7 +53,7 @@ export function useProductData() {
       name: `코딩할 때 듣는 Lo-Fi 스피커`,
       val: 25000,
       originalVal: 25000,
-      q: 10,
+      quantity: 10,
       onSale: false,
       suggestSale: false,
     },
@@ -72,7 +72,7 @@ export function useProductData() {
    * @returns {number} 총 재고 수량
    */
   const getTotalStock = useCallback((): number => {
-    return products.reduce((total, product) => total + product.q, 0);
+    return products.reduce((total, product) => total + product.quantity, 0);
   }, [products]);
 
   /**
@@ -101,14 +101,14 @@ export function useProductData() {
       }
 
       const currentProduct = products[productIndex];
-      const newStock = currentProduct.q + stockChange;
+      const newStock = currentProduct.quantity + stockChange;
 
       if (newStock < 0) {
         return false;
       }
 
       setProducts((prev) =>
-        prev.map((product, index) => (index === productIndex ? { ...product, q: newStock } : product)),
+        prev.map((product, index) => (index === productIndex ? { ...product, quantity: newStock } : product)),
       );
 
       return true;

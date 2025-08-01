@@ -32,7 +32,7 @@ export function ProductSelect({ products, onProductSelect, onAddToCart }: Produc
    * 상품 선택 옵션 데이터 계산 (메모이제이션)
    */
   const productSelectData = useMemo(() => {
-    const totalStock = products.reduce((total, product) => total + product.q, 0);
+    const totalStock = products.reduce((total, product) => total + product.quantity, 0);
 
     const options: ProductOption[] = products.map((item) => {
       let discountText = "";
@@ -43,7 +43,7 @@ export function ProductSelect({ products, onProductSelect, onAddToCart }: Produc
       let optionClass: string;
       let isDisabled: boolean;
 
-      if (item.q === 0) {
+      if (item.quantity === 0) {
         optionText = `${item.name} - ${item.val}원 (품절)${discountText}`;
         optionClass = "text-gray-400";
         isDisabled = true;
