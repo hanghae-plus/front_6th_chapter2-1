@@ -25,19 +25,19 @@ export function setupEventListeners(addButton) {
 // 장바구니에 상품 추가
 function handleAddToCart() {
   const selectedProductId = productSelector.value;
-  
+
   if (!selectedProductId) return;
-  
-  const product = productList.find(p => p.id === selectedProductId);
+
+  const product = productList.find((p) => p.id === selectedProductId);
   if (!product || product.quantity <= 0) return;
 
   const existingItem = document.getElementById(product.id);
-  
+
   if (existingItem) {
     // 기존 아이템 수량 증가
     const quantityElement = existingItem.querySelector('.quantity-number');
     const newQuantity = parseInt(quantityElement.textContent) + 1;
-    
+
     if (newQuantity <= product.quantity + parseInt(quantityElement.textContent)) {
       quantityElement.textContent = newQuantity;
       product.quantity--;
@@ -51,7 +51,7 @@ function handleAddToCart() {
     cartDisplay.appendChild(newItem);
     product.quantity--;
   }
-  
+
   calculateCart();
   lastSelectedProduct = selectedProductId;
 }
@@ -60,16 +60,23 @@ function handleAddToCart() {
 function createCartItemElement(product) {
   const newItem = document.createElement('div');
   newItem.id = product.id;
-  newItem.className = 'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
-  
-  const saleIcon = product.onSale && product.suggestSale ? '⚡💝' : 
-                   product.onSale ? '⚡' : 
-                   product.suggestSale ? '💝' : '';
-  
-  const priceDisplay = product.onSale || product.suggestSale ? 
-    `<span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span> <span class="${product.onSale && product.suggestSale ? 'text-purple-600' : product.onSale ? 'text-red-500' : 'text-blue-500'}">₩${product.value.toLocaleString()}</span>` : 
-    `₩${product.value.toLocaleString()}`;
-  
+  newItem.className =
+    'grid grid-cols-[80px_1fr_auto] gap-5 py-5 border-b border-gray-100 first:pt-0 last:border-b-0 last:pb-0';
+
+  const saleIcon =
+    product.onSale && product.suggestSale
+      ? '⚡💝'
+      : product.onSale
+        ? '⚡'
+        : product.suggestSale
+          ? '💝'
+          : '';
+
+  const priceDisplay =
+    product.onSale || product.suggestSale
+      ? `<span class="line-through text-gray-400">₩${product.originalValue.toLocaleString()}</span> <span class="${product.onSale && product.suggestSale ? 'text-purple-600' : product.onSale ? 'text-red-500' : 'text-blue-500'}">₩${product.value.toLocaleString()}</span>`
+      : `₩${product.value.toLocaleString()}`;
+
   newItem.innerHTML = `
     <div class="w-20 h-20 bg-gradient-black relative overflow-hidden">
       <div class="absolute top-1/2 left-1/2 w-[60%] h-[60%] bg-white/10 -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
@@ -89,26 +96,26 @@ function createCartItemElement(product) {
       <a class="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black" data-product-id="${product.id}">Remove</a>
     </div>
   `;
-  
+
   return newItem;
 }
 
 // 장바구니 상호작용 처리
 function handleCartInteraction(event) {
   const target = event.target;
-  
+
   if (target.classList.contains('quantity-change') || target.classList.contains('remove-item')) {
     const productId = target.dataset.productId;
     const itemElement = document.getElementById(productId);
-    const product = productList.find(p => p.id === productId);
-    
+    const product = productList.find((p) => p.id === productId);
+
     if (target.classList.contains('quantity-change')) {
       const quantityChange = parseInt(target.dataset.change);
       const quantityElement = itemElement.querySelector('.quantity-number');
       const currentQuantity = parseInt(quantityElement.textContent);
       const newQuantity = currentQuantity + quantityChange;
-      
-      if (newQuantity > 0 && newQuantity <= product.quantity + currentQuantity) {
+
+      if (newQuantity > 0 && newQuantity <= currentQuantity + product.quantity) {
         quantityElement.textContent = newQuantity;
         product.quantity -= quantityChange;
       } else if (newQuantity <= 0) {
@@ -124,7 +131,7 @@ function handleCartInteraction(event) {
       product.quantity += removedQuantity;
       itemElement.remove();
     }
-    
+
     calculateCart();
     updateSelectOptions();
   }
@@ -135,7 +142,7 @@ export function setupTimers() {
   // 번개세일 타이머
   const lightningDelay = Math.random() * TIMER_CONFIG.LIGHTNING_SALE_DELAY;
   setTimeout(() => {
-    setInterval(() => {
+    const lightningInterval = setInterval(() => {
       const luckyIndex = Math.floor(Math.random() * productList.length);
       const luckyProduct = productList[luckyIndex];
       
@@ -147,11 +154,17 @@ export function setupTimers() {
         updatePricesInCart();
       }
     }, TIMER_CONFIG.LIGHTNING_SALE_INTERVAL);
+    
+    // 테스트 환경에서 타이머 정리
+    if (typeof window !== 'undefined' && window.__TESTING__) {
+      window.__LIGHTNING_INTERVAL__ = lightningInterval;
+    }
   }, lightningDelay);
 
   // 추천할인 타이머
+  const recommendationDelay = Math.random() * TIMER_CONFIG.RECOMMENDATION_DELAY;
   setTimeout(() => {
-    setInterval(() => {
+    const recommendationInterval = setInterval(() => {
       if (cartDisplay.children.length === 0) return;
       
       if (lastSelectedProduct) {
@@ -174,5 +187,10 @@ export function setupTimers() {
         }
       }
     }, TIMER_CONFIG.RECOMMENDATION_INTERVAL);
-  }, Math.random() * TIMER_CONFIG.RECOMMENDATION_DELAY);
-} 
+    
+    // 테스트 환경에서 타이머 정리
+    if (typeof window !== 'undefined' && window.__TESTING__) {
+      window.__RECOMMENDATION_INTERVAL__ = recommendationInterval;
+    }
+  }, recommendationDelay);
+}

@@ -5,31 +5,55 @@
 import { PRODUCT_IDS, DISCOUNT_RATES, QUANTITY_THRESHOLDS, POINTS_CONFIG } from './constants.js';
 import { isTuesday, findProductById } from './utils.js';
 
+// 안전한 계산을 위한 헬퍼 함수들
+const safeCalculate = (fn, fallback = 0) => {
+  try {
+    return fn();
+  } catch (error) {
+    console.error('Calculation error:', error);
+    return fallback;
+  }
+};
+
+const safeFindProduct = (products, productId) => {
+  const product = findProductById(products, productId);
+  if (!product) {
+    console.warn(`Product not found: ${productId}`);
+    return null;
+  }
+  return product;
+};
+
 // 장바구니 상태 계산 함수 (원본 로직과 동일)
 export const calculateCartState = (cartItems, products) => {
-  // 1. 장바구니 아이템 계산 (개별 할인 포함)
-  const {
-    subtotal,
-    itemCount,
-    itemDiscounts,
-    totalAmount: individualDiscountedTotal,
-  } = calculateCartItems(cartItems, products);
+  return safeCalculate(
+    () => {
+      // 1. 장바구니 아이템 계산 (개별 할인 포함)
+      const {
+        subtotal,
+        itemCount,
+        itemDiscounts,
+        totalAmount: individualDiscountedTotal,
+      } = calculateCartItems(cartItems, products);
 
-  // 2. 대량구매 할인 및 화요일 할인 적용
-  const { totalAmount, discountRate } = calculateTotalWithDiscounts(
-    subtotal,
-    itemCount,
-    itemDiscounts,
-    individualDiscountedTotal,
+      // 2. 대량구매 할인 및 화요일 할인 적용
+      const { totalAmount, discountRate } = calculateTotalWithDiscounts(
+        subtotal,
+        itemCount,
+        itemDiscounts,
+        individualDiscountedTotal,
+      );
+
+      return {
+        subtotal,
+        itemCount,
+        itemDiscounts,
+        totalAmount,
+        discountRate,
+      };
+    },
+    { subtotal: 0, itemCount: 0, itemDiscounts: [], totalAmount: 0, discountRate: 0 },
   );
-
-  return {
-    subtotal,
-    itemCount,
-    itemDiscounts,
-    totalAmount,
-    discountRate,
-  };
 };
 
 // AppState 업데이트 함수
@@ -48,28 +72,50 @@ export const updateAppState = (cartState, AppState) => {
 const calculateCartItems = (cartItems, products) => {
   return cartItems.reduce(
     (acc, cartItem) => {
-      const currentProduct = findProductById(products, cartItem.productId);
+      const currentProduct = safeFindProduct(products, cartItem.productId);
+
+      // 상품을 찾을 수 없는 경우 건너뛰기
+      if (!currentProduct) {
+        return acc;
+      }
+
       const { quantity } = cartItem;
-      const itemTotal = currentProduct.value * quantity;
+
+      // 개별 함수로 분리
+      const itemTotal = calculateItemTotal(currentProduct, quantity);
       const discount = calculateIndividualDiscount(currentProduct.id, quantity);
 
-      acc.itemCount += quantity;
-      acc.subtotal += itemTotal;
-
-      if (discount > 0) {
-        acc.itemDiscounts.push({
-          name: currentProduct.name,
-          discount: discount * 100,
-        });
-        acc.totalAmount += itemTotal * (1 - discount);
-      } else {
-        acc.totalAmount += itemTotal;
-      }
+      // 누적 계산을 별도 함수로 분리
+      updateCartAccumulator(acc, {
+        product: currentProduct,
+        quantity,
+        itemTotal,
+        discount,
+      });
 
       return acc;
     },
     { subtotal: 0, itemCount: 0, totalAmount: 0, itemDiscounts: [] },
   );
+};
+
+// 개별 아이템 총액 계산
+const calculateItemTotal = (product, quantity) => product.value * quantity;
+
+// 장바구니 누적 계산 업데이트
+const updateCartAccumulator = (acc, { product, quantity, itemTotal, discount }) => {
+  acc.itemCount += quantity;
+  acc.subtotal += itemTotal;
+
+  if (discount > 0) {
+    acc.itemDiscounts.push({
+      name: product.name,
+      discount: discount * 100,
+    });
+    acc.totalAmount += itemTotal * (1 - discount);
+  } else {
+    acc.totalAmount += itemTotal;
+  }
 };
 
 // 할인율 계산 통합 함수

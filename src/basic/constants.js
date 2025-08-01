@@ -9,6 +9,15 @@ export const PRODUCT_THREE = 'p3';
 export const PRODUCT_FOUR = 'p4';
 export const PRODUCT_FIVE = 'p5';
 
+// Product IDs Object (businessLogic.js에서 사용)
+export const PRODUCT_IDS = {
+  KEYBOARD: 'p1',
+  MOUSE: 'p2',
+  MONITOR_ARM: 'p3',
+  LAPTOP_POUCH: 'p4',
+  SPEAKER: 'p5',
+};
+
 // Discount Rates
 export const DISCOUNT_RATES = {
   KEYBOARD: 10 / 100,
@@ -28,11 +37,14 @@ export const QUANTITY_THRESHOLDS = {
   BULK_PURCHASE: 30,
   LOW_STOCK: 5,
   TOTAL_STOCK_WARNING: 50,
+  POINTS_BONUS_10: 10,
+  POINTS_BONUS_20: 20,
 };
 
 // Points Configuration
 export const POINTS_CONFIG = {
   POINTS_DIVISOR: 1000,
+  TUESDAY_MULTIPLIER: 2,
   KEYBOARD_MOUSE_BONUS: 50,
   FULL_SET_BONUS: 100,
   BONUS_10_ITEMS: 20,
