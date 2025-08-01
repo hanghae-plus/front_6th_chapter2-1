@@ -1,5 +1,5 @@
 import React from 'react'
-import { useShoppingCart } from '../providers/ShoppingCartProvider'
+import { useCart } from '../hooks/useCart'
 import { formatProductPrice, formatProductName } from '../utils/formatters'
 import { THRESHOLDS } from '../constants'
 import { Product } from '../types'
@@ -10,7 +10,7 @@ interface CartItemProps {
 }
 
 export function CartItem({ product, quantity }: CartItemProps) {
-  const { changeQuantity, removeFromCart } = useShoppingCart()
+  const { changeQuantity, removeFromCart } = useCart()
 
   const handleQuantityChange = (change: number) => {
     changeQuantity(product.id, change)

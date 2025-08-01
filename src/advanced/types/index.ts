@@ -22,20 +22,6 @@ export interface AppState {
   bonusPoints: number;
 }
 
-// Elements 인터페이스는 호환성을 위해 유지하되 optional로 변경
-export interface Elements {
-  productSelect?: HTMLSelectElement;
-  addButton?: HTMLButtonElement;
-  cartItems?: HTMLElement;
-  cartTotal?: HTMLElement;
-  stockInfo?: HTMLElement;
-  itemCount?: HTMLElement;
-  loyaltyPoints?: HTMLElement;
-  discountInfo?: HTMLElement;
-  tuesdaySpecial?: HTMLElement;
-  summaryDetails?: HTMLElement;
-}
-
 export interface ItemDiscount {
   name: string;
   discount: number;
@@ -44,4 +30,23 @@ export interface ItemDiscount {
 export interface ProductOptionFormat {
   text: string;
   className: string;
+}
+
+export interface CartState {
+  products: Product[]
+  cartItems: Record<string, number>
+  totalAmount: number
+  totalQuantity: number
+  bonusPoints: number
+  lastSelectedProductId: string | null
+}
+
+export interface ShoppingCartContextType {
+  state: CartState
+  setProducts: (products: Product[]) => void
+  setCartItems: (cartItems: Record<string, number>) => void
+  setTotalAmount: (amount: number) => void
+  setTotalQuantity: (quantity: number) => void
+  setBonusPoints: (points: number) => void
+  setLastSelectedProductId: (id: string | null) => void
 }

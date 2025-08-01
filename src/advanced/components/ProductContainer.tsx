@@ -1,22 +1,35 @@
 import React, { useState } from 'react'
-import { useShoppingCart } from '../providers/ShoppingCartProvider'
+import { useCart } from '../hooks/useCart'
 import { formatProductOption } from '../utils/formatters'
-import { getStockMessage, getTotalStock } from '../services/product'
 import { THRESHOLDS } from '../constants'
 
 export function ProductContainer() {
-  const { getProducts, addToCart } = useShoppingCart()
+  const { products, addToCart } = useCart()
   const [selectedProductId, setSelectedProductId] = useState('')
   
-  const products = getProducts()
-  const totalStock = getTotalStock()
-  const stockMessage = getStockMessage()
+  const totalStock = products.reduce((sum, product) => sum + product.stock, 0)
 
   const handleAddToCart = () => {
     if (selectedProductId) {
       addToCart(selectedProductId)
     }
   }
+
+  const getStockMessage = () => {
+    let message = ''
+    products.forEach((product) => {
+      if (product.stock < THRESHOLDS.LOW_STOCK) {
+        if (product.stock > 0) {
+          message += `${product.name}: 재고 부족 (${product.stock}개 남음)\n`
+        } else {
+          message += `${product.name}: 품절\n`
+        }
+      }
+    })
+    return message
+  }
+
+  const stockMessage = getStockMessage()
 
   return (
     <div className="mb-6 pb-6 border-b border-gray-200">

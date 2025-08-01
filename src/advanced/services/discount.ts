@@ -1,13 +1,6 @@
 // services/discount.ts
 import { PRODUCT_IDS, DISCOUNT_RATES, THRESHOLDS } from '../constants/index.js';
-import {
-  getProduct,
-  getCartItems,
-  setTotalAmount,
-  setTotalQuantity,
-} from '../store/state.js';
-import { calculatePoints } from './points.js';
-import type { ItemDiscount } from '../types/index.js';
+import type { ItemDiscount, Product } from '../types/index.js';
 
 export function calculateItemDiscount(productId: string, quantity: number): number {
   if (quantity < THRESHOLDS.MIN_QUANTITY_FOR_DISCOUNT) return 0;
@@ -23,14 +16,14 @@ export function calculateItemDiscount(productId: string, quantity: number): numb
   return discountMap[productId] || 0;
 }
 
-export function calculateTotalWithDiscounts(cartItems: Record<string, number>) {
+export function calculateTotalWithDiscounts(cartItems: Record<string, number>, products: Product[]) {
   let subtotal = 0;
   let totalWithItemDiscounts = 0;
   let itemDiscounts: ItemDiscount[] = [];
   let totalQuantity = 0;
 
   Object.entries(cartItems).forEach(([productId, quantity]) => {
-    const product = getProduct(productId);
+    const product = products.find(p => p.id === productId);
     if (!product) return;
 
     totalQuantity += quantity;
@@ -64,54 +57,38 @@ export function applyTuesdayDiscount(amount: number): number {
   return amount;
 }
 
-export function updateCart(): void {
-  const cartItems = getCartItems();
-
+// React용 계산 함수 (전역 상태 대신 파라미터로 받음)
+export function calculateFinalAmount(cartItems: Record<string, number>, products: Product[]) {
   let totalAmount = 0;
   let totalQuantity = 0;
   let subtotal = 0;
 
   // 각 아이템별 계산
   Object.entries(cartItems).forEach(([productId, quantity]) => {
-    const product = getProduct(productId);
+    const product = products.find(p => p.id === productId);
     if (!product) return;
 
     totalQuantity += quantity;
     const itemTotal = product.price * quantity;
     subtotal += itemTotal;
 
-    // 10개 이상일 때 개별 할인 적용
-    let discountRate = 0;
-    if (quantity >= THRESHOLDS.MIN_QUANTITY_FOR_DISCOUNT) {
-      const discountMap: Record<string, number> = {
-        [PRODUCT_IDS.KEYBOARD]: DISCOUNT_RATES.KEYBOARD,
-        [PRODUCT_IDS.MOUSE]: DISCOUNT_RATES.MOUSE,
-        [PRODUCT_IDS.MONITOR_ARM]: DISCOUNT_RATES.MONITOR_ARM,
-        [PRODUCT_IDS.LAPTOP_POUCH]: DISCOUNT_RATES.LAPTOP_POUCH,
-        [PRODUCT_IDS.SPEAKER]: DISCOUNT_RATES.SPEAKER,
-      };
-
-      discountRate = discountMap[productId] || 0;
-    }
-
+    // 개별 할인 적용
+    const discountRate = calculateItemDiscount(productId, quantity);
     totalAmount += itemTotal * (1 - discountRate);
   });
 
-  // 대량 구매 할인 (30개 이상이면 개별 할인 무시하고 25% 적용)
+  // 대량 구매 할인
   if (totalQuantity >= THRESHOLDS.MIN_QUANTITY_FOR_BULK) {
     totalAmount = subtotal * (1 - DISCOUNT_RATES.BULK);
   }
 
   // 화요일 할인
-  const isTuesday = new Date().getDay() === 2;
-  if (isTuesday && totalAmount > 0) {
-    totalAmount = totalAmount * (1 - DISCOUNT_RATES.TUESDAY);
-  }
+  totalAmount = applyTuesdayDiscount(totalAmount);
 
-  // 상태 업데이트만 (DOM 조작 제거)
-  setTotalAmount(totalAmount);
-  setTotalQuantity(totalQuantity);
+  return { totalAmount, totalQuantity, subtotal };
+}
 
-  // 포인트 계산
-  calculatePoints();
+// 기존 함수는 호환성을 위해 유지 (빈 함수)
+export function updateCart(): void {
+  // React에서는 Provider가 처리하므로 빈 함수
 }

@@ -1,11 +1,9 @@
 import React from 'react'
-import { useShoppingCart } from '../providers/ShoppingCartProvider'
+import { useCart } from '../hooks/useCart'
 import { CartItem } from './CartItem'
 
 export function CartItems() {
-  const { getCartItems, getProducts } = useShoppingCart()
-  const cartItems = getCartItems()
-  const products = getProducts()
+  const { cartItems, products } = useCart()
 
   return (
     <div>

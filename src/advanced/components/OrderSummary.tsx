@@ -1,25 +1,50 @@
 import React from 'react'
-import { useShoppingCart } from '../providers/ShoppingCartProvider'
+import { useCart } from '../hooks/useCart'
 import { formatPrice, formatDiscountRate } from '../utils/formatters'
-import { getSummaryData, getItemDiscounts } from '../services/orderSummary'
-import { PRODUCT_IDS } from '../constants'
+import { PRODUCT_IDS, THRESHOLDS } from '../constants'
 
 export function OrderSummary() {
-  const { getCartItems, getTotalAmount, getTotalQuantity, getBonusPoints } = useShoppingCart()
-  
-  const cartItems = getCartItems()
-  const totalAmount = getTotalAmount()
-  const totalQuantity = getTotalQuantity()
-  const bonusPoints = getBonusPoints()
+  const { cartItems, products, totalAmount, totalQuantity, bonusPoints } = useCart()
 
   const isTuesday = new Date().getDay() === 2
-  const summaryItems = getSummaryData()
-  const subtotal = summaryItems.reduce((sum, item) => sum + item.itemTotal, 0)
-  const itemDiscounts = getItemDiscounts(totalQuantity)
+
+  // 서브토탈 계산
+  const subtotal = Object.entries(cartItems).reduce((sum, [productId, quantity]) => {
+    const product = products.find((p) => p.id === productId)
+    return sum + (product ? product.price * quantity : 0)
+  }, 0)
 
   const discountRate = subtotal > 0 ? (subtotal - totalAmount) / subtotal : 0
   const savedAmount = subtotal - totalAmount
 
+  // 개별 할인 정보
+  const getItemDiscounts = () => {
+    const discounts: Array<{ name: string; discount: number }> = []
+    
+    Object.entries(cartItems).forEach(([productId, quantity]) => {
+      const product = products.find((p) => p.id === productId)
+      if (!product || quantity < THRESHOLDS.MIN_QUANTITY_FOR_DISCOUNT) return
+
+      const discountMap = {
+        [PRODUCT_IDS.KEYBOARD]: 10,
+        [PRODUCT_IDS.MOUSE]: 15,
+        [PRODUCT_IDS.MONITOR_ARM]: 20,
+        [PRODUCT_IDS.LAPTOP_POUCH]: 5,
+        [PRODUCT_IDS.SPEAKER]: 25,
+      }
+
+      const discount = (discountMap as any)[productId]
+      if (discount) {
+        discounts.push({ name: product.name, discount })
+      }
+    })
+
+    return discounts
+  }
+
+  const itemDiscounts = getItemDiscounts()
+
+  // 포인트 상세 정보
   const getPointsDetail = () => {
     const details: string[] = []
     let basePoints = Math.floor(totalAmount / 1000)
@@ -64,12 +89,18 @@ export function OrderSummary() {
         <div className="space-y-3">
           {subtotal > 0 && (
             <>
-              {summaryItems.map((item) => (
-                <div key={item.productId} className="flex justify-between text-xs tracking-wide text-gray-400">
-                  <span>{item.name} x {item.quantity}</span>
-                  <span>{formatPrice(item.itemTotal)}</span>
-                </div>
-              ))}
+              {Object.entries(cartItems).map(([productId, quantity]) => {
+                const product = products.find((p) => p.id === productId)
+                if (!product) return null
+
+                const itemTotal = product.price * quantity
+                return (
+                  <div key={productId} className="flex justify-between text-xs tracking-wide text-gray-400">
+                    <span>{product.name} x {quantity}</span>
+                    <span>{formatPrice(itemTotal)}</span>
+                  </div>
+                )
+              })}
 
               <div className="border-t border-white/10 my-3"></div>
               
@@ -78,12 +109,19 @@ export function OrderSummary() {
                 <span>{formatPrice(subtotal)}</span>
               </div>
 
-              {itemDiscounts.map((item) => (
-                <div key={item.name} className="flex justify-between text-sm tracking-wide text-green-400">
-                  <span className="text-xs">{item.name}</span>
-                  <span className="text-xs">-{item.discount}%</span>
+              {totalQuantity >= THRESHOLDS.MIN_QUANTITY_FOR_BULK ? (
+                <div className="flex justify-between text-sm tracking-wide text-green-400">
+                  <span className="text-xs">🎉 대량구매 할인 (30개 이상)</span>
+                  <span className="text-xs">-25%</span>
                 </div>
-              ))}
+              ) : (
+                itemDiscounts.map((item) => (
+                  <div key={item.name} className="flex justify-between text-sm tracking-wide text-green-400">
+                    <span className="text-xs">{item.name} (10개↑)</span>
+                    <span className="text-xs">-{item.discount}%</span>
+                  </div>
+                ))
+              )}
 
               {isTuesday && totalQuantity > 0 && (
                 <div className="flex justify-between text-sm tracking-wide text-purple-400">

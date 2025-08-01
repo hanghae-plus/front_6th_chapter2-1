@@ -1,22 +1,15 @@
 // services/points.ts
 import { PRODUCT_IDS, POINTS } from '../constants/index.js';
-import {
-  getTotalAmount,
-  getTotalQuantity,
-  getCartItems,
-  setBonusPoints,
-} from '../store/state.js';
 
-export function calculatePoints(): void {
-  const cartItems = getCartItems();
-
+// React용 포인트 계산 함수 (파라미터로 값들을 받음)
+export function calculateBonusPoints(
+  totalAmount: number, 
+  totalQuantity: number, 
+  cartItems: Record<string, number>
+): number {
   if (Object.keys(cartItems).length === 0) {
-    setBonusPoints(0);
-    return;
+    return 0;
   }
-
-  const totalAmount = getTotalAmount();
-  const totalQuantity = getTotalQuantity();
 
   // 기본 포인트는 총액을 1000으로 나눈 후 소수점 버림
   let basePoints = Math.floor(totalAmount / 1000);
@@ -50,5 +43,10 @@ export function calculatePoints(): void {
     finalPoints += POINTS.BONUS.BULK_10;
   }
 
-  setBonusPoints(finalPoints);
+  return finalPoints;
+}
+
+// 기존 함수는 호환성을 위해 유지 (빈 함수)
+export function calculatePoints(): void {
+  // React에서는 Provider가 처리하므로 빈 함수
 }
