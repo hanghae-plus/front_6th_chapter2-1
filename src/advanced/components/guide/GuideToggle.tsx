@@ -5,11 +5,13 @@ import ShoppingGuide from './ShoppingGuide';
 const GuideToggle = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const handleToggle = () => {
+  const handleToggle = (event?: React.MouseEvent) => {
+    event?.stopPropagation();
     setIsOpen((prev: boolean) => !prev);
   };
 
-  const handleClose = () => {
+  const handleClose = (event?: React.MouseEvent) => {
+    event?.stopPropagation();
     setIsOpen(false);
   };
 

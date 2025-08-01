@@ -5,7 +5,8 @@ import ProductPicker from './ProductPicker';
 const ShoppingCart = () => {
   const { cartItems, updateQuantity, removeFromCart } = useCart();
 
-  const handleQuantityChange = (productId: string, change: number) => {
+  const handleQuantityChange = (productId: string, change: number, event?: React.MouseEvent) => {
+    event?.stopPropagation();
     const item = cartItems.find((item) => item.product.id === productId);
     if (item) {
       const newQuantity = item.quantity + change;
@@ -13,7 +14,8 @@ const ShoppingCart = () => {
     }
   };
 
-  const handleRemoveItem = (productId: string) => {
+  const handleRemoveItem = (productId: string, event?: React.MouseEvent) => {
+    event?.stopPropagation();
     removeFromCart(productId);
   };
 
@@ -106,7 +108,7 @@ const ShoppingCart = () => {
                     className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
                     data-product-id={item.product.id}
                     data-change="-1"
-                    onClick={() => handleQuantityChange(item.product.id, -1)}
+                    onClick={(e) => handleQuantityChange(item.product.id, -1, e)}
                   >
                     −
                   </button>
@@ -117,7 +119,7 @@ const ShoppingCart = () => {
                     className="quantity-change w-6 h-6 border border-black bg-white text-sm flex items-center justify-center transition-all hover:bg-black hover:text-white"
                     data-product-id={item.product.id}
                     data-change="1"
-                    onClick={() => handleQuantityChange(item.product.id, 1)}
+                    onClick={(e) => handleQuantityChange(item.product.id, 1, e)}
                   >
                     +
                   </button>
@@ -130,7 +132,7 @@ const ShoppingCart = () => {
                 <button
                   className="remove-item text-2xs text-gray-500 uppercase tracking-wider cursor-pointer transition-colors border-b border-transparent hover:text-black hover:border-black"
                   data-product-id={item.product.id}
-                  onClick={() => handleRemoveItem(item.product.id)}
+                  onClick={(e) => handleRemoveItem(item.product.id, e)}
                 >
                   Remove
                 </button>

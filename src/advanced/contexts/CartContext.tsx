@@ -1,4 +1,12 @@
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   calculateFinalDiscount,
@@ -67,6 +75,12 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const [recommendationProductId, setRecommendationProductId] = useState<string | null>(null);
   const [lastSelectedProduct, setLastSelectedProduct] = useState<string | null>(null);
 
+  // 타이머 관리를 위한 ref
+  const lightningSaleTimerRef = useRef<number | null>(null);
+  const recommendationTimerRef = useRef<number | null>(null);
+  const initialLightningTimerRef = useRef<number | null>(null);
+  const initialRecommendationTimerRef = useRef<number | null>(null);
+
   // 무작위 상품 선택 (재고가 있는 상품만)
   const getRandomProductWithStock = useCallback(() => {
     const availableProducts = products.filter((product) => product.stock > 0);
@@ -81,6 +95,10 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     const productId = getRandomProductWithStock();
     if (!productId) return;
 
+    // 이미 번개세일 중인 상품은 제외 (원본과 동일)
+    const product = products.find((p: Product) => p.id === productId);
+    if (!product || product.lightningSale) return;
+
     setLightningSaleProductId(productId);
 
     // 상품에 번개세일 상태 적용
@@ -92,20 +110,18 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       ),
     );
 
-    // 알림창 표시
-    const product = products.find((p: Product) => p.id === productId);
-    if (product) {
-      alert(`⚡번개세일! ${product.name}이(가) 20% 할인 중입니다!`);
-    }
-  }, [getRandomProductWithStock, products]);
+    // 알림창 즉시 표시 (원본과 동일)
+    alert(`⚡번개세일! ${product.name}이(가) 20% 할인 중입니다!`);
+  }, [products]); // getRandomProductWithStock 제거, products만 의존
 
   // 추천할인 시작
   const startRecommendation = useCallback(() => {
-    if (!lastSelectedProduct) return;
+    if (!lastSelectedProduct) return; // 마지막 선택 상품이 없으면 실행하지 않음 (원본과 동일)
 
     // 마지막 선택 상품과 다른 상품 선택
     const otherProducts = products.filter(
-      (product: Product) => product.id !== lastSelectedProduct && product.stock > 0,
+      (product: Product) =>
+        product.id !== lastSelectedProduct && product.stock > 0 && !product.recommendationSale,
     );
 
     if (otherProducts.length === 0) return;
@@ -124,7 +140,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       ),
     );
 
-    // 알림창 표시
+    // 알림창 즉시 표시 (원본과 동일)
     const product = products.find((p: Product) => p.id === productId);
     if (product) {
       alert(`💝 ${product.name}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!`);
@@ -159,49 +175,93 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     setRecommendationProductId(null);
   }, [recommendationProductId]);
 
-  // 번개세일 타이머 (30초마다)
+  // 번개세일 타이머 (30초마다 - 원본과 동일)
   useEffect(() => {
+    // 기존 타이머 정리
+    if (lightningSaleTimerRef.current) {
+      clearInterval(lightningSaleTimerRef.current);
+    }
+
     const lightningSaleTimer = setInterval(() => {
       if (lightningSaleProductId) {
         stopLightningSale();
       }
       startLightningSale();
-    }, 30000);
+    }, 30000); // 30초로 변경 (원본과 동일)
 
-    return () => clearInterval(lightningSaleTimer);
-  }, [lightningSaleProductId, startLightningSale, stopLightningSale]);
+    lightningSaleTimerRef.current = lightningSaleTimer;
 
-  // 추천할인 타이머 (60초마다)
+    return () => {
+      if (lightningSaleTimerRef.current) {
+        clearInterval(lightningSaleTimerRef.current);
+      }
+    };
+  }, []); // 의존성 배열을 비워서 한 번만 실행
+
+  // 추천할인 타이머 (60초마다 - 원본과 동일)
   useEffect(() => {
+    // 기존 타이머 정리
+    if (recommendationTimerRef.current) {
+      clearInterval(recommendationTimerRef.current);
+    }
+
     const recommendationTimer = setInterval(() => {
       if (recommendationProductId) {
         stopRecommendation();
       }
       startRecommendation();
-    }, 60000);
+    }, 60000); // 60초로 변경 (원본과 동일)
 
-    return () => clearInterval(recommendationTimer);
-  }, [recommendationProductId, startRecommendation, stopRecommendation]);
+    recommendationTimerRef.current = recommendationTimer;
 
-  // 초기 번개세일 시작 (0~10초 사이)
+    return () => {
+      if (recommendationTimerRef.current) {
+        clearInterval(recommendationTimerRef.current);
+      }
+    };
+  }, []); // 의존성 배열을 비워서 한 번만 실행
+
+  // 초기 번개세일 시작 (0~10초 사이 - 원본과 동일)
   useEffect(() => {
-    const initialDelay = Math.random() * 10000; // 0~10초
+    // 기존 타이머 정리
+    if (initialLightningTimerRef.current) {
+      clearTimeout(initialLightningTimerRef.current);
+    }
+
+    const initialDelay = Math.random() * 10000; // 0~10초 (원본과 동일)
     const timer = setTimeout(() => {
       startLightningSale();
     }, initialDelay);
 
-    return () => clearTimeout(timer);
-  }, [startLightningSale]);
+    initialLightningTimerRef.current = timer;
 
-  // 초기 추천할인 시작 (0~20초 사이)
+    return () => {
+      if (initialLightningTimerRef.current) {
+        clearTimeout(initialLightningTimerRef.current);
+      }
+    };
+  }, []); // 의존성 배열을 비워서 한 번만 실행
+
+  // 초기 추천할인 시작 (0~20초 사이 - 원본과 동일)
   useEffect(() => {
-    const initialDelay = Math.random() * 20000; // 0~20초
+    // 기존 타이머 정리
+    if (initialRecommendationTimerRef.current) {
+      clearTimeout(initialRecommendationTimerRef.current);
+    }
+
+    const initialDelay = Math.random() * 20000; // 0~20초 (원본과 동일)
     const timer = setTimeout(() => {
       startRecommendation();
     }, initialDelay);
 
-    return () => clearTimeout(timer);
-  }, [startRecommendation]);
+    initialRecommendationTimerRef.current = timer;
+
+    return () => {
+      if (initialRecommendationTimerRef.current) {
+        clearTimeout(initialRecommendationTimerRef.current);
+      }
+    };
+  }, []); // 의존성 배열을 비워서 한 번만 실행
 
   // 장바구니에 상품 추가
   const addToCart = useCallback(

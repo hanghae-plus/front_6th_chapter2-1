@@ -8,12 +8,14 @@ const ProductPicker = () => {
   const { products, addToCart, setSelectedProduct } = useCart();
   const [selectedProduct, setSelectedProductLocal] = useState<string>('');
 
-  const handleProductSelect = (productId: string) => {
+  const handleProductSelect = (productId: string, event?: React.ChangeEvent<HTMLSelectElement>) => {
+    event?.stopPropagation();
     setSelectedProductLocal(productId);
     setSelectedProduct(productId);
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (event?: React.MouseEvent) => {
+    event?.stopPropagation();
     if (selectedProduct) {
       addToCart(selectedProduct);
     }
@@ -97,7 +99,7 @@ const ProductPicker = () => {
           totalStock < 50 ? 'border-orange-500' : 'border-gray-300'
         }`}
         value={selectedProduct}
-        onChange={(e) => handleProductSelect(e.target.value)}
+        onChange={(e) => handleProductSelect(e.target.value, e)}
       >
         <option value="">상품을 선택하세요</option>
         {PRODUCTS.map((product) => (
