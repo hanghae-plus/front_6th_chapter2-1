@@ -2,9 +2,10 @@
  * 프로모션 상태 관리를 위한 Context Provider
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { PromotionContextType, Product } from '../../shared/types';
 import { PROMOTION_TIMERS, BUSINESS_CONSTANTS } from '../../shared/constants';
+import { usePromotionTimer } from '../../shared/hooks/usePromotionTimer';
 // import { useCart } from './CartProvider'; // 순환 의존성 방지
 
 // 번개세일 적용 로직 (순수 함수)
@@ -94,60 +95,42 @@ export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({
   const [lastSelectedProduct, setLastSelectedProduct] = useState<string | null>(null);
 
   // 번개세일 타이머
-  useEffect(() => {
-    const applyLightningSale = () => {
-      const { updatedProducts, selectedProductId } = applyLightningSaleToProducts(products);
-      
-      if (selectedProductId) {
-        const selectedProduct = updatedProducts.find(p => p.id === selectedProductId);
-        setLightningProducts([selectedProductId]);
-        onProductsUpdate(updatedProducts);
-        console.log(`⚡ 번개세일! ${selectedProduct?.name}이(가) 20% 할인 중입니다!`);
-      }
-    };
+  const applyLightningSale = () => {
+    const { updatedProducts, selectedProductId } = applyLightningSaleToProducts(products);
+    
+    if (selectedProductId) {
+      const selectedProduct = updatedProducts.find(p => p.id === selectedProductId);
+      setLightningProducts([selectedProductId]);
+      onProductsUpdate(updatedProducts);
+      console.log(`⚡ 번개세일! ${selectedProduct?.name}이(가) 20% 할인 중입니다!`);
+    }
+  };
 
-    // 초기 딜레이 후 번개세일 시작
-    const initialTimer = setTimeout(() => {
-      applyLightningSale();
-      
-      // 주기적으로 번개세일 실행
-      const intervalTimer = setInterval(applyLightningSale, PROMOTION_TIMERS.LIGHTNING_SALE.INTERVAL);
-      
-      return () => clearInterval(intervalTimer);
-    }, PROMOTION_TIMERS.LIGHTNING_SALE.DELAY);
-
-    return () => {
-      clearTimeout(initialTimer);
-    };
-  }, [products, onProductsUpdate]);
+  usePromotionTimer({
+    callback: applyLightningSale,
+    interval: PROMOTION_TIMERS.LIGHTNING_SALE.INTERVAL,
+    delay: PROMOTION_TIMERS.LIGHTNING_SALE.DELAY,
+    dependencies: [products, onProductsUpdate],
+  });
 
   // 추천할인 타이머
-  useEffect(() => {
-    const applySuggestedSale = () => {
-      const { updatedProducts, discountedProductIds } = applySuggestedSaleToProducts(products, lastSelectedProduct);
-      
-      setSuggestedProducts(discountedProductIds);
-      onProductsUpdate(updatedProducts);
+  const applySuggestedSale = () => {
+    const { updatedProducts, discountedProductIds } = applySuggestedSaleToProducts(products, lastSelectedProduct);
+    
+    setSuggestedProducts(discountedProductIds);
+    onProductsUpdate(updatedProducts);
 
-      if (discountedProductIds.length > 0) {
-        console.log('💡 다른 상품은 어떠세요? 추천 상품들이 5% 할인 중입니다!');
-      }
-    };
+    if (discountedProductIds.length > 0) {
+      console.log('💡 다른 상품은 어떠세요? 추천 상품들이 5% 할인 중입니다!');
+    }
+  };
 
-    // 초기 딜레이 후 추천할인 시작
-    const initialTimer = setTimeout(() => {
-      applySuggestedSale();
-      
-      // 주기적으로 추천할인 실행
-      const intervalTimer = setInterval(applySuggestedSale, PROMOTION_TIMERS.SUGGESTED_SALE.INTERVAL);
-      
-      return () => clearInterval(intervalTimer);
-    }, PROMOTION_TIMERS.SUGGESTED_SALE.DELAY);
-
-    return () => {
-      clearTimeout(initialTimer);
-    };
-  }, [products, lastSelectedProduct, onProductsUpdate]);
+  usePromotionTimer({
+    callback: applySuggestedSale,
+    interval: PROMOTION_TIMERS.SUGGESTED_SALE.INTERVAL,
+    delay: PROMOTION_TIMERS.SUGGESTED_SALE.DELAY,
+    dependencies: [products, lastSelectedProduct, onProductsUpdate],
+  });
 
   const contextValue: PromotionContextType = {
     lightningProducts,
