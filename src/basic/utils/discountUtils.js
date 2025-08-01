@@ -1,19 +1,29 @@
 export function calcTotalDiscount(individualDiscounts, bulkDiscountRate, bulkDiscountApplied, tuesdayDiscountRate, tuesdayDiscountApplied) {
-  let totalRate = 0;
-  const discountTypes = [];
+  // 할인 조건들을 배열로 정의
+  const discountConditions = [
+    {
+      condition: individualDiscounts.length > 0,
+      rate: individualDiscounts.reduce((sum, discount) => sum + discount.rate, 0),
+      type: "individual",
+    },
+    {
+      condition: bulkDiscountApplied,
+      rate: bulkDiscountRate,
+      type: "bulk",
+    },
+    {
+      condition: tuesdayDiscountApplied,
+      rate: tuesdayDiscountRate,
+      type: "tuesday",
+    },
+  ];
 
-  if (individualDiscounts.length > 0) {
-    totalRate += individualDiscounts.reduce((sum, discount) => sum + discount.rate, 0);
-    discountTypes.push("individual");
-  }
-  if (bulkDiscountApplied) {
-    totalRate += bulkDiscountRate;
-    discountTypes.push("bulk");
-  }
-  if (tuesdayDiscountApplied) {
-    totalRate += tuesdayDiscountRate;
-    discountTypes.push("tuesday");
-  }
+  // 조건에 맞는 할인들만 필터링하고 계산
+  const activeDiscounts = discountConditions.filter(discount => discount.condition);
+
+  // 총 할인율과 할인 타입들을 계산
+  const totalRate = activeDiscounts.reduce((sum, discount) => sum + discount.rate, 0);
+  const discountTypes = activeDiscounts.map(discount => discount.type);
 
   return {
     totalDiscountRate: totalRate,
