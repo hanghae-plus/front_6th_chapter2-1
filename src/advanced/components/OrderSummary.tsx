@@ -1,0 +1,159 @@
+import { QUANTITY_THRESHOLDS, DISCOUNT_PERCENTAGES } from '../constants';
+import { CartItem, Product } from '../types';
+import { findProductByCartItem, isTuesday, isBulkPurchaseEligible } from '../utils';
+
+interface OrderSummaryProps {
+  cartItems: CartItem[];
+  products: Product[];
+  totalAmount: number;
+  finalTotal: number;
+  discountRate: number;
+  savedAmount: number;
+  loyaltyPoints: number;
+  pointsDetail: string[];
+  itemDiscounts: Array<{ name: string; discount: number }>;
+}
+
+export const OrderSummary: React.FC<OrderSummaryProps> = ({
+  cartItems,
+  products,
+  totalAmount,
+  finalTotal,
+  discountRate,
+  savedAmount,
+  loyaltyPoints,
+  pointsDetail,
+  itemDiscounts
+}) => {
+  const isTuesdayToday = isTuesday();
+
+  return (
+    <>
+      <h2 className="text-xs font-medium mb-5 tracking-extra-wide uppercase">
+        Order Summary
+      </h2>
+      
+      <div className="flex-1 flex flex-col">
+        <div id="summary-details" className="space-y-3">
+          {cartItems.map((item) => {
+            const product = findProductByCartItem(products, item);
+            if (!product) return null;
+            
+            const itemTotal = product.price * item.quantity;
+            return (
+              <div key={item.productId} className="flex justify-between text-xs tracking-wide text-gray-400">
+                <span>{product.name} x {item.quantity}</span>
+                <span>₩{itemTotal.toLocaleString()}</span>
+              </div>
+            );
+          })}
+          
+          {totalAmount > 0 && (
+            <>
+              <div className="border-t border-white/10 my-3"></div>
+              <div className="flex justify-between text-sm tracking-wide">
+                <span>Subtotal</span>
+                <span>₩{totalAmount.toLocaleString()}</span>
+              </div>
+            </>
+          )}
+          
+          {totalAmount > 0 && (
+            <>
+              
+              {/* Bulk discount (원본과 동일한 순서) */}
+              {isBulkPurchaseEligible(cartItems) ? (
+                <div className="flex justify-between text-sm tracking-wide text-green-400">
+                  <span className="text-xs">🎉 대량구매 할인 ({QUANTITY_THRESHOLDS.BULK_PURCHASE}개 이상)</span>
+                  <span className="text-xs">-{DISCOUNT_PERCENTAGES.BULK_PURCHASE}%</span>
+                </div>
+              ) : (
+                /* Individual discounts (대량구매 할인이 없을 때만 표시) */
+                itemDiscounts.map((discount, index) => (
+                  <div key={index} className="flex justify-between text-sm tracking-wide text-green-400">
+                    <span className="text-xs">{discount.name} ({QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT}개↑)</span>
+                    <span className="text-xs">-{discount.discount}%</span>
+                  </div>
+                ))
+              )}
+              
+              {/* Tuesday special */}
+              {isTuesdayToday && finalTotal > 0 && (
+                <div className="flex justify-between text-sm tracking-wide text-purple-400">
+                  <span className="text-xs">🌟 화요일 추가 할인</span>
+                  <span className="text-xs">-{DISCOUNT_PERCENTAGES.TUESDAY}%</span>
+                </div>
+              )}
+              
+              <div className="flex justify-between text-sm tracking-wide text-gray-400">
+                <span>Shipping</span>
+                <span>Free</span>
+              </div>
+            </>
+          )}
+        </div>
+        
+        <div className="mt-auto">
+          {/* Discount info */}
+          {discountRate > 0 && finalTotal > 0 && (
+            <div id="discount-info" data-testid="discount-info" className="mb-4">
+              <div className="bg-green-500/20 rounded-lg p-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
+                  <span className="text-sm font-medium text-green-400">
+                    {(discountRate * 100).toFixed(1)}%
+                  </span>
+                </div>
+                <div className="text-2xs text-gray-300">
+                  ₩{Math.round(savedAmount).toLocaleString()} 할인되었습니다
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Cart total */}
+          <div id="cart-total" className="pt-5 border-t border-white/10">
+            <div className="flex justify-between items-baseline">
+              <span className="text-sm uppercase tracking-wider">Total</span>
+              <div className="text-2xl tracking-tight" data-testid="cart-total">₩{Math.round(finalTotal).toLocaleString()}</div>
+            </div>
+            <div 
+              id="loyalty-points" 
+              data-testid="loyalty-points" 
+              className="text-xs text-blue-400 mt-2 text-right"
+              style={{ display: cartItems.length === 0 ? 'none' : 'block' }}
+            >
+              {loyaltyPoints > 0 ? (
+                <>
+                  <div>적립 포인트: <span className="font-bold">{loyaltyPoints}p</span></div>
+                  <div className="text-2xs opacity-70 mt-1">{pointsDetail.join(', ')}</div>
+                </>
+              ) : (
+                '적립 포인트: 0p'
+              )}
+            </div>
+          </div>
+          
+          {/* Tuesday special notice */}
+          {isTuesdayToday && finalTotal > 0 && (
+            <div id="tuesday-special" data-testid="tuesday-special" className="mt-4 p-3 bg-white/10 rounded-lg">
+              <div className="flex items-center gap-2">
+                <span className="text-2xs">🎉</span>
+                                  <span className="text-xs uppercase tracking-wide">Tuesday Special {DISCOUNT_PERCENTAGES.TUESDAY}% Applied</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <button className="w-full py-4 bg-white text-black text-sm font-normal uppercase tracking-super-wide cursor-pointer mt-6 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30">
+        Proceed to Checkout
+      </button>
+      
+      <p className="mt-4 text-2xs text-white/60 text-center leading-relaxed">
+        Free shipping on all orders.<br/>
+        <span id="points-notice">Earn loyalty points with purchase.</span>
+      </p>
+    </>
+  );
+}; 
