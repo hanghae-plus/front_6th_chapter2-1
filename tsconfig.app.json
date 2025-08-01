@@ -21,7 +21,12 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    "paths": {
+      "@basic/*": ["./src/basic/*"],
+      "@advanced/*": ["./src/advanced/*"]
+    }
   },
   "include": ["src"]
 }
