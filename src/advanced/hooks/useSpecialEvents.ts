@@ -15,7 +15,7 @@ export const useSpecialEvents = ({ products, onProductUpdate, selectedProductId 
   const { addToast } = useToast();
 
   // 공통 토스트 설정
-  const createToast = (type: "info" | "success", message: string) => ({
+  const createToast = ({ type, message }: { type: "info" | "success"; message: string }) => ({
     type,
     message,
     duration: TOAST_DURATION,
@@ -40,7 +40,12 @@ export const useSpecialEvents = ({ products, onProductUpdate, selectedProductId 
 
     updateProductWithDiscount(luckyProduct, newPrice, { onSale: true });
 
-    addToast(createToast("info", `⚡번개세일! ${luckyProduct.name}이(가) ${DISCOUNT_RATES.LIGHTNING_DISCOUNT}% 할인 중입니다!`));
+    addToast(
+      createToast({
+        type: "info",
+        message: `⚡번개세일! ${luckyProduct.name}이(가) ${DISCOUNT_RATES.LIGHTNING_DISCOUNT}% 할인 중입니다!`,
+      })
+    );
   }, [products, onProductUpdate, addToast]);
 
   const triggerSuggestSale = useCallback(() => {
@@ -55,7 +60,12 @@ export const useSpecialEvents = ({ products, onProductUpdate, selectedProductId 
 
     updateProductWithDiscount(suggestProduct, newPrice, { suggestSale: true });
 
-    addToast(createToast("success", `💝 ${suggestProduct.name}은(는) 어떠세요? 지금 구매하시면 ${DISCOUNT_RATES.SUGGEST_DISCOUNT}% 추가 할인!`));
+    addToast(
+      createToast({
+        type: "success",
+        message: `💝 ${suggestProduct.name}은(는) 어떠세요? 지금 구매하시면 ${DISCOUNT_RATES.SUGGEST_DISCOUNT}% 추가 할인!`,
+      })
+    );
   }, [products, selectedProductId, onProductUpdate, addToast]);
 
   useEffect(() => {
