@@ -3,8 +3,8 @@ import {
   DiscountSummary,
   PointSummary,
 } from './components/ui';
-import { calculateTotalBonusPoints } from './pointsUtils';
-import { isTuesday } from './utils';
+import { calculateTotalBonusPoints } from './utils/pointsUtils';
+import { isTuesday } from './utils/utils';
 
 /**
  * 장바구니 아이템 수량 UI 업데이트

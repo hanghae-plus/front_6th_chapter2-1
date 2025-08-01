@@ -6,15 +6,18 @@ import {
 } from './components/layout';
 import { ManualToggle, ManualOverlay, ManualColumn } from './components/manual';
 import { ProductSelector, CartContainer, OrderSummary } from './components/ui';
-import { initProductList } from './data';
+import { initProductList } from './constants/data';
 import {
   attachCartEventListener,
   attachManualEventListener,
   attachAddToCartEventListener,
-} from './eventListeners';
-import { lightningTimer, recommendTimer } from './timer';
-import { createCartHandlers, createManualHandlers } from './useCartHandlers';
-import { initializeCartState } from './useCartState';
+} from './events/eventListeners';
+import {
+  createCartHandlers,
+  createManualHandlers,
+} from './hooks/useCartHandlers';
+import { initializeCartState } from './hooks/useCartState';
+import { lightningTimer, recommendTimer } from './services/timer';
 
 // DOM 요소들과 상품 데이터 (상태는 useCartState에서 관리)
 let productList;
@@ -28,24 +31,14 @@ let cartContainer;
 function main() {
   // 상품 데이터 초기화
   productList = initProductList();
-
   // DOM 구성 요소 생성
   const elements = createDOMElements();
 
-  // 상태 및 핸들러 초기화
   const { cartState, cartHandlers, manualHandlers } =
     initializeStateAndHandlers(elements);
-
-  // 이벤트 리스너 연결
   attachEventListeners(elements, cartHandlers, manualHandlers);
-
-  // DOM 구조 조립
   assembleDOMStructure(elements);
-
-  // 초기 상태 설정
   initializeInitialState(cartState);
-
-  // 타이머 설정
   setupTimers(cartState);
 }
 

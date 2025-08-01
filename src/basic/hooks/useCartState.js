@@ -1,13 +1,13 @@
+import { generateProductOptions } from '../components/ui';
+import { PriceSummary } from '../components/ui';
+import { updateCartUI } from '../uiEffects';
 import {
   calculateCartTotals,
   calculateDiscountedTotal,
   applyBulkDiscount,
   applyTuesdayDiscount,
-} from './cartUtils';
-import { generateProductOptions } from './components/ui';
-import { PriceSummary } from './components/ui';
-import { updateCartUI } from './uiEffects';
-import { isTuesday } from './utils';
+} from '../utils/cartUtils';
+import { isTuesday } from '../utils/utils';
 
 // React useReducer 스타일의 상태 객체
 function createCartState() {

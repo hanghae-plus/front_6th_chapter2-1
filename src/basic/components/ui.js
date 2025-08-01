@@ -1,4 +1,4 @@
-import { isTuesday } from '../utils';
+import { isTuesday } from '../utils/utils';
 
 function ProductSelector() {
   const container = document.createElement('div');

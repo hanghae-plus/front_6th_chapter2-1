@@ -7,7 +7,7 @@ import {
   QUANTITY_THRESHOLDS,
   POINT_RATES_BULK_BONUS,
   PRODUCT_DEFAULT_DISCOUNT_RATES,
-} from './constants';
+} from '../constants/constants';
 
 function isTuesday() {
   return new Date().getDay() === 2;

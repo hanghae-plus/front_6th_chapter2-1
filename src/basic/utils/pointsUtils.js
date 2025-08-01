@@ -1,9 +1,9 @@
+import { getBonusPerBulkInfo } from './utils';
 import {
   PRODUCT_KEYBOARD,
   PRODUCT_MOUSE,
   PRODUCT_MONITOR_ARM,
-} from './constants';
-import { getBonusPerBulkInfo } from './utils';
+} from '../constants/constants';
 
 // 기본 포인트 계산 (총액 기반)
 function calculateBasePoints(totalAmount) {

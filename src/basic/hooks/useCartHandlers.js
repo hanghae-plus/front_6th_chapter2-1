@@ -3,8 +3,8 @@ import {
   calculateQuantityUpdate,
   processAddToCart,
   toggleManualModal,
-} from './cartActions';
-import { CartItem } from './components/ui';
+} from '../cartActions';
+import { CartItem } from '../components/ui';
 
 // React 커스텀 훅 스타일의 장바구니 핸들러
 export function createCartHandlers({

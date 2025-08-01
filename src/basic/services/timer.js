@@ -1,4 +1,4 @@
-import { TIMER_INTERVAL } from './constants';
+import { TIMER_INTERVAL } from '../constants/constants';
 
 function lightningTimer(
   productList,
