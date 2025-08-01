@@ -29,37 +29,72 @@ function main() {
   // 상품 데이터 초기화
   productList = initProductList();
 
-  // 기본 DOM 구조 생성
+  // DOM 구성 요소 생성
+  const elements = createDOMElements();
+
+  // 상태 및 핸들러 초기화
+  const { cartState, cartHandlers, manualHandlers } =
+    initializeStateAndHandlers(elements);
+
+  // 이벤트 리스너 연결
+  attachEventListeners(elements, cartHandlers, manualHandlers);
+
+  // DOM 구조 조립
+  assembleDOMStructure(elements);
+
+  // 초기 상태 설정
+  initializeInitialState(cartState);
+
+  // 타이머 설정
+  setupTimers(cartState);
+}
+
+// DOM 구성 요소 생성
+function createDOMElements() {
   const root = document.getElementById('app');
 
-  // 헤더 생성
+  // 기본 레이아웃
   const header = Header({ itemCount: 0 });
-
   const gridContainer = GridContainer();
   const leftColumn = LeftColumn();
   const rightColumn = RightColumn();
 
+  // 오른쪽 컬럼 (주문 요약)
   const orderSummaryElement = OrderSummary();
   rightColumn.appendChild(orderSummaryElement);
   sum = rightColumn.querySelector('#cart-total');
 
-  // 상품 선택 컨테이너
+  // 왼쪽 컬럼 (상품 선택 & 장바구니)
   const selectorContainer = ProductSelector();
   selectElement = selectorContainer.querySelector('#product-select');
   addButton = selectorContainer.querySelector('#add-to-cart');
   stockInfo = selectorContainer.querySelector('#stock-status');
 
-  leftColumn.appendChild(selectorContainer);
-
-  // 장바구니 표시 영역
   cartContainer = CartContainer();
+  leftColumn.appendChild(selectorContainer);
   leftColumn.appendChild(cartContainer);
 
-  // 도움말 모달 생성
+  // 도움말 모달
   const manualToggle = ManualToggle();
   const manualOverlay = ManualOverlay();
   const manualColumn = ManualColumn();
 
+  return {
+    root,
+    header,
+    gridContainer,
+    leftColumn,
+    rightColumn,
+    manualToggle,
+    manualOverlay,
+    manualColumn,
+    selectorContainer,
+    orderSummaryElement,
+  };
+}
+
+// 상태 및 핸들러 초기화
+function initializeStateAndHandlers(elements) {
   // 상태 관리 초기화
   const cartState = initializeCartState({
     productList,
@@ -70,7 +105,7 @@ function main() {
     stockInfoElement: stockInfo,
   });
 
-  // 장바구니 핸들러 초기화 (새로운 상태 관리 사용)
+  // 핸들러 초기화
   const cartHandlers = createCartHandlers({
     productList,
     cartContainer,
@@ -81,34 +116,60 @@ function main() {
     setLastSelectedProductId: cartState.setLastSelectedProductId,
   });
 
-  // 도움말 모달 핸들러 초기화
-  const manualHandlers = createManualHandlers(manualOverlay, manualColumn);
+  const manualHandlers = createManualHandlers(
+    elements.manualOverlay,
+    elements.manualColumn,
+  );
 
-  // 이벤트 리스너 연결
+  return { cartState, cartHandlers, manualHandlers };
+}
+
+// 이벤트 리스너 연결
+function attachEventListeners(elements, cartHandlers, manualHandlers) {
   attachAddToCartEventListener(addButton, cartHandlers);
   attachCartEventListener(cartContainer, cartHandlers);
-  attachManualEventListener(manualToggle, manualOverlay, manualHandlers);
+  attachManualEventListener(
+    elements.manualToggle,
+    elements.manualOverlay,
+    manualHandlers,
+  );
+}
 
-  // DOM 구조 조립
+// DOM 구조 조립
+function assembleDOMStructure(elements) {
+  const {
+    root,
+    header,
+    gridContainer,
+    leftColumn,
+    rightColumn,
+    manualToggle,
+    manualOverlay,
+    manualColumn,
+  } = elements;
+
+  // 그리드 컨테이너 조립
   gridContainer.appendChild(leftColumn);
   gridContainer.appendChild(rightColumn);
+
+  // 모달 조립
   manualOverlay.appendChild(manualColumn);
 
+  // 루트에 최종 조립
   root.appendChild(header);
   root.appendChild(gridContainer);
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
+}
 
-  // 초기 데이터 설정
-  let initStock = 0;
-  for (let i = 0; i < productList.length; i++) {
-    initStock += productList[i].availableStock;
-  }
-
+// 초기 상태 설정
+function initializeInitialState(cartState) {
   cartState.updateSelectOptions();
   cartState.calculateCartStuff();
+}
 
-  // 타이머 기반 이벤트 설정
+// 타이머 설정
+function setupTimers(cartState) {
   lightningTimer(
     productList,
     cartState.updateSelectOptions,
@@ -122,8 +183,10 @@ function main() {
   );
 }
 
-// 애플리케이션 초기화
-main();
+// 유틸리티 함수
 function findProductById(productId) {
   return productList.find((product) => product.id === productId);
 }
+
+// 애플리케이션 초기화
+main();
