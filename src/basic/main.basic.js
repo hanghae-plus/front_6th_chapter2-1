@@ -132,6 +132,7 @@ function main() {
       </svg>
     </button>
     <h2 class="text-xl font-bold mb-4">📖 이용 안내</h2>
+   
     <div class="mb-6">
       <h3 class="text-base font-bold mb-3">💰 할인 정책</h3>
       <div class="space-y-3">
@@ -144,10 +145,12 @@ function main() {
             • 스피커 10개↑: 25%
           </p>
         </div>
+       
         <div class="bg-gray-100 rounded-lg p-3">
           <p class="font-semibold text-sm mb-1">전체 수량</p>
           <p class="text-gray-700 text-xs pl-2">• 30개 이상: 25%</p>
         </div>
+       
         <div class="bg-gray-100 rounded-lg p-3">
           <p class="font-semibold text-sm mb-1">특별 할인</p>
           <p class="text-gray-700 text-xs pl-2">
@@ -158,6 +161,7 @@ function main() {
         </div>
       </div>
     </div>
+   
     <div class="mb-6">
       <h3 class="text-base font-bold mb-3">🎁 포인트 적립</h3>
       <div class="space-y-3">
@@ -165,6 +169,7 @@ function main() {
           <p class="font-semibold text-sm mb-1">기본</p>
           <p class="text-gray-700 text-xs pl-2">• 구매액의 0.1%</p>
         </div>
+       
         <div class="bg-gray-100 rounded-lg p-3">
           <p class="font-semibold text-sm mb-1">추가</p>
           <p class="text-gray-700 text-xs pl-2">
@@ -176,6 +181,7 @@ function main() {
         </div>
       </div>
     </div>
+   
     <div class="border-t border-gray-200 pt-4 mt-4">
       <p class="text-xs font-bold mb-1">💡 TIP</p>
       <p class="text-2xs text-gray-600 leading-relaxed">
@@ -204,6 +210,7 @@ function main() {
       var luckyIdx = Math.floor(Math.random() * prodList.length);
       var luckyItem = prodList[luckyIdx];
       if (luckyItem.q > 0 && !luckyItem.onSale) {
+
         luckyItem.val = Math.round(luckyItem.originalVal * 80 / 100);
         luckyItem.onSale = true;
         alert('⚡번개세일! ' + luckyItem.name + '이(가) 20% 할인 중입니다!');
@@ -218,6 +225,7 @@ function main() {
       }
       if (lastSel) {
         var suggest = null;
+
         for (var k = 0; k < prodList.length; k++) {
           if (prodList[k].id !== lastSel) {
             if (prodList[k].q > 0) {
@@ -230,6 +238,7 @@ function main() {
         }
         if (suggest) {
           alert('💝 ' + suggest.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!');
+
           suggest.val = Math.round(suggest.val * (100 - 5) / 100);
           suggest.suggestSale = true;
           onUpdateSelectOptions();
@@ -309,10 +318,8 @@ function handleCalculateCartStuff() {
   var loyaltyDiv;
   totalAmt = 0;
   itemCnt = 0;
-  originalTotal = totalAmt
   cartItems = cartDisp.children;
   subTot = 0;
-  bulkDisc = subTot;
   itemDiscounts = [];
   lowStockItems = [];
   for (idx = 0; idx < prodList.length; idx++) {
@@ -380,12 +387,14 @@ function handleCalculateCartStuff() {
   } else {
     discRate = (subTot - totalAmt) / subTot;
   }
+
   const today = new Date();
   var isTuesday = today.getDay() === 2;
   var tuesdaySpecial = document.getElementById('tuesday-special');
   if (isTuesday) {
     if (totalAmt > 0) {
       totalAmt = totalAmt * 90 / 100;
+
       discRate = 1 - (totalAmt / originalTotal);
       tuesdaySpecial.classList.remove('hidden');
     } else {
@@ -398,6 +407,7 @@ function handleCalculateCartStuff() {
   summaryDetails = document.getElementById('summary-details');
   summaryDetails.innerHTML = '';
   if (subTot > 0) {
+
     for (let i = 0; i < cartItems.length; i++) {
       var curItem;
       for (var j = 0; j < prodList.length; j++) {
@@ -416,6 +426,7 @@ function handleCalculateCartStuff() {
         </div>
       `;
     }
+
     summaryDetails.innerHTML += `
       <div class="border-t border-white/10 my-3"></div>
       <div class="flex justify-between text-sm tracking-wide">
@@ -423,7 +434,9 @@ function handleCalculateCartStuff() {
         <span>₩${subTot.toLocaleString()}</span>
       </div>
     `;
+
     if (itemCnt >= 30) {
+
       summaryDetails.innerHTML += `
         <div class="flex justify-between text-sm tracking-wide text-green-400">
           <span class="text-xs">🎉 대량구매 할인 (30개 이상)</span>
@@ -431,6 +444,7 @@ function handleCalculateCartStuff() {
         </div>
       `;
     } else if (itemDiscounts.length > 0) {
+
       itemDiscounts.forEach(function (item) {
         summaryDetails.innerHTML += `
           <div class="flex justify-between text-sm tracking-wide text-green-400">
@@ -474,6 +488,7 @@ function handleCalculateCartStuff() {
   }
   discountInfoDiv = document.getElementById('discount-info');
   discountInfoDiv.innerHTML = '';
+
   if (discRate > 0 && totalAmt > 0) {
     savedAmount = originalTotal - totalAmt;
     discountInfoDiv.innerHTML = `
@@ -495,6 +510,7 @@ function handleCalculateCartStuff() {
     }
   }
   stockMsg = '';
+
   for (var stockIdx = 0; stockIdx < prodList.length; stockIdx++) {
     var item = prodList[stockIdx];
     if (item.q < 5) {
@@ -506,6 +522,7 @@ function handleCalculateCartStuff() {
     }
   }
   stockInfo.textContent = stockMsg;
+
   handleStockInfoUpdate();
   doRenderBonusPoints();
 }
@@ -513,6 +530,7 @@ var doRenderBonusPoints = function() {
   var basePoints;
   var finalPoints;
   var pointsDetail;
+
   var hasKeyboard;
   var hasMouse;
   var hasMonitorArm;
@@ -524,6 +542,7 @@ var doRenderBonusPoints = function() {
   basePoints = Math.floor(totalAmt / 1000)
   finalPoints = 0;
   pointsDetail = [];
+
   if (basePoints > 0) {
     finalPoints = basePoints;
     pointsDetail.push('기본: ' + basePoints + 'p');
@@ -540,6 +559,7 @@ var doRenderBonusPoints = function() {
   nodes = cartDisp.children;
   for (const node of nodes) {
     var product = null;
+
     for (var pIdx = 0; pIdx < prodList.length; pIdx++) {
       if (prodList[pIdx].id === node.id) {
         product = prodList[pIdx];
@@ -563,6 +583,7 @@ var doRenderBonusPoints = function() {
     finalPoints = finalPoints + 100;
     pointsDetail.push('풀세트 구매 +100p');
   }
+
   if (itemCnt >= 30) {
     finalPoints = finalPoints + 100;
     pointsDetail.push('대량구매(30개+) +100p');
@@ -636,6 +657,7 @@ function doUpdatePricesInCart() {
   for (var i = 0; i < cartItems.length; i++) {
     var itemId = cartItems[i].id;
     var product = null;
+
     for (var productIdx = 0; productIdx < prodList.length; productIdx++) {
       if (prodList[productIdx].id === itemId) {
         product = prodList[productIdx];
@@ -665,6 +687,7 @@ function doUpdatePricesInCart() {
 main();
 addBtn.addEventListener("click", function () {
   var selItem = sel.value
+
   var hasItem = false;
   for (var idx = 0; idx < prodList.length; idx++) {
     if (prodList[idx].id === selItem) {
@@ -729,6 +752,7 @@ cartDisp.addEventListener("click", function (event) {
     var prodId = tgt.dataset.productId;
     var itemElem = document.getElementById(prodId)
     var prod = null;
+
     for (var prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
       if (prodList[prdIdx].id === prodId) {
         prod = prodList[prdIdx];

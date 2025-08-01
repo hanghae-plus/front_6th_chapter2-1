@@ -5,21 +5,34 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cp ./dist/index.basic.html ./dist/index.html && cp ./dist/index.html ./dist/404.html",
     "preview": "vite preview",
     "start:basic": "vite serve --open ./index.basic.html",
     "start:advanced": "vite serve --open ./index.advanced.html",
     "test": "vitest",
     "test:basic": "vitest basic.test.js",
     "test:advanced": "vitest advanced.test.js",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "gh-pages": "pnpm run build && gh-pages -d dist"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.1",
     "@vitest/ui": "^3.2.4",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^16.3.0",
     "jsdom": "^26.1.0",
-    "vite": "^7.0.5",
-    "vitest": "^3.2.4"
-  }
+    "nvm": "^0.0.4",
+    "prettier": "^3.6.2",
+    "typescript-eslint": "^8.38.0",
+    "vite": "7.0.5",
+    "vitest": "^3.2.4",
+    "gh-pages": "^6.3.0"
+  },
+  "homepage": "https://adds-bug.github.io/front_6th_chapter2-1/"
 }
