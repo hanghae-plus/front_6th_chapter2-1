@@ -2,7 +2,7 @@
 // UI UPDATE FUNCTIONS
 // ============================================
 
-import { calculateAllPoints, calculateCartState } from './businessLogic.js';
+import { calculateAllPoints, calculateCartState, calculateCartStatePure } from './businessLogic.js';
 import { QUANTITY_THRESHOLDS } from './constants.js';
 import { getTotalStock, getStockStatusMessage, isTuesdayDay } from './utils.js';
 
@@ -114,8 +114,8 @@ export const calculateCart = () => {
     });
   });
 
-  // businessLogic.js의 calculateCartState 사용
-  const cartState = calculateCartState(cartItems, productList);
+  // businessLogic.js의 순수 함수 사용
+  const cartState = calculateCartStatePure(cartItems, productList);
 
   // 전역 변수 업데이트
   const { totalAmount: newTotalAmount, itemCount: newItemCount } = cartState;

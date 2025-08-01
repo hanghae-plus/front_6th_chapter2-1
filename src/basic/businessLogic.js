@@ -19,6 +19,17 @@ const safeCalculate = (fn, fallback = 0) => {
 };
 
 const safeFindProduct = (products, productId) => {
+  // 입력 검증
+  if (!Array.isArray(products)) {
+    console.error('products는 배열이어야 합니다');
+    return null;
+  }
+
+  if (!productId || typeof productId !== 'string') {
+    console.error('productId는 유효한 문자열이어야 합니다');
+    return null;
+  }
+
   const product = findProductById(products, productId);
   if (!product) {
     console.warn(`Product not found: ${productId}`);
@@ -42,8 +53,19 @@ const getCachedDiscount = (productId, quantity) => {
 };
 
 // 장바구니 상태 계산 함수 (원본 로직과 동일)
-export const calculateCartState = (cartItems, products) =>
-  safeCalculate(
+export const calculateCartState = (cartItems, products) => {
+  // 입력 검증
+  if (!Array.isArray(cartItems)) {
+    console.error('cartItems는 배열이어야 합니다');
+    return { subtotal: 0, itemCount: 0, itemDiscounts: [], totalAmount: 0, discountRate: 0 };
+  }
+
+  if (!Array.isArray(products)) {
+    console.error('products는 배열이어야 합니다');
+    return { subtotal: 0, itemCount: 0, itemDiscounts: [], totalAmount: 0, discountRate: 0 };
+  }
+
+  return safeCalculate(
     () => {
       // 1. 장바구니 아이템 계산 (개별 할인 포함)
       const {
@@ -71,23 +93,46 @@ export const calculateCartState = (cartItems, products) =>
     },
     { subtotal: 0, itemCount: 0, itemDiscounts: [], totalAmount: 0, discountRate: 0 },
   );
+};
 
-// 장바구니 상태 업데이트 함수 (AppState 대신 래퍼 함수 사용)
+// 순수 함수: 장바구니 상태 계산 (UI 업데이트 없음)
+export const calculateCartStatePure = (cartItems, products) => {
+  // 장바구니 아이템 계산
+  const cartCalculation = calculateCartItems(cartItems, products);
+
+  // 총 할인 적용
+  const { totalAmount, discountRate } = calculateTotalWithDiscounts(
+    cartCalculation.subtotal,
+    cartCalculation.itemCount,
+    cartCalculation.itemDiscounts,
+    cartCalculation.totalAmount,
+  );
+
+  // 포인트 계산
+  const { finalPoints, pointsDetail } = calculateAllPoints(
+    totalAmount,
+    cartItems,
+    cartCalculation.itemCount,
+  );
+
+  return {
+    ...cartCalculation,
+    totalAmount,
+    discountRate,
+    finalPoints,
+    pointsDetail,
+  };
+};
+
+// UI 업데이트 함수 (별도 분리)
 export const updateCartState = (cartState, updateFunctions) => {
   const { updateTotalAmount, updateItemCount } = updateFunctions;
 
   updateTotalAmount(cartState.totalAmount);
   updateItemCount(cartState.itemCount);
 
-  // 포인트 계산 및 업데이트
-  const { finalPoints } = calculateAllPoints(
-    cartState.totalAmount,
-    cartState.cartItems,
-    cartState.itemCount,
-  );
-
-  // bonusPoints 업데이트는 나중에 구현
-  console.log('포인트 계산 완료:', finalPoints);
+  // 포인트 계산 완료 로그
+  console.log('포인트 계산 완료:', cartState.finalPoints);
 };
 
 // 장바구니 아이템 계산 (개선된 버전)
@@ -142,6 +187,22 @@ const calculateTotalWithDiscounts = (
   itemDiscounts,
   individualDiscountedTotal,
 ) => {
+  // 입력 검증
+  if (typeof subtotal !== 'number' || subtotal < 0) {
+    console.error('subtotal는 0 이상의 숫자여야 합니다');
+    return { totalAmount: 0, discountRate: 0 };
+  }
+
+  if (typeof itemCount !== 'number' || itemCount < 0) {
+    console.error('itemCount는 0 이상의 숫자여야 합니다');
+    return { totalAmount: 0, discountRate: 0 };
+  }
+
+  if (typeof individualDiscountedTotal !== 'number' || individualDiscountedTotal < 0) {
+    console.error('individualDiscountedTotal는 0 이상의 숫자여야 합니다');
+    return { totalAmount: 0, discountRate: 0 };
+  }
+
   let totalAmount = individualDiscountedTotal;
   let discountRate = 0;
 
@@ -165,15 +226,39 @@ const calculateTotalWithDiscounts = (
     discountRate += tuesdayDiscountRate;
   }
 
+  // 최종 검증
+  if (totalAmount < 0) {
+    console.warn('할인 후 금액이 음수가 되었습니다. 0으로 조정합니다.');
+    totalAmount = 0;
+  }
+
+  if (discountRate > 1) {
+    console.warn('할인율이 100%를 초과했습니다. 100%로 조정합니다.');
+    discountRate = 1;
+  }
+
   return { totalAmount, discountRate };
 };
 
-// 개별 상품 할인 계산
+// 개별 상품 할인 계산 (개선된 버전)
 const calculateIndividualDiscount = (productId, quantity) => {
+  // 입력 검증
+  if (!productId || typeof productId !== 'string') {
+    console.error('productId는 유효한 문자열이어야 합니다');
+    return 0;
+  }
+
+  if (typeof quantity !== 'number' || quantity < 0) {
+    console.error('quantity는 0 이상의 숫자여야 합니다');
+    return 0;
+  }
+
+  // 수량 기준 확인
   if (quantity < QUANTITY_THRESHOLDS.INDIVIDUAL_DISCOUNT) {
     return 0;
   }
 
+  // 할인율 매핑
   const discountRates = {
     [PRODUCT_IDS.KEYBOARD]: DISCOUNT_RATES.KEYBOARD,
     [PRODUCT_IDS.MOUSE]: DISCOUNT_RATES.MOUSE,
@@ -182,7 +267,20 @@ const calculateIndividualDiscount = (productId, quantity) => {
     [PRODUCT_IDS.SPEAKER]: DISCOUNT_RATES.SPEAKER,
   };
 
-  return discountRates[productId] || 0;
+  const discountRate = discountRates[productId];
+
+  // 할인율 유효성 검증
+  if (discountRate === undefined) {
+    console.warn(`알 수 없는 상품 ID: ${productId}`);
+    return 0;
+  }
+
+  if (discountRate < 0 || discountRate > 1) {
+    console.warn(`유효하지 않은 할인율: ${discountRate} (상품: ${productId})`);
+    return 0;
+  }
+
+  return discountRate;
 };
 
 // 화요일 할인 계산
@@ -197,8 +295,25 @@ const calculateTuesdayBonus = (basePoints) => {
   return basePoints;
 };
 
-// 모든 포인트 계산
+// 모든 포인트 계산 (개선된 버전)
 export const calculateAllPoints = (totalAmount, cartItems, itemCount) => {
+  // 입력 검증
+  if (typeof totalAmount !== 'number' || totalAmount < 0) {
+    console.error('totalAmount는 0 이상의 숫자여야 합니다');
+    return { finalPoints: 0, pointsDetail: [] };
+  }
+
+  if (!Array.isArray(cartItems)) {
+    console.error('cartItems는 배열이어야 합니다');
+    return { finalPoints: 0, pointsDetail: [] };
+  }
+
+  if (typeof itemCount !== 'number' || itemCount < 0) {
+    console.error('itemCount는 0 이상의 숫자여야 합니다');
+    return { finalPoints: 0, pointsDetail: [] };
+  }
+
+  // 기본 포인트 계산
   let finalPoints = calculateBasePoints(totalAmount);
   const pointsDetail = [];
 
@@ -239,12 +354,23 @@ export const calculateAllPoints = (totalAmount, cartItems, itemCount) => {
 // 기본 포인트 계산
 const calculateBasePoints = (totalAmount) => Math.floor(totalAmount / POINTS_CONFIG.POINTS_DIVISOR);
 
-// 상품 세트 확인
+// 상품 세트 확인 (개선된 버전)
 const checkProductSet = (cartItems) => {
-  // cartItems는 이미 배열 형태로 전달됨 (uiUpdates.js에서 변환)
-  const hasKeyboard = cartItems.some((item) => item.productId === PRODUCT_IDS.KEYBOARD);
-  const hasMouse = cartItems.some((item) => item.productId === PRODUCT_IDS.MOUSE);
-  const hasMonitorArm = cartItems.some((item) => item.productId === PRODUCT_IDS.MONITOR_ARM);
+  // 입력 검증
+  if (!Array.isArray(cartItems)) {
+    console.error('cartItems는 배열이어야 합니다');
+    return { type: 'none', bonus: 0 };
+  }
+
+  // 유효한 cartItems만 필터링
+  const validItems = cartItems.filter(
+    (item) =>
+      item && typeof item === 'object' && item.productId && typeof item.productId === 'string',
+  );
+
+  const hasKeyboard = validItems.some((item) => item.productId === PRODUCT_IDS.KEYBOARD);
+  const hasMouse = validItems.some((item) => item.productId === PRODUCT_IDS.MOUSE);
+  const hasMonitorArm = validItems.some((item) => item.productId === PRODUCT_IDS.MONITOR_ARM);
 
   if (hasKeyboard && hasMouse && hasMonitorArm) {
     return { type: 'full', bonus: POINTS_CONFIG.FULL_SET_BONUS };

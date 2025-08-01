@@ -20,8 +20,6 @@ import { setGlobalVariables as setUIGlobals } from './uiUpdates.js';
 // GLOBAL STATE
 // ============================================
 
-let summaryElement;
-
 // 점진적 정리: 모든 상태 변수들을 객체로 분리
 const AppState = {
   // 상품 관련 상태
@@ -35,12 +33,13 @@ const AppState = {
     lastSelectedProduct: null,
   },
 
-  // DOM 요소 참조 (점진적 정리 중)
+  // DOM 요소 참조 (점진적 정리 완료)
   elements: {
     productSelector: null,
     addButton: null,
     cartDisplay: null,
     stockInfo: null,
+    summaryElement: null,
   },
 };
 
@@ -120,7 +119,7 @@ export const getDOMElements = () => {
       addButton: AppState.elements.addButton,
       cartDisplay: AppState.elements.cartDisplay,
       stockInfo: AppState.elements.stockInfo,
-      summaryElement,
+      summaryElement: AppState.elements.summaryElement,
     }),
     {},
   );
@@ -131,7 +130,7 @@ export const setDOMElements = (elements) => {
   if (elements.addButton) AppState.elements.addButton = elements.addButton;
   if (elements.cartDisplay) AppState.elements.cartDisplay = elements.cartDisplay;
   if (elements.stockInfo) AppState.elements.stockInfo = elements.stockInfo;
-  if (elements.summaryElement) summaryElement = elements.summaryElement;
+  if (elements.summaryElement) AppState.elements.summaryElement = elements.summaryElement;
 };
 
 // 개별 상태 업데이트 함수들 (안전한 래퍼)
@@ -422,12 +421,15 @@ const main = () => {
   root.appendChild(manualToggle);
   root.appendChild(manualOverlay);
 
+  // summaryElement 설정 (rightColumn에서 찾기)
+  AppState.elements.summaryElement = rightColumn.querySelector('#cart-total');
+
   // 전역 변수 설정
   const globals = {
     productList: AppState.products,
     productSelector: AppState.elements.productSelector,
     cartDisplay: AppState.elements.cartDisplay,
-    summaryElement,
+    summaryElement: AppState.elements.summaryElement,
     stockInfo: AppState.elements.stockInfo,
     totalAmount: AppState.cart.totalAmount,
     itemCount: AppState.cart.itemCount,
