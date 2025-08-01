@@ -1,33 +1,27 @@
 import {
+  Header,
   GridContainer,
   LeftColumn,
+  RightColumn,
+  TotalItemCount,
   SelectorContainer,
   ProductSelector,
-  RightColumn,
+  AddButton,
+  ProductOption,
+  StockInfoText,
+  CartItem,
+  CartItemBox,
+  CartTotal,
   ManualToggle,
   ManualOverlay,
   ManualColumn,
-  Header,
-  CartItem,
-  AddButton,
-  StockInfoText,
-  CartItemBox,
-  ProductOption,
+  DiscountInfo,
+  LoyaltyPoints,
+  SummaryDetails,
 } from "./components";
 import { prodList } from "./data";
-import {
-  PRODUCT_ONE,
-  PRODUCT_TWO,
-  PRODUCT_THREE,
-  // PRODUCT_FOUR,
-  // PRODUCT_FIVE,
-} from "./constants";
-import { SummaryDetails } from "./components/SummaryDetails";
+import { PRODUCT_ONE, PRODUCT_TWO, PRODUCT_THREE } from "./constants";
 import { getOrderSummary } from "./entity/order";
-import { CartTotal } from "./components/CartTotal";
-import { LoyaltyPoints } from "./components/LoyaltyPoints";
-import { DiscountInfo } from "./components/DiscountInfo";
-import { TotalItemCount } from "./components/TotalItemCount";
 import { getStockInfoMessage } from "./entity/stock";
 
 let lastSel = null;
@@ -79,7 +73,6 @@ const useFunction = (fn, { onSuccess }) => {
 };
 
 const handleCalculateCartStuff = useFunction(
-  // TODO: 호출하지 말고 본체를 넘기도록 고치기
   () => getOrderSummary({ cartItems: [...cartItemBox.children] }),
   {
     onSuccess: (summary) => {
