@@ -12,13 +12,15 @@
     "start:advanced": "vite serve --open ./index.advanced.html",
     "test": "vitest",
     "test:basic": "vitest basic.test.js",
-    "test:advanced": "vitest advanced.test.js",
+    "test:advanced": "vitest advanced.test.tsx",
     "test:ui": "vitest --ui",
     "predeploy": "pnpm run build",
     "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.6.1",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
