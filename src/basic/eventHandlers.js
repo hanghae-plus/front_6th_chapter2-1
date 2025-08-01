@@ -6,9 +6,10 @@ import { TIMER_CONFIG } from './constants.js';
 import { updateSelectOptions, calculateCart, updatePricesInCart } from './uiUpdates.js';
 
 // 전역 변수들 (main.basic.js에서 설정됨) - 점진적 정리 중
-let productSelector, cartDisplay;
 // 상품 목록과 lastSelectedProduct는 래퍼 함수로 접근
 let productList, lastSelectedProduct;
+// productSelector와 cartDisplay는 래퍼 함수로 접근
+let productSelector, cartDisplay;
 
 // 전역 변수 설정 함수
 export const setGlobalVariables = (globals) => {

@@ -7,9 +7,10 @@ import { QUANTITY_THRESHOLDS } from './constants.js';
 import { getTotalStock, getStockStatusMessage, isTuesdayDay } from './utils.js';
 
 // 전역 변수들 (main.basic.js에서 설정됨) - 점진적 정리 중
-let productSelector, cartDisplay, stockInfo;
 // 상품 목록과 장바구니 상태는 래퍼 함수로 접근
 let productList, totalAmount, itemCount;
+// DOM 요소들은 래퍼 함수로 접근
+let productSelector, cartDisplay, stockInfo;
 
 // DOM 요소 캐싱
 let cachedElements = null;

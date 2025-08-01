@@ -20,10 +20,6 @@ import { setGlobalVariables as setUIGlobals } from './uiUpdates.js';
 // GLOBAL STATE
 // ============================================
 
-let stockInfo;
-let productSelector;
-let addButton;
-let cartDisplay;
 let summaryElement;
 
 // 점진적 정리: 모든 상태 변수들을 객체로 분리
@@ -37,6 +33,14 @@ const AppState = {
     itemCount: 0,
     totalAmount: 0,
     lastSelectedProduct: null,
+  },
+
+  // DOM 요소 참조 (점진적 정리 중)
+  elements: {
+    productSelector: null,
+    addButton: null,
+    cartDisplay: null,
+    stockInfo: null,
   },
 };
 
@@ -112,10 +116,10 @@ export const setCartState = (newState) => {
 export const getDOMElements = () => {
   return safeExecute(
     () => ({
-      productSelector,
-      addButton,
-      cartDisplay,
-      stockInfo,
+      productSelector: AppState.elements.productSelector,
+      addButton: AppState.elements.addButton,
+      cartDisplay: AppState.elements.cartDisplay,
+      stockInfo: AppState.elements.stockInfo,
       summaryElement,
     }),
     {},
@@ -123,10 +127,10 @@ export const getDOMElements = () => {
 };
 
 export const setDOMElements = (elements) => {
-  if (elements.productSelector) productSelector = elements.productSelector;
-  if (elements.addButton) addButton = elements.addButton;
-  if (elements.cartDisplay) cartDisplay = elements.cartDisplay;
-  if (elements.stockInfo) stockInfo = elements.stockInfo;
+  if (elements.productSelector) AppState.elements.productSelector = elements.productSelector;
+  if (elements.addButton) AppState.elements.addButton = elements.addButton;
+  if (elements.cartDisplay) AppState.elements.cartDisplay = elements.cartDisplay;
+  if (elements.stockInfo) AppState.elements.stockInfo = elements.stockInfo;
   if (elements.summaryElement) summaryElement = elements.summaryElement;
 };
 
@@ -235,9 +239,10 @@ const main = () => {
   `;
 
   // 상품 선택기 생성
-  productSelector = document.createElement('select');
+  const productSelector = document.createElement('select');
   productSelector.id = 'product-select';
   productSelector.className = 'w-full p-3 border border-gray-300 rounded-lg text-base mb-3';
+  AppState.elements.productSelector = productSelector; // 전역 변수에 할당
 
   // 그리드 컨테이너 생성
   const gridContainer = document.createElement('div');
@@ -253,20 +258,23 @@ const main = () => {
   selectorContainer.className = 'mb-6 pb-6 border-b border-gray-200';
 
   // 추가 버튼 생성
-  addButton = document.createElement('button');
+  const addButton = document.createElement('button');
   addButton.id = 'add-to-cart';
   addButton.innerHTML = 'Add to Cart';
   addButton.className =
     'w-full py-3 bg-black text-white text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-all';
+  AppState.elements.addButton = addButton; // 전역 변수에 할당
 
   // 재고 정보 생성
-  stockInfo = document.createElement('div');
+  const stockInfo = document.createElement('div');
   stockInfo.id = 'stock-status';
   stockInfo.className = 'text-xs text-red-500 mt-3 whitespace-pre-line';
+  AppState.elements.stockInfo = stockInfo; // 전역 변수에 할당
 
   // 장바구니 표시 영역 생성
-  cartDisplay = document.createElement('div');
+  const cartDisplay = document.createElement('div');
   cartDisplay.id = 'cart-items';
+  AppState.elements.cartDisplay = cartDisplay; // 전역 변수에 할당
 
   // 오른쪽 컬럼 생성
   const rightColumn = document.createElement('div');
@@ -417,10 +425,10 @@ const main = () => {
   // 전역 변수 설정
   const globals = {
     productList: AppState.products,
-    productSelector,
-    cartDisplay,
+    productSelector: AppState.elements.productSelector,
+    cartDisplay: AppState.elements.cartDisplay,
     summaryElement,
-    stockInfo,
+    stockInfo: AppState.elements.stockInfo,
     totalAmount: AppState.cart.totalAmount,
     itemCount: AppState.cart.itemCount,
     bonusPoints,
