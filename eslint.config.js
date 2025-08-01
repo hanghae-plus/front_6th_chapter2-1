@@ -52,7 +52,10 @@ export default [
     },
     rules: {
       // Prettier 통합 규칙
-      'prettier/prettier': 'error',
+      'prettier/prettier': ['error',{
+        "singleQuote": true,
+        "parser": "flow"
+      }]
       'comma-dangle': [
         'error',
         {
