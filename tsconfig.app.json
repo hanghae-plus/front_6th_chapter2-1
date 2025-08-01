@@ -23,10 +23,13 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
+    "baseUrl": ".",
     "paths": {
       "@basic/*": ["./src/basic/*"],
       "@advanced/*": ["./src/advanced/*"]
-    }
+    },
+    "allowJs": true, // JS 파일 import 허용
+    "resolveJsonModule": true // JSON import 허용 (필요시)
   },
   "include": ["src"]
 }
