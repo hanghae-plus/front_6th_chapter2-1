@@ -57,7 +57,6 @@ export function applyTuesdayDiscount(amount: number): number {
   return amount;
 }
 
-// React용 계산 함수 (전역 상태 대신 파라미터로 받음)
 export function calculateFinalAmount(cartItems: Record<string, number>, products: Product[]) {
   let totalAmount = 0;
   let totalQuantity = 0;

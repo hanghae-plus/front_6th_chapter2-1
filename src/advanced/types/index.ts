@@ -13,15 +13,6 @@ export interface CartItems {
   [productId: string]: number;
 }
 
-export interface AppState {
-  products: Product[];
-  cartItems: CartItems;
-  lastSelectedProductId: string | null;
-  totalAmount: number;
-  totalQuantity: number;
-  bonusPoints: number;
-}
-
 export interface ItemDiscount {
   name: string;
   discount: number;
@@ -32,8 +23,8 @@ export interface ProductOptionFormat {
   className: string;
 }
 
+// 장바구니 상태 타입
 export interface CartState {
-  products: Product[]
   cartItems: Record<string, number>
   totalAmount: number
   totalQuantity: number
@@ -41,12 +32,24 @@ export interface CartState {
   lastSelectedProductId: string | null
 }
 
-export interface ShoppingCartContextType {
+// Context 타입
+export interface CartContextType {
   state: CartState
-  setProducts: (products: Product[]) => void
   setCartItems: (cartItems: Record<string, number>) => void
   setTotalAmount: (amount: number) => void
   setTotalQuantity: (quantity: number) => void
   setBonusPoints: (points: number) => void
   setLastSelectedProductId: (id: string | null) => void
+}
+
+// 상품 상태 타입
+export interface ProductState {
+  products: Product[]
+}
+
+// Context 타입
+export interface ProductContextType {
+  state: ProductState
+  setProducts: (products: Product[]) => void
+  updateProduct: (productId: string, updates: Partial<Product>) => void
 }

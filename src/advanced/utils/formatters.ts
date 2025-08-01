@@ -9,23 +9,6 @@ export function formatDiscountRate(rate: number): string {
   return `${(rate * 100).toFixed(1)}%`;
 }
 
-export function formatStockMessage(productName: string, stock: number): string {
-  if (stock === 0) {
-    return `${productName}: 품절`;
-  } else if (stock < 5) {
-    return `${productName}: 재고 부족 (${stock}개 남음)`;
-  }
-  return '';
-}
-
-export function formatItemCount(count: number): string {
-  return `🛍️ ${count} items in cart`;
-}
-
-export function formatPoints(points: number): string {
-  return `${points}p`;
-}
-
 function determinePriceColorClass(onSale: boolean, recommendSale: boolean): string {
   if (onSale && recommendSale) return 'text-purple-600';
   if (onSale) return 'text-red-500';

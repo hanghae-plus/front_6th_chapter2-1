@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
-import { ShoppingCartProvider } from './context/ShoppingCartContext'
+import { ProductProvider } from './hooks/ProductContext'
+import { CartProvider } from './hooks/CartContext'
 import { useCart } from './hooks/useCart'
 import { useSaleTimers } from './hooks/useSaleTimers'
 import { Header } from './components/Header'
@@ -32,9 +33,11 @@ function AppContent() {
 
 function App() {
   return (
-    <ShoppingCartProvider>
-      <AppContent />
-    </ShoppingCartProvider>
+    <ProductProvider>
+      <CartProvider>
+        <AppContent />
+      </CartProvider>
+    </ProductProvider>
   )
 }
 
