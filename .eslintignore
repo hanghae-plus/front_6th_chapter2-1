@@ -1,0 +1,28 @@
+# 빌드 결과물
+dist/
+build/
+
+# 설정 파일들
+postcss.config.js
+tailwind.config.js
+vite.config.js
+vite.config.advanced.js
+
+# 테스트 설정
+src/setupTests.js
+
+# 기존 JavaScript 파일들 (리팩토링 대상)
+src/basic/
+src/main.original.js
+src/advanced/main.advanced.js
+src/advanced/main.advanced copy.js
+src/advanced/modules_basic/
+src/advanced/constants_basic/
+
+# 테스트 파일
+**/*.test.js
+**/__tests__/
+
+# 기타
+node_modules/
+*.min.js 

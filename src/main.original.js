@@ -247,7 +247,7 @@ function main() {
       }
     }, 60000);
   }, Math.random() * 20000);
-};
+}
 var sum
 function onUpdateSelectOptions() {
   var totalStock;
