@@ -6,7 +6,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { PromotionContextType, Product } from '../../shared/types';
 import { PROMOTION_TIMERS, BUSINESS_CONSTANTS } from '../../shared/constants';
 import { usePromotionTimer } from '../../shared/hooks/usePromotionTimer';
-// import { useCart } from './CartProvider'; // 순환 의존성 방지
+import { useCart } from './CartProvider';
 
 // 번개세일 적용 로직 (순수 함수)
 const applyLightningSaleToProducts = (products: Product[]): { updatedProducts: Product[]; selectedProductId: string | null } => {
@@ -80,16 +80,8 @@ interface PromotionProviderProps {
   children: ReactNode;
 }
 
-interface PromotionProviderExtendedProps extends PromotionProviderProps {
-  products: Product[];
-  onProductsUpdate: (products: Product[]) => void;
-}
-
-export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({ 
-  children, 
-  products, 
-  onProductsUpdate 
-}) => {
+export const PromotionProvider: React.FC<PromotionProviderProps> = ({ children }) => {
+  const { products, updateProducts } = useCart();
   const [lightningProducts, setLightningProducts] = useState<string[]>([]);
   const [suggestedProducts, setSuggestedProducts] = useState<string[]>([]);
   const [lastSelectedProduct, setLastSelectedProduct] = useState<string | null>(null);
@@ -101,7 +93,7 @@ export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({
     if (selectedProductId) {
       const selectedProduct = updatedProducts.find(p => p.id === selectedProductId);
       setLightningProducts([selectedProductId]);
-      onProductsUpdate(updatedProducts);
+      updateProducts(updatedProducts);
       console.log(`⚡ 번개세일! ${selectedProduct?.name}이(가) 20% 할인 중입니다!`);
     }
   };
@@ -110,7 +102,7 @@ export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({
     callback: applyLightningSale,
     interval: PROMOTION_TIMERS.LIGHTNING_SALE.INTERVAL,
     delay: PROMOTION_TIMERS.LIGHTNING_SALE.DELAY,
-    dependencies: [products, onProductsUpdate],
+    dependencies: [products, updateProducts],
   });
 
   // 추천할인 타이머
@@ -118,7 +110,7 @@ export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({
     const { updatedProducts, discountedProductIds } = applySuggestedSaleToProducts(products, lastSelectedProduct);
     
     setSuggestedProducts(discountedProductIds);
-    onProductsUpdate(updatedProducts);
+    updateProducts(updatedProducts);
 
     if (discountedProductIds.length > 0) {
       console.log('💡 다른 상품은 어떠세요? 추천 상품들이 5% 할인 중입니다!');
@@ -129,7 +121,7 @@ export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({
     callback: applySuggestedSale,
     interval: PROMOTION_TIMERS.SUGGESTED_SALE.INTERVAL,
     delay: PROMOTION_TIMERS.SUGGESTED_SALE.DELAY,
-    dependencies: [products, lastSelectedProduct, onProductsUpdate],
+    dependencies: [products, lastSelectedProduct, updateProducts],
   });
 
   const contextValue: PromotionContextType = {
