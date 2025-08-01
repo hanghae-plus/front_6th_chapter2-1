@@ -5,7 +5,6 @@ export const getIsTuesday = () => new Date().getDay() === 2;
 
 export const getProducts = (state: State) => state.products;
 export const getCartList = (state: State) => state.cartList;
-export const getSelectedId = (state: State) => state.selectedProductId;
 export const getNotifications = (state: State) => state.notifications;
 
 export const getCartDetails = (state: State) => {

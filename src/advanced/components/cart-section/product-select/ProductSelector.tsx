@@ -1,29 +1,21 @@
 import { ProductOption } from './ProductOption';
-import { useCartState, useCartDispatch } from '../../../contexts/CartContext';
-import { getProducts, getSelectedId } from '../../../reducer';
 import type { Product } from '../../../types';
 
-export const ProductSelector = () => {
-  const state = useCartState();
-  const dispatch = useCartDispatch();
-  const products = getProducts(state);
-  const selectedProductId = getSelectedId(state);
-
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSelectedId = event.target.value;
-    if (dispatch) dispatch({ type: 'SET_SELECTED_PRODUCT', payload: { productId: newSelectedId } });
-  };
-
-  return (
-    <select
-      id='product-select'
-      className='w-full p-3 border border-gray-300 rounded-lg text-base mb-3'
-      value={selectedProductId}
-      onChange={handleSelectChange}
-    >
-      {products.map((product: Product) => (
-        <ProductOption key={product.id} product={product} />
-      ))}
-    </select>
-  );
+type ProductSelectorProps = {
+  products: Product[];
+  selectedId: string;
+  onSelectChange: React.ChangeEventHandler<HTMLSelectElement>;
 };
+
+export const ProductSelector = ({ products, selectedId, onSelectChange }: ProductSelectorProps) => (
+  <select
+    id='product-select'
+    className='w-full p-3 border border-gray-300 rounded-lg text-base mb-3'
+    value={selectedId}
+    onChange={onSelectChange}
+  >
+    {products.map((product: Product) => (
+      <ProductOption key={product.id} product={product} />
+    ))}
+  </select>
+);

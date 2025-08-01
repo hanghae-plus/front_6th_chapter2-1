@@ -1,4 +1,4 @@
-import { INITIAL_PRODUCTS, PRODUCT_IDS } from '../constant';
+import { INITIAL_PRODUCTS } from '../constant';
 import { State, Action } from '../types';
 
 export const initialState = {
@@ -6,7 +6,6 @@ export const initialState = {
   cartList: [],
   notifications: [],
   lastSelectedId: null,
-  selectedProductId: PRODUCT_IDS.P1,
 };
 
 export function reducer(state: State, action: Action): State {
@@ -142,10 +141,6 @@ export function reducer(state: State, action: Action): State {
           },
         ],
       };
-    }
-
-    case 'SET_SELECTED_PRODUCT': {
-      return { ...state, selectedProductId: payload.productId };
     }
 
     case 'SET_LAST_SELECTED': {

@@ -26,7 +26,6 @@ export interface State {
   products: Product[];
   cartList: CartItem[];
   notifications: Notification[];
-  selectedProductId: string;
   lastSelectedId: string | null;
 }
 
@@ -39,7 +38,6 @@ type ActionMap = {
   DECREASE_QUANTITY: { productId: string };
   START_LIGHTNING_SALE: { productId: string };
   START_SUGGEST_SALE: { productId: string };
-  SET_SELECTED_PRODUCT: { productId: string };
   SET_LAST_SELECTED: { productId: string };
   REMOVE_NOTIFICATION: { notificationId: Date };
 };
