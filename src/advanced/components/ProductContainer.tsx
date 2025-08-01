@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useShoppingCart } from '../providers/ShoppingCartProvider'
 import { formatProductOption } from '../utils/formatters'
+import { getStockMessage, getTotalStock } from '../services/product'
 import { THRESHOLDS } from '../constants'
 
 export function ProductContainer() {
@@ -8,26 +9,13 @@ export function ProductContainer() {
   const [selectedProductId, setSelectedProductId] = useState('')
   
   const products = getProducts()
-  const totalStock = products.reduce((sum, product) => sum + product.stock, 0)
+  const totalStock = getTotalStock()
+  const stockMessage = getStockMessage()
 
   const handleAddToCart = () => {
     if (selectedProductId) {
       addToCart(selectedProductId)
     }
-  }
-
-  const getStockMessage = () => {
-    let message = ''
-    products.forEach((product) => {
-      if (product.stock < THRESHOLDS.LOW_STOCK) {
-        if (product.stock > 0) {
-          message += `${product.name}: 재고 부족 (${product.stock}개 남음)\n`
-        } else {
-          message += `${product.name}: 품절\n`
-        }
-      }
-    })
-    return message
   }
 
   return (
@@ -62,9 +50,11 @@ export function ProductContainer() {
         Add to Cart
       </button>
 
-      <div className="text-xs text-red-500 mt-3 whitespace-pre-line">
-        {getStockMessage()}
-      </div>
+      {stockMessage && (
+        <div className="text-xs text-red-500 mt-3 whitespace-pre-line">
+          {stockMessage}
+        </div>
+      )}
     </div>
   )
 }

@@ -9,8 +9,8 @@ import { HelpModal } from './components/HelpModal'
 function AppContent() {
   const { updateProductOptions, updateCart } = useShoppingCart()
 
-  // 초기화 로직 - 이 부분이 필요해요!
   useEffect(() => {
+    // 초기화 로직
     updateProductOptions()
     updateCart()
     setupSaleTimers()
