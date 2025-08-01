@@ -7,6 +7,72 @@ import { PromotionContextType, Product } from '../../shared/types';
 import { PROMOTION_TIMERS, BUSINESS_CONSTANTS } from '../../shared/constants';
 // import { useCart } from './CartProvider'; // 순환 의존성 방지
 
+// 번개세일 적용 로직 (순수 함수)
+const applyLightningSaleToProducts = (products: Product[]): { updatedProducts: Product[]; selectedProductId: string | null } => {
+  if (products.length === 0) {
+    return { updatedProducts: products, selectedProductId: null };
+  }
+
+  // 기존 번개세일 해제
+  const resetProducts = products.map(p => ({
+    ...p,
+    onSale: false,
+    val: p.originalVal,
+  }));
+
+  // 랜덤 상품 선택 (재고가 있는 상품만)
+  const availableProducts = resetProducts.filter(p => p.q > 0);
+  if (availableProducts.length === 0) {
+    return { updatedProducts: resetProducts, selectedProductId: null };
+  }
+
+  const randomProduct = availableProducts[Math.floor(Math.random() * availableProducts.length)];
+  const updatedProducts = resetProducts.map(p =>
+    p.id === randomProduct.id
+      ? {
+          ...p,
+          onSale: true,
+          val: Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.LIGHTNING_SALE_DISCOUNT_RATE)),
+        }
+      : p
+  );
+
+  return { updatedProducts, selectedProductId: randomProduct.id };
+};
+
+// 추천할인 적용 로직 (순수 함수)
+const applySuggestedSaleToProducts = (products: Product[], lastSelectedProduct: string | null): { updatedProducts: Product[]; discountedProductIds: string[] } => {
+  if (products.length === 0 || !lastSelectedProduct) {
+    return { updatedProducts: products, discountedProductIds: [] };
+  }
+
+  // 기존 추천할인 해제
+  const resetProducts = products.map(p => ({
+    ...p,
+    suggestSale: false,
+    val: p.onSale ? Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.LIGHTNING_SALE_DISCOUNT_RATE)) : p.originalVal,
+  }));
+
+  // 마지막 선택 상품 제외한 나머지 상품에 5% 할인 적용
+  const updatedProducts = resetProducts.map(p =>
+    p.id !== lastSelectedProduct && p.q > 0
+      ? {
+          ...p,
+          suggestSale: true,
+          val: p.onSale 
+            ? Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.LIGHTNING_SALE_DISCOUNT_RATE) * (1 - BUSINESS_CONSTANTS.SUGGESTED_SALE_DISCOUNT_RATE))
+            : Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.SUGGESTED_SALE_DISCOUNT_RATE)),
+        }
+      : p
+  );
+
+  const discountedProductIds = updatedProducts
+    .filter(p => p.suggestSale)
+    .map(p => p.id);
+
+  return { updatedProducts, discountedProductIds };
+};
+
 const PromotionContext = createContext<PromotionContextType | null>(null);
 
 interface PromotionProviderProps {
@@ -30,34 +96,14 @@ export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({
   // 번개세일 타이머
   useEffect(() => {
     const applyLightningSale = () => {
-      if (products.length === 0) return;
-
-      // 기존 번개세일 해제
-      const resetProducts = products.map(p => ({
-        ...p,
-        onSale: false,
-        val: p.originalVal,
-      }));
-
-      // 랜덤 상품 선택 (재고가 있는 상품만)
-      const availableProducts = resetProducts.filter(p => p.q > 0);
-      if (availableProducts.length === 0) return;
-
-      const randomProduct = availableProducts[Math.floor(Math.random() * availableProducts.length)];
-      const updatedProducts = resetProducts.map(p =>
-        p.id === randomProduct.id
-          ? {
-              ...p,
-              onSale: true,
-              val: Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.LIGHTNING_SALE_DISCOUNT_RATE)), // 20% 할인
-            }
-          : p
-      );
-
-      setLightningProducts([randomProduct.id]);
-      onProductsUpdate(updatedProducts);
-
-      console.log(`⚡ 번개세일! ${randomProduct.name}이(가) 20% 할인 중입니다!`);
+      const { updatedProducts, selectedProductId } = applyLightningSaleToProducts(products);
+      
+      if (selectedProductId) {
+        const selectedProduct = updatedProducts.find(p => p.id === selectedProductId);
+        setLightningProducts([selectedProductId]);
+        onProductsUpdate(updatedProducts);
+        console.log(`⚡ 번개세일! ${selectedProduct?.name}이(가) 20% 할인 중입니다!`);
+      }
     };
 
     // 초기 딜레이 후 번개세일 시작
@@ -78,32 +124,8 @@ export const PromotionProvider: React.FC<PromotionProviderExtendedProps> = ({
   // 추천할인 타이머
   useEffect(() => {
     const applySuggestedSale = () => {
-      if (products.length === 0 || !lastSelectedProduct) return;
-
-      // 기존 추천할인 해제
-      const resetProducts = products.map(p => ({
-        ...p,
-        suggestSale: false,
-        val: p.onSale ? Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.LIGHTNING_SALE_DISCOUNT_RATE)) : p.originalVal, // 번개세일은 유지
-      }));
-
-      // 마지막 선택 상품 제외한 나머지 상품에 5% 할인 적용
-      const updatedProducts = resetProducts.map(p =>
-        p.id !== lastSelectedProduct && p.q > 0
-          ? {
-              ...p,
-              suggestSale: true,
-              val: p.onSale 
-                ? Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.LIGHTNING_SALE_DISCOUNT_RATE) * (1 - BUSINESS_CONSTANTS.SUGGESTED_SALE_DISCOUNT_RATE)) // 번개세일 + 추천할인
-                : Math.round(p.originalVal * (1 - BUSINESS_CONSTANTS.SUGGESTED_SALE_DISCOUNT_RATE)), // 추천할인만
-            }
-          : p
-      );
-
-      const discountedProductIds = updatedProducts
-        .filter(p => p.suggestSale)
-        .map(p => p.id);
-
+      const { updatedProducts, discountedProductIds } = applySuggestedSaleToProducts(products, lastSelectedProduct);
+      
       setSuggestedProducts(discountedProductIds);
       onProductsUpdate(updatedProducts);
 
