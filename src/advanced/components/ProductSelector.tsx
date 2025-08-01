@@ -18,23 +18,16 @@ export default function ProductSelector() {
   };
 
   const getProductDisplayText = (product: Product): string => {
-    let text = product.name;
+    const baseText =
+      product.onSale && product.suggestSale
+        ? `⚡💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (25% SUPER SALE!)`
+        : product.onSale
+          ? `⚡${product.name} - ${product.originalPrice}원 → ${product.price}원 (20% SALE!)`
+          : product.suggestSale
+            ? `💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (5% 추천할인!)`
+            : `${product.name} - ${product.price}원`;
 
-    if (product.onSale && product.suggestSale) {
-      text = `⚡💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (25% SUPER SALE!)`;
-    } else if (product.onSale) {
-      text = `⚡${product.name} - ${product.originalPrice}원 → ${product.price}원 (20% SALE!)`;
-    } else if (product.suggestSale) {
-      text = `💝${product.name} - ${product.originalPrice}원 → ${product.price}원 (5% 추천할인!)`;
-    } else {
-      text = `${product.name} - ${product.price}원`;
-    }
-
-    if (product.quantity === 0) {
-      text += " (품절)";
-    }
-
-    return text;
+    return product.quantity === 0 ? `${baseText} (품절)` : baseText;
   };
 
   const getProductClassName = (product: Product): string => {
