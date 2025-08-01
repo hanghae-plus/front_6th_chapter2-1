@@ -85,38 +85,15 @@ const handleCalculateCartStuff = useFunction(
       TotalItemCount(summary);
       stockInfo.textContent = getStockInfoMessage();
 
-      summary.cartItems.forEach((item) => {
-        const priceTexts = item.querySelectorAll(".text-lg");
-        priceTexts.forEach((text) => {
-          const quantity = Number(
-            item.querySelector(".quantity-number").textContent
-          );
-          text.style.fontWeight = quantity >= 10 ? "bold" : "normal";
-        });
-      });
-
-      const { isTuesday, totalDiscountedPrice, totalItemCount } = summary;
-      const tuesdaySpecial = document.getElementById("tuesday-special");
-      if (isTuesday) {
-        if (totalDiscountedPrice > 0) {
-          tuesdaySpecial.classList.remove("hidden");
-        } else {
-          tuesdaySpecial.classList.add("hidden");
-        }
-      } else {
-        tuesdaySpecial.classList.add("hidden");
-      }
-
-      document.getElementById("item-count").textContent =
-        `🛍️ ${totalItemCount} items in cart`;
+      setBoldTextForTenOrMore(summary);
+      displayTuesdaySpecial(summary);
+      displayTotalItemCount(summary);
     },
   }
 );
 
 const main = () => {
   const { manualToggle, manualOverlay, manualColumn } = initRender();
-
-  let randomBaseDelay = Math.random() * 10000;
 
   manualToggle.onclick = () => {
     manualOverlay.classList.toggle("hidden");
@@ -132,13 +109,10 @@ const main = () => {
   onUpdateSelectOptions();
   handleCalculateCartStuff();
 
-  const startFlashSaleWithDelay = (
-    delay = randomBaseDelay,
-    interval = 30000,
-    applyFlashSaleFn
-  ) => {
+  let randomBaseDelay = Math.random() * 10000;
+  const useIntervalEffect = (delay = randomBaseDelay, interval = 30000, Fn) => {
     setTimeout(() => {
-      setInterval(applyFlashSaleFn, interval);
+      setInterval(Fn, interval);
     }, delay);
   };
 
@@ -174,8 +148,8 @@ const main = () => {
     }
   };
 
-  startFlashSaleWithDelay(randomBaseDelay, 30000, applyLuckySaleAlert);
-  startFlashSaleWithDelay(randomBaseDelay * 2, 60000, applySuggestSaleAlert);
+  useIntervalEffect(randomBaseDelay, 30000, applyLuckySaleAlert);
+  useIntervalEffect(randomBaseDelay * 2, 60000, applySuggestSaleAlert);
 };
 
 const onUpdateSelectOptions = () => {
@@ -310,6 +284,38 @@ const doUpdatePricesInCart = () => {
   });
 };
 
+const setBoldTextForTenOrMore = (summary) => {
+  summary.cartItems.forEach((item) => {
+    const priceTexts = item.querySelectorAll(".text-lg");
+    priceTexts.forEach((text) => {
+      const quantity = Number(
+        item.querySelector(".quantity-number").textContent
+      );
+      text.style.fontWeight = quantity >= 10 ? "bold" : "normal";
+    });
+  });
+};
+
+const displayTuesdaySpecial = (summary) => {
+  const { isTuesday, totalDiscountedPrice, totalItemCount } = summary;
+  const tuesdaySpecial = document.getElementById("tuesday-special");
+  if (isTuesday) {
+    if (totalDiscountedPrice > 0) {
+      tuesdaySpecial.classList.remove("hidden");
+    } else {
+      tuesdaySpecial.classList.add("hidden");
+    }
+  } else {
+    tuesdaySpecial.classList.add("hidden");
+  }
+};
+
+const displayTotalItemCount = (summary) => {
+  const { totalItemCount } = summary;
+  document.getElementById("item-count").textContent =
+    `🛍️ ${totalItemCount} items in cart`;
+};
+
 main();
 
 const handleAddToCart = (selectedId) => {
@@ -350,34 +356,36 @@ const handleCartItemClick = (event) => {
     target.classList.contains("quantity-change") ||
     target.classList.contains("remove-item")
   ) {
-    const prodId = target.dataset.productId;
-    const itemElem = document.getElementById(prodId);
-    let prod = null;
-    for (let prdIdx = 0; prdIdx < prodList.length; prdIdx++) {
-      if (prodList[prdIdx].id === prodId) {
-        prod = prodList[prdIdx];
-        break;
-      }
-    }
+    const currentProductId = target.dataset.productId;
+    const currentCartItem = document.getElementById(currentProductId);
+    const currentProduct = prodList.find(
+      (item) => item.id === currentProductId
+    );
+    const currentQuantityEl = currentCartItem.querySelector(".quantity-number");
+    const currentQuantity = parseInt(currentQuantityEl.textContent);
+
     if (target.classList.contains("quantity-change")) {
-      const qtyChange = parseInt(target.dataset.change);
-      const currentQuantityEl = itemElem.querySelector(".quantity-number");
-      const currentQty = parseInt(currentQuantityEl.textContent);
-      const newQuantity = currentQty + qtyChange;
-      if (newQuantity > 0 && newQuantity <= prod.quantity + currentQty) {
-        currentQuantityEl.textContent = newQuantity;
-        prod.quantity -= qtyChange;
-      } else if (newQuantity <= 0) {
-        prod.quantity += currentQty;
-        itemElem.remove();
-      } else {
-        alert("재고가 부족합니다.");
+      const offset = parseInt(target.dataset.change);
+      const newQuantity = currentQuantity + offset;
+
+      const availableStock = currentProduct.quantity + currentQuantity;
+
+      if (newQuantity <= 0) {
+        currentProduct.quantity += currentQuantity;
+        currentCartItem.remove();
+        return;
       }
+
+      if (newQuantity > availableStock) {
+        alert("재고가 부족합니다.");
+        return;
+      }
+
+      currentQuantityEl.textContent = String(newQuantity);
+      currentProduct.quantity -= offset;
     } else if (target.classList.contains("remove-item")) {
-      const currentQuantityEl = itemElem.querySelector(".quantity-number");
-      const remQty = parseInt(currentQuantityEl.textContent);
-      prod.quantity += remQty;
-      itemElem.remove();
+      currentProduct.quantity += currentQuantity;
+      currentCartItem.remove();
     }
     handleCalculateCartStuff();
     onUpdateSelectOptions();
