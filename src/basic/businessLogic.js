@@ -24,15 +24,11 @@ export const calculateCartState = (cartItems, products) => {
   );
 
   return {
-    cartItems,
     subtotal,
     itemCount,
     itemDiscounts,
     totalAmount,
     discountRate,
-    originalTotal: subtotal, // 할인 전 원래 총액 추가
-    tuesdayDiscount: calculateTuesdayDiscount(totalAmount), // 화요일 할인 추가
-    individualDiscount: itemDiscounts.length > 0, // 개별 할인이 있는지 여부
   };
 };
 
@@ -41,72 +37,70 @@ export const updateAppState = (cartState, AppState) => {
   AppState.cart.totalAmount = cartState.totalAmount;
   AppState.cart.itemCount = cartState.itemCount;
   // 포인트 계산 및 업데이트
-  const pointsResult = calculateAllPoints(
+  AppState.cart.bonusPoints = calculateAllPoints(
     cartState.totalAmount,
     cartState.cartItems,
     cartState.itemCount,
-  );
-  AppState.cart.bonusPoints = pointsResult.finalPoints;
+  ).finalPoints;
 };
 
-// 장바구니 아이템 계산 (원본 로직과 동일)
+// 장바구니 아이템 계산 (개선된 버전)
 const calculateCartItems = (cartItems, products) => {
-  let subtotal = 0;
-  let itemCount = 0;
-  let totalAmount = 0; // 개별 할인이 적용된 총액
-  const itemDiscounts = [];
+  return cartItems.reduce(
+    (acc, cartItem) => {
+      const currentProduct = findProductById(products, cartItem.productId);
+      const { quantity } = cartItem;
+      const itemTotal = currentProduct.value * quantity;
+      const discount = calculateIndividualDiscount(currentProduct.id, quantity);
 
-  cartItems.forEach((cartItem) => {
-    const currentProduct = findProductById(products, cartItem.productId);
-    const { quantity } = cartItem;
-    const itemTotal = currentProduct.value * quantity;
+      acc.itemCount += quantity;
+      acc.subtotal += itemTotal;
 
-    itemCount += quantity;
-    subtotal += itemTotal;
+      if (discount > 0) {
+        acc.itemDiscounts.push({
+          name: currentProduct.name,
+          discount: discount * 100,
+        });
+        acc.totalAmount += itemTotal * (1 - discount);
+      } else {
+        acc.totalAmount += itemTotal;
+      }
 
-    // 개별 할인 계산 및 적용 (원본과 동일)
-    const discount = calculateIndividualDiscount(currentProduct.id, quantity);
-    if (discount > 0) {
-      const { name } = currentProduct;
-      itemDiscounts.push({
-        name,
-        discount: discount * 100, // 퍼센트로 변환
-      });
-      totalAmount += itemTotal * (1 - discount); // 개별 할인 적용
-    } else {
-      totalAmount += itemTotal; // 할인 없음
-    }
-  });
-
-  return { subtotal, itemCount, itemDiscounts, totalAmount };
+      return acc;
+    },
+    { subtotal: 0, itemCount: 0, totalAmount: 0, itemDiscounts: [] },
+  );
 };
 
-// 할인 적용하여 최종 금액 계산 (원본 로직과 동일)
+// 할인율 계산 통합 함수
+const calculateDiscountRate = (originalAmount, discountedAmount) => {
+  if (originalAmount === 0) return 0;
+  return (originalAmount - discountedAmount) / originalAmount;
+};
+
+// 할인 적용하여 최종 금액 계산 (개선된 버전)
 const calculateTotalWithDiscounts = (
   subtotal,
   itemCount,
   itemDiscounts,
   individualDiscountedTotal,
 ) => {
-  let totalAmount = individualDiscountedTotal; // 개별 할인이 이미 적용된 금액
-  let discountRate = 0;
-  const originalTotal = subtotal;
+  // 1. 대량구매 할인 적용
+  let totalAmount =
+    itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE
+      ? individualDiscountedTotal * (1 - DISCOUNT_RATES.BULK_PURCHASE)
+      : individualDiscountedTotal;
 
-  // 1. 대량구매 할인 적용 (30개 이상이면 전체 소계에 25% 할인)
-  if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
-    totalAmount = individualDiscountedTotal * (1 - DISCOUNT_RATES.BULK_PURCHASE);
-    discountRate = DISCOUNT_RATES.BULK_PURCHASE;
-  } else {
-    // 개별 할인만 적용된 경우 할인율 계산
-    discountRate = (subtotal - totalAmount) / subtotal;
-  }
+  let discountRate =
+    itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE
+      ? DISCOUNT_RATES.BULK_PURCHASE
+      : calculateDiscountRate(subtotal, totalAmount);
 
-  // 2. 화요일 할인 적용 (최종 금액에 10% 추가 할인)
+  // 2. 화요일 할인 적용
   const tuesdayDiscount = calculateTuesdayDiscount(totalAmount);
   if (tuesdayDiscount > 0) {
     totalAmount -= tuesdayDiscount;
-    // 화요일 할인이 추가로 적용된 경우 총 할인율 재계산
-    discountRate = 1 - totalAmount / originalTotal;
+    discountRate = calculateDiscountRate(subtotal, totalAmount);
   }
 
   return { totalAmount, discountRate };
@@ -129,101 +123,101 @@ const calculateIndividualDiscount = (productId, quantity) => {
   return discountRates[productId] || 0;
 };
 
+// 화요일 관련 로직 통합
+const isTuesdayDay = () => isTuesday();
+
 // 화요일 할인 계산
 const calculateTuesdayDiscount = (totalAmount) =>
-  isTuesday() ? totalAmount * DISCOUNT_RATES.TUESDAY : 0;
-
-// 포인트 계산 통합 함수
-export const calculateAllPoints = (totalAmount, cartItems, itemCount) => {
-  const basePoints = calculateBasePoints(totalAmount);
-  const tuesdayBonus = calculateTuesdayBonus(basePoints);
-  const productSet = checkProductSet(cartItems);
-  const setBonus = calculateSetBonus(productSet);
-  const quantityBonus = calculateQuantityBonus(itemCount);
-
-  let finalPoints = basePoints;
-  const pointsDetail = [];
-
-  if (basePoints > 0) {
-    pointsDetail.push(`기본: ${basePoints}p`);
-  }
-
-  if (tuesdayBonus.points > 0) {
-    finalPoints = tuesdayBonus.points;
-    pointsDetail.push(tuesdayBonus.detail);
-  }
-
-  finalPoints += setBonus.bonus;
-  pointsDetail.push(...setBonus.details);
-
-  if (quantityBonus.bonus > 0) {
-    finalPoints += quantityBonus.bonus;
-    pointsDetail.push(quantityBonus.detail);
-  }
-
-  return { finalPoints, pointsDetail };
-};
-
-// 기본 포인트 계산
-const calculateBasePoints = (totalAmount) => Math.floor(totalAmount / POINTS_CONFIG.POINTS_DIVISOR);
+  isTuesdayDay() ? totalAmount * DISCOUNT_RATES.TUESDAY : 0;
 
 // 화요일 보너스 계산
 const calculateTuesdayBonus = (basePoints) => {
-  if (!isTuesday() || basePoints <= 0) return { points: 0, detail: '' };
+  if (!isTuesdayDay() || basePoints <= 0) return { points: 0, detail: '' };
   return {
     points: basePoints * POINTS_CONFIG.TUESDAY_MULTIPLIER,
     detail: '화요일 2배',
   };
 };
 
+// 포인트 계산 통합 함수 (최종 개선 버전)
+export const calculateAllPoints = (totalAmount, cartItems, itemCount) => {
+  const basePoints = calculateBasePoints(totalAmount);
+  const tuesdayBonus = calculateTuesdayBonus(basePoints);
+  const setBonus = calculateSetBonus(checkProductSet(cartItems));
+  const quantityBonus = calculateQuantityBonus(itemCount);
+
+  return {
+    finalPoints: basePoints + tuesdayBonus.points + setBonus.bonus + quantityBonus.bonus,
+    pointsDetail: [
+      ...(basePoints > 0 ? [`기본: ${basePoints}p`] : []),
+      ...(tuesdayBonus.points > 0 ? [tuesdayBonus.detail] : []),
+      ...setBonus.details,
+      ...(quantityBonus.bonus > 0 ? [quantityBonus.detail] : []),
+    ],
+  };
+};
+
+// 기본 포인트 계산
+const calculateBasePoints = (totalAmount) => Math.floor(totalAmount / POINTS_CONFIG.POINTS_DIVISOR);
+
 // 상품 세트 확인
 const checkProductSet = (cartItems) => {
   const productIds = cartItems.map((item) => item.productId);
-  const hasKeyboard = productIds.includes(PRODUCT_IDS.KEYBOARD);
-  const hasMouse = productIds.includes(PRODUCT_IDS.MOUSE);
-  const hasMonitorArm = productIds.includes(PRODUCT_IDS.MONITOR_ARM);
 
-  return { hasKeyboard, hasMouse, hasMonitorArm };
+  return {
+    hasKeyboard: productIds.includes(PRODUCT_IDS.KEYBOARD),
+    hasMouse: productIds.includes(PRODUCT_IDS.MOUSE),
+    hasMonitorArm: productIds.includes(PRODUCT_IDS.MONITOR_ARM),
+  };
 };
 
-// 세트 보너스 계산
+// 세트 보너스 계산 (개선된 버전)
 const calculateSetBonus = (productSet) => {
-  let bonus = 0;
-  const details = [];
+  const bonuses = [];
+  let totalBonus = 0;
 
   if (productSet.hasKeyboard && productSet.hasMouse) {
-    bonus += POINTS_CONFIG.KEYBOARD_MOUSE_BONUS;
-    details.push(`키보드+마우스 세트 +${POINTS_CONFIG.KEYBOARD_MOUSE_BONUS}p`);
+    totalBonus += POINTS_CONFIG.KEYBOARD_MOUSE_BONUS;
+    bonuses.push(`키보드+마우스 세트 +${POINTS_CONFIG.KEYBOARD_MOUSE_BONUS}p`);
   }
 
   if (productSet.hasKeyboard && productSet.hasMouse && productSet.hasMonitorArm) {
-    bonus += POINTS_CONFIG.FULL_SET_BONUS;
-    details.push(`풀세트 구매 +${POINTS_CONFIG.FULL_SET_BONUS}p`);
+    totalBonus += POINTS_CONFIG.FULL_SET_BONUS;
+    bonuses.push(`풀세트 구매 +${POINTS_CONFIG.FULL_SET_BONUS}p`);
   }
 
-  return { bonus, details };
+  return { bonus: totalBonus, details: bonuses };
 };
 
-// 수량 보너스 계산
+// 수량 보너스 계산 (개선된 버전)
 const calculateQuantityBonus = (itemCount) => {
-  if (itemCount >= QUANTITY_THRESHOLDS.BULK_PURCHASE) {
-    return {
+  const bonusTiers = [
+    {
+      threshold: QUANTITY_THRESHOLDS.BULK_PURCHASE,
       bonus: POINTS_CONFIG.BONUS_30_ITEMS,
-      detail: `대량구매(${QUANTITY_THRESHOLDS.BULK_PURCHASE}개+) +${POINTS_CONFIG.BONUS_30_ITEMS}p`,
-    };
-  }
-  if (itemCount >= QUANTITY_THRESHOLDS.POINTS_BONUS_20) {
-    return {
+      label: '30개+',
+    },
+    {
+      threshold: QUANTITY_THRESHOLDS.POINTS_BONUS_20,
       bonus: POINTS_CONFIG.BONUS_20_ITEMS,
-      detail: `대량구매(${QUANTITY_THRESHOLDS.POINTS_BONUS_20}개+) +${POINTS_CONFIG.BONUS_20_ITEMS}p`,
-    };
-  }
-  if (itemCount >= QUANTITY_THRESHOLDS.POINTS_BONUS_10) {
-    return {
+      label: '20개+',
+    },
+    {
+      threshold: QUANTITY_THRESHOLDS.POINTS_BONUS_10,
       bonus: POINTS_CONFIG.BONUS_10_ITEMS,
-      detail: `대량구매(${QUANTITY_THRESHOLDS.POINTS_BONUS_10}개+) +${POINTS_CONFIG.BONUS_10_ITEMS}p`,
-    };
+      label: '10개+',
+    },
+  ];
+
+  for (const tier of bonusTiers) {
+    if (itemCount >= tier.threshold) {
+      return {
+        bonus: tier.bonus,
+        detail: `대량구매(${tier.label}) +${tier.bonus}p`,
+      };
+    }
   }
+
   return { bonus: 0, detail: '' };
 };
 
