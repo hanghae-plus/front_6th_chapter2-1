@@ -27,20 +27,10 @@ export class OrderEventListeners {
     });
   }
 
-  // 주문 요약과 포인트를 계산합니다.
-  calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount) {
-    // 주문 요약 계산
-    const orderSummary = this.orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
-
-    // 포인트 계산
-    const pointsResult = this.orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
-
-    return { orderSummary, pointsResult };
-  }
-
   // 주문 요약 업데이트를 처리합니다.
   handleOrderSummaryUpdate(cartItems, totalAmount, isTuesday, itemCount) {
-    const { orderSummary, pointsResult } = this.calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount);
+    const orderSummary = this.orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
+    const pointsResult = this.orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
 
     // 계산 결과를 이벤트로 emit
     this.uiEventBus.emit(ORDER_SUMMARY_CALCULATED, {
@@ -62,7 +52,8 @@ export class OrderEventListeners {
 
   // 주문 계산을 처리합니다.
   handleOrderCalculation(cartItems, totalAmount, isTuesday, itemCount) {
-    const { orderSummary, pointsResult } = this.calculateOrderAndPoints(cartItems, totalAmount, isTuesday, itemCount);
+    const orderSummary = this.orderService.calculateOrderSummary(Array.from(cartItems), PRODUCT_LIST);
+    const pointsResult = this.orderService.calculatePoints(Array.from(cartItems), totalAmount, isTuesday, itemCount);
 
     // UI 업데이트 직접 처리
     this.renderOrderSummary(orderSummary, pointsResult);

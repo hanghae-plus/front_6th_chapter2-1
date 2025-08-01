@@ -2,8 +2,8 @@ import { updateProductOptions, updateStockInfo } from "../../components/ProductS
 import { updateCartItemPrice } from "../../components/CartItem.js";
 import { PRODUCT_OPTIONS_UPDATED, PRODUCT_STOCK_UPDATED, PRODUCT_PRICES_UPDATED, PRODUCT_REFRESH_REQUESTED, STOCK_UPDATE_REQUESTED } from "../../constants/events.js";
 import { QUANTITY_THRESHOLDS } from "../../constants/index.js";
-// Product 관련 이벤트 리스너
 
+// 재고 부족 메시지 생성
 function generateStockWarningMessage(productList) {
   return productList
     .filter(item => item.quantity < QUANTITY_THRESHOLDS.LOW_STOCK_WARNING)
@@ -17,6 +17,7 @@ function generateStockWarningMessage(productList) {
     .join("\n");
 }
 
+// Product 관련 이벤트 리스너
 export class ProductEventListeners {
   constructor(uiEventBus, productService, discountService) {
     this.uiEventBus = uiEventBus;
