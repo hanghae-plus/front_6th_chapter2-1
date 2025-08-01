@@ -79,3 +79,16 @@ export const POINTS = {
   BULK_L2: 50, // 20개 이상
   BULK_L3: 100, // 30개 이상
 };
+
+// 할인 정책
+export const BULK_DISCOUNT_THRESHOLD = 30;
+
+// 재고
+export const LOW_STOCK_THRESHOLD = 5;
+
+// 포인트 정책
+export const BULK_POINTS_THRESHOLDS = {
+  LEVEL_1: 10,
+  LEVEL_2: 20,
+  LEVEL_3: 30,
+};

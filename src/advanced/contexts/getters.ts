@@ -1,4 +1,11 @@
-import { DISCOUNT_RATES, POINTS, PRODUCT_IDS } from '../constant';
+import {
+  BULK_DISCOUNT_THRESHOLD,
+  BULK_POINTS_THRESHOLDS,
+  DISCOUNT_RATES,
+  LOW_STOCK_THRESHOLD,
+  POINTS,
+  PRODUCT_IDS,
+} from '../constant';
 import { State } from '../types';
 
 export const getIsTuesday = () => new Date().getDay() === 2;
@@ -7,12 +14,16 @@ export const getProducts = (state: State) => state.products;
 export const getCartList = (state: State) => state.cartList;
 export const getNotifications = (state: State) => state.notifications;
 
+export const getLowStockProducts = (state: State) => {
+  const products = getProducts(state);
+  return products.filter((p) => p.quantity < LOW_STOCK_THRESHOLD);
+};
+
 export const getCartDetails = (state: State) => {
   const products = getProducts(state);
   const cartList = getCartList(state);
   return cartList.map((cartItem) => {
     const product = products.find((p) => p.id === cartItem.productId);
-
     return {
       ...cartItem,
       product,
@@ -39,7 +50,7 @@ export const getDiscountResult = (state: State) => {
 
   const baseDiscountRules = [
     {
-      condition: totalQuantity >= 30,
+      condition: totalQuantity >= BULK_DISCOUNT_THRESHOLD,
       apply: () => ({
         total: subtotal * (1 - DISCOUNT_RATES.BULK),
         details: [{ reason: '🎉 대량구매 할인 (30개 이상)', amount: '25%' }],
@@ -81,15 +92,6 @@ export const getDiscountResult = (state: State) => {
   return { finalTotal, discounts: finalDiscountDetails };
 };
 
-export const getStockMessages = (state: State) => {
-  const products = getProducts(state);
-  return products
-    .filter((p) => p.quantity < 5)
-    .map((p) =>
-      p.quantity > 0 ? `${p.name}: 재고 부족 (${p.quantity}개 남음)\n` : `${p.name}: 품절\n`,
-    );
-};
-
 export const getBonusPoints = (state: State) => {
   const totalQuantity = getTotalQuantity(state);
   if (totalQuantity === 0) return { bonusPoints: 0, pointsDetail: [] };
@@ -124,19 +126,19 @@ export const getBonusPoints = (state: State) => {
 
   const exclusiveRules = [
     {
-      condition: totalQuantity >= 30,
+      condition: totalQuantity >= BULK_POINTS_THRESHOLDS.LEVEL_3,
       points: POINTS.BULK_L3,
-      detail: `대량구매(30개+) +${POINTS.BULK_L3}p`,
+      detail: `대량구매(${BULK_POINTS_THRESHOLDS.LEVEL_3}개+) +${POINTS.BULK_L3}p`,
     },
     {
-      condition: totalQuantity >= 20,
+      condition: totalQuantity >= BULK_POINTS_THRESHOLDS.LEVEL_2,
       points: POINTS.BULK_L2,
-      detail: `대량구매(20개+) +${POINTS.BULK_L2}p`,
+      detail: `대량구매(${BULK_POINTS_THRESHOLDS.LEVEL_2}개+) +${POINTS.BULK_L2}p`,
     },
     {
-      condition: totalQuantity >= 10,
+      condition: totalQuantity >= BULK_POINTS_THRESHOLDS.LEVEL_1,
       points: POINTS.BULK_L1,
-      detail: `대량구매(10개+) +${POINTS.BULK_L1}p`,
+      detail: `대량구매(${BULK_POINTS_THRESHOLDS.LEVEL_1}개+) +${POINTS.BULK_L1}p`,
     },
   ];
 
