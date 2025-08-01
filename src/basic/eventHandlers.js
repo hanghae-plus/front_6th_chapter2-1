@@ -3,6 +3,7 @@
 // ============================================
 
 import { TIMER_CONFIG } from './constants.js';
+import { DOMElements } from './domElements.js';
 import { updateSelectOptions, calculateCart, updatePricesInCart } from './uiUpdates.js';
 
 // 전역 변수들 (main.basic.js에서 설정됨) - 점진적 정리 중
@@ -41,11 +42,11 @@ const handleAddToCart = () => {
   const product = productList.find((p) => p.id === selectedProductId);
   if (!product || product.quantity <= 0) return;
 
-  const existingItem = document.getElementById(product.id);
+  const existingItem = DOMElements.getCartItem(product.id);
 
   if (existingItem) {
     // 기존 아이템 수량 증가
-    const quantityElement = existingItem.querySelector('.quantity-number');
+    const quantityElement = DOMElements.getQuantityElement(product.id);
     const newQuantity = parseInt(quantityElement.textContent) + 1;
 
     if (newQuantity <= product.quantity + parseInt(quantityElement.textContent)) {
@@ -120,14 +121,14 @@ const handleCartInteraction = (event) => {
   }
 
   const { productId } = target.dataset;
-  const itemElement = document.getElementById(productId);
+  const itemElement = DOMElements.getCartItem(productId);
   const product = productList.find((p) => p.id === productId);
 
   if (!product || !itemElement) return;
 
   if (target.classList.contains('quantity-change')) {
     const quantityChange = parseInt(target.dataset.change);
-    const quantityElement = itemElement.querySelector('.quantity-number');
+    const quantityElement = DOMElements.getQuantityElement(productId);
     const currentQuantity = parseInt(quantityElement.textContent);
     const newQuantity = currentQuantity + quantityChange;
 
@@ -147,7 +148,7 @@ const handleCartInteraction = (event) => {
       return;
     }
   } else if (target.classList.contains('remove-item')) {
-    const quantityElement = itemElement.querySelector('.quantity-number');
+    const quantityElement = DOMElements.getQuantityElement(productId);
     const removedQuantity = parseInt(quantityElement.textContent);
     // Remove 버튼: 현재 장바구니 수량을 재고에 복구
     product.quantity += removedQuantity;
