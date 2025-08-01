@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-import type { CartItem, Product } from "../../../shared";
+import type { CartItem } from "../../../shared";
+import type { Product } from "../../product-selection";
 import { createInitialProducts } from "../../product-selection/services";
 
 export function useAppState() {
