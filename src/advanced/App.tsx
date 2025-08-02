@@ -1,6 +1,7 @@
 import CartProduct from '@advanced/components/CartProduct';
 import Header from '@advanced/components/Header';
 import ProductSelector from '@advanced/components/ProductSelector';
+import Summary from '@advanced/components/Summary';
 import { type Product } from '@advanced/feature/product/type';
 import useCart from '@advanced/hooks/useCart';
 import useProduct from '@advanced/hooks/useProduct';
@@ -163,7 +164,9 @@ const App = () => {
           </div>
         </div>
         {/* rightColumn */}
-        <div className="bg-black text-white p-8 flex flex-col"></div>
+        <div className="bg-black text-white p-8 flex flex-col">
+          <Summary />
+        </div>
       </div>
     </>
   );
