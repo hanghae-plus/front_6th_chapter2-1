@@ -4,13 +4,14 @@ import ProductSelector from '@advanced/components/ProductSelector';
 import { type Product } from '@advanced/feature/product/type';
 import useCart from '@advanced/hooks/useCart';
 import useProduct from '@advanced/hooks/useProduct';
-import { getStockInfo } from '@basic/features/product/service';
-import { type ChangeEvent, useState } from 'react';
+import { applyLightningSale, applySuggestSale, getStockInfo } from '@basic/features/product/service';
+import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 
 const App = () => {
   const { products, isOutOfProductStock, updateProduct } = useProduct();
   const { cart, addCart, removeCart, updateCartProduct } = useCart();
   const [selectedProductId, setSelectedProductId] = useState<string>(products[0]?.id ?? '');
+  const lastSelectedIdRef = useRef('');
 
   const totalCart = cart.reduce((acc, cur) => (acc += cur.quantity), 0);
 
@@ -34,12 +35,12 @@ const App = () => {
     if (!cartProduct) {
       addCart(selectedProduct);
       updateProduct(selectedProduct.id, (prev) => ({ quantity: prev.quantity - 1 }));
-
-      return;
+    } else {
+      updateCartProduct(cartProduct.id, (prev) => ({ quantity: prev.quantity + 1 }));
+      updateProduct(selectedProduct.id, (prev) => ({ quantity: prev.quantity - 1 }));
     }
 
-    updateCartProduct(cartProduct.id, (prev) => ({ quantity: prev.quantity + 1 }));
-    updateProduct(selectedProduct.id, (prev) => ({ quantity: prev.quantity - 1 }));
+    lastSelectedIdRef.current = selectedProduct.id;
   };
 
   const handleIncrease = (cartProduct: Product) => {
@@ -70,6 +71,57 @@ const App = () => {
     removeCart(cartProduct);
     updateProduct(cartProduct.id, (prev) => ({ quantity: prev.quantity + cartProduct.quantity }));
   };
+
+  useEffect(() => {
+    const lightningSaleTimer = setTimeout(() => {
+      setInterval(function () {
+        const lightningSale = applyLightningSale(products);
+
+        if (lightningSale) {
+          alert(lightningSale.message);
+
+          updateProduct(lightningSale.updatedProduct.id, (el) => ({
+            ...el,
+            value: lightningSale.updatedProduct.value,
+            onSale: lightningSale.updatedProduct.onSale,
+          }));
+          updateCartProduct(lightningSale.updatedProduct.id, (el) => ({
+            ...el,
+            value: lightningSale.updatedProduct.value,
+            onSale: lightningSale.updatedProduct.onSale,
+          }));
+        }
+      }, 30000);
+    }, Math.random() * 10000);
+
+    const suggestSaleTimer = setTimeout(function () {
+      setInterval(function () {
+        if (lastSelectedIdRef) {
+          const suggestSale = applySuggestSale(products, lastSelectedIdRef);
+
+          if (suggestSale) {
+            alert(suggestSale.message);
+
+            updateProduct(suggestSale.updatedProduct.id, (el) => ({
+              ...el,
+              value: suggestSale.updatedProduct.value,
+              suggestSale: suggestSale.updatedProduct.suggestSale,
+            }));
+            updateCartProduct(suggestSale.updatedProduct.id, (el) => ({
+              ...el,
+              value: suggestSale.updatedProduct.value,
+              suggestSale: suggestSale.updatedProduct.suggestSale,
+            }));
+          }
+        }
+      }, 60000);
+    }, Math.random() * 20000);
+
+    return () => {
+      clearTimeout(lightningSaleTimer);
+      clearTimeout(suggestSaleTimer);
+    };
+  }, []);
 
   return (
     <>
