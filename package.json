@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "gh-pages": "pnpm build && gh-pages -d ./dist",
     "preview": "vite preview",
     "start:basic": "vite serve --open ./index.basic.html",
     "start:advanced": "vite serve --open ./index.advanced.html",
@@ -29,6 +30,7 @@
     "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "gh-pages": "^6.3.0",
     "globals": "^16.3.0",
     "jiti": "^2.5.1",
     "jsdom": "^26.1.0",
@@ -46,3 +48,4 @@
     "react-dom": "^19.1.1"
   }
 }
+
