@@ -315,7 +315,7 @@ export function DiscountInfo({ cartData }: { cartData: CartData }) {
   if (cartData.discountRate <= 0 || !cartData.savedAmount) return null;
   
   return (
-    <div className="bg-green-500/20 rounded-lg p-3">
+    <div className="bg-green-500/20 rounded-lg p-3 mb-4">
       <div className="flex justify-between items-center mb-1">
         <span className="text-xs uppercase tracking-wide text-green-400">총 할인율</span>
         <span className="text-sm font-medium text-green-400">
