@@ -165,7 +165,7 @@ const App = () => {
         </div>
         {/* rightColumn */}
         <div className="bg-black text-white p-8 flex flex-col">
-          <Summary />
+          <Summary cart={cart} />
         </div>
       </div>
     </>

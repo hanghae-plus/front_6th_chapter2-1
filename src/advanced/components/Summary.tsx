@@ -1,9 +1,43 @@
-const Summary = () => {
+import type { Product } from '@advanced/feature/product/type';
+
+interface Props {
+  cart: Product[];
+}
+
+const Summary = ({ cart }: Props) => {
+  const { itemCount, subTotal } = cart.reduce(
+    (acc, cur) => {
+      acc = {
+        subTotal: acc.subTotal + cur.value * cur.quantity,
+        itemCount: acc.itemCount + cur.quantity,
+      };
+
+      return acc;
+    },
+    { subTotal: 0, itemCount: 0 }
+  );
+
+  console.log(itemCount);
+
   return (
     <>
       <h2 className="text-xs font-medium mb-5 tracking-extra-wide uppercase">Order Summary</h2>
       <div className="flex-1 flex flex-col">
-        <div id="summary-details" className="space-y-3"></div>
+        <div id="summary-details" className="space-y-3">
+          {cart.map((product) => (
+            <Detail key={product.id} product={product} />
+          ))}
+
+          {subTotal > 0 && (
+            <>
+              <div className="border-t border-white/10 my-3"></div>
+              <div className="flex justify-between text-sm tracking-wide">
+                <span>Subtotal</span>
+                <span>₩{subTotal.toLocaleString()}</span>
+              </div>
+            </>
+          )}
+        </div>
         <div className="mt-auto">
           <div id="discount-info" className="mb-4"></div>
           <div id="cart-total" className="pt-5 border-t border-white/10">
@@ -32,6 +66,21 @@ const Summary = () => {
         <span id="points-notice">Earn loyalty points with purchase.</span>
       </p>
     </>
+  );
+};
+
+interface DetailProps {
+  product: Product;
+}
+
+const Detail = ({ product }: DetailProps) => {
+  return (
+    <div className="flex justify-between text-xs tracking-wide text-gray-400">
+      <span>
+        {product.name} x {product.quantity}
+      </span>
+      <span>₩{(product.value * product.quantity).toLocaleString()}</span>
+    </div>
   );
 };
 
