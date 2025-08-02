@@ -1,0 +1,94 @@
+/**
+ * 비즈니스 로직 관련 상수들
+ * 할인율, 임계값, 포인트 시스템 등의 핵심 비즈니스 규칙
+ */
+
+// 할인 시스템 상수
+export const DISCOUNT_THRESHOLDS = {
+  /** 개별 상품 할인 적용 임계값 */
+  INDIVIDUAL_DISCOUNT: 10,
+  /** 대량구매 할인 적용 임계값 */
+  BULK_DISCOUNT: 30,
+} as const;
+
+export const DISCOUNT_RATES = {
+  // 개별 상품 할인율 (10개 이상)
+  INDIVIDUAL: {
+    KEYBOARD: 0.1, // 10%
+    MOUSE: 0.15, // 15%
+    MONITOR_ARM: 0.2, // 20%
+    LAPTOP_POUCH: 0.05, // 5%
+    SPEAKER: 0.25, // 25%
+  },
+
+  // 대량구매 할인율 (30개 이상)
+  BULK: 0.25, // 25%
+
+  // 특별 할인
+  TUESDAY: 0.1, // 10% 추가 할인
+  LIGHTNING_SALE: 0.2, // 20% 번개세일
+  SUGGEST_SALE: 0.05, // 5% 추천할인
+  SUPER_SALE: 0.25, // 25% 슈퍼세일 (번개+추천 중복)
+} as const;
+
+// 포인트 시스템 상수
+export const POINTS_SYSTEM = {
+  /** 기본 적립률 */
+  BASE_RATE: 0.001, // 0.1%
+
+  /** 화요일 포인트 배수 */
+  TUESDAY_MULTIPLIER: 2,
+
+  /** 콤보 보너스 포인트 */
+  COMBO_BONUS: {
+    KEYBOARD_MOUSE: 50, // 키보드+마우스 조합
+    FULL_SET: 100, // 전체 상품 조합
+  },
+
+  /** 수량별 보너스 포인트 */
+  QUANTITY_BONUS: {
+    TIER_1: { threshold: 10, points: 20 },
+    TIER_2: { threshold: 20, points: 50 },
+    TIER_3: { threshold: 30, points: 100 },
+  },
+} as const;
+
+// 재고 관리 상수
+export const STOCK_THRESHOLDS = {
+  /** 품절 상태 */
+  OUT_OF_STOCK: 0,
+  /** 재고 부족 경고 임계값 */
+  LOW_STOCK: 5,
+  /** 재고 경고 기본 임계값 */
+  WARNING_THRESHOLD: 10,
+} as const;
+
+// 수량 조정 상수
+export const QUANTITY_CHANGE = {
+  DECREASE: -1,
+  INCREASE: 1,
+} as const;
+
+// 상품 ID 상수
+export const PRODUCT_IDS = {
+  KEYBOARD: "p1",
+  MOUSE: "p2",
+  MONITOR_ARM: "p3",
+  LAPTOP_POUCH: "p4",
+  SPEAKER: "p5",
+};
+
+// 타이밍 상수
+export const TIMING = {
+  LIGHTNING_SALE_INTERVAL: 30000, // 번개세일 간격 (30초)
+  SUGGESTION_INTERVAL: 60000, // 추천 알림 간격 (60초)
+  SUGGESTION_DELAY_MAX: 20000, // 추천 알림 최대 지연시간
+};
+
+// 메시지 상수
+export const MESSAGES = {
+  OUT_OF_STOCK: "재고가 부족합니다.",
+  LIGHTNING_SALE: "⚡번개세일! {productName}이(가) 20% 할인 중입니다!",
+  SUGGESTED_SALE:
+    "💝 {productName}은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!",
+};
