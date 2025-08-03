@@ -1,5 +1,5 @@
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
-import userEvent from "@testing-library/user-event";
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 
 describe('basic 테스트', () => {
   // 공통 헬퍼 함수
@@ -28,18 +28,29 @@ describe('basic 테스트', () => {
   };
 
   describe.each([
-    { type: 'origin', loadFile: () => import('../../main.original.js'), },
-    { type: 'basic', loadFile: () => import('../main.basic.js'), },
+    { type: 'origin', loadFile: () => import('../../main.original.js') },
+    { type: 'basic', loadFile: () => import('../main.basic.js') },
   ])('$type 장바구니 상세 기능 테스트', ({ loadFile }) => {
-    let sel, addBtn, cartDisp, sum, stockInfo, itemCount, loyaltyPoints, discountInfo;
+    let sel,
+      addBtn,
+      cartDisp,
+      sum,
+      stockInfo,
+      itemCount,
+      loyaltyPoints,
+      discountInfo;
 
     beforeEach(async () => {
-      vi.useRealTimers();
+      // vi.useRealTimers();
       vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+      // 화요일이 아닌 날짜로 설정 (월요일)
+      const monday = new Date('2024-10-14'); // 월요일
+      vi.setSystemTime(monday);
 
       // 전체 DOM 재초기화
       document.body.innerHTML = '<div id="app"></div>';
-      
+
       // 모듈 캐시 클리어 및 재로드
       vi.resetModules();
       await loadFile();
@@ -64,11 +75,41 @@ describe('basic 테스트', () => {
       describe('2.1 상품 목록', () => {
         it('5개 상품이 올바른 정보로 표시되어야 함', () => {
           const expectedProducts = [
-            { id: 'p1', name: '버그 없애는 키보드', price: '10000원', stock: 50, discount: 10 },
-            { id: 'p2', name: '생산성 폭발 마우스', price: '20000원', stock: 30, discount: 15 },
-            { id: 'p3', name: '거북목 탈출 모니터암', price: '30000원', stock: 20, discount: 20 },
-            { id: 'p4', name: '에러 방지 노트북 파우치', price: '15000원', stock: 0, discount: 5 },
-            { id: 'p5', name: '코딩할 때 듣는 Lo-Fi 스피커', price: '25000원', stock: 10, discount: 25 }
+            {
+              id: 'p1',
+              name: '버그 없애는 키보드',
+              price: '10000원',
+              stock: 50,
+              discount: 10,
+            },
+            {
+              id: 'p2',
+              name: '생산성 폭발 마우스',
+              price: '20000원',
+              stock: 30,
+              discount: 15,
+            },
+            {
+              id: 'p3',
+              name: '거북목 탈출 모니터암',
+              price: '30000원',
+              stock: 20,
+              discount: 20,
+            },
+            {
+              id: 'p4',
+              name: '에러 방지 노트북 파우치',
+              price: '15000원',
+              stock: 0,
+              discount: 5,
+            },
+            {
+              id: 'p5',
+              name: '코딩할 때 듣는 Lo-Fi 스피커',
+              price: '25000원',
+              stock: 10,
+              discount: 25,
+            },
           ];
 
           expect(sel.options.length).toBe(5);
@@ -84,7 +125,9 @@ describe('basic 테스트', () => {
           // 상품5를 6개 구매하여 재고를 4개로 만듦
           addItemsToCart(sel, addBtn, 'p5', 6);
 
-          expect(stockInfo.textContent).toContain('코딩할 때 듣는 Lo-Fi 스피커');
+          expect(stockInfo.textContent).toContain(
+            '코딩할 때 듣는 Lo-Fi 스피커'
+          );
           expect(stockInfo.textContent).toContain('재고 부족');
           expect(stockInfo.textContent).toContain('4개 남음');
         });
@@ -150,7 +193,7 @@ describe('basic 테스트', () => {
         describe('3.3.1 화요일 할인', () => {
           it('화요일에 10% 추가 할인 적용', () => {
             const tuesday = new Date('2024-10-15'); // 화요일
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             vi.setSystemTime(tuesday);
 
             sel.value = 'p1';
@@ -164,12 +207,12 @@ describe('basic 테스트', () => {
             const tuesdayBanner = document.getElementById('tuesday-special');
             expect(tuesdayBanner.classList.contains('hidden')).toBe(false);
 
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
 
           it('화요일 할인은 다른 할인과 중복 적용', () => {
             const tuesday = new Date('2024-10-15');
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             vi.setSystemTime(tuesday);
 
             addItemsToCart(sel, addBtn, 'p1', 10);
@@ -178,55 +221,55 @@ describe('basic 테스트', () => {
             expect(sum.textContent).toContain('₩81,000');
             expect(discountInfo.textContent).toContain('19.0%'); // 총 19% 할인
 
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
         });
 
         describe('3.3.2 번개세일', () => {
           it.skip('번개세일 알림 표시 및 20% 할인 적용', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             await vi.advanceTimersByTimeAsync(40000);
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
 
           it.skip('번개세일 상품은 드롭다운에 ⚡ 아이콘 표시', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             await vi.advanceTimersByTimeAsync(40000);
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
         });
 
         describe('3.3.3 추천할인', () => {
           it.skip('마지막 선택한 상품과 다른 상품 추천 및 5% 할인', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             sel.value = 'p1';
             addBtn.click();
             await vi.advanceTimersByTimeAsync(80000);
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
 
           it.skip('추천할인 상품은 드롭다운에 💝 아이콘 표시', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             sel.value = 'p1';
             addBtn.click();
             await vi.advanceTimersByTimeAsync(80000);
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
         });
 
         describe('3.3.4 할인 중복', () => {
           it.skip('번개세일 + 추천할인 = 25% SUPER SALE', async () => {
             // 원본 코드의 타이머 구현 문제로 인해 스킵
-            vi.useFakeTimers();
+            // vi.useFakeTimers();
             await vi.advanceTimersByTimeAsync(40000);
             sel.value = 'p1';
             addBtn.click();
             await vi.advanceTimersByTimeAsync(80000);
-            vi.useRealTimers();
+            // vi.useRealTimers();
           });
         });
       });
@@ -247,7 +290,7 @@ describe('basic 테스트', () => {
       describe('4.2 추가 적립', () => {
         it('화요일 구매 시 기본 포인트 2배', () => {
           const tuesday = new Date('2024-10-15');
-          vi.useFakeTimers();
+          // vi.useFakeTimers();
           vi.setSystemTime(tuesday);
 
           sel.value = 'p1';
@@ -257,7 +300,7 @@ describe('basic 테스트', () => {
           expect(loyaltyPoints.textContent).toContain('18p');
           expect(loyaltyPoints.textContent).toContain('화요일 2배');
 
-          vi.useRealTimers();
+          // vi.useRealTimers();
         });
 
         it('키보드+마우스 세트 구매 시 +50p', () => {
@@ -332,8 +375,12 @@ describe('basic 테스트', () => {
       describe('5.1 레이아웃', () => {
         it('필수 레이아웃 요소가 존재해야 함', () => {
           // 헤더
-          expect(document.querySelector('h1').textContent).toContain('🛒 Hanghae Online Store');
-          expect(document.querySelector('.text-5xl').textContent).toContain('Shopping Cart');
+          expect(document.querySelector('h1').textContent).toContain(
+            '🛒 Hanghae Online Store'
+          );
+          expect(document.querySelector('.text-5xl').textContent).toContain(
+            'Shopping Cart'
+          );
 
           // 좌측: 상품 선택 및 장바구니
           expect(document.querySelector('#product-select')).toBeTruthy();
@@ -353,9 +400,9 @@ describe('basic 테스트', () => {
         it('할인 중인 상품 강조 표시 확인', async () => {
           // 현재 화요일 테스트 또는 일반 상황에서의 강조 표시만 확인
           const options = Array.from(sel.options);
-          
+
           // 품절 상품이 비활성화되어 있는지 확인
-          const disabledOption = options.find(opt => opt.disabled);
+          const disabledOption = options.find((opt) => opt.disabled);
           if (disabledOption) {
             expect(disabledOption.textContent).toContain('품절');
           }
@@ -373,11 +420,17 @@ describe('basic 테스트', () => {
           expect(cartItem.querySelector('.bg-gradient-black')).toBeTruthy();
 
           // 상품명
-          expect(cartItem.querySelector('h3').textContent).toContain('버그 없애는 키보드');
+          expect(cartItem.querySelector('h3').textContent).toContain(
+            '버그 없애는 키보드'
+          );
 
           // 수량 조절 버튼
-          expect(cartItem.querySelector('.quantity-change[data-change="1"]')).toBeTruthy();
-          expect(cartItem.querySelector('.quantity-change[data-change="-1"]')).toBeTruthy();
+          expect(
+            cartItem.querySelector('.quantity-change[data-change="1"]')
+          ).toBeTruthy();
+          expect(
+            cartItem.querySelector('.quantity-change[data-change="-1"]')
+          ).toBeTruthy();
 
           // 제거 버튼
           expect(cartItem.querySelector('.remove-item')).toBeTruthy();
@@ -456,7 +509,7 @@ describe('basic 테스트', () => {
         it('재고 초과 시 알림 표시', () => {
           // 재고가 10개인 상품5를 11개 추가 시도
           addItemsToCart(sel, addBtn, 'p5', 11);
-          
+
           // 장바구니에는 10개만 있어야 함
           const qty = getCartItemQuantity(cartDisp, 'p5');
           expect(qty).toBeLessThanOrEqual(10);
@@ -475,27 +528,37 @@ describe('basic 테스트', () => {
           sel.value = 'p1';
           addBtn.click();
 
-          const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
-          const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
+          const increaseBtn = cartDisp.querySelector(
+            '.quantity-change[data-change="1"]'
+          );
+          const decreaseBtn = cartDisp.querySelector(
+            '.quantity-change[data-change="-1"]'
+          );
 
           // 증가
           await userEvent.click(increaseBtn);
-          expect(cartDisp.querySelector('.quantity-number').textContent).toBe('2');
+          expect(cartDisp.querySelector('.quantity-number').textContent).toBe(
+            '2'
+          );
 
           // 감소
           await userEvent.click(decreaseBtn);
-          expect(cartDisp.querySelector('.quantity-number').textContent).toBe('1');
+          expect(cartDisp.querySelector('.quantity-number').textContent).toBe(
+            '1'
+          );
         });
 
         it('재고 한도 내에서만 증가 가능', async () => {
           // 재고 10개인 상품5를 10개 추가
           addItemsToCart(sel, addBtn, 'p5', 10);
 
-          const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
+          const increaseBtn = cartDisp.querySelector(
+            '.quantity-change[data-change="1"]'
+          );
           const qtyBefore = getCartItemQuantity(cartDisp, 'p5');
-          
+
           await userEvent.click(increaseBtn);
-          
+
           const qtyAfter = getCartItemQuantity(cartDisp, 'p5');
           expect(qtyAfter).toBe(qtyBefore); // 수량이 증가하지 않아야 함
         });
@@ -504,7 +567,9 @@ describe('basic 테스트', () => {
           sel.value = 'p1';
           addBtn.click();
 
-          const decreaseBtn = cartDisp.querySelector('.quantity-change[data-change="-1"]');
+          const decreaseBtn = cartDisp.querySelector(
+            '.quantity-change[data-change="-1"]'
+          );
           await userEvent.click(decreaseBtn);
 
           expect(cartDisp.children.length).toBe(0);
@@ -528,7 +593,7 @@ describe('basic 테스트', () => {
 
           const removeBtn = cartDisp.querySelector('.remove-item');
           await userEvent.click(removeBtn);
-          
+
           // 재고가 복구되어야 하지만 원본 코드에서는 제대로 업데이트되지 않음
         });
       });
@@ -540,7 +605,9 @@ describe('basic 테스트', () => {
 
           expect(sum.textContent).toContain('₩10,000');
 
-          const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
+          const increaseBtn = cartDisp.querySelector(
+            '.quantity-change[data-change="1"]'
+          );
           await userEvent.click(increaseBtn);
 
           expect(sum.textContent).toContain('₩20,000');
@@ -559,7 +626,9 @@ describe('basic 테스트', () => {
 
           expect(loyaltyPoints.textContent).toContain('10p');
 
-          const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
+          const increaseBtn = cartDisp.querySelector(
+            '.quantity-change[data-change="1"]'
+          );
           await userEvent.click(increaseBtn);
 
           expect(loyaltyPoints.textContent).toContain('20p');
@@ -583,7 +652,9 @@ describe('basic 테스트', () => {
           expect(stockInfo.textContent).toContain('4개 남음');
 
           // 상품4는 품절
-          expect(stockInfo.textContent).toContain('에러 방지 노트북 파우치: 품절');
+          expect(stockInfo.textContent).toContain(
+            '에러 방지 노트북 파우치: 품절'
+          );
         });
       });
     });
@@ -594,7 +665,7 @@ describe('basic 테스트', () => {
         it('장바구니 추가 시 재고 확인', () => {
           // 재고 10개인 상품을 11개 추가 시도
           addItemsToCart(sel, addBtn, 'p5', 11);
-          
+
           // 장바구니에는 최대 재고 수량만큼만 담김
           const qty = getCartItemQuantity(cartDisp, 'p5');
           expect(qty).toBeLessThanOrEqual(10);
@@ -603,7 +674,9 @@ describe('basic 테스트', () => {
         it('수량 증가 시 재고 확인', async () => {
           addItemsToCart(sel, addBtn, 'p5', 10);
 
-          const increaseBtn = cartDisp.querySelector('.quantity-change[data-change="1"]');
+          const increaseBtn = cartDisp.querySelector(
+            '.quantity-change[data-change="1"]'
+          );
           await userEvent.click(increaseBtn);
 
           expect(window.alert).toHaveBeenCalledWith('재고가 부족합니다.');
@@ -625,12 +698,12 @@ describe('basic 테스트', () => {
       describe('8.3 동시성 이슈', () => {
         it.skip('번개세일과 추천할인이 같은 상품에 적용 시 최대 25%', async () => {
           // 원본 코드의 타이머 구현 문제로 인해 스킵
-          vi.useFakeTimers();
+          // vi.useFakeTimers();
           await vi.advanceTimersByTimeAsync(40000);
           sel.value = 'p1';
           addBtn.click();
           await vi.advanceTimersByTimeAsync(80000);
-          vi.useRealTimers();
+          // vi.useRealTimers();
         });
       });
     });
@@ -639,7 +712,7 @@ describe('basic 테스트', () => {
     describe('복잡한 통합 시나리오', () => {
       it('화요일 + 풀세트 + 대량구매 시나리오', () => {
         const tuesday = new Date('2024-10-15');
-        vi.useFakeTimers();
+        // vi.useFakeTimers();
         vi.setSystemTime(tuesday);
 
         // 키보드 10개, 마우스 10개, 모니터암 10개
@@ -653,13 +726,13 @@ describe('basic 테스트', () => {
         // 포인트 확인: 405포인트(기본) * 2(화요일) + 50(세트) + 100(풀세트) + 100(30개) = 1060포인트
         expect(loyaltyPoints.textContent).toContain('1060p');
 
-        vi.useRealTimers();
+        // vi.useRealTimers();
       });
 
       it.skip('번개세일 + 추천할인 + 화요일 시나리오', async () => {
         // 원본 코드의 타이머 구현 문제로 인해 스킵
         const tuesday = new Date('2024-10-15');
-        vi.useFakeTimers();
+        // vi.useFakeTimers();
         vi.setSystemTime(tuesday);
 
         await vi.advanceTimersByTimeAsync(40000);
@@ -667,7 +740,7 @@ describe('basic 테스트', () => {
         addBtn.click();
         await vi.advanceTimersByTimeAsync(80000);
 
-        vi.useRealTimers();
+        // vi.useRealTimers();
       });
     });
   });

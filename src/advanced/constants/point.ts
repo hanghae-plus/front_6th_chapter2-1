@@ -1,0 +1,9 @@
+export const KEYBOARD_AND_MOUSE_BONUS_POINTS = 50;
+
+export const FULL_SET_BONUS_POINTS = 100;
+
+export const TOTAL_BULK_30_BONUS_POINTS = 100;
+
+export const TOTAL_BULK_20_BONUS_POINTS = 50;
+
+export const TOTAL_BULK_10_BONUS_POINTS = 20;
